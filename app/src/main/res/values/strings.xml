@@ -1803,6 +1803,15 @@
     <string name="edit_availability_status_modal_optional_message_too_long">Text is too long, please shorten it</string>
     <string name="edit_availability_status_did_change">Availability status changed</string>
 
+    <string name="tooltip_title_availability_status">Availability status</string>
+    <string name="tooltip_text_availability_status_in_chat">See if someone is busy or unavailable before messaging them. You can set your own status in your profile.</string>
+    <string name="tooltip_text_availability_status_in_profile">Set your status to show when you’re busy or unavailable.</string>
+
+    <string name="view_full_availability_status_modal_title">Availability status</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Tap to view the full availability status</string>
+
     <plurals name="contacts_counter_label">
         <item quantity="one">%d contact</item>
         <item quantity="few">%d contacts</item>

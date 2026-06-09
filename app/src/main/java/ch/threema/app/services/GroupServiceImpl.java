@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -105,7 +106,7 @@ public class GroupServiceImpl implements GroupService {
     private final GroupModelRepository groupModelRepository;
 
     // TODO(ANDR-3755): Consolidate this cache
-    private final SparseArrayCompat<Map<String, IdColor>> groupMemberColorCache;
+    private final SparseArrayCompat<Map<String, IdColor>> groupParticipantColorCache;
     private final SparseArrayCompat<GroupModelOld> groupModelCache;
     private final SparseArrayCompat<String[]> groupIdentityCache;
     private @Nullable TaskManager taskManager = null;
@@ -146,7 +147,7 @@ public class GroupServiceImpl implements GroupService {
 
         this.groupModelCache = cacheService.getGroupModelCache();
         this.groupIdentityCache = cacheService.getGroupIdentityCache();
-        this.groupMemberColorCache = cacheService.getGroupMemberColorCache();
+        this.groupParticipantColorCache = cacheService.getGroupMemberColorCache();
     }
 
     @Override
@@ -533,8 +534,8 @@ public class GroupServiceImpl implements GroupService {
         synchronized (groupIdentityCache) {
             groupIdentityCache.remove(groupModelId);
         }
-        synchronized (groupMemberColorCache) {
-            groupMemberColorCache.remove(groupModelId);
+        synchronized (groupParticipantColorCache) {
+            groupParticipantColorCache.remove(groupModelId);
         }
     }
 
@@ -554,8 +555,8 @@ public class GroupServiceImpl implements GroupService {
             this.groupIdentityCache.remove(groupModelId);
         }
 
-        synchronized (this.groupMemberColorCache) {
-            this.groupMemberColorCache.remove(groupModelId);
+        synchronized (this.groupParticipantColorCache) {
+            this.groupParticipantColorCache.remove(groupModelId);
         }
     }
 
@@ -858,12 +859,23 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     @NonNull
-    public Map<String, IdColor> getGroupMemberIDColors(@NonNull GroupModel model) {
+    public Map<String, IdColor> getGroupParticipantIDColors(@NonNull GroupModel model) {
         long groupDatabaseId = model.getDatabaseId();
-        Map<String, IdColor> colors = this.groupMemberColorCache.get((int) groupDatabaseId);
+        Map<String, IdColor> colors = groupParticipantColorCache.get((int) groupDatabaseId);
         if (colors == null || colors.isEmpty()) {
-            colors = this.databaseService.getGroupMemberModelFactory().getIDColors(groupDatabaseId);
-            this.groupMemberColorCache.put((int) groupDatabaseId, colors);
+            colors = databaseService.getGroupMemberModelFactory().getIDColors(groupDatabaseId);
+            var groupData = model.getData();
+            if (groupData != null) {
+                var creatorIdentity = groupData.groupIdentity.getCreatorIdentity();
+                var creator = contactModelRepository.getByIdentity(creatorIdentity);
+                var creatorData = creator != null ? creator.getData() : null;
+                var creatorIdColor = creatorData != null ? creatorData.getIdColor() : null;
+                if (creatorIdColor != null) {
+                    colors = new HashMap<>(colors);
+                    colors.put(creatorIdentity, creatorIdColor);
+                }
+            }
+            groupParticipantColorCache.put((int) groupDatabaseId, colors);
         }
 
         return colors;

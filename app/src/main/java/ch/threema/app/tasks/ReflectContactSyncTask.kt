@@ -1,9 +1,9 @@
 package ch.threema.app.tasks
 
+import ch.threema.app.BuildConfig
 import ch.threema.app.services.ContactService.ProfilePictureUploadData
 import ch.threema.app.services.ConversationCategoryService
 import ch.threema.app.services.ConversationService
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.utils.ContactUtil
 import ch.threema.data.datatypes.AvailabilityStatus
 import ch.threema.data.datatypes.NotificationTriggerPolicyOverride
@@ -76,7 +76,7 @@ fun ContactModelData.toFullSyncContact(
         conversationCategory = data.getSyncConversationCategory(conversationCategoryService)
         conversationVisibility = data.getSyncConversationVisibility(conversationService)
 
-        if (ConfigUtils.supportsAvailabilityStatus() && data.availabilityStatus != AvailabilityStatus.None) {
+        if (BuildConfig.AVAILABILITY_STATUS_ENABLED && data.availabilityStatus != AvailabilityStatus.None) {
             workAvailabilityStatus = data.availabilityStatus.toProtocolModel()
         }
     }

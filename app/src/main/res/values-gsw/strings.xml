@@ -1695,6 +1695,8 @@
     <string name="remote_secret_notification_text">${remote_secret} isch aktiv. Tipped Sie da für meh Infos.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">De Zuegriff uf die App isch vo Ihrem Administrator gsperrt worde.\n\nBitte wändet Sie sich a Ihre Administrator.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">App schlüsse</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">S’${remote_secret}-Token hät nöd chöne abgruefe werde. Bitte prüefed Sie Ihri Internetverbindig und versueched Sie’s nomal.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1744,6 +1746,13 @@
     <string name="edit_availability_status_modal_optional_message_description">Wenn «Beschäftigt» oder «Abwesend» usgwählt isch, chönd Sie en eigene Status definiere.</string>
     <string name="edit_availability_status_modal_optional_message_too_long">Text isch z’lang, bitte chürzed Sie ihn.</string>
     <string name="edit_availability_status_did_change">Verfüegbarkeitsstatus gänderet</string>
+    <string name="tooltip_title_availability_status">Verfüegbarkeitsstatus</string>
+    <string name="tooltip_text_availability_status_in_chat">Erfahred Sie vorem Schicke vonere Nachricht, öb öpper beschäftigt oder abwesend isch. Ihre eiget Status chönd Sie im Profil festlegge.</string>
+    <string name="tooltip_text_availability_status_in_profile">Legged Sie Ihre Status fest, damit anderi gsehnd, wenn Sie beschäftigt oder abwesend sind.</string>
+    <string name="view_full_availability_status_modal_title">Verfüegbarkeitsstatus</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Tippe, zum de Verfüegbarkeitsstatus ganz z’zeige</string>
     <plurals name="contacts_counter_label">
         <item quantity="one">%d Kontakt</item>
         <item quantity="other">%d Kontäkt</item>

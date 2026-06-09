@@ -339,7 +339,7 @@ class DeviceLinkingDataCollector(
                 }
                 profilePictureShareWith = collectProfilePictureShareWith()
                 identityLinks = collectIdentityLinks()
-                if (ConfigUtils.supportsAvailabilityStatus()) {
+                if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
                     val availabilityStatus = preferenceService.getAvailabilityStatus()
                     if (availabilityStatus != null) {
                         workAvailabilityStatus = availabilityStatus.toProtocolModel()
@@ -554,7 +554,7 @@ class DeviceLinkingDataCollector(
                 workLastFullSyncAt = contactModelData.workLastFullSyncAt.toEpochMilli()
             }
 
-            if (ConfigUtils.supportsAvailabilityStatus() && contactModelData.availabilityStatus != AvailabilityStatus.None) {
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED && contactModelData.availabilityStatus != AvailabilityStatus.None) {
                 workAvailabilityStatus = contactModelData.availabilityStatus.toProtocolModel()
             }
         }

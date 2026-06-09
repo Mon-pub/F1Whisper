@@ -60,7 +60,7 @@
     <string name="voip_another_pstn_call">Impossibile avviare la chiamata. È ancora in corso una telefonata normale.</string>
     <string name="voip_call_status_off_hours">Chiamate fuori orario</string>
     <string name="voip_peer_video_disabled">Le videochiamate sono state disattivate dall\'altra persona.</string>
-    <string name="voip_error_processing_call_anser">Si è verificato un errore durante l\'elaborazione della risposta alla chiamata.</string>
+    <string name="voip_error_processing_call_anser">Si è verificato un errore durante l\'elaborazione della risposta alla chiamata</string>
     <string name="voip_error_peer_connection">Errore di connessione peer</string>
     <string name="voip_error_determine_common_video_quality_profile">Impossibile determinare il profilo di qualità del video comune</string>
     <string name="voip_audio_focus_lost">Messa a fuoco audio persa</string>

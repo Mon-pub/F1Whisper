@@ -500,11 +500,22 @@ class PersistableTasksTest {
     }
 
     @Test
-    fun testWorkLastFullSyncAtUpdate() {
+    fun testReflectWorkLastFullSyncAtUpdate() {
         assertValidEncoding(
             ReflectContactSyncUpdateTask.ReflectWorkLastFullSyncAtUpdate::class,
             """{"type":"ch.threema.app.tasks.ReflectContactSyncUpdateTask.ReflectWorkLastFullSyncAtUpdate.""" +
                 """ReflectWorkLastFullSyncAtUpdateData","workLastFullSyncAt":1775144426988, "identity":"01234567"}""",
+        )
+    }
+
+    @Test
+    fun testReflectWorkLastFullSyncAtWithAvailabilityStatusUpdate() {
+        assertValidEncoding(
+            ReflectContactSyncUpdateTask.ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdate::class,
+            """{"type":"ch.threema.app.tasks.ReflectContactSyncUpdateTask.ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdate.""" +
+                """ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdateData","workLastFullSyncAt":1775144426988, """ +
+                """"availabilityStatus":{"type":"ch.threema.data.datatypes.AvailabilityStatus.Busy", "description":"In a meeting"}, """ +
+                """"identity":"01234567"}""",
         )
     }
 

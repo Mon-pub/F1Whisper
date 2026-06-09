@@ -17,11 +17,20 @@ internal class ReflectedOutgoingGroupEditMessageTask(
     serviceManager = serviceManager,
 ) {
     private val messageService by lazy { serviceManager.messageService }
+    private val identityStore by lazy { serviceManager.identityStore }
 
     override fun processOutgoingMessage() {
         check(outgoingMessage.conversation.hasGroup()) { "The message does not have a group identity set" }
+
+        val myIdentity = identityStore.getIdentityString()
+            ?: throw IllegalStateException("Cannot process reflected outgoing edit message when no identity exists")
+
         runCommonEditMessageReceiveSteps(
-            editMessage = message,
+            myIdentity = myIdentity,
+            // Note that we are processing only outgoing messages here
+            editMessageSenderIdentity = myIdentity,
+            editMessageCreatedAt = message.date,
+            messageId = message.data.messageId,
             receiver = messageReceiver,
             messageService = messageService,
         )?.let { validEditMessageModel: AbstractMessageModel ->

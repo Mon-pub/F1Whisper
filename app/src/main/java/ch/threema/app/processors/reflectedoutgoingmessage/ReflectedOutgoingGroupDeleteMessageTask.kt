@@ -16,10 +16,18 @@ internal class ReflectedOutgoingGroupDeleteMessageTask(
     serviceManager = serviceManager,
 ) {
     private val messageService by lazy { serviceManager.messageService }
+    private val identityStore by lazy { serviceManager.identityStore }
 
     override fun processOutgoingMessage() {
+        val myIdentity = identityStore.getIdentityString()
+            ?: throw IllegalStateException("Cannot process reflected outgoing edit message when no identity exists")
+
         runCommonDeleteMessageReceiveSteps(
-            deleteMessage = message,
+            myIdentity = myIdentity,
+            // Note that we are processing only outgoing messages here
+            deleteMessageSenderIdentity = myIdentity,
+            deleteMessageCreatedAt = message.date,
+            messageId = message.data.messageId,
             receiver = messageReceiver,
             messageService = messageService,
         )?.let { validatedMessageModelToDelete ->

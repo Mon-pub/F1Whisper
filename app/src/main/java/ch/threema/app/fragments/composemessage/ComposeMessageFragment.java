@@ -124,6 +124,7 @@ import androidx.transition.Transition;
 import androidx.transition.TransitionManager;
 import ch.threema.android.ActivityExtensionsKt;
 import ch.threema.app.AppConstants;
+import ch.threema.app.BuildConfig;
 import ch.threema.app.ExecutorServices;
 import ch.threema.app.R;
 import ch.threema.app.ThreemaApplication;
@@ -151,6 +152,8 @@ import ch.threema.app.adapters.decorators.VoipStatusDataChatAdapterDecorator;
 import ch.threema.app.asynctasks.EmptyOrDeleteConversationsAsyncTask;
 import ch.threema.app.availabilitystatus.AvailabilityStatusContactBannerView;
 import ch.threema.app.availabilitystatus.AvailabilityStatusIconElevatedView;
+import ch.threema.app.availabilitystatus.AvailabilityStatusTooltipPopupManager;
+import ch.threema.app.availabilitystatus.ViewFullAvailabilityStatusBottomSheetDialog;
 import ch.threema.app.cache.ThumbnailCache;
 import ch.threema.app.compose.common.interop.ComposeJavaBridge;
 import ch.threema.app.contactdetails.ContactDetailActivity;
@@ -309,6 +312,7 @@ import ch.threema.storage.models.data.MessageContentsType;
 import ch.threema.storage.models.group.GroupMessageModel;
 import ch.threema.storage.models.group.GroupModelOld;
 import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.widget.AbsListView.CHOICE_MODE_MULTIPLE;
@@ -513,10 +517,10 @@ public class ComposeMessageFragment extends Fragment implements
     private TextView actionBarSubtitleTextView;
     private VerificationLevelImageView actionBarSubtitleImageView;
     private AvatarView actionBarAvatarView;
-    private AvailabilityStatusIconElevatedView availabilityStatusAvatarIconView;
     private ImageView wallpaperView;
     private ActionBar actionBar;
     private TooltipPopup workTooltipPopup;
+    private TooltipPopup availabilityStatusTooltipPopup;
     private EmojiReactionsPopup emojiReactionsPopup;
     private QuotePopup quotePopup;
     private OpenBallotNoticeView openBallotNoticeView;
@@ -1447,17 +1451,12 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     private void onContactAvailabilityStatusChanged(@NonNull AvailabilityStatus availabilityStatus) {
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
+        if (!BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             return;
         }
         // Toolbar avatar icon
-        if (availabilityStatusAvatarIconView != null) {
-            availabilityStatusAvatarIconView.setVisibility(
-                availabilityStatus instanceof AvailabilityStatus.Set
-                    ? View.VISIBLE
-                    : View.GONE
-            );
-            availabilityStatusAvatarIconView.setStatus(
+        if (actionBarAvatarView != null) {
+            actionBarAvatarView.setAvailabilityStatusBadgeState(
                 availabilityStatus instanceof AvailabilityStatus.Set
                     ? (AvailabilityStatus.Set) availabilityStatus
                     : null
@@ -1465,18 +1464,41 @@ public class ComposeMessageFragment extends Fragment implements
         }
         // Banner
         if (availabilityStatusBannerView != null) {
-            availabilityStatusBannerView.setVisibility(
-                availabilityStatus instanceof AvailabilityStatus.Set
-                    ? View.VISIBLE
-                    : View.GONE
-            );
+            final @Nullable AvailabilityStatus.Set availabilityStatusSet = availabilityStatus instanceof AvailabilityStatus.Set
+                ? (AvailabilityStatus.Set) availabilityStatus
+                : null;
+            final @Nullable Function0<Unit> onClickOnOverflowListener = availabilityStatusSet != null
+                ? () -> onClickViewFullAvailabilityStatus(availabilityStatusSet)
+                : null;
+            final int bannerVisibility = availabilityStatusSet != null
+                ? View.VISIBLE
+                : View.GONE;
+            availabilityStatusBannerView.setVisibility(bannerVisibility);
             availabilityStatusBannerView.setState(
-                availabilityStatus instanceof AvailabilityStatus.Set
-                    ? (AvailabilityStatus.Set) availabilityStatus
-                    : null,
-                preferenceService.getEmojiStyle()
+                availabilityStatusSet,
+                preferenceService.getEmojiStyle(),
+                onClickOnOverflowListener
             );
+
+            if (availabilityStatusSet != null) {
+                availabilityStatusTooltipPopup = AvailabilityStatusTooltipPopupManager.showInConversation(requireActivity(), availabilityStatusBannerView);
+                if (availabilityStatusTooltipPopup != null) {
+                    emojiHintPopupManager.setSuppressed(true);
+                }
+            }
         }
+    }
+
+    private Unit onClickViewFullAvailabilityStatus(@NonNull AvailabilityStatus.Set availabilityStatusSet) {
+        ViewFullAvailabilityStatusBottomSheetDialog
+            .newInstance(
+                availabilityStatusSet
+            )
+            .show(
+                getParentFragmentManager(),
+                "view-full-availability-status-bottom-sheet"
+            );
+        return Unit.INSTANCE;
     }
 
     private void onNextRecordsLoadedEvent(@NonNull ComposeMessageEvent.NextRecordsLoaded nextRecodsLoadedEvent) {
@@ -1866,6 +1888,10 @@ public class ComposeMessageFragment extends Fragment implements
 
             dismissTooltipPopup(workTooltipPopup, true);
             workTooltipPopup = null;
+            if (availabilityStatusTooltipPopup != null) {
+                availabilityStatusTooltipPopup.dismiss(true);
+                availabilityStatusTooltipPopup = null;
+            }
 
             dismissMentionPopup();
             dismissQuotePopup();
@@ -2458,7 +2484,6 @@ public class ComposeMessageFragment extends Fragment implements
             this.actionBarSubtitleImageView = actionBarTitleView.findViewById(R.id.subtitle_image);
             this.actionBarSubtitleTextView = actionBarTitleView.findViewById(R.id.subtitle_text);
             this.actionBarAvatarView = actionBarTitleView.findViewById(R.id.avatar_view);
-            this.availabilityStatusAvatarIconView = actionBarTitleView.findViewById(R.id.availability_status_avatar_icon);
             final RelativeLayout actionBarTitleContainer = actionBarTitleView.findViewById(R.id.title_container);
             actionBarTitleContainer.setOnClickListener(v -> {
                 Intent intent;
@@ -2479,17 +2504,12 @@ public class ComposeMessageFragment extends Fragment implements
                 }
             });
 
-            if (ConfigUtils.supportsAvailabilityStatus() && messageReceiver != null && messageReceiver instanceof ContactMessageReceiver) {
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED && messageReceiver != null && messageReceiver instanceof ContactMessageReceiver) {
                 final @Nullable ch.threema.data.models.ContactModel contactModel = ((ContactMessageReceiver) messageReceiver).getContactModel();
                 final @Nullable ContactModelData contactModelData = contactModel != null ? contactModel.getData() : null;
                 final @Nullable AvailabilityStatus availabilityStatus = contactModelData != null ? contactModelData.availabilityStatus : null;
-                if (availabilityStatus != null) {
-                    availabilityStatusAvatarIconView.setVisibility(
-                        availabilityStatus instanceof AvailabilityStatus.Set
-                            ? View.VISIBLE
-                            : View.GONE
-                    );
-                    availabilityStatusAvatarIconView.setStatus(
+                if (availabilityStatus != null && actionBarAvatarView != null) {
+                    actionBarAvatarView.setAvailabilityStatusBadgeState(
                         availabilityStatus instanceof AvailabilityStatus.Set
                             ? (AvailabilityStatus.Set) availabilityStatus
                             : null
@@ -3745,7 +3765,7 @@ public class ComposeMessageFragment extends Fragment implements
         logger.debug("setIdentityColors");
 
         if (this.isGroupChat) {
-            Map<String, IdColor> colorIndices = this.groupService.getGroupMemberIDColors(groupModel);
+            Map<String, IdColor> colorIndices = groupService.getGroupParticipantIDColors(groupModel);
             Map<String, Integer> colors = new HashMap<>();
             boolean darkTheme = ConfigUtils.isTheDarkSide(getContext());
             for (Map.Entry<String, IdColor> entry : colorIndices.entrySet()) {
@@ -4623,7 +4643,7 @@ public class ComposeMessageFragment extends Fragment implements
                     Glide.with(requireActivity())
                 );
             }
-            actionBarAvatarView.setBadgeVisible(false);
+            actionBarAvatarView.setWorkBadgeVisible(false);
             setAvatarContentDescription(R.string.prefs_group_notifications);
         } else if (this.isDistributionListChat) {
             actionBarSubtitleTextView.setText(this.distributionListService.getMembersString(this.distributionListModel));
@@ -4641,7 +4661,7 @@ public class ComposeMessageFragment extends Fragment implements
                     );
                 }
             }
-            actionBarAvatarView.setBadgeVisible(false);
+            actionBarAvatarView.setWorkBadgeVisible(false);
             setAvatarContentDescription(R.string.distribution_list);
         } else {
             if (contactModel != null) {
@@ -4658,7 +4678,7 @@ public class ComposeMessageFragment extends Fragment implements
                         Glide.with(requireActivity())
                     );
                 }
-                this.actionBarAvatarView.setBadgeVisible(contactService.showBadge(contactModel));
+                this.actionBarAvatarView.setWorkBadgeVisible(contactService.showBadge(contactModel));
             }
             setAvatarContentDescription(R.string.prefs_header_chat);
         }
@@ -6248,6 +6268,10 @@ public class ComposeMessageFragment extends Fragment implements
         dismissMentionPopup();
         dismissTooltipPopup(workTooltipPopup, true);
         workTooltipPopup = null;
+        if (availabilityStatusTooltipPopup != null) {
+            availabilityStatusTooltipPopup.dismissForever(true);
+            availabilityStatusTooltipPopup = null;
+        }
 
         if (ConfigUtils.isTabletLayout()) {
             // make sure layout changes after rotate are reflected in thumbnail size etc.

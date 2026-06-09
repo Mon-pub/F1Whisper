@@ -1,9 +1,11 @@
+@file:Suppress("KotlinConstantConditions")
+
 package ch.threema.app.usecases.availabilitystatus
 
+import ch.threema.app.BuildConfig
 import ch.threema.app.multidevice.MultiDeviceManager
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.test.unconfinedTestDispatcherProvider
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.work.workproperties.WorkPropertiesClient
 import ch.threema.data.datatypes.AvailabilityStatus
 import ch.threema.domain.taskmanager.Task
@@ -16,23 +18,22 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.runs
-import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
+import org.junit.Assume
 
 class UpdateUserAvailabilityStatusUseCaseTest {
 
     @Test
     fun `skips everything if no effective change`() = runTest {
-        // arrange
-        mockkStatic(ConfigUtils::class)
-        every { ConfigUtils.supportsAvailabilityStatus() } returns true
+        // precondition
+        Assume.assumeTrue(BuildConfig.AVAILABILITY_STATUS_ENABLED)
 
+        // arrange
         val workPropertiesClientMock = mockk<WorkPropertiesClient>()
         val preferenceServiceMock = mockk<PreferenceService> {
             coEvery { getAvailabilityStatus() } returns AvailabilityStatus.Unavailable(
@@ -61,16 +62,50 @@ class UpdateUserAvailabilityStatusUseCaseTest {
         verify(exactly = 0) {
             preferenceServiceMock.setAvailabilityStatus(newAvailabilityStatus)
         }
+    }
 
-        // teardown
-        unmockkStatic(ConfigUtils::class)
+    @Test
+    fun `skips everything if no effective change after trimming`() = runTest {
+        // precondition
+        Assume.assumeTrue(BuildConfig.AVAILABILITY_STATUS_ENABLED)
+
+        // arrange
+        val workPropertiesClientMock = mockk<WorkPropertiesClient>()
+        val preferenceServiceMock = mockk<PreferenceService> {
+            coEvery { getAvailabilityStatus() } returns AvailabilityStatus.Unavailable(
+                description = "On vacation",
+            )
+        }
+        val useCase = UpdateUserAvailabilityStatusUseCase(
+            dispatcherProvider = unconfinedTestDispatcherProvider(),
+            preferenceService = preferenceServiceMock,
+            taskManager = mockk(),
+            multiDeviceManager = mockk(),
+            workPropertiesClient = workPropertiesClientMock,
+        )
+
+        // act
+        val newAvailabilityStatus = AvailabilityStatus.Unavailable(
+            description = "   On vacation   ",
+        )
+        val result = useCase.call(newAvailabilityStatus)
+
+        // assert
+        assertTrue { result.isSuccess }
+        coVerify(exactly = 0) {
+            workPropertiesClientMock.updateAvailabilityStatus(newAvailabilityStatus)
+        }
+        verify(exactly = 0) {
+            preferenceServiceMock.setAvailabilityStatus(newAvailabilityStatus)
+        }
     }
 
     @Test
     fun `stores value locally on work-properties api success`() = runTest {
+        // precondition
+        Assume.assumeTrue(BuildConfig.AVAILABILITY_STATUS_ENABLED)
+
         // arrange
-        mockkStatic(ConfigUtils::class)
-        every { ConfigUtils.supportsAvailabilityStatus() } returns true
         val workPropertiesClientMock = mockk<WorkPropertiesClient> {
             coEvery { updateAvailabilityStatus(any()) } returns Result.success(Unit)
         }
@@ -105,16 +140,14 @@ class UpdateUserAvailabilityStatusUseCaseTest {
         verify(exactly = 1) {
             preferenceServiceMock.setAvailabilityStatus(newAvailabilityStatus)
         }
-
-        // teardown
-        unmockkStatic(ConfigUtils::class)
     }
 
     @Test
     fun `does not store value locally on work-properties api failure`() = runTest {
+        // precondition
+        Assume.assumeTrue(BuildConfig.AVAILABILITY_STATUS_ENABLED)
+
         // arrange
-        mockkStatic(ConfigUtils::class)
-        every { ConfigUtils.supportsAvailabilityStatus() } returns true
         val workPropertiesClientMock = mockk<WorkPropertiesClient> {
             coEvery { updateAvailabilityStatus(any()) } returns Result.failure(
                 exception = WorkPropertiesUpdateException.NetworkException(""),
@@ -145,16 +178,14 @@ class UpdateUserAvailabilityStatusUseCaseTest {
         verify(exactly = 0) {
             preferenceServiceMock.setAvailabilityStatus(newAvailabilityStatus)
         }
-
-        // teardown
-        unmockkStatic(ConfigUtils::class)
     }
 
     @Test
     fun `schedules md reflection task on work-properties api success`() = runTest {
+        // precondition
+        Assume.assumeTrue(BuildConfig.AVAILABILITY_STATUS_ENABLED)
+
         // arrange
-        mockkStatic(ConfigUtils::class)
-        every { ConfigUtils.supportsAvailabilityStatus() } returns true
         val workPropertiesClientMock = mockk<WorkPropertiesClient> {
             coEvery { updateAvailabilityStatus(any()) } returns Result.success(Unit)
         }
@@ -194,16 +225,14 @@ class UpdateUserAvailabilityStatusUseCaseTest {
             @Suppress("DeferredResultUnused")
             taskManagerMock.schedule<Result<Unit>>(any())
         }
-
-        // teardown
-        unmockkStatic(ConfigUtils::class)
     }
 
     @Test
     fun `returns failure if availability status feature not supported`() = runTest {
+        // precondition
+        Assume.assumeFalse(BuildConfig.AVAILABILITY_STATUS_ENABLED)
+
         // arrange
-        mockkStatic(ConfigUtils::class)
-        every { ConfigUtils.supportsAvailabilityStatus() } returns false
         val workPropertiesClientMock = mockk<WorkPropertiesClient>()
         val preferenceServiceMock = mockk<PreferenceService>()
         val multiDeviceManagerMock = mockk<MultiDeviceManager>()
@@ -228,8 +257,49 @@ class UpdateUserAvailabilityStatusUseCaseTest {
         confirmVerified(workPropertiesClientMock)
         confirmVerified(multiDeviceManagerMock)
         confirmVerified(taskManagerMock)
+    }
 
-        // teardown
-        unmockkStatic(ConfigUtils::class)
+    @Test
+    fun `trims leading and trailing spaces`() = runTest {
+        // precondition
+        Assume.assumeTrue(BuildConfig.AVAILABILITY_STATUS_ENABLED)
+
+        // arrange
+        val workPropertiesClientMock = mockk<WorkPropertiesClient> {
+            coEvery { updateAvailabilityStatus(any()) } returns Result.success(Unit)
+        }
+        val preferenceServiceMock = mockk<PreferenceService> {
+            coEvery { getAvailabilityStatus() } returns AvailabilityStatus.None
+            coEvery { setAvailabilityStatus(any()) } just runs
+        }
+        val multiDeviceManagerMock = mockk<MultiDeviceManager> {
+            every { isMultiDeviceActive } returns false
+        }
+        val useCase = UpdateUserAvailabilityStatusUseCase(
+            dispatcherProvider = unconfinedTestDispatcherProvider(),
+            preferenceService = preferenceServiceMock,
+            taskManager = mockk(),
+            multiDeviceManager = multiDeviceManagerMock,
+            workPropertiesClient = workPropertiesClientMock,
+        )
+
+        // act
+        val newAvailabilityStatus = AvailabilityStatus.Unavailable(
+            description = "   On  vacation  ",
+        )
+        val result = useCase.call(newAvailabilityStatus)
+
+        // assert
+        assertTrue { result.isSuccess }
+        coVerify(exactly = 1) {
+            workPropertiesClientMock.updateAvailabilityStatus(
+                AvailabilityStatus.Unavailable(description = "On  vacation"),
+            )
+        }
+        verify(exactly = 1) {
+            preferenceServiceMock.setAvailabilityStatus(
+                AvailabilityStatus.Unavailable(description = "On  vacation"),
+            )
+        }
     }
 }

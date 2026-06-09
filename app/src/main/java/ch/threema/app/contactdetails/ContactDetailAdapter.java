@@ -29,13 +29,14 @@ import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import ch.threema.app.BuildConfig;
 import ch.threema.app.R;
 import ch.threema.app.ThreemaApplication;
 import ch.threema.app.availabilitystatus.AvailabilityStatusLabelView;
 import ch.threema.app.dialogs.PublicKeyDialog;
 import ch.threema.app.glide.AvatarOptions;
 import ch.threema.app.managers.ServiceManager;
-import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.preference.service.PreferenceService.EmojiStyle;
 import ch.threema.app.preference.service.SynchronizedSettingsService;
 import ch.threema.app.services.BlockedIdentitiesService;
@@ -160,7 +161,7 @@ public class ContactDetailAdapter extends RecyclerView.Adapter<RecyclerView.View
                 return true;
             });
 
-            if (ConfigUtils.supportsAvailabilityStatus()) {
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
                 availabilityStatusContainer.setVisibility(
                     contactModelData.availabilityStatus instanceof AvailabilityStatus.Set
                         ? View.VISIBLE

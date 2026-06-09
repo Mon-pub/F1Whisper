@@ -1,10 +1,9 @@
 package ch.threema.app.tasks
 
+import ch.threema.app.BuildConfig
 import ch.threema.app.preference.service.PreferenceService
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.base.crypto.NonceFactory
 import ch.threema.base.utils.getThreemaLogger
-import ch.threema.data.datatypes.AvailabilityStatus
 import ch.threema.domain.taskmanager.ActiveTask
 import ch.threema.domain.taskmanager.ActiveTaskCodec
 import ch.threema.domain.taskmanager.Task
@@ -25,18 +24,15 @@ class ReflectUserAvailabilityStatusTask :
     private val preferenceService: PreferenceService by inject()
     private val nonceFactory: NonceFactory by inject()
 
-    private val availabilityStatus: AvailabilityStatus? by lazy {
-        preferenceService.getAvailabilityStatus()
-    }
-
     override val type: String = "ReflectUserAvailabilityStatusTask"
 
     override val runPrecondition: () -> Boolean = precondition@{
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
+        @Suppress("KotlinConstantConditions")
+        if (!BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             logger.error("Cannot reflect availability status because this feature is not supported by this build")
             return@precondition false
         }
-        if (availabilityStatus == null) {
+        if (preferenceService.getAvailabilityStatus() == null) {
             logger.error("Cannot reflect availability status because it is null")
             return@precondition false
         }
@@ -45,7 +41,7 @@ class ReflectUserAvailabilityStatusTask :
 
     override val runInsideTransaction: suspend (handle: ActiveTaskCodec) -> Result<Unit> = transaction@{ handle ->
 
-        val currentAvailabilityStatus = availabilityStatus
+        val currentAvailabilityStatus = preferenceService.getAvailabilityStatus()
             ?: return@transaction Result.failure(IllegalStateException("Missing current availability status"))
 
         handle.reflectAndAwaitAck(

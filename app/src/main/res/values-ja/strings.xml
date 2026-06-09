@@ -112,6 +112,7 @@
     <string name="set_nickname_title">ユーザー名を設定</string>
     <string name="ok">OK</string>
     <string name="cancel">キャンセル</string>
+    <string name="save">保存</string>
     <string name="copy_message_action">コピー</string>
     <string name="delete_contact_action">連絡先を削除する</string>
     <string name="delete_multiple_contact_action">連絡先を削除する</string>
@@ -341,6 +342,7 @@ https://shop.threema.ch/retrieve_keys]]></string>
     <string name="can_not_send_no_group_members">空のグループにメッセージを送信することはできません</string>
     <string name="you_are_not_a_member_of_this_group">あなたはこのグループのメンバーではありません</string>
     <string name="title_public_nickname">ユーザー名</string>
+    <string name="title_availability_status">状態</string>
     <string name="prefs_sum_excluded_sync_identities">連絡先を同期する際に指定の ID を除外します</string>
     <string name="prefs_title_excluded_sync_identities">除外リスト</string>
     <string name="synchronize_contact">接続する端末の連絡先</string>
@@ -1519,6 +1521,7 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <!-- Description of the notification channel which is used when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <!-- Text of the notification which is shown when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <!-- Shown as the title of an info dialog when DualLock (a.k.a. "Remote Secret") has been activated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1529,6 +1532,8 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <!-- Error message shown fullscreen when activating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <!-- Shown on loading indicator while the DualLock (a.k.a. "Remote Secret") feature is being deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <!-- Error message shown fullscreen when deactivating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
     <plurals name="contacts_counter_label">
         <item quantity="other">%d 連絡先</item>
     </plurals>

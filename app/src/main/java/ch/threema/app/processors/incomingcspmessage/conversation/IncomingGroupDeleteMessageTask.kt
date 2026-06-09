@@ -20,6 +20,8 @@ class IncomingGroupDeleteMessageTask(
     private val messageService = serviceManager.messageService
     private val groupService = serviceManager.groupService
 
+    private val identityStore by lazy { serviceManager.identityStore }
+
     override suspend fun executeMessageStepsFromRemote(handle: ActiveTaskCodec): ReceiveStepsResult {
         if (runCommonGroupReceiveSteps(message, handle, serviceManager) == null) {
             logger.info("Could not find group for delete message")
@@ -33,12 +35,21 @@ class IncomingGroupDeleteMessageTask(
 
     private fun processGroupDeleteMessage(): ReceiveStepsResult {
         logger.debug("IncomingGroupDeleteMessageTask id: {}", message.data.messageId)
+        val myIdentity = identityStore.getIdentityString()
+            ?: throw IllegalStateException("Cannot apply edit when no identity is available")
 
         val groupModel =
             groupService.getByGroupMessage(message) ?: return ReceiveStepsResult.DISCARD
 
         val receiver = groupService.createReceiver(groupModel)
-        val messageModel = runCommonDeleteMessageReceiveSteps(message, receiver, messageService)
+        val messageModel = runCommonDeleteMessageReceiveSteps(
+            myIdentity = myIdentity,
+            deleteMessageSenderIdentity = message.fromIdentity,
+            deleteMessageCreatedAt = message.date,
+            messageId = message.data.messageId,
+            receiver = receiver,
+            messageService = messageService,
+        )
             ?: return ReceiveStepsResult.DISCARD
 
         messageService.deleteMessageContentsAndRelatedData(messageModel, message.date)

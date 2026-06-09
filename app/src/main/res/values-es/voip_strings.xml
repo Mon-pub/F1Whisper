@@ -60,11 +60,11 @@
     <string name="voip_another_pstn_call">No se puede iniciar la llamada porque hay una llamada normal en curso.</string>
     <string name="voip_call_status_off_hours">Llamada fuera de horario</string>
     <string name="voip_peer_video_disabled">La otra parte ha desactivado las videollamadas</string>
-    <string name="voip_error_processing_call_anser">Se produjo un error al procesar la respuesta a la llamada</string>
-    <string name="voip_error_peer_connection">Error de conexión entre pares</string>
-    <string name="voip_error_determine_common_video_quality_profile">No se pudo determinar el perfil de calidad de vídeo común</string>
-    <string name="voip_audio_focus_lost">Se ha perdido el enfoque de audio</string>
-    <string name="voip_could_not_initialize">No se pudo inicializar la llamada</string>
+    <string name="voip_error_processing_call_anser">Se ha producido un error al procesar la respuesta a la llamada.</string>
+    <string name="voip_error_peer_connection">Error de conexión entre pares.</string>
+    <string name="voip_error_determine_common_video_quality_profile">No se ha podido determinar el perfil de calidad de vídeo común.</string>
+    <string name="voip_audio_focus_lost">Se ha perdido el enfoque de audio.</string>
+    <string name="voip_could_not_initialize">No se ha podido inicializar la llamada.</string>
     <!-- WebRTC debugger -->
     <string name="voip_prefs_webrtc_debug">Diagnóstico de WebRTC</string>
     <string name="voip_prefs_webrtc_debug_summary">Inicia esta herramienta para depurar problemas al establecer una conexión de llamada de voz.</string>

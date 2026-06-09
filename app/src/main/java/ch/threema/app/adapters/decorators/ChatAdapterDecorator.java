@@ -359,7 +359,7 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
                         viewHolder.avatarView.setImageBitmap(contactCache.avatar);
                         viewHolder.avatarView.setVisibility(View.VISIBLE);
                         if (contactCache.contactModel != null) {
-                            viewHolder.avatarView.setBadgeVisible(helper.getContactService().showBadge(contactCache.contactModel));
+                            viewHolder.avatarView.setWorkBadgeVisible(helper.getContactService().showBadge(contactCache.contactModel));
                         }
                     } else {
                         // hide avatar in grouped messages

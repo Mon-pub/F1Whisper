@@ -1,5 +1,6 @@
 package ch.threema.app.availabilitystatus.edit
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,26 +18,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,6 +51,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
+import ch.threema.app.BuildConfig
 import ch.threema.app.R
 import ch.threema.app.availabilitystatus.containerColor
 import ch.threema.app.availabilitystatus.displayNameRes
@@ -73,8 +69,9 @@ import ch.threema.app.compose.theme.color.BrandGreyColors
 import ch.threema.app.compose.theme.dimens.GridUnit
 import ch.threema.app.framework.EventHandler
 import ch.threema.app.framework.WithViewState
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.data.datatypes.AvailabilityStatus
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -82,10 +79,20 @@ class EditAvailabilityStatusBottomSheetDialog : BottomSheetDialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
-            throw IllegalStateException("Can not show this bottom sheet as the current build does not support this feature in general.")
+        check(BuildConfig.AVAILABILITY_STATUS_ENABLED) {
+            "Can not show this bottom sheet as the current build does not support this feature in general."
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+        dialog.behavior.apply {
+            skipCollapsed = true
+            state = BottomSheetBehavior.STATE_EXPANDED
+            isDraggable = false
+        }
+        dialog.setCanceledOnTouchOutside(false)
+        return dialog
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -104,37 +111,16 @@ class EditAvailabilityStatusBottomSheetDialog : BottomSheetDialogFragment() {
 
                     WithViewState(viewModel) { state ->
                         if (state != null) {
-                            ModalBottomSheet(
-                                sheetState = rememberModalBottomSheetState(
-                                    skipPartiallyExpanded = true,
-                                ),
-                                onDismissRequest = {
-                                    dismiss()
-                                },
-                                sheetGesturesEnabled = false,
-                                dragHandle = null,
-                                contentWindowInsets = {
-                                    BottomSheetDefaults.windowInsets
-                                        .only(
-                                            sides = WindowInsetsSides.Top,
-                                        )
-                                },
-                            ) {
-                                SetStatusBottomSheetContent(
-                                    windowInsetsBottom = BottomSheetDefaults.windowInsets
-                                        .only(
-                                            sides = WindowInsetsSides.Bottom,
-                                        ),
-                                    status = state.status,
-                                    descriptionState = state.descriptionState,
-                                    isLoading = state.isLoading,
-                                    hasError = state.hasError,
-                                    onClickStatus = viewModel::onClickStatus,
-                                    onChangeDescription = viewModel::onChangeDescription,
-                                    onClickCancel = viewModel::onClickCancel,
-                                    onClickSave = viewModel::onClickSave,
-                                )
-                            }
+                            SetStatusBottomSheetContent(
+                                status = state.status,
+                                descriptionState = state.descriptionState,
+                                isLoading = state.isLoading,
+                                hasError = state.hasError,
+                                onClickStatus = viewModel::onClickStatus,
+                                onChangeDescription = viewModel::onChangeDescription,
+                                onClickCancel = viewModel::onClickCancel,
+                                onClickSave = viewModel::onClickSave,
+                            )
                         }
                     }
                 }
@@ -181,7 +167,6 @@ class EditAvailabilityStatusBottomSheetDialog : BottomSheetDialogFragment() {
 
 @Composable
 fun SetStatusBottomSheetContent(
-    windowInsetsBottom: WindowInsets,
     status: AvailabilityStatus,
     descriptionState: AvailabilityStatusDescriptionState,
     isLoading: Boolean,
@@ -367,8 +352,6 @@ fun SetStatusBottomSheetContent(
         }
 
         SpacerVertical(GridUnit.x2)
-
-        SpacerVertical(windowInsetsBottom.asPaddingValues().calculateBottomPadding())
     }
 }
 
@@ -454,7 +437,7 @@ private class PreviewProviderSetStatusBottomSheetContent : PreviewParameterProvi
             description = "In a short coffee break",
         ),
         AvailabilityStatus.Busy(
-            description = "I cant keep my status description short because I am a person that likes to talk a lot.",
+            description = "I can't keep my status description short because I am a person that likes to talk a lot.",
         ),
         AvailabilityStatus.Unavailable(),
         AvailabilityStatus.Unavailable(
@@ -474,17 +457,8 @@ private fun Preview_SetStatusBottomSheetContent(
     availabilityStatus: AvailabilityStatus,
 ) {
     ThreemaThemePreview {
-        ModalBottomSheet(
-            onDismissRequest = {},
-            sheetState = rememberModalBottomSheetState(
-                skipPartiallyExpanded = true,
-            ),
-        ) {
+        Surface {
             SetStatusBottomSheetContent(
-                windowInsetsBottom = BottomSheetDefaults.windowInsets
-                    .only(
-                        sides = WindowInsetsSides.Bottom,
-                    ),
                 status = availabilityStatus,
                 descriptionState = AvailabilityStatusDescriptionState(
                     description = when (availabilityStatus) {

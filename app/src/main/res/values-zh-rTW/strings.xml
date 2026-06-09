@@ -1723,6 +1723,8 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="remote_secret_notification_text">${remote_secret} 已啟用。按一下以了解更多資訊。</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">您的管理員已阻止存取此應用程式。\n\n請聯絡您的管理員以獲取更多資訊。</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">關閉應用程式</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">無法取得 ${remote_secret} 權杖，請檢查您的網路連線並再試一次。</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1769,9 +1771,16 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="edit_availability_status_modal_subtitle">此狀態對貴公司所有人都可見。</string>
     <string name="edit_availability_status_modal_optional_message_label">自訂文字（可選）</string>
     <string name="edit_availability_status_modal_optional_message_placeholder">開會中</string>
-    <string name="edit_availability_status_modal_optional_message_description">當選取為「忙碌」或「離線」時，設定自訂狀態訊息。</string>
+    <string name="edit_availability_status_modal_optional_message_description">當選取為「忙碌中」或「離線」時，設定自訂狀態訊息。</string>
     <string name="edit_availability_status_modal_optional_message_too_long">文字過長，請縮短</string>
     <string name="edit_availability_status_did_change">在線狀態已變更</string>
+    <string name="tooltip_title_availability_status">在線狀態</string>
+    <string name="tooltip_text_availability_status_in_chat">在傳送訊息至對方之前，先檢視對方狀態是否「忙碌中」或「離線」。你可以在個人檔案中設定自己的狀態。</string>
+    <string name="tooltip_text_availability_status_in_profile">設定您的狀態，向其他人顯示您是「忙碌中」或「離線」。</string>
+    <string name="view_full_availability_status_modal_title">在線狀態</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">按一下以檢視完整的在線狀態</string>
     <plurals name="contacts_counter_label">
         <item quantity="other">%d位聯絡人</item>
     </plurals>

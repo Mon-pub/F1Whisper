@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -13,12 +12,14 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import ch.threema.app.BuildConfig;
 import ch.threema.app.stores.IdentityProvider;
 import ch.threema.app.utils.TestUtil;
 import ch.threema.base.crypto.NaCl;
 
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 
+import ch.threema.data.datatypes.AvailabilityStatus;
 import ch.threema.domain.models.IdentityState;
 import ch.threema.domain.models.IdentityType;
 import ch.threema.domain.models.VerificationLevel;
@@ -27,12 +28,24 @@ import ch.threema.storage.CursorHelper;
 import ch.threema.storage.DatabaseCreationProvider;
 import ch.threema.storage.DatabaseProvider;
 import ch.threema.storage.DatabaseUtil;
+import ch.threema.storage.DbAvailabilityStatus;
 import ch.threema.storage.QueryBuilder;
 import ch.threema.storage.models.ContactModel;
 import ch.threema.storage.models.ContactModel.AcquaintanceLevel;
 
 public class ContactModelFactory extends ModelFactory {
+
     private static final Logger logger = getThreemaLogger("ContactModelFactory");
+
+    public static final String COLUMN_CONTACTS_IDENTITY = ContactModel.TABLE + "." + ContactModel.COLUMN_IDENTITY;
+    public static final String COLUMN_CONTACTS_STATE = ContactModel.TABLE + "." + ContactModel.COLUMN_STATE;
+    public static final String COLUMN_CONTACTS_ACQUAINTANCE_LEVEL = ContactModel.TABLE + "." + ContactModel.COLUMN_ACQUAINTANCE_LEVEL;
+    public static final String COLUMN_CONTACTS_TYPING_INDICATORS = ContactModel.TABLE + "." + ContactModel.COLUMN_TYPING_INDICATORS;
+    public static final String COLUMN_CONTACTS_READ_RECEIPTS = ContactModel.TABLE + "." + ContactModel.COLUMN_READ_RECEIPTS;
+    private static final String COLUMN_CONTACTS_LOOKUP_KEY = ContactModel.TABLE + "." + ContactModel.COLUMN_ANDROID_CONTACT_LOOKUP_KEY;
+    private static final String COLUMN_AVAILABILITY_STATUS_IDENTITY = DbAvailabilityStatus.TABLE + "." + DbAvailabilityStatus.COLUMN_IDENTITY;
+    private static final String COLUMN_AVAILABILITY_STATUS_CATEGORY = DbAvailabilityStatus.TABLE + "." + DbAvailabilityStatus.COLUMN_CATEGORY;
+    private static final String COLUMN_AVAILABILITY_STATUS_DESCRIPTION = DbAvailabilityStatus.TABLE + "." + DbAvailabilityStatus.COLUMN_DESCRIPTION;
 
     @NonNull
     private final IdentityProvider identityProvider;
@@ -42,55 +55,116 @@ public class ContactModelFactory extends ModelFactory {
         @NonNull IdentityProvider identityProvider
     ) {
         super(databaseProvider, ContactModel.TABLE);
-
         this.identityProvider = identityProvider;
     }
 
-    public List<ContactModel> getAll() {
-        return convertList(
-            getReadableDatabase().query(getTableName(), null, null, null, null, null, null)
-        );
-    }
-
+    /**
+     * Select one contact by the given identity
+     *
+     * <pre>{@code
+     * SELECT contacts.*,
+     *        contact_availability_status.category,
+     *        contact_availability_status.description
+     * FROM contacts
+     * LEFT JOIN contact_availability_status
+     *        ON contacts.identity = contact_availability_status.identity
+     * WHERE contacts.identity = ?;
+     * }</pre>
+     */
     @Nullable
     public ContactModel getByIdentity(@NonNull String identity) {
-        return this.getFirstOrNull(
-            ContactModel.COLUMN_IDENTITY + "=?",
-            identity
-        );
+        final String query =
+            "SELECT " + ContactModel.TABLE + ".*, " + COLUMN_AVAILABILITY_STATUS_CATEGORY + ", " + COLUMN_AVAILABILITY_STATUS_DESCRIPTION +
+                " FROM " + ContactModel.TABLE + " LEFT JOIN " + DbAvailabilityStatus.TABLE +
+                " ON " + COLUMN_CONTACTS_IDENTITY + " = " + COLUMN_AVAILABILITY_STATUS_IDENTITY +
+                " WHERE " + COLUMN_CONTACTS_IDENTITY + " = ?;";
+        final Object[] bindArgs = new String[]{identity};
+        final @Nullable Cursor cursor = getReadableDatabase().query(query, bindArgs);
+        return getFirstOrNull(cursor);
     }
 
+    /**
+     * Select multiple contacts by the given identities
+     *
+     * <pre>{@code
+     * SELECT contacts.*,
+     *        contact_availability_status.category,
+     *        contact_availability_status.description
+     * FROM contacts
+     * LEFT JOIN contact_availability_status
+     *        ON contacts.identity = contact_availability_status.identity
+     * WHERE contacts.identity IN (?, ?, ?, ...);
+     * }</pre>
+     */
     @NonNull
     public List<ContactModel> getByIdentities(@NonNull List<String> identities) {
         if (identities.isEmpty()) {
             return new ArrayList<>();
         }
         final @NonNull String placeholders = DatabaseUtil.makePlaceholders(identities.size());
-        final @NonNull String selection = ContactModel.COLUMN_IDENTITY + " IN (" + placeholders + ")";
-        final @NonNull String[] selectionArgs = identities.toArray(new String[0]);
-        return convertList(
-            getReadableDatabase().query(getTableName(), null, selection, selectionArgs, null, null, null)
-        );
+        final String query =
+            "SELECT " + ContactModel.TABLE + ".*, " + COLUMN_AVAILABILITY_STATUS_CATEGORY + ", " + COLUMN_AVAILABILITY_STATUS_DESCRIPTION +
+                " FROM " + ContactModel.TABLE + " LEFT JOIN " + DbAvailabilityStatus.TABLE +
+                " ON " + COLUMN_CONTACTS_IDENTITY + " = " + COLUMN_AVAILABILITY_STATUS_IDENTITY +
+                " WHERE " + COLUMN_CONTACTS_IDENTITY + " IN (" + placeholders + ");";
+        final Object[] bindArgs = identities.toArray(String[]::new);
+        final @Nullable Cursor cursor = getReadableDatabase().query(query, bindArgs);
+        return convertList(cursor);
     }
 
+    /**
+     * Select one contact by the given lookupKey
+     *
+     * <pre>{@code
+     * SELECT contacts.*,
+     *        contact_availability_status.category,
+     *        contact_availability_status.description
+     * FROM contacts
+     * LEFT JOIN contact_availability_status
+     *        ON contacts.identity = contact_availability_status.identity
+     * WHERE contacts.androidContactId = ?;
+     * }</pre>
+     */
     @Nullable
     public ContactModel getByLookupKey(@NonNull String lookupKey) {
-        return getFirstOrNull(
-            ContactModel.COLUMN_ANDROID_CONTACT_LOOKUP_KEY + " =?",
-            lookupKey
-        );
+        final String query =
+            "SELECT " + ContactModel.TABLE + ".*, " + COLUMN_AVAILABILITY_STATUS_CATEGORY + ", " + COLUMN_AVAILABILITY_STATUS_DESCRIPTION +
+                " FROM " + ContactModel.TABLE + " LEFT JOIN " + DbAvailabilityStatus.TABLE +
+                " ON " + COLUMN_CONTACTS_IDENTITY + " = " + COLUMN_AVAILABILITY_STATUS_IDENTITY +
+                " WHERE " + COLUMN_CONTACTS_LOOKUP_KEY + " = ?;";
+        final Object[] bindArgs = new String[]{lookupKey};
+        final @Nullable Cursor cursor = getReadableDatabase().query(query, bindArgs);
+        return getFirstOrNull(cursor);
     }
 
+    /**
+     * Table join:
+     * <pre>{@code
+     * contacts
+     *   LEFT JOIN contact_availability_status
+     *          ON (contacts.identity = contact_availability_status.identity)
+     * }</pre>
+     */
     @NonNull
-    public List<ContactModel> convert(
+    public List<ContactModel> select(
         @NonNull QueryBuilder queryBuilder,
-        @Nullable String[] args,
-        @Nullable String orderBy
+        @Nullable String[] selectionArgs,
+        @Nullable String sortOrder
     ) {
-        queryBuilder.setTables(this.getTableName());
-        return convertList(
-            queryBuilder.query(getReadableDatabase(), null, null, args, null, null, orderBy)
+        final String tablesJoined =
+            ContactModel.TABLE + " LEFT JOIN " + DbAvailabilityStatus.TABLE +
+                " ON (" + COLUMN_CONTACTS_IDENTITY + " = " + COLUMN_AVAILABILITY_STATUS_IDENTITY + ")";
+        queryBuilder.setTables(tablesJoined);
+        final @Nullable Cursor cursor = queryBuilder.query(
+            getReadableDatabase(),
+            new String[] { ContactModel.TABLE + ".*", COLUMN_AVAILABILITY_STATUS_CATEGORY, COLUMN_AVAILABILITY_STATUS_DESCRIPTION },
+            null,
+            selectionArgs,
+            null,
+            null,
+            sortOrder
         );
+        return convertList(cursor);
     }
 
     @NonNull
@@ -101,7 +175,8 @@ public class ContactModelFactory extends ModelFactory {
         }
         try (cursor) {
             while (cursor.moveToNext()) {
-                final @NonNull ContactModel contactModel = convert(new CursorHelper(cursor, getColumnIndexCache()));
+                final @NonNull CursorHelper cursorHelper = new CursorHelper(cursor, getColumnIndexCache());
+                final @NonNull ContactModel contactModel = convert(cursorHelper);
                 results.add(contactModel);
             }
         } catch (SQLiteException e) {
@@ -112,49 +187,49 @@ public class ContactModelFactory extends ModelFactory {
 
     @NonNull
     private ContactModel convert(@NonNull CursorHelper cursorHelper) {
-        final @NonNull ContactModel[] cm = new ContactModel[1];
-        cursorHelper.current((CursorHelper.Callback) cursorHelper1 -> {
+        final @NonNull ContactModel[] contactModels = new ContactModel[1];
+        cursorHelper.current((CursorHelper.Callback) cHelper -> {
             ContactModel contactModel = ContactModel.createUnchecked(
-                cursorHelper1.getString(ContactModel.COLUMN_IDENTITY),
-                cursorHelper1.getBlob(ContactModel.COLUMN_PUBLIC_KEY)
+                cHelper.getString(ContactModel.COLUMN_IDENTITY),
+                cHelper.getBlob(ContactModel.COLUMN_PUBLIC_KEY)
             );
 
             contactModel
                 .setName(
-                    cursorHelper1.getString(ContactModel.COLUMN_FIRST_NAME),
-                    cursorHelper1.getString(ContactModel.COLUMN_LAST_NAME)
+                    cHelper.getString(ContactModel.COLUMN_FIRST_NAME),
+                    cHelper.getString(ContactModel.COLUMN_LAST_NAME)
                 )
-                .setPublicNickName(cursorHelper1.getString(ContactModel.COLUMN_PUBLIC_NICK_NAME))
-                .setState(IdentityState.valueOf(cursorHelper1.getString(ContactModel.COLUMN_STATE)))
-                .setAndroidContactLookupKey(cursorHelper1.getString(ContactModel.COLUMN_ANDROID_CONTACT_LOOKUP_KEY))
-                .setIsWork(cursorHelper1.getInt(ContactModel.COLUMN_IS_WORK) == 1)
+                .setPublicNickName(cHelper.getString(ContactModel.COLUMN_PUBLIC_NICK_NAME))
+                .setState(IdentityState.valueOf(cHelper.getString(ContactModel.COLUMN_STATE)))
+                .setAndroidContactLookupKey(cHelper.getString(ContactModel.COLUMN_ANDROID_CONTACT_LOOKUP_KEY))
+                .setIsWork(cHelper.getInt(ContactModel.COLUMN_IS_WORK) == 1)
                 .setIdentityType(
-                    cursorHelper1.getInt(ContactModel.COLUMN_TYPE) == 1
+                    cHelper.getInt(ContactModel.COLUMN_TYPE) == 1
                         ? IdentityType.WORK
                         : IdentityType.NORMAL
                 )
-                .setFeatureMask(cursorHelper1.getLong(ContactModel.COLUMN_FEATURE_MASK))
-                .setIdColorIndex(cursorHelper1.getInt(ContactModel.COLUMN_ID_COLOR_INDEX))
+                .setFeatureMask(cHelper.getLong(ContactModel.COLUMN_FEATURE_MASK))
+                .setIdColorIndex(cHelper.getInt(ContactModel.COLUMN_ID_COLOR_INDEX))
                 .setAcquaintanceLevel(
-                    cursorHelper1.getInt(ContactModel.COLUMN_ACQUAINTANCE_LEVEL) == 1
+                    cHelper.getInt(ContactModel.COLUMN_ACQUAINTANCE_LEVEL) == 1
                         ? AcquaintanceLevel.GROUP
                         : AcquaintanceLevel.DIRECT
                 )
-                .setLocalAvatarExpires(cursorHelper1.getDate(ContactModel.COLUMN_LOCAL_AVATAR_EXPIRES))
-                .setProfilePicBlobID(cursorHelper1.getBlob(ContactModel.COLUMN_PROFILE_PIC_BLOB_ID))
-                .setDateCreated(cursorHelper1.getDate(ContactModel.COLUMN_CREATED_AT))
-                .setLastUpdate(cursorHelper1.getDate(ContactModel.COLUMN_LAST_UPDATE))
-                .setIsRestored(cursorHelper1.getInt(ContactModel.COLUMN_IS_RESTORED) == 1)
-                .setArchived(cursorHelper1.getInt(ContactModel.COLUMN_IS_ARCHIVED) == 1)
-                .setReadReceipts(cursorHelper1.getInt(ContactModel.COLUMN_READ_RECEIPTS))
-                .setTypingIndicators(cursorHelper1.getInt(ContactModel.COLUMN_TYPING_INDICATORS))
-                .setForwardSecurityState(cursorHelper1.getInt(ContactModel.COLUMN_FORWARD_SECURITY_STATE))
-                .setJobTitle(cursorHelper1.getString(ContactModel.COLUMN_JOB_TITLE))
-                .setDepartment(cursorHelper1.getString(ContactModel.COLUMN_DEPARTMENT))
-                .setNotificationTriggerPolicyOverride(cursorHelper1.getLong(ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE));
+                .setLocalAvatarExpires(cHelper.getDate(ContactModel.COLUMN_LOCAL_AVATAR_EXPIRES))
+                .setProfilePicBlobID(cHelper.getBlob(ContactModel.COLUMN_PROFILE_PIC_BLOB_ID))
+                .setDateCreated(cHelper.getDate(ContactModel.COLUMN_CREATED_AT))
+                .setLastUpdate(cHelper.getDate(ContactModel.COLUMN_LAST_UPDATE))
+                .setIsRestored(cHelper.getInt(ContactModel.COLUMN_IS_RESTORED) == 1)
+                .setArchived(cHelper.getInt(ContactModel.COLUMN_IS_ARCHIVED) == 1)
+                .setReadReceipts(cHelper.getInt(ContactModel.COLUMN_READ_RECEIPTS))
+                .setTypingIndicators(cHelper.getInt(ContactModel.COLUMN_TYPING_INDICATORS))
+                .setForwardSecurityState(cHelper.getInt(ContactModel.COLUMN_FORWARD_SECURITY_STATE))
+                .setJobTitle(cHelper.getString(ContactModel.COLUMN_JOB_TITLE))
+                .setDepartment(cHelper.getString(ContactModel.COLUMN_DEPARTMENT))
+                .setNotificationTriggerPolicyOverride(cHelper.getLong(ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE));
 
             // Convert state to enum
-            switch (cursorHelper1.getString(ContactModel.COLUMN_STATE)) {
+            switch (cHelper.getString(ContactModel.COLUMN_STATE)) {
                 case "INACTIVE":
                     contactModel.setState(IdentityState.INACTIVE);
                     break;
@@ -168,7 +243,7 @@ public class ContactModelFactory extends ModelFactory {
                     break;
             }
 
-            switch (cursorHelper1.getInt(ContactModel.COLUMN_VERIFICATION_LEVEL)) {
+            switch (cHelper.getInt(ContactModel.COLUMN_VERIFICATION_LEVEL)) {
                 case 1:
                     contactModel.verificationLevel = VerificationLevel.SERVER_VERIFIED;
                     break;
@@ -179,14 +254,36 @@ public class ContactModelFactory extends ModelFactory {
                     contactModel.verificationLevel = VerificationLevel.UNVERIFIED;
             }
 
-            cm[0] = contactModel;
+            // Availability status
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
+                final @Nullable Integer availabilityStatusCategoryRaw = cHelper.getInt(DbAvailabilityStatus.COLUMN_CATEGORY);
+                final @Nullable String availabilityStatusDescription = cHelper.getString(DbAvailabilityStatus.COLUMN_DESCRIPTION);
+                // Since both these values are joined via LEFT JOIN, they actually can be null, although they are defined as NOT NULL in their
+                // dedicated table
+                if (availabilityStatusCategoryRaw != null && availabilityStatusDescription != null) {
+                    final @Nullable AvailabilityStatus availabilityStatus = AvailabilityStatus.fromDatabaseValues(
+                        availabilityStatusCategoryRaw,
+                        availabilityStatusDescription
+                    );
+                    if (availabilityStatus != null) {
+                        contactModel.setAvailabilityStatus(availabilityStatus);
+                    }
+                }
+            }
+
+            contactModels[0] = contactModel;
 
             return false;
         });
 
-        return cm[0];
+        return contactModels[0];
     }
 
+    /**
+     * <b>Caution:</b> This legacy implementation does <b>not</b> handle availability statuses. Meaning that when updating a contact model, any
+     * availability status will stay as is. When creating a contact, any defined availability status in the given model will be ignored.
+     * {@code SqliteDatabaseBackend} supports both use cases.
+     */
     public boolean createOrUpdate(@NonNull ContactModel contactModel) {
         if (TestUtil.isEmptyOrNull(contactModel.getIdentity())) {
             logger.error("try to create or update a contact model without identity");
@@ -205,7 +302,7 @@ public class ContactModelFactory extends ModelFactory {
             return false;
         }
 
-        Cursor cursor = getReadableDatabase().query(
+        final @Nullable Cursor cursor = getReadableDatabase().query(
             this.getTableName(),
             null,
             ContactModel.COLUMN_IDENTITY + "=?",
@@ -312,22 +409,15 @@ public class ContactModelFactory extends ModelFactory {
         );
     }
 
-    public int delete(@NonNull ContactModel contactModel) {
-        return getWritableDatabase().delete(
-            this.getTableName(),
-            ContactModel.COLUMN_IDENTITY + "=?",
-            new String[]{
-                contactModel.getIdentity()
-            }
-        );
-    }
-
     @Nullable
-    private ContactModel getFirstOrNull(@Nullable String selection, @Nullable String... selectionArgs) {
-        final @Nullable Cursor cursor = getReadableDatabase().query(getTableName(), null, selection, selectionArgs, null, null, null);
+    private ContactModel getFirstOrNull(final @Nullable Cursor cursor) {
+        if (cursor == null) {
+            return null;
+        }
         try (cursor) {
-            if (cursor != null && cursor.moveToFirst()) {
-                return convert(new CursorHelper(cursor, getColumnIndexCache()));
+            if (cursor.moveToFirst()) {
+                final @NonNull CursorHelper cursorHelper = new CursorHelper(cursor, getColumnIndexCache());
+                return convert(cursorHelper);
             }
         } catch (Exception e) {
             logger.error("Exception", e);
@@ -339,7 +429,7 @@ public class ContactModelFactory extends ModelFactory {
 
         @Override
         @NonNull
-        public String [] getCreationStatements() {
+        public String[] getCreationStatements() {
             return new String[]{
                 "CREATE TABLE `" + ContactModel.TABLE + "` (" +
                     "`" + ContactModel.COLUMN_IDENTITY + "` VARCHAR ," +

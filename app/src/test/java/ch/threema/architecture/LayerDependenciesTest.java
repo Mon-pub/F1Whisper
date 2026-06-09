@@ -50,6 +50,7 @@ public class LayerDependenciesTest {
     @ArchTest
     public static final ArchRule appLayerAccess = getLayeredArchitecture()
         .whereLayer(APP).mayNotBeAccessedByAnyLayer()
+        .ignoreDependency(nameMatching(".*"), nameMatching("ch\\.threema\\.app\\.BuildConfig"))
         // Storage layer may access services and utils
         .ignoreDependency(
             nameMatching("ch\\.threema\\.storage\\..*"),

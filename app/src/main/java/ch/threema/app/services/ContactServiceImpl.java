@@ -264,41 +264,46 @@ public class ContactServiceImpl implements ContactService {
     @NonNull
     public List<ContactModel> find(@Nullable Filter filter) {
         final @NonNull ContactModelFactory contactModelFactory = this.databaseService.getContactModelFactory();
-        // TODO(ANDR-XXXX): move this to database factory!
         final @NonNull QueryBuilder queryBuilder = new QueryBuilder();
-        final @NonNull List<String> placeholders = new ArrayList<>();
+        final @NonNull List<String> selectionArgs = new ArrayList<>();
 
         if (filter != null) {
-            IdentityState[] filterStates = filter.states();
+            final IdentityState[] filterStates = filter.states();
             if (filterStates != null && filterStates.length > 0) {
-                //dirty, add placeholder should be added to makePlaceholders
-                queryBuilder.appendWhere(ContactModel.COLUMN_STATE + " IN (" + DatabaseUtil.makePlaceholders(filterStates.length) + ")");
-                for (IdentityState s : filterStates) {
-                    placeholders.add(s.toString());
+                // dirty, add placeholder should be added to makePlaceholders
+                final @NonNull String placeholders = DatabaseUtil.makePlaceholders(filterStates.length);
+                queryBuilder.appendWhere(
+                    ContactModelFactory.COLUMN_CONTACTS_STATE + " IN (" + placeholders + ")"
+                );
+                for (IdentityState identityState : filterStates) {
+                    selectionArgs.add(identityState.toString());
                 }
             }
 
             if (!filter.includeHidden()) {
-                queryBuilder.appendWhere(ContactModel.COLUMN_ACQUAINTANCE_LEVEL + "=0");
+                queryBuilder.appendWhere(ContactModelFactory.COLUMN_CONTACTS_ACQUAINTANCE_LEVEL + "=0");
             }
 
             if (!filter.includeMyself()) {
-                String myIdentity = userService.getIdentity();
+                final @Nullable String myIdentity = userService.getIdentity();
                 if (myIdentity != null) {
-                    queryBuilder.appendWhere(ContactModel.COLUMN_IDENTITY + "!=?");
-                    placeholders.add(myIdentity);
+                    queryBuilder.appendWhere(
+                        ContactModelFactory.COLUMN_CONTACTS_IDENTITY + "!=?"
+                    );
+                    selectionArgs.add(myIdentity);
                 }
             }
 
             if (filter.onlyWithReceiptSettings()) {
-                queryBuilder.appendWhere(ContactModel.COLUMN_TYPING_INDICATORS + " !=0 OR " + ContactModel.COLUMN_READ_RECEIPTS + " !=0");
+                queryBuilder.appendWhere(
+                    ContactModelFactory.COLUMN_CONTACTS_TYPING_INDICATORS + " !=0 OR " + ContactModelFactory.COLUMN_CONTACTS_READ_RECEIPTS + " !=0"
+                );
             }
-
         }
 
-        @NonNull List<ContactModel> result = contactModelFactory.convert(
+        @NonNull List<ContactModel> result = contactModelFactory.select(
             queryBuilder,
-            placeholders.toArray(new String[0]),
+            selectionArgs.toArray(new String[0]),
             null
         );
 

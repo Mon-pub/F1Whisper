@@ -90,6 +90,7 @@ private fun AvailabilityStatusLabel(
         ConversationText(
             rawInput = availabilityStatusSet.displayText().get(),
             textStyle = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
             emojiSettings = EmojiSettings(
                 style = emojiStyle,
             ),

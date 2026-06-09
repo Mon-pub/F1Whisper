@@ -1,10 +1,10 @@
 package ch.threema.app.processors.reflectedd2dsync
 
+import ch.threema.app.BuildConfig
 import ch.threema.app.managers.ListenerManager
 import ch.threema.app.managers.ServiceManager
 import ch.threema.app.services.DeadlineListService.DEADLINE_INDEFINITE
 import ch.threema.app.utils.AppVersionProvider
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.utils.ContactUtil
 import ch.threema.app.utils.ExifInterface
 import ch.threema.app.utils.ShortcutUtil
@@ -147,7 +147,7 @@ class ReflectedContactSyncTask(
 
         applyConversationVisibility(contact)
 
-        if (ConfigUtils.supportsAvailabilityStatus()) {
+        if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             applyAvailabilityStatus(contactModel, contact)
         }
     }

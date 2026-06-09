@@ -2,6 +2,7 @@ package ch.threema.app.testutils
 
 import ch.threema.app.managers.ListenerManager
 import ch.threema.app.managers.ServiceManager
+import ch.threema.data.models.ContactModel
 import ch.threema.data.models.GroupIdentity
 import ch.threema.storage.DatabaseProvider
 import ch.threema.storage.runTransaction
@@ -9,10 +10,10 @@ import org.koin.mp.KoinPlatform
 
 fun clearDatabaseAndCaches(serviceManager: ServiceManager) {
     // First get all available contacts and groups
-    val contactIdentities =
-        serviceManager.databaseService.contactModelFactory.all.map { contact ->
-            contact.identity
-        }
+    val contactIdentities = serviceManager.modelRepositories
+        .contacts
+        .getAll()
+        .map(ContactModel::identity)
     val groupModelRepository = serviceManager.modelRepositories.groups
     val groups = serviceManager.databaseService.groupModelFactory.all
         .map { group ->

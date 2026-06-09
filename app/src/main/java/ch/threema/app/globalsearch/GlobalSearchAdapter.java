@@ -155,7 +155,7 @@ public class GlobalSearchAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 viewHolder.titleView.setText("");
                 viewHolder.snippetView.setText(R.string.private_chat_subject);
                 viewHolder.avatarListItemHolder.avatarView.setVisibility(View.INVISIBLE);
-                viewHolder.avatarListItemHolder.avatarView.setBadgeVisible(false);
+                viewHolder.avatarListItemHolder.avatarView.setWorkBadgeVisible(false);
             } else if (messageModel.isDeleted()) {
                 initDeletedViewHolder(viewHolder, messageModel);
             } else {

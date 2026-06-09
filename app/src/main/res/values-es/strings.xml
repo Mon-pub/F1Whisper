@@ -1538,7 +1538,7 @@ almacenado.</string>
     <string name="problemsolver_explain_notifications">Las notificaciones están completamente desactivadas para esta app. No se le informará de mensajes ni llamadas entrantes, y es posible que la app no funcione como se espera. Para solucionarlo, active \"Todas las notificaciones\".</string>
     <string name="problemsolver_explain_background_data">La app no puede utilizar datos móviles cuando esté en segundo plano. No se le informará de mensajes entrantes a menos que abra activamente la app. Para solucionarlo, active \"Datos en segundo plano\".</string>
     <string name="problemsolver_explain_background">El uso en segundo plano de la app está restringido. No recibirá notificaciones y muchas funciones no funcionarán como se espera. Para solucionarlo, pulse \"Uso de la batería de la app\" y seleccione \"Sin restricciones\".</string>
-    <string name="problemsolver_explain_debug_log_enabled">Activó el registro de depuración hace algún tiempo. Si ya no necesita registrar eventos e información de red, considere la posibilidad de desactivar el registro nuevamente.</string>
+    <string name="problemsolver_explain_debug_log_enabled">Hace tiempo que activó el registro de depuración. Si ya no necesita registrar eventos e información de red, considere desactivar el registro de nuevo.</string>
     <string name="problemsolver_explain_debug_log_force_enabled">${app_name} está registrando actualmente eventos e información de red en un archivo, ya que ha creado el archivo «%s». Si ya no necesita el registro de eventos, considere eliminar el archivo.</string>
     <string name="problemsolver_info_text">Los nombres de algunas de las opciones de configuración del sistema mencionados podrían variar en función de la versión de Android y del fabricante del dispositivo.</string>
     <string name="problemsolver_title_app_battery_usgae_optimized">Uso de la batería de la app establecido como \"optimizado\".</string>
@@ -1577,7 +1577,7 @@ almacenado.</string>
     <string name="error_reporting_summary_always_send">Enviar automáticamente informes de errores a ${company_name} cuando se detecte un error crítico</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="error_reporting_summary_always_ask">Preguntar siempre si se debe enviar un informe de error a ${company_name}</string>
-    <string name="error_detected_dialog_title">Enviar un informe anónimo</string>
+    <string name="error_detected_dialog_title">Enviar informe anónimo</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="crash_detected_dialog_text">Parece que ${app_name_short} se ha bloqueado recientemente. ¿Desea enviar un informe de error anónimo?</string>
     <string name="crash_detected_dialog_remember_choice">Recordar mi elección</string>
@@ -1604,7 +1604,7 @@ almacenado.</string>
     <string name="md_drop_device_failed_dialog_message">Compruebe la conexión a internet e inténtelo de nuevo.</string>
     <string name="md_drop_device_failed_dialog_button_close">Cerrar</string>
     <!-- Message shown in dialog when the user starts configuring a backup, but we detected that there might be a problem and thus offer a workaround option to choose from -->
-    <string name="backup_path_selection_message">Se ha detectado un problema en potencia al seleccionar la carpeta. Si continúa este problema, puede guardar la copia de seguridad en la carpeta «Documentos» en lugar de elegir una carpeta personalizada.</string>
+    <string name="backup_path_selection_message">Se ha detectado un posible problema al seleccionar la carpeta. Si continúa este problema, puede guardar la copia de seguridad en la carpeta «Documentos» en lugar de elegir una carpeta personalizada.</string>
     <!-- Button label on dialog when configuring a backup, shown on dialog that lets the user choose how they want to select the backup folder. This option lets them use the regular file picker. -->
     <string name="backup_path_selection_default">Seleccionar carpeta personalizada</string>
     <!-- Button label on dialog when configuring a backup, shown on dialog that lets the user choose how they want to select the backup folder. This option lets them bypass the file picker and use the default Documents folder instead -->
@@ -1703,9 +1703,11 @@ almacenado.</string>
     <!-- Description of the notification channel which is used when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secret_notification_channel_description">Cuando ${remote_secret} está activo, aparece una notificación persistente.</string>
     <!-- Text of the notification which is shown when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
-    <string name="remote_secret_notification_text">${remote_secret} está activo. Toca para  más información.</string>
+    <string name="remote_secret_notification_text">${remote_secret} está activo. Toque para obtener más información.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">Su administrador ha bloqueado el acceso a esta aplicación.\n\nPor favor, póngase en contacto con su administrador para más información.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">Cerrar app</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">No se ha podido recoger la ficha ${remote_secret}. Por favor, compruebe su conexión a Internet e inténtelo de nuevo.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1745,8 +1747,8 @@ almacenado.</string>
     <string name="referral_invitation_message_content">Hola, pensé que esto podría serte útil: Threema Work es una excelente opción para la comunicación empresarial segura. Aquí tienes el enlace de prueba: %1$s</string>
     <string name="prefs_voip_abort_on_bluetooth_disconnect_title">Finalizar la llamada cuando se desconecta el Bluetooth</string>
     <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_on">La llamada finaliza cuando se desconecta el auricular Bluetooth durante la misma.</string>
-    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">La llamada continúa aunque se desconecte el auricular Bluetooth durante la misma. Nota: esto podría impedir que funcione el botón de colgar de los auriculares.</string>
-    <string name="failed_to_load_conversations">No se pudieron cargar los chats.</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">La llamada continúa aunque se desconecte el auricular Bluetooth durante la misma. Nota: Esto podría impedir que funcione el botón de colgar en los auriculares.</string>
+    <string name="failed_to_load_conversations">No se han podido cargar los chats.</string>
     <string name="contact_support">Póngase en contacto con el servicio de asistencia</string>
     <string name="edit_availability_status_modal_title">Estado de disponibilidad</string>
     <string name="edit_availability_status_modal_subtitle">Todos en su empresa podrán ver este estado.</string>
@@ -1755,6 +1757,13 @@ almacenado.</string>
     <string name="edit_availability_status_modal_optional_message_description">Establezca un mensaje de estado personalizado cuando se seleccione Ocupado o No disponible.</string>
     <string name="edit_availability_status_modal_optional_message_too_long">El texto es demasiado largo, acórtelo.</string>
     <string name="edit_availability_status_did_change">Estado de disponibilidad cambiado</string>
+    <string name="tooltip_title_availability_status">Estado de disponibilidad</string>
+    <string name="tooltip_text_availability_status_in_chat">Vea si alguien está ocupado o no disponible antes de enviarle un mensaje. Puede establecer su propio estado en su perfil.</string>
+    <string name="tooltip_text_availability_status_in_profile">Establezca su estado para mostrar cuando está ocupado o no disponible.</string>
+    <string name="view_full_availability_status_modal_title">Estado de disponibilidad</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Toque para ver el estado de disponibilidad completo</string>
     <plurals name="contacts_counter_label">
         <item quantity="one">%d contacto</item>
         <item quantity="other">%d contactos</item>

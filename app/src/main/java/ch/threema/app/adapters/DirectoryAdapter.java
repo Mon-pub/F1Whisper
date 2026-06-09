@@ -19,14 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import ch.threema.app.BuildConfig;
 import ch.threema.app.R;
-import ch.threema.app.availabilitystatus.AvailabilityStatusExtensionsKt;
-import ch.threema.app.availabilitystatus.AvailabilityStatusIconElevatedView;
 import ch.threema.app.services.ContactService;
 import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.services.UserService;
 import ch.threema.app.ui.InitialAvatarView;
-import ch.threema.app.utils.ConfigUtils;
 import ch.threema.app.utils.TestUtil;
 import ch.threema.data.datatypes.AvailabilityStatus;
 import ch.threema.data.datatypes.ContactNameFormat;
@@ -55,7 +54,6 @@ public class DirectoryAdapter extends PagedListAdapter<WorkDirectoryContact, Rec
         private final TextView identityView;
         private final ImageView statusImageView;
         private final InitialAvatarView avatarView;
-        private final AvailabilityStatusIconElevatedView availabilityStatusIconElevatedView;
         private final TextView categoriesView;
         private final Chip organizationView;
         protected WorkDirectoryContact contact;
@@ -67,7 +65,6 @@ public class DirectoryAdapter extends PagedListAdapter<WorkDirectoryContact, Rec
             this.identityView = itemView.findViewById(R.id.identity);
             this.statusImageView = itemView.findViewById(R.id.status);
             this.avatarView = itemView.findViewById(R.id.avatar_view);
-            this.availabilityStatusIconElevatedView = itemView.findViewById(R.id.availability_status_avatar_icon);
             this.categoriesView = itemView.findViewById(R.id.categories);
             this.organizationView = itemView.findViewById(R.id.organization);
         }
@@ -202,7 +199,7 @@ public class DirectoryAdapter extends PagedListAdapter<WorkDirectoryContact, Rec
     }
 
     private void bindAvailabilityStatusIcon(@NonNull DirectoryHolder holder, @NonNull WorkDirectoryContact workDirectoryContact) {
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
+        if (!BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             return;
         }
 
@@ -213,20 +210,9 @@ public class DirectoryAdapter extends PagedListAdapter<WorkDirectoryContact, Rec
         final @Nullable AvailabilityStatus availabilityStatus = (workDirectoryContact.availability != null)
             ? AvailabilityStatus.fromProtocolBase64(workDirectoryContact.availability)
             : AvailabilityStatus.None.INSTANCE;
-
-        holder.availabilityStatusIconElevatedView.setVisibility(
-            availabilityStatus instanceof AvailabilityStatus.Set
-                ? View.VISIBLE
-                : View.GONE
-        );
-        holder.availabilityStatusIconElevatedView.setStatus(
+        holder.avatarView.setAvailabilityStatusBadgeState(
             availabilityStatus instanceof AvailabilityStatus.Set
                 ? (AvailabilityStatus.Set) availabilityStatus
-                : null
-        );
-        holder.availabilityStatusIconElevatedView.setContentDescription(
-            availabilityStatus instanceof AvailabilityStatus.Set
-                ? context.getString(AvailabilityStatusExtensionsKt.displayNameRes(availabilityStatus))
                 : null
         );
     }

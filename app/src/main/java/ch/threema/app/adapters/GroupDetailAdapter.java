@@ -189,7 +189,7 @@ public class GroupDetailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             itemHolder.idView.setText(displayableContactOrUser.getIdentity());
             AdapterUtil.styleContact(itemHolder.nameView, displayableContactOrUser.getIdentityState());
             itemHolder.avatarView.setImageBitmap(avatar);
-            itemHolder.avatarView.setBadgeVisible(displayableGroupParticipant.getDisplayableContactOrUser().getShowBadge());
+            itemHolder.avatarView.setWorkBadgeVisible(displayableGroupParticipant.getDisplayableContactOrUser().getShowBadge());
             itemHolder.view.setOnClickListener(v -> onClickListener.onGroupMemberClick(v, displayableContactOrUser.getIdentity()));
 
             boolean isCreator = displayableGroupParticipant instanceof DisplayableGroupParticipant.Creator;

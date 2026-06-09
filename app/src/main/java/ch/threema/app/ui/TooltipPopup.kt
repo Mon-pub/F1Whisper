@@ -39,6 +39,7 @@ constructor(
     @DrawableRes
     private val icon: Int = 0,
     private val showCloseButton: Boolean = true,
+    private val showArrow: Boolean = true,
 ) : PopupWindow(context), DefaultLifecycleObserver, KoinComponent {
 
     private val preferenceService: PreferenceService by inject()
@@ -82,12 +83,16 @@ constructor(
             }
     }
 
-    fun dismissForever() {
+    fun markAsShown() {
         if (preferenceKey != 0) {
             preferenceService.setTooltipPopupDismissed(preferenceKey, true)
         }
+    }
 
-        dismiss(false)
+    @JvmOverloads
+    fun dismissForever(immediate: Boolean = false) {
+        markAsShown()
+        dismiss(immediate)
     }
 
     fun dismiss(immediate: Boolean) {
@@ -110,7 +115,7 @@ constructor(
      * @param title          Optional title text to show in tooltip
      * @param text           Text to show in tooltip
      * @param alignment         Where to align the tooltip and where the arrow should be shown
-     * @param originLocation The location on screen where the tip of the arrow should point to
+     * @param originLocation The location on screen where the tip of the arrow should point to, or null to latch directly onto the anchor view
      * @param timeoutMs      How long the tooltip should be shown until it fades out
      */
     fun show(
@@ -119,7 +124,7 @@ constructor(
         title: String? = null,
         text: String?,
         alignment: Alignment,
-        originLocation: IntArray,
+        originLocation: IntArray? = null,
         timeoutMs: Int = 0,
     ) {
         if (isForeverDismissed() || TestUtil.isInDeviceTest()) {
@@ -148,29 +153,38 @@ constructor(
             screenHeight = resources.displayMetrics.heightPixels + ConfigUtils.getNavigationBarHeight(activity)
         }
         val maxWidth = resources.getDimensionPixelSize(R.dimen.tooltip_max_width)
-        val arrowInset = resources.getDimensionPixelSize(R.dimen.tooltip_popup_arrow_inset)
         val marginOnOtherEdge = resources.getDimensionPixelSize(R.dimen.tooltip_margin_on_other_edge)
-        val arrowOffset = (resources.getDimensionPixelSize(R.dimen.identity_popup_arrow_width) / 2) + arrowInset
-        var popupX: Int
-        val popupY: Int
+        val arrowOffset = if (showArrow) {
+            val arrowInset = resources.getDimensionPixelSize(R.dimen.tooltip_popup_arrow_inset)
+            val bubblePadding = resources.getDimensionPixelSize(R.dimen.tooltip_layout_margin_left)
+            (resources.getDimensionPixelSize(R.dimen.identity_popup_arrow_width) / 2) + arrowInset + bubblePadding
+        } else {
+            0
+        }
+        var popupX = 0
+        var popupY = 0
         val popupWidth: Int
         val anchorGravity: Int
         val contentGravity: Int
 
         when (alignment) {
             Alignment.ABOVE_ANCHOR_ARROW_LEFT -> {
-                popupLayout.findViewById<View>(R.id.arrow_bottom_left).isVisible = true
-                popupX = (originLocation[0] - arrowOffset).coerceAtLeast(0)
-                popupY = screenHeight - originLocation[1]
+                popupLayout.findViewById<View>(R.id.arrow_bottom_left).isVisible = showArrow
+                if (originLocation != null) {
+                    popupX = (originLocation[0] - arrowOffset).coerceAtLeast(0)
+                    popupY = screenHeight - originLocation[1]
+                }
                 popupWidth = (screenWidth - popupX - marginOnOtherEdge).coerceAtMost(maxWidth)
                 anchorGravity = Gravity.LEFT or Gravity.BOTTOM
                 contentGravity = Gravity.LEFT
             }
 
             Alignment.ABOVE_ANCHOR_ARROW_RIGHT -> {
-                popupLayout.findViewById<View>(R.id.arrow_bottom_right).isVisible = true
-                popupX = (originLocation[0] + arrowOffset).coerceAtMost(screenWidth)
-                popupY = screenHeight - originLocation[1]
+                popupLayout.findViewById<View>(R.id.arrow_bottom_right).isVisible = showArrow
+                if (originLocation != null) {
+                    popupX = (originLocation[0] + arrowOffset).coerceAtMost(screenWidth)
+                    popupY = screenHeight - originLocation[1]
+                }
                 popupWidth = (popupX - marginOnOtherEdge).coerceAtMost(maxWidth)
                 popupX -= popupWidth
                 anchorGravity = Gravity.LEFT or Gravity.BOTTOM
@@ -178,18 +192,22 @@ constructor(
             }
 
             Alignment.BELOW_ANCHOR_ARROW_LEFT -> {
-                popupLayout.findViewById<View>(R.id.arrow_top_left).isVisible = true
-                popupX = (originLocation[0] - arrowOffset).coerceAtLeast(0)
-                popupY = originLocation[1]
+                popupLayout.findViewById<View>(R.id.arrow_top_left).isVisible = showArrow
+                if (originLocation != null) {
+                    popupX = (originLocation[0] - arrowOffset).coerceAtLeast(0)
+                    popupY = originLocation[1]
+                }
                 popupWidth = (screenWidth - popupX - marginOnOtherEdge).coerceAtMost(maxWidth)
                 anchorGravity = Gravity.LEFT or Gravity.TOP
                 contentGravity = Gravity.LEFT
             }
 
             Alignment.BELOW_ANCHOR_ARROW_RIGHT -> {
-                popupLayout.findViewById<View>(R.id.arrow_top_right).isVisible = true
-                popupX = (originLocation[0] + arrowOffset).coerceAtMost(screenWidth)
-                popupY = originLocation[1]
+                popupLayout.findViewById<View>(R.id.arrow_top_right).isVisible = showArrow
+                if (originLocation != null) {
+                    popupX = (originLocation[0] + arrowOffset).coerceAtMost(screenWidth)
+                    popupY = originLocation[1]
+                }
                 popupWidth = (popupX - marginOnOtherEdge).coerceAtMost(maxWidth)
                 popupX -= popupWidth
                 anchorGravity = Gravity.LEFT or Gravity.TOP
@@ -208,8 +226,12 @@ constructor(
             return
         }
         try {
-            showAtLocation(anchor, anchorGravity, popupX, popupY)
-        } catch (e: BadTokenException) {
+            if (originLocation != null) {
+                showAtLocation(anchor, anchorGravity, popupX, popupY)
+            } else {
+                showAsDropDown(anchor)
+            }
+        } catch (_: BadTokenException) {
             return
         }
 
@@ -232,7 +254,7 @@ constructor(
         }
     }
 
-    private fun isForeverDismissed(): Boolean {
+    fun isForeverDismissed(): Boolean {
         if (preferenceKey == 0) {
             return false
         }

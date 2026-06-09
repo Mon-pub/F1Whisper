@@ -5,41 +5,16 @@ import ch.threema.app.services.MessageService
 import ch.threema.app.utils.MessageUtil
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.domain.models.MessageId
-import ch.threema.domain.protocol.csp.messages.AbstractMessage
-import ch.threema.domain.protocol.csp.messages.DeleteMessage
-import ch.threema.domain.protocol.csp.messages.GroupDeleteMessage
+import ch.threema.domain.types.IdentityString
 import ch.threema.storage.models.AbstractMessageModel
+import java.util.Date
 
 private val logger = getThreemaLogger("DeleteMessageUtils")
 
 fun runCommonDeleteMessageReceiveSteps(
-    deleteMessage: DeleteMessage,
-    receiver: MessageReceiver<*>,
-    messageService: MessageService,
-): AbstractMessageModel? {
-    return runCommonDeleteMessageReceiveSteps(
-        deleteMessage,
-        deleteMessage.data.messageId,
-        receiver,
-        messageService,
-    )
-}
-
-fun runCommonDeleteMessageReceiveSteps(
-    deleteMessage: GroupDeleteMessage,
-    receiver: MessageReceiver<*>,
-    messageService: MessageService,
-): AbstractMessageModel? {
-    return runCommonDeleteMessageReceiveSteps(
-        deleteMessage,
-        deleteMessage.data.messageId,
-        receiver,
-        messageService,
-    )
-}
-
-private fun runCommonDeleteMessageReceiveSteps(
-    deleteMessage: AbstractMessage,
+    myIdentity: IdentityString,
+    deleteMessageSenderIdentity: IdentityString,
+    deleteMessageCreatedAt: Date,
     messageId: Long,
     receiver: MessageReceiver<*>,
     messageService: MessageService,
@@ -55,12 +30,16 @@ private fun runCommonDeleteMessageReceiveSteps(
         return null
     }
     // 2. If `message` is not ... or the sender is not the original sender of `message`, discard the message and abort these steps.
-    // Note: We only perform this check if the message is inbox
-    if (!message.isOutbox && deleteMessage.fromIdentity != message.identity) {
+    val originalMessageSender = if (message.isOutbox) {
+        myIdentity
+    } else {
+        message.identity
+    }
+    if (deleteMessageSenderIdentity != originalMessageSender) {
         logger.warn(
-            "Delete Message: original message's sender {} does not equal deleted message's sender {}",
-            message.identity,
-            deleteMessage.fromIdentity,
+            "Delete Message: original message's sender {} does not equal delete-message's sender {}",
+            originalMessageSender,
+            deleteMessageSenderIdentity,
         )
         return null
     }
@@ -74,7 +53,7 @@ private fun runCommonDeleteMessageReceiveSteps(
 
     // Replace `message` with a message informing the user that the message of
     //  the sender has been removed at `created-at`.
-    message.deletedAt = deleteMessage.date
+    message.deletedAt = deleteMessageCreatedAt
 
     return message
 }

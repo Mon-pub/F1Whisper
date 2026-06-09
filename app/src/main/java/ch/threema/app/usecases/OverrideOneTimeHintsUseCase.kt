@@ -18,6 +18,7 @@ class OverrideOneTimeHintsUseCase(
             setOneTimeDialogShown("note_group_hint", dismiss)
             setOneTimeDialogShown("individual_confirm", dismiss)
             setTooltipPopupDismissed(R.string.preferences__tooltip_emoji_reactions_shown, dismiss)
+            setTooltipPopupDismissed(R.string.preferences__tooltip_availability_status_shown, dismiss)
             setTooltipPopupDismissed(R.string.preferences__tooltip_export_id_shown, dismiss)
             setTooltipPopupDismissed(R.string.preferences__tooltip_audio_selector_hint, dismiss)
             setTooltipPopupDismissed(R.string.preferences__tooltip_gc_camera, dismiss)

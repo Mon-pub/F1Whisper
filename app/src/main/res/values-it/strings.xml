@@ -1123,7 +1123,7 @@
         <p>Per maggiori dettagli, vai su "Menu > Threema 2.0 per Desktop (Beta)".</p>
         ]]></string>
     <string name="tap_to_start">Tocca qui per iniziare %s adesso.</string>
-    <string name="notification_title_restart">È necessario riavviare il sistema.</string>
+    <string name="notification_title_restart">Riavvio necessario</string>
     <string name="two_years">2 anni</string>
     <string name="backup_data_no_permission">Impossibile scrivere in questa directory. Sceglierne un\'altra.</string>
     <string name="prefs_sum_show_unread_badge">Mostra un badge indicante il numero di messaggi non letti vicino all\'icona dei messaggi</string>
@@ -1548,7 +1548,7 @@
     <string name="problemsolver_explain_notifications">Poiché le notifiche sono completamente disattivate non sarai informato di nuovi messaggi o chiamate e l\'app potrebbe non funzionare come previsto. Per risolvere il problema, attiva l\'opzione \"Tutte le notifiche\".</string>
     <string name="problemsolver_explain_background_data">Poiché l\'utilizzo dei dati mobili in background è disattivato non riceverai notifiche di nuovi messaggi o chiamate, a meno che non apri attivamente l\'app. Per risolvere il problema, attiva l\'opzione \"Dati in background\".</string>
     <string name="problemsolver_explain_background">Poiché l\'uso dell\'app in background è limitato, non riceverai notifiche e l\'app funzionerà solo parzialmente o non come previsto. Per risolvere il problema, tocca \"Utilizzo batteria app\" e seleziona \"Senza restrizioni\".</string>
-    <string name="problemsolver_explain_debug_log_enabled">Qualche tempo fa hai attivato il registro di debug. Se non hai più bisogno di registrare eventi e informazioni di rete, valuta la possibilità di disabilitare nuovamente la registrazione.</string>
+    <string name="problemsolver_explain_debug_log_enabled">Tempo fa hai attivato il registro di debug. Se non hai più bisogno di registrare eventi e informazioni di rete, valuta la possibilità di disabilitarlo nuovamente.</string>
     <string name="problemsolver_explain_debug_log_force_enabled">${app_name} sta attualmente registrando eventi e informazioni di rete in un file perché hai creato il file \"%s\". Se non hai più bisogno di registrare i dati, valuta la possibilità di eliminare il file.</string>
     <string name="problemsolver_info_text">Le denominazioni di alcune delle opzioni nelle impostazioni di sistema menzionate possono variare a seconda della versione di Android e del produttore del dispositivo.</string>
     <string name="problemsolver_title_app_battery_usgae_optimized">Utilizzo batteria app \"ottimizzato\"</string>
@@ -1584,14 +1584,14 @@
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="error_reporting_summary_never_send">Non inviare mai segnalazioni di errore a ${company_name}</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="error_reporting_summary_always_send">Invia automaticamente i report degli errori a ${company_name} quando viene rilevato un errore critico.</string>
+    <string name="error_reporting_summary_always_send">Invia automaticamente i report degli errori a ${company_name} quando viene rilevato un errore critico</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="error_reporting_summary_always_ask">Chiedi ogni volta se inviare una segnalazione di errore a ${company_name}</string>
     <string name="error_detected_dialog_title">Invia segnalazione anonima</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="crash_detected_dialog_text">Sembra che ${app_name_short} si sia bloccato di recente. Desideri inviare una segnalazione di errore anonima?</string>
+    <string name="crash_detected_dialog_text">${app_name_short} è andato in crash ultimamente. Desideri inviare una segnalazione di errore anonima?</string>
     <string name="crash_detected_dialog_remember_choice">Ricorda la mia scelta</string>
-    <string name="crash_detected_dialog_send_button">Inviare</string>
+    <string name="crash_detected_dialog_send_button">Invia</string>
     <!-- Shown in the advanced settings, shows the user their own Device's uniquely generated ID, which is used for sending error reports -->
     <string name="prefs_error_reporting_id">ID dispositivo anonimo</string>
     <!-- The %s is a placeholder for an ID. It must be left as-is. -->
@@ -1679,7 +1679,7 @@
     <!-- Error message when linking of a new device failed due to an invalid contact. %1$s will be replaced with the threema identity of the affected contact. -->
     <string name="device_linking_error_invalid_contact_body">Il contatto con identità %1$s non è memorizzato correttamente in questo dispositivo e impedisce il collegamento del nuovo dispositivo. Contatta il supporto (\"Menu principale &gt; Aiuto\").</string>
     <string name="device_linking_error_invalid_timestamp_title">Data non valida</string>
-    <string name="device_linking_error_invalid_timestamp_body">È stata rilevata una data non valida. Si prega di contattare l\'assistenza (“Main menu &gt; Help”).</string>
+    <string name="device_linking_error_invalid_timestamp_body">È stata rilevata una data non valida. Contatta l\'assistenza (\"Menu principale &gt; Aiuto\").</string>
     <string name="work_directory_title">Directory azienda</string>
     <!-- Instruction text for the user directory search -->
     <string name="work_directory_search">Cerca nella directory</string>
@@ -1716,6 +1716,8 @@
     <string name="remote_secret_notification_text">${remote_secret} è attivo. Tocca per saperne di più.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">L\'accesso a questa app è stato bloccato dal tuo amministratore.\n\nPer ulteriori informazioni, contatta il tuo amministratore.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">Chiudi l\'app</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">Impossibile recuperare il token ${remote_secret}. Controlla la tua connessione Internet e riprova.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1753,7 +1755,7 @@
     <string name="referral_share_invitation_link">Condividi il link dell\'invito</string>
     <string name="referral_view_terms_and_conditions">Consulta i Termini e condizioni</string>
     <string name="referral_invitation_message_content">Ciao, ho pensato che questo potesse esserti utile: Threema Work è un\'ottima soluzione per comunicazioni aziendali sicure. Ecco il link per il test: %1$s</string>
-    <string name="prefs_voip_abort_on_bluetooth_disconnect_title">Termina la chiamata quando il Bluetooth viene disconnesso.</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_title">Termina la chiamata quando il Bluetooth viene disconnesso</string>
     <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_on">La chiamata termina quando l\'auricolare Bluetooth viene disconnesso durante una conversazione.</string>
     <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">La chiamata continua anche se l\'auricolare Bluetooth viene disconnesso durante una conversazione. Nota: ciò potrebbe impedire il funzionamento del pulsante di fine chiamata sulle cuffie.</string>
     <string name="failed_to_load_conversations">Impossibile caricare le chat.</string>
@@ -1765,6 +1767,13 @@
     <string name="edit_availability_status_modal_optional_message_description">Imposta un messaggio di stato personalizzato quando sono selezionati Occupato o Non disponibile.</string>
     <string name="edit_availability_status_modal_optional_message_too_long">Il testo è troppo lungo, accorcialo</string>
     <string name="edit_availability_status_did_change">Stato di disponibilità cambiato</string>
+    <string name="tooltip_title_availability_status">Stato di disponibilità</string>
+    <string name="tooltip_text_availability_status_in_chat">Controlla se qualcuno è occupato o non disponibile prima di inviargli un messaggio. Puoi impostare il tuo stato nel tuo profilo.</string>
+    <string name="tooltip_text_availability_status_in_profile">Imposta il tuo stato per indicare quando hai un impegno o non sei disponibile.</string>
+    <string name="view_full_availability_status_modal_title">Stato di disponibilità</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Tocca per visualizzare lo stato di disponibilità completo</string>
     <plurals name="contacts_counter_label">
         <item quantity="one">%d contatto</item>
         <item quantity="other">%d contatti</item>

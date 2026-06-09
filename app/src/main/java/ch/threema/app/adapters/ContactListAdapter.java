@@ -13,6 +13,7 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.bumptech.glide.RequestManager;
@@ -34,6 +35,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ch.threema.app.BuildConfig;
 import ch.threema.app.R;
 import ch.threema.app.ThreemaApplication;
 import ch.threema.app.emojis.EmojiTextView;
@@ -48,7 +50,10 @@ import ch.threema.app.ui.listitemholder.AvatarListItemHolder;
 import ch.threema.app.utils.AdapterUtil;
 import ch.threema.app.utils.ContactUtil;
 import ch.threema.app.utils.ViewUtil;
+
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
+
+import ch.threema.data.datatypes.AvailabilityStatus;
 import ch.threema.storage.models.ContactModel;
 
 public class ContactListAdapter extends FilterableListAdapter implements SectionIndexer {
@@ -438,6 +443,13 @@ public class ContactListAdapter extends FilterableListAdapter implements Section
             }
         }
 
+        if (BuildConfig.AVAILABILITY_STATUS_ENABLED && holder.avatarView != null) {
+            final @Nullable AvailabilityStatus.Set availabilityStatusSet = (contactModel.getAvailabilityStatus() instanceof AvailabilityStatus.Set)
+                ? (AvailabilityStatus.Set) contactModel.getAvailabilityStatus()
+                : null;
+            holder.avatarView.setAvailabilityStatusBadgeState(availabilityStatusSet);
+        }
+
         return itemView;
     }
 
@@ -581,13 +593,6 @@ public class ContactListAdapter extends FilterableListAdapter implements Section
             return ((ContactListHolder) v.getTag()).originalPosition;
         }
         return 0;
-    }
-
-    public int getViewTypeFromView(View v) {
-        if (v != null && v.getTag() != null) {
-            return ((ContactListHolder) v.getTag()).viewType;
-        }
-        return VIEW_TYPE_NORMAL;
     }
 
     public String getInitial(int position) {

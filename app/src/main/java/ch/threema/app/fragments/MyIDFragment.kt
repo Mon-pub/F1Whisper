@@ -2,6 +2,7 @@ package ch.threema.app.fragments
 
 import android.animation.LayoutTransition
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
@@ -23,10 +24,12 @@ import androidx.lifecycle.repeatOnLifecycle
 import ch.threema.android.ToastDuration
 import ch.threema.android.showToast
 import ch.threema.app.AppConstants
+import ch.threema.app.BuildConfig
 import ch.threema.app.R
 import ch.threema.app.activities.ExportIDActivity
 import ch.threema.app.activities.ProfilePicRecipientsActivity
 import ch.threema.app.applock.CheckAppLockContract
+import ch.threema.app.availabilitystatus.AvailabilityStatusTooltipPopupManager
 import ch.threema.app.availabilitystatus.displayText
 import ch.threema.app.availabilitystatus.edit.EditAvailabilityStatusBottomSheetDialog
 import ch.threema.app.availabilitystatus.iconRes
@@ -55,6 +58,7 @@ import ch.threema.app.tasks.TaskCreator
 import ch.threema.app.ui.AvatarEditView
 import ch.threema.app.ui.InsetSides.Companion.horizontal
 import ch.threema.app.ui.QRCodePopup
+import ch.threema.app.ui.TooltipPopup
 import ch.threema.app.ui.applyDeviceInsetsAsPadding
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.utils.DialogUtil
@@ -100,6 +104,7 @@ class MyIDFragment : MainFragment(), DialogClickListener, TextEntryDialogClickLi
     private var currentAvailabilityStatusContainer: LinearLayout? = null
     private var currentAvailabilityStatusIcon: ImageView? = null
     private var currentAvailabilityStatusName: EmojiTextView? = null
+    private var availabilityStatusTooltipPopup: TooltipPopup? = null
 
     private var hidden = false
     private var isDisabledProfilePicReleaseSettings = false
@@ -166,7 +171,7 @@ class MyIDFragment : MainFragment(), DialogClickListener, TextEntryDialogClickLi
         super.onCreate(savedInstanceState)
         retainInstance = true
 
-        if (ConfigUtils.supportsAvailabilityStatus()) {
+        if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             setFragmentResultListener(
                 requestKey = REQUEST_KEY_EDIT_AVAILABILITY_STATUS,
             ) { _, bundle ->
@@ -238,8 +243,8 @@ class MyIDFragment : MainFragment(), DialogClickListener, TextEntryDialogClickLi
 
         policyExplainView.isVisible = isReadonlyProfile || isBackupsDisabled
 
-        currentAvailabilityStatusContainer.isVisible = ConfigUtils.supportsAvailabilityStatus()
-        if (ConfigUtils.supportsAvailabilityStatus()) {
+        currentAvailabilityStatusContainer.isVisible = BuildConfig.AVAILABILITY_STATUS_ENABLED
+        if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             setUpAvailabilityStatusDisplay(
                 availabilityStatus = preferenceService.getAvailabilityStatus(),
             )
@@ -349,7 +354,7 @@ class MyIDFragment : MainFragment(), DialogClickListener, TextEntryDialogClickLi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (ConfigUtils.supportsAvailabilityStatus()) {
+        if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             viewLifecycleOwner.lifecycleScope.launch {
                 viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
                     preferenceService.watchAvailabilityStatus().collect(::setUpAvailabilityStatusDisplay)
@@ -898,8 +903,25 @@ class MyIDFragment : MainFragment(), DialogClickListener, TextEntryDialogClickLi
         super.onHiddenChanged(hidden)
         if (!hidden && this.hidden) {
             updatePendingState(requireView(), false)
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
+                currentAvailabilityStatusIcon?.let { currentAvailabilityStatusIcon ->
+                    availabilityStatusTooltipPopup = AvailabilityStatusTooltipPopupManager.showInProfile(
+                        activity = requireActivity(),
+                        anchor = currentAvailabilityStatusIcon,
+                    )
+                }
+            }
+        } else if (hidden && !this.hidden) {
+            availabilityStatusTooltipPopup?.dismissForever(immediate = true)
+            availabilityStatusTooltipPopup = null
         }
         this.hidden = hidden
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        availabilityStatusTooltipPopup?.dismissForever(immediate = true)
+        availabilityStatusTooltipPopup = null
     }
 
     override fun onStart() {

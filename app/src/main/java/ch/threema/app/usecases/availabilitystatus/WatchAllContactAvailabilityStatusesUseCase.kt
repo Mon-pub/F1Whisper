@@ -1,8 +1,8 @@
 package ch.threema.app.usecases.availabilitystatus
 
+import ch.threema.app.BuildConfig
 import ch.threema.app.listeners.ContactListener
 import ch.threema.app.managers.ListenerManager
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.common.DispatcherProvider
 import ch.threema.data.datatypes.AvailabilityStatus
@@ -38,7 +38,7 @@ class WatchAllContactAvailabilityStatusesUseCase(
      *  Every exception that's not occurring inside the [ContactListener] will flow downstream.
      */
     fun call(): Flow<Map<IdentityString, AvailabilityStatus>> {
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
+        if (!BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             return flowOf(emptyMap())
         }
         return callbackFlow {

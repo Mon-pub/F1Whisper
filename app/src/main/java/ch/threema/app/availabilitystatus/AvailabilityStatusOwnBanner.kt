@@ -142,7 +142,7 @@ private class PreviewProviderAvailabilityStatusOwnBanner : PreviewParameterProvi
             description = "In a short coffee break \u2615\uD83D\uDE42\u200D\u2195\uFE0F",
         ),
         AvailabilityStatus.Busy(
-            description = "I cant keep my status description short because I am a person that likes to talk a lot.",
+            description = "I can't keep my status description short because I am a person that likes to talk a lot.",
         ),
         AvailabilityStatus.Unavailable(),
         AvailabilityStatus.Unavailable(

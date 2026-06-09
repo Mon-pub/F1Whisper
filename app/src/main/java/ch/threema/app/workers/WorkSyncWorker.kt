@@ -23,6 +23,7 @@ import ch.threema.app.R
 import ch.threema.app.ThreemaApplication
 import ch.threema.app.asynctasks.AddOrUpdateWorkContactBackgroundTask
 import ch.threema.app.di.awaitAppFullyReadyWithTimeout
+import ch.threema.app.multidevice.MultiDeviceManager
 import ch.threema.app.notifications.NotificationChannels
 import ch.threema.app.notifications.NotificationIDs
 import ch.threema.app.preference.service.PreferenceService
@@ -48,6 +49,7 @@ import ch.threema.domain.models.WorkVerificationLevel
 import ch.threema.domain.protocol.api.APIConnector
 import ch.threema.domain.protocol.api.work.WorkData
 import ch.threema.domain.stores.IdentityStore
+import ch.threema.domain.taskmanager.TaskManager
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import okhttp3.OkHttpClient
@@ -72,6 +74,8 @@ class WorkSyncWorker(
     private val identityStore: IdentityStore by inject()
     private val contactModelRepository: ContactModelRepository by inject()
     private val appRestrictions: AppRestrictions by inject()
+    private val taskManager: TaskManager by inject()
+    private val multiDeviceManager: MultiDeviceManager by inject()
 
     companion object {
         private const val EXTRA_FORCE_UPDATE = "FORCE_UPDATE"
@@ -268,6 +272,8 @@ class WorkSyncWorker(
                     workContact = workContact,
                     myIdentity = userService.identity!!,
                     contactModelRepository = contactModelRepository,
+                    taskManager = taskManager,
+                    multiDeviceManager = multiDeviceManager,
                 ).runSynchronously()
             }
             .map(ContactModel::identity)

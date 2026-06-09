@@ -1562,7 +1562,7 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="group_chats">Discussions de groupe</string>
     <string name="edit_history_file_no_caption">Pas de légende</string>
     <string name="prefs_title_error_reporting">Signalement des erreurs</string>
-    <string name="prefs_send_error_reports">Envoyer des signalements anonymes</string>
+    <string name="prefs_send_error_reports">Envoyer des rapports anonymes</string>
     <string name="error_reporting_option_never_send">Jamais</string>
     <string name="error_reporting_option_always_send">Toujours</string>
     <string name="error_reporting_option_always_ask">Demander à chaque fois</string>
@@ -1572,9 +1572,9 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="error_reporting_summary_always_send">Envoyer automatiquement des rapports d\'erreur à ${company_name} lorsqu\'une erreur critique est détectée</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="error_reporting_summary_always_ask">Demander systématiquement s\'il faut envoyer un rapport d\'erreur à ${company_name}</string>
-    <string name="error_detected_dialog_title">Envoyer un signalement anonyme</string>
+    <string name="error_detected_dialog_title">Envoyer un rapport anonyme</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="crash_detected_dialog_text">Il semblerait que ${app_name_short} ait récemment planté. Souhaitez-vous soumettre un rapport d\'erreur anonyme ?</string>
+    <string name="crash_detected_dialog_text">Il semblerait que ${app_name_short} ait récemment planté. Souhaitez-vous envoyer un rapport d\'erreur anonyme ?</string>
     <string name="crash_detected_dialog_remember_choice">Se souvenir de mon choix</string>
     <string name="crash_detected_dialog_send_button">Envoyer</string>
     <!-- Shown in the advanced settings, shows the user their own Device's uniquely generated ID, which is used for sending error reports -->
@@ -1680,7 +1680,7 @@ Veuillez saisir une question pour votre enquête.</string>
     <!-- Error message (only relevant for OnPrem) if the preset server url is different from the one provided by the activation link. -->
     <string name="error_preset_onprem_url_mismatch_intent">Le lien d’activation n’est pas valide. Veuillez contacter votre administrateur.</string>
     <!-- Warning message displayed on screen where the user can export a debug log file to share with Support. ${company_name} is a placeholder for the company name and should be kept as-is, not translated. -->
-    <string name="export_logs_screen_warning">Pour des raisons de confidentialité, ne partagez le fichier de journal qu\'avec l\'équipe d\'assistance de ${company_name} et uniquement si on vous le demande.</string>
+    <string name="export_logs_screen_warning">Pour des raisons de confidentialité, ne partagez le fichier journal qu\'avec l\'équipe d\'assistance de ${company_name} et uniquement si on vous le demande.</string>
     <string name="work_intro_screen_work_title">COMMUNICATION HAUTEMENT SÉCURISÉE POUR LES ENTREPRISES</string>
     <string name="work_intro_screen_work_subtitle">Threema Work est la solution de communication sécurisée pour les entreprises : chiffrement de bout en bout, conforme au RGPD et développée en Suisse.</string>
     <string name="work_intro_screen_work_sign_in_button_label">Se connecter maintenant</string>
@@ -1701,6 +1701,8 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="remote_secret_notification_text">${remote_secret} est actif. Appuyez pour en savoir plus.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">L’accès à cette application a été bloqué par votre administrateur.\n\nVeuillez le contacter pour obtenir plus d’informations.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">Fermer l\'application</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">Le jeton ${remote_secret} n’a pas pu être récupéré. Veuillez vérifier votre connexion Internet et réessayer.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1740,8 +1742,8 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="referral_invitation_message_content">Bonjour, je pense que cela pourrait vous être utile : Threema Work est une excellente option pour sécuriser les communications professionnelles. Voici votre lien d’essai :%1$s</string>
     <string name="prefs_voip_abort_on_bluetooth_disconnect_title">Mettre fin à l\'appel lorsque le Bluetooth est déconnecté</string>
     <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_on">L\'appel prend fin lorsque le casque Bluetooth est déconnecté pendant un appel.</string>
-    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">L\'appel se poursuit même si le casque Bluetooth est déconnecté pendant un appel. Remarque : Ceci peut empêcher le bouton de raccrochage du casque de fonctionner.</string>
-    <string name="failed_to_load_conversations">Les conversations n\'ont pas pu être chargées.</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">L\'appel se poursuit même si le casque Bluetooth est déconnecté pendant un appel. Remarque : ceci peut empêcher le bouton de raccrochage du casque de fonctionner.</string>
+    <string name="failed_to_load_conversations">Échec du chargement des conversations.</string>
     <string name="contact_support">Contacter l\'assistance</string>
     <string name="edit_availability_status_modal_title">Statut de disponibilité</string>
     <string name="edit_availability_status_modal_subtitle">Ce statut est visible par tous dans votre entreprise.</string>
@@ -1750,6 +1752,13 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="edit_availability_status_modal_optional_message_description">Définissez un message de statut personnalisé lorsque Occupé ou Indisponible est sélectionné.</string>
     <string name="edit_availability_status_modal_optional_message_too_long">Texte trop long, veuillez le raccourcir</string>
     <string name="edit_availability_status_did_change">Statut de disponibilité modifié</string>
+    <string name="tooltip_title_availability_status">Statut de disponibilité</string>
+    <string name="tooltip_text_availability_status_in_chat">Voyez si quelqu\'un est occupé ou indisponible avant de lui envoyer un message. Vous pouvez définir votre propre statut dans votre profil.</string>
+    <string name="tooltip_text_availability_status_in_profile">Définissez votre statut pour montrer quand vous êtes occupé(e) ou indisponible.</string>
+    <string name="view_full_availability_status_modal_title">Statut de disponibilité</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Appuyez pour voir le statut de disponibilité complet</string>
     <plurals name="contacts_counter_label">
         <item quantity="one">%d contact</item>
         <item quantity="other">%d contacts</item>

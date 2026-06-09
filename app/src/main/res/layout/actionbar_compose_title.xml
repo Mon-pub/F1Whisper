@@ -20,15 +20,8 @@
             android:id="@+id/avatar_view"
             android:layout_width="@dimen/compose_title_avatar_size"
             android:layout_height="@dimen/compose_title_avatar_size"
-            android:contentDescription="@string/threema_contact" />
-
-        <ch.threema.app.availabilitystatus.AvailabilityStatusIconElevatedView
-            android:id="@+id/availability_status_avatar_icon"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_gravity="bottom|end"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            android:contentDescription="@string/threema_contact"
+            tools:background="@drawable/ic_profile_filled" />
 
     </FrameLayout>
 

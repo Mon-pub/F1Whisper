@@ -1,11 +1,11 @@
 package ch.threema.app.processors.reflectedd2dsync
 
+import ch.threema.app.BuildConfig
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.profilepicture.RawProfilePicture
 import ch.threema.app.services.ContactService.ProfilePictureUploadData
 import ch.threema.app.services.ProfilePictureRecipientsService
 import ch.threema.app.services.UserService
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.base.crypto.SymmetricEncryptionService
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.data.datatypes.AvailabilityStatus
@@ -160,9 +160,8 @@ class ReflectedUserProfileSyncTask(
         }
     }
 
-    // TODO(ANDR-4751): Test when desktop is ready
     private fun applyReflectedAvailabilityStatus(userProfile: UserProfile) {
-        if (ConfigUtils.supportsAvailabilityStatus() && userProfile.hasWorkAvailabilityStatus()) {
+        if (BuildConfig.AVAILABILITY_STATUS_ENABLED && userProfile.hasWorkAvailabilityStatus()) {
             val availabilityStatus = AvailabilityStatus.fromProtocolModel(userProfile.workAvailabilityStatus)
             if (availabilityStatus == null) {
                 logger.error("Failed to apply user availability status")

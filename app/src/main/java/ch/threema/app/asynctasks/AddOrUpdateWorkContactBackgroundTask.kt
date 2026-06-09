@@ -1,6 +1,9 @@
 package ch.threema.app.asynctasks
 
 import androidx.annotation.WorkerThread
+import ch.threema.app.BuildConfig
+import ch.threema.app.multidevice.MultiDeviceManager
+import ch.threema.app.tasks.ReflectContactSyncUpdateTask
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.utils.executor.BackgroundTask
 import ch.threema.base.crypto.NaCl
@@ -20,8 +23,10 @@ import ch.threema.domain.models.TypingIndicatorPolicy
 import ch.threema.domain.models.VerificationLevel
 import ch.threema.domain.models.WorkVerificationLevel
 import ch.threema.domain.protocol.api.work.WorkContact
+import ch.threema.domain.taskmanager.TaskManager
 import ch.threema.domain.types.IdentityString
 import ch.threema.storage.models.ContactModel.AcquaintanceLevel
+import java.time.Instant
 import kotlinx.coroutines.runBlocking
 
 private val logger = getThreemaLogger("AddOrUpdateWorkContactBackgroundTask")
@@ -45,6 +50,8 @@ class AddOrUpdateWorkContactBackgroundTask(
      * The contact model repository.
      */
     private val contactModelRepository: ContactModelRepository,
+    private val taskManager: TaskManager,
+    private val multiDeviceManager: MultiDeviceManager,
 ) : BackgroundTask<ContactModel?> {
     /**
      * Add the work contact if the identity belongs to a work contact.
@@ -182,19 +189,68 @@ class AddOrUpdateWorkContactBackgroundTask(
             contactModel.setVerificationLevelFromLocal(VerificationLevel.SERVER_VERIFIED)
         }
 
-        // Update the workLastFullSyncAt timestamp
-        workContact.workLastFullSyncAt?.let { workLastFullSyncAt ->
-            if (currentContactModelData.workLastFullSyncAt != workContact.workLastFullSyncAt) {
+        updateWorkLastFullSyncAtAndAvailabilityStatus(
+            contactModel = contactModel,
+            currentContactModelData = currentContactModelData,
+        )
+    }
+
+    // TODO(ANDR-4946): Remove this workaround and reflect updates to workLastFullSyncAt and availabilityStatus as usual
+    /**
+     *  Handling the update `contact.workLastFullSyncAt` and `contact.availabilityStatus`.
+     *
+     *  In case both values are available from the given `workContact` and multi device is active, we reflect the `contact.availabilityStatus`
+     *  even if there was no effective change. This is required because linked clients may not have had support for availability statuses and
+     *  therefore may have dropped the previously synced availability statuses.
+     *
+     *  To save on sync messages, the task
+     *  [ReflectContactSyncUpdateTask.ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdate] combines both values in one sync message.
+     */
+    private fun updateWorkLastFullSyncAtAndAvailabilityStatus(
+        contactModel: ContactModel,
+        currentContactModelData: ContactModelData,
+    ) {
+        val workLastFullSyncAt: Instant? = workContact.workLastFullSyncAt
+
+        @Suppress("KotlinConstantConditions")
+        val workContactAvailabilityStatus: AvailabilityStatus? =
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
+                workContact.getAvailabilityStatusOrNone()
+            } else {
+                null
+            }
+
+        // Persist availability-status locally if present
+        if (workContactAvailabilityStatus != null) {
+            contactModel.persistAvailabilityStatus(workContactAvailabilityStatus)
+        }
+
+        // Update work-last-full-sync-at if present
+        if (workLastFullSyncAt != null) {
+            if (multiDeviceManager.isMultiDeviceActive && workContactAvailabilityStatus != null) {
+                contactModel.persistWorkLastFullSyncAt(workLastFullSyncAt)
+            } else {
                 contactModel.setWorkLastFullSyncFromLocal(workLastFullSyncAt)
             }
         }
 
-        // Update availability status
-        if (ConfigUtils.supportsAvailabilityStatus()) {
-            val workContactAvailabilityStatus = workContact.getAvailabilityStatusOrNone()
-            if (currentContactModelData.availabilityStatus != workContactAvailabilityStatus) {
-                contactModel.setAvailabilityStatusFromLocal(workContactAvailabilityStatus)
-            }
+        // Reflect availability status (combined with workLastFullSyncAt timestamp if both present)
+        if (multiDeviceManager.isMultiDeviceActive && workContactAvailabilityStatus != null) {
+            val contactSyncUpdateTask =
+                if (workLastFullSyncAt != null) {
+                    ReflectContactSyncUpdateTask.ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdate(
+                        workLastFullSyncAt = workLastFullSyncAt,
+                        availabilityStatus = workContactAvailabilityStatus,
+                        contactIdentity = currentContactModelData.identity,
+                    )
+                } else {
+                    ReflectContactSyncUpdateTask.ReflectAvailabilityStatusUpdate(
+                        newAvailabilityStatus = workContactAvailabilityStatus,
+                        contactIdentity = currentContactModelData.identity,
+                    )
+                }
+            @Suppress("DeferredResultUnused")
+            taskManager.schedule(contactSyncUpdateTask)
         }
     }
 

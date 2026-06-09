@@ -49,8 +49,16 @@ class EmojiHintPopupManager(
         showOrDismissIfNecessary()
     }
 
+    var isSuppressed: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                dismiss()
+            }
+        }
+
     fun showOrDismissIfNecessary() {
-        if (isScrolling || !shouldShowPopup) {
+        if (isScrolling || !shouldShowPopup || isSuppressed) {
             dismiss()
         } else {
             handler.removeCallbacks(showPopupRunnable)

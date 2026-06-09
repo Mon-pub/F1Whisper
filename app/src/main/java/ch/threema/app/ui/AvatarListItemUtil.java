@@ -86,7 +86,7 @@ public class AvatarListItemUtil {
 
         // Set work badge
         boolean isWork = contactService.showBadge(conversationModel.getContact());
-        holder.avatarView.setBadgeVisible(isWork);
+        holder.avatarView.setWorkBadgeVisible(isWork);
     }
 
     public static <S> void loadAvatar(
@@ -102,9 +102,9 @@ public class AvatarListItemUtil {
         }
 
         if (subject instanceof String) {
-            holder.avatarView.setBadgeVisible(((ContactService) avatarService).showBadge((String) subject));
+            holder.avatarView.setWorkBadgeVisible(((ContactService) avatarService).showBadge((String) subject));
         } else {
-            holder.avatarView.setBadgeVisible(false);
+            holder.avatarView.setWorkBadgeVisible(false);
         }
 
         AvatarOptions options;

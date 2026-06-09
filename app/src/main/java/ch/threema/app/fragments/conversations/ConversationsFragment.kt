@@ -75,6 +75,7 @@ import androidx.fragment.app.setFragmentResultListener
 import ch.threema.app.AppConstants
 import ch.threema.app.AppConstants.MAX_PW_LENGTH_BACKUP
 import ch.threema.app.AppConstants.MIN_PW_LENGTH_BACKUP
+import ch.threema.app.BuildConfig
 import ch.threema.app.BuildFlavor
 import ch.threema.app.R
 import ch.threema.app.activities.ComposeMessageActivity
@@ -271,7 +272,7 @@ class ConversationsFragment :
 
         this.resumePauseHandler = ResumePauseHandler.getByActivity(this, requireActivity())
 
-        if (ConfigUtils.supportsAvailabilityStatus()) {
+        if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             setFragmentResultListener(
                 requestKey = REQUEST_KEY_EDIT_AVAILABILITY_STATUS,
             ) { _, bundle ->

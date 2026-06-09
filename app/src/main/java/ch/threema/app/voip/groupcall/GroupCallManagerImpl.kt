@@ -1081,7 +1081,7 @@ class GroupCallManagerImpl(
     private fun purgeRunningCalls(groupId: LocalGroupId, peek: PeekResult) {
         GroupCallThreadUtil.assertDispatcherThread()
 
-        if (!peek.isJoined && !peek.isPeekFailed && (peek.isHttpNotFound || isAbandonedCall(peek))) {
+        if (!peek.isJoined && (peek.isHttpNotFound || isAbandonedCall(peek))) {
             val callId = peek.call.callId
             logger.debug("Remove call {}", callId)
             removeRunningCall(callId)

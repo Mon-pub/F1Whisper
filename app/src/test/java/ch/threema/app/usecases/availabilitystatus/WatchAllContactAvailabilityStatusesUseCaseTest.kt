@@ -1,9 +1,9 @@
 package ch.threema.app.usecases.availabilitystatus
 
 import app.cash.turbine.test
+import ch.threema.app.BuildConfig
 import ch.threema.app.managers.ListenerManager
 import ch.threema.app.test.unconfinedTestDispatcherProvider
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.data.datatypes.AvailabilityStatus
 import ch.threema.data.repositories.ContactModelRepository
 import ch.threema.testhelpers.expectItem
@@ -11,21 +11,20 @@ import io.mockk.Called
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import io.mockk.verify
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
+import org.junit.Assume
 import testdata.TestData
 
 class WatchAllContactAvailabilityStatusesUseCaseTest {
 
     @Test
     fun `feature supported - should emit current value`() = runTest {
-        // arrange
-        mockkStatic(ConfigUtils::class)
-        every { ConfigUtils.supportsAvailabilityStatus() } returns true
+        // precondition
+        Assume.assumeTrue(BuildConfig.AVAILABILITY_STATUS_ENABLED)
 
+        // arrange
         val allInitial = listOf(
             TestData.createContactModel(
                 identity = TestData.Identities.OTHER_1,
@@ -72,16 +71,14 @@ class WatchAllContactAvailabilityStatusesUseCaseTest {
         }
 
         coVerify(exactly = 2) { contactModelRepositoryMock.getAll() }
-
-        unmockkStatic(ConfigUtils::class)
     }
 
     @Test
     fun `feature not supported - emits empty map`() = runTest {
-        // arrange
-        mockkStatic(ConfigUtils::class)
-        every { ConfigUtils.supportsAvailabilityStatus() } returns false
+        // precondition
+        Assume.assumeFalse(BuildConfig.AVAILABILITY_STATUS_ENABLED)
 
+        // arrange
         val contactModelRepositoryMock = mockk<ContactModelRepository>()
         val useCase = WatchAllContactAvailabilityStatusesUseCase(
             contactModelRepository = contactModelRepositoryMock,
@@ -94,7 +91,5 @@ class WatchAllContactAvailabilityStatusesUseCaseTest {
             awaitComplete()
         }
         verify { contactModelRepositoryMock wasNot Called }
-
-        unmockkStatic(ConfigUtils::class)
     }
 }

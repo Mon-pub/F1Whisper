@@ -10,8 +10,8 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQueryBuilder
+import ch.threema.app.BuildConfig
 import ch.threema.app.stores.IdentityProvider
-import ch.threema.app.utils.ConfigUtils
 import ch.threema.base.crypto.NaCl
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.data.datatypes.AvailabilityStatus
@@ -122,17 +122,15 @@ class SqliteDatabaseBackend(
      */
     override fun getAllContacts(): List<DbContact> {
         return try {
-            val contactIdentity = "${ContactModel.TABLE}.${ContactModel.COLUMN_IDENTITY}"
-            val availabilityStatusIdentity = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_IDENTITY}"
-            val availabilityStatusCategory = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_CATEGORY}"
-            val availabilityStatusDescription = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_DESCRIPTION}"
             /*
              * SELECT contacts.*, contact_availability_status.category, contact_availability_status.description
-             * FROM contacts LEFT JOIN contact_availability_status ON contacts.identity = contact_availability_status.identity;
+             *  FROM contacts LEFT JOIN contact_availability_status
+             *  ON contacts.identity = contact_availability_status.identity;
              */
             val query = """
-                SELECT ${ContactModel.TABLE}.*, $availabilityStatusCategory, $availabilityStatusDescription
-                FROM ${ContactModel.TABLE} LEFT JOIN ${DbAvailabilityStatus.TABLE} ON $contactIdentity = $availabilityStatusIdentity;
+                SELECT ${ContactModel.TABLE}.*, $COLUMN_AVAILABILITY_STATUS_CATEGORY, $COLUMN_AVAILABILITY_STATUS_DESCRIPTION
+                FROM ${ContactModel.TABLE} LEFT JOIN ${DbAvailabilityStatus.TABLE}
+                ON $COLUMN_CONTACTS_IDENTITY = $COLUMN_AVAILABILITY_STATUS_IDENTITY;
             """.trimIndent()
             val cursor = databaseProvider.readableDatabase.query(query)
             val dbContacts = mutableListOf<DbContact>()
@@ -170,7 +168,7 @@ class SqliteDatabaseBackend(
                 conflictAlgorithm = SQLiteDatabase.CONFLICT_ROLLBACK,
                 values = contentValuesContact,
             )
-            if (ConfigUtils.supportsAvailabilityStatus()) {
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
                 dbContact.availabilityStatusSet
                     ?.toDatabaseModel(dbContact.identity)
                     ?.let { dbAvailabilityStatusSet ->
@@ -185,26 +183,20 @@ class SqliteDatabaseBackend(
     }
 
     override fun getContactByIdentity(identity: IdentityString): DbContact? {
-        val contactIdentity = "${ContactModel.TABLE}.${ContactModel.COLUMN_IDENTITY}"
-        val availabilityStatusIdentity = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_IDENTITY}"
-        val availabilityStatusCategory = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_CATEGORY}"
-        val availabilityStatusDescription = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_DESCRIPTION}"
         /*
          * SELECT contacts.*, contact_availability_status.category, contact_availability_status.description
-         * FROM contacts LEFT JOIN contact_availability_status ON contacts.identity = contact_availability_status.identity
-         * WHERE contacts.identity = ?;
+         *  FROM contacts LEFT JOIN contact_availability_status
+         *  ON contacts.identity = contact_availability_status.identity
+         *  WHERE contacts.identity = ?;
          */
         val query = """
-            SELECT ${ContactModel.TABLE}.*, $availabilityStatusCategory, $availabilityStatusDescription
-            FROM ${ContactModel.TABLE} LEFT JOIN ${DbAvailabilityStatus.TABLE} ON $contactIdentity = $availabilityStatusIdentity
-            WHERE $contactIdentity = ?;
+            SELECT ${ContactModel.TABLE}.*, $COLUMN_AVAILABILITY_STATUS_CATEGORY, $COLUMN_AVAILABILITY_STATUS_DESCRIPTION
+            FROM ${ContactModel.TABLE} LEFT JOIN ${DbAvailabilityStatus.TABLE}
+            ON $COLUMN_CONTACTS_IDENTITY = $COLUMN_AVAILABILITY_STATUS_IDENTITY
+            WHERE $COLUMN_CONTACTS_IDENTITY = ?;
         """.trimIndent()
-        val cursor = databaseProvider.readableDatabase.query(
-            /* query = */
-            query,
-            /* bindArgs = */
-            arrayOf(identity),
-        )
+        val bindArgs = arrayOf(identity)
+        val cursor = databaseProvider.readableDatabase.query(query, bindArgs)
         return cursor.use { cursor ->
             if (cursor.moveToFirst()) {
                 cursor.mapToDbContact()
@@ -219,26 +211,20 @@ class SqliteDatabaseBackend(
             return emptyList()
         }
         val placeholders = DatabaseUtil.makePlaceholders(identities.size)
-        val contactIdentity = "${ContactModel.TABLE}.${ContactModel.COLUMN_IDENTITY}"
-        val availabilityStatusIdentity = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_IDENTITY}"
-        val availabilityStatusCategory = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_CATEGORY}"
-        val availabilityStatusDescription = "${DbAvailabilityStatus.TABLE}.${DbAvailabilityStatus.COLUMN_DESCRIPTION}"
         /*
          * SELECT contacts.*, contact_availability_status.category, contact_availability_status.description
-         * FROM contacts LEFT JOIN contact_availability_status ON contacts.identity = contact_availability_status.identity
-         * WHERE contacts.identity IN (?, ...);
+         *  FROM contacts LEFT JOIN contact_availability_status
+         *  ON contacts.identity = contact_availability_status.identity
+         *  WHERE contacts.identity IN (?, ?, ?, ...);
          */
         val query = """
-            SELECT ${ContactModel.TABLE}.*, $availabilityStatusCategory, $availabilityStatusDescription
-            FROM ${ContactModel.TABLE} LEFT JOIN ${DbAvailabilityStatus.TABLE} ON $contactIdentity = $availabilityStatusIdentity
-            WHERE $contactIdentity IN ($placeholders);
+            SELECT ${ContactModel.TABLE}.*, $COLUMN_AVAILABILITY_STATUS_CATEGORY, $COLUMN_AVAILABILITY_STATUS_DESCRIPTION
+            FROM ${ContactModel.TABLE} LEFT JOIN ${DbAvailabilityStatus.TABLE}
+            ON $COLUMN_CONTACTS_IDENTITY = $COLUMN_AVAILABILITY_STATUS_IDENTITY
+            WHERE $COLUMN_CONTACTS_IDENTITY IN ($placeholders);
         """.trimIndent()
-        val cursor = databaseProvider.readableDatabase.query(
-            /* query = */
-            query,
-            /* bindArgs = */
-            identities.toTypedArray(),
-        )
+        val bindArgs = identities.toTypedArray()
+        val cursor = databaseProvider.readableDatabase.query(query, bindArgs)
         return cursor.use { usedCursor ->
             val results = mutableListOf<DbContact>()
             while (usedCursor.moveToNext()) {
@@ -397,7 +383,7 @@ class SqliteDatabaseBackend(
         // Since both these values are joined via LEFT JOIN, they actually can be null, although they are defined as NOT NULL in their dedicated table
         val availabilityStatus: AvailabilityStatus.Set? =
             if (
-                ConfigUtils.supportsAvailabilityStatus() &&
+                BuildConfig.AVAILABILITY_STATUS_ENABLED &&
                 availabilityStatusCategoryRaw != null &&
                 availabilityStatusDescription != null
             ) {
@@ -453,7 +439,7 @@ class SqliteDatabaseBackend(
                 whereClause = "${ContactModel.COLUMN_IDENTITY} = ?",
                 whereArgs = arrayOf(dbContact.identity),
             )
-            if (ConfigUtils.supportsAvailabilityStatus()) {
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
                 updateAvailabilityStatus(
                     identity = dbContact.identity,
                     availabilityStatusSet = dbContact.availabilityStatusSet,
@@ -894,5 +880,12 @@ class SqliteDatabaseBackend(
                 values = contentValues,
             )
         }
+    }
+
+    private companion object {
+        private const val COLUMN_CONTACTS_IDENTITY: String = ContactModel.TABLE + "." + ContactModel.COLUMN_IDENTITY
+        private const val COLUMN_AVAILABILITY_STATUS_IDENTITY: String = DbAvailabilityStatus.TABLE + "." + DbAvailabilityStatus.COLUMN_IDENTITY
+        private const val COLUMN_AVAILABILITY_STATUS_CATEGORY: String = DbAvailabilityStatus.TABLE + "." + DbAvailabilityStatus.COLUMN_CATEGORY
+        private const val COLUMN_AVAILABILITY_STATUS_DESCRIPTION: String = DbAvailabilityStatus.TABLE + "." + DbAvailabilityStatus.COLUMN_DESCRIPTION
     }
 }

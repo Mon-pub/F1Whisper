@@ -18,6 +18,7 @@ class IncomingContactDeleteMessageTask(
 ) : IncomingCspMessageSubTask<DeleteMessage>(message, triggerSource, serviceManager) {
     private val messageService by lazy { serviceManager.messageService }
     private val contactService by lazy { serviceManager.contactService }
+    private val identityStore by lazy { serviceManager.identityStore }
 
     override suspend fun executeMessageStepsFromRemote(handle: ActiveTaskCodec) =
         processContactDeleteMessage()
@@ -26,6 +27,8 @@ class IncomingContactDeleteMessageTask(
 
     private fun processContactDeleteMessage(): ReceiveStepsResult {
         logger.debug("IncomingContactDeleteMessageTask id: {}", message.data.messageId)
+        val myIdentity = identityStore.getIdentityString()
+            ?: throw IllegalStateException("Cannot apply edit when no identity is available")
 
         val contactModel = contactService.getByIdentity(message.fromIdentity)
         if (contactModel == null) {
@@ -34,7 +37,14 @@ class IncomingContactDeleteMessageTask(
         }
 
         val receiver = contactService.createReceiver(contactModel)
-        val messageModel = runCommonDeleteMessageReceiveSteps(message, receiver, messageService)
+        val messageModel = runCommonDeleteMessageReceiveSteps(
+            myIdentity = myIdentity,
+            deleteMessageSenderIdentity = message.fromIdentity,
+            deleteMessageCreatedAt = message.date,
+            messageId = message.data.messageId,
+            receiver = receiver,
+            messageService = messageService,
+        )
             ?: return ReceiveStepsResult.DISCARD
 
         messageService.deleteMessageContentsAndRelatedData(messageModel, message.date)

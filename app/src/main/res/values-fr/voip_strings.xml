@@ -64,7 +64,7 @@
     <string name="voip_error_peer_connection">Erreur de connexion entre pairs</string>
     <string name="voip_error_determine_common_video_quality_profile">Impossible de déterminer un profil de qualité vidéo commun</string>
     <string name="voip_audio_focus_lost">Le contrôle audio a été perdu</string>
-    <string name="voip_could_not_initialize">Impossible d\'initialiser l\'appel</string>
+    <string name="voip_could_not_initialize">Échec de l\'initialisation de l\'appel</string>
     <!-- WebRTC debugger -->
     <string name="voip_prefs_webrtc_debug">Diagnostics WebRTC</string>
     <string name="voip_prefs_webrtc_debug_summary">Lancez cet outil pour déboguer les problèmes de configuration d\'une connexion d\'appel vocal</string>

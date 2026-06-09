@@ -1780,6 +1780,13 @@
     <string name="edit_availability_status_modal_optional_message_description">Wenn «Beschäftigt» oder «Abwesend» ausgewählt ist, können Sie einen eigenen Status definieren.</string>
     <string name="edit_availability_status_modal_optional_message_too_long">Text zu lang, bitte kürzen Sie ihn.</string>
     <string name="edit_availability_status_did_change">Verfügbarkeitsstatus geändert</string>
+    <string name="tooltip_title_availability_status">Verfügbarkeitsstatus</string>
+    <string name="tooltip_text_availability_status_in_chat">Sehen Sie vor dem Senden einer Nachricht, ob jemand beschäftigt oder abwesend ist. Ihren eigenen Status können Sie im Profil festlegen.</string>
+    <string name="tooltip_text_availability_status_in_profile">Legen Sie Ihren Status fest, damit andere sehen, wenn Sie beschäftigt oder abwesend sind.</string>
+    <string name="view_full_availability_status_modal_title">Verfügbarkeitsstatus</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Tippen, um den Verfügbarkeitsstatus ganz anzuzeigen</string>
     <plurals name="contacts_counter_label">
         <item quantity="one">%d Kontakt</item>
         <item quantity="other">%d Kontakte</item>

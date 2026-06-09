@@ -91,6 +91,7 @@ fun ConversationText(
     maxLines: Int = Int.MAX_VALUE,
     textAlign: TextAlign? = null,
     overflow: TextOverflow = TextOverflow.Ellipsis,
+    onTextLaidOut: ((hasVisualOverflow: Boolean) -> Unit)? = null,
     emojiSettings: EmojiSettings = ConversationTextDefaults.EmojiSettings,
     mentionFeature: MentionFeature = MentionFeature.Off,
     markupEnabled: Boolean = true,
@@ -178,6 +179,7 @@ fun ConversationText(
             overflow = overflow,
             color = color,
             onTextLayout = { layoutResult ->
+                onTextLaidOut?.invoke(layoutResult.hasVisualOverflow)
                 if (mentionFeature is MentionFeature.On) {
                     mentionBackgroundSpans = annotatedString.getStringAnnotations(
                         tag = SPAN_TAG_BACKGROUND_MENTION,

@@ -3,19 +3,33 @@ package ch.threema.app.availabilitystatus
 import android.content.Context
 import android.util.AttributeSet
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.threema.app.R
+import ch.threema.app.compose.common.SpacerHorizontal
 import ch.threema.app.compose.common.extensions.get
 import ch.threema.app.compose.common.text.conversation.ConversationText
 import ch.threema.app.compose.common.text.conversation.EmojiSettings
@@ -39,24 +53,29 @@ constructor(
         AvailabilityStatusContactBannerState(
             availabilityStatusSet = null,
             emojiStyle = PreferenceService.EMOJI_STYLE_ANDROID,
+            onClickOnOverflowListener = null,
         ),
     )
 
-    fun setState(availabilityStatusSet: AvailabilityStatus.Set?, @EmojiStyle emojiStyle: Int) {
+    fun setState(
+        availabilityStatusSet: AvailabilityStatus.Set?,
+        @EmojiStyle emojiStyle: Int,
+        onClickOnOverflowListener: (() -> Unit)?,
+    ) {
         state.value = AvailabilityStatusContactBannerState(
             availabilityStatusSet = availabilityStatusSet,
             emojiStyle = emojiStyle,
+            onClickOnOverflowListener = onClickOnOverflowListener,
         )
     }
 
     @Composable
     override fun Content() {
         val state: AvailabilityStatusContactBannerState by state.collectAsStateWithLifecycle()
-        state.availabilityStatusSet?.let { availabilityStatusSet ->
+        state.availabilityStatusSet?.let {
             ThreemaTheme {
                 AvailabilityStatusContactBanner(
-                    status = availabilityStatusSet,
-                    emojiStyle = state.emojiStyle,
+                    state = state,
                 )
             }
         }
@@ -66,15 +85,19 @@ constructor(
 private data class AvailabilityStatusContactBannerState(
     val availabilityStatusSet: AvailabilityStatus.Set?,
     @EmojiStyle val emojiStyle: Int,
+    val onClickOnOverflowListener: (() -> Unit)?,
 )
 
 @Composable
 private fun AvailabilityStatusContactBanner(
     modifier: Modifier = Modifier,
-    status: AvailabilityStatus.Set,
-    @EmojiStyle emojiStyle: Int,
+    state: AvailabilityStatusContactBannerState,
 ) {
-    ConversationText(
+    state.availabilityStatusSet ?: return
+    var hasVisualOverflow: Boolean by remember(state.availabilityStatusSet, state.emojiStyle) {
+        mutableStateOf(false)
+    }
+    Row(
         modifier = modifier
             .padding(
                 top = GridUnit.x1,
@@ -89,21 +112,49 @@ private fun AvailabilityStatusContactBanner(
                 ),
             )
             .background(
-                color = status.containerColor(),
+                color = state.availabilityStatusSet.containerColor(),
+            )
+            .clickable(
+                enabled = hasVisualOverflow && state.onClickOnOverflowListener != null,
+                onClick = {
+                    state.onClickOnOverflowListener?.invoke()
+                },
+                onClickLabel = stringResource(R.string.accessibility_view_full_availability_status),
+                role = Role.Button,
             )
             .padding(
                 vertical = GridUnit.x1,
                 horizontal = GridUnit.x2,
             ),
-        rawInput = status.displayText().get(),
-        textStyle = MaterialTheme.typography.bodyMedium,
-        color = status.onContainerColor(),
-        maxLines = 2,
-        textAlign = TextAlign.Center,
-        emojiSettings = EmojiSettings(
-            style = emojiStyle,
-        ),
-        mentionFeature = MentionFeature.Off,
-        markupEnabled = false,
-    )
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        ConversationText(
+            modifier = Modifier.weight(1f),
+            rawInput = state.availabilityStatusSet.displayText().get(),
+            textStyle = MaterialTheme.typography.bodyMedium,
+            color = state.availabilityStatusSet.onContainerColor(),
+            maxLines = 2,
+            textAlign = TextAlign.Center,
+            onTextLaidOut = { updatedHasVisualOverflow ->
+                hasVisualOverflow = updatedHasVisualOverflow
+            },
+            emojiSettings = EmojiSettings(
+                style = state.emojiStyle,
+            ),
+            mentionFeature = MentionFeature.Off,
+            markupEnabled = false,
+        )
+
+        if (hasVisualOverflow) {
+            SpacerHorizontal(GridUnit.x2)
+            Icon(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clearAndSetSemantics { },
+                painter = painterResource(R.drawable.ic_info_rounded),
+                contentDescription = null,
+                tint = state.availabilityStatusSet.onContainerColor(),
+            )
+        }
+    }
 }

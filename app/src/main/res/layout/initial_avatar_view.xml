@@ -21,13 +21,23 @@
         android:id="@+id/avatar_initials"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="1dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="1dp"
+        android:clickable="false"
+        android:fontFamily="sans-serif-condensed"
         android:maxLines="1"
         android:textSize="23dp"
-        android:fontFamily="sans-serif-condensed"
-        android:text="AB"
-        android:clickable="false"
-        android:visibility="visible" />
+        android:visibility="visible"
+        tools:ignore="SpUsage"
+        tools:text="AB" />
+
+    <ch.threema.app.availabilitystatus.AvailabilityStatusIconElevatedView
+        android:id="@+id/avatar_badge_availability_status"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="right|bottom"
+        android:visibility="gone"
+        tools:background="@drawable/ic_availability_status_busy"
+        tools:visibility="visible" />
 
 </FrameLayout>

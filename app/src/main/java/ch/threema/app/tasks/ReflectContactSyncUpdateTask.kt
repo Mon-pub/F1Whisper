@@ -624,7 +624,6 @@ abstract class ReflectContactSyncUpdateTask(
         }
     }
 
-    // TODO(ANDR-4751): Test when desktop is ready
     class ReflectAvailabilityStatusUpdate(
         private val newAvailabilityStatus: AvailabilityStatus,
         contactIdentity: IdentityString,
@@ -885,7 +884,7 @@ abstract class ReflectContactSyncUpdateTask(
     }
 
     /**
-     *  Reflect a new work-last-full-sync-at timestamp
+     *  Reflect a new `workLastFullSyncAt` timestamp
      */
     class ReflectWorkLastFullSyncAtUpdate(
         private val workLastFullSyncAt: Instant,
@@ -918,6 +917,53 @@ abstract class ReflectContactSyncUpdateTask(
             override fun createTask(): Task<*, TaskCodec> =
                 ReflectWorkLastFullSyncAtUpdate(
                     workLastFullSyncAt = Instant.ofEpochMilli(workLastFullSyncAt),
+                    contactIdentity = identity,
+                )
+        }
+    }
+
+    /**
+     *  Reflect a new `workLastFullSyncAt` timestamp together with a `workAvailabilityStatus`.
+     */
+    class ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdate(
+        private val workLastFullSyncAt: Instant,
+        private val availabilityStatus: AvailabilityStatus,
+        contactIdentity: IdentityString,
+    ) : ReflectContactSyncUpdateTask(
+        contactIdentity,
+    ) {
+        override val type = "ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdate"
+
+        override fun isChangeValid(currentData: ContactModelData) =
+            currentData.workLastFullSyncAt == workLastFullSyncAt &&
+                currentData.availabilityStatus == availabilityStatus
+
+        override fun getContactSync(): Contact {
+            val updatedWorkLastFullSyncAt = workLastFullSyncAt.toEpochMilli()
+            val updatedAvailabilityStatus = availabilityStatus.toProtocolModel()
+            return contact {
+                this.identity = contactIdentity
+                this.workLastFullSyncAt = updatedWorkLastFullSyncAt
+                this.workAvailabilityStatus = updatedAvailabilityStatus
+            }
+        }
+
+        override fun serialize(): SerializableTaskData = ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdateData(
+            workLastFullSyncAt = workLastFullSyncAt.toEpochMilli(),
+            availabilityStatus = availabilityStatus,
+            identity = contactIdentity,
+        )
+
+        @Serializable
+        data class ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdateData(
+            private val workLastFullSyncAt: Long,
+            private val availabilityStatus: AvailabilityStatus,
+            private val identity: IdentityString,
+        ) : SerializableTaskData {
+            override fun createTask(): Task<*, TaskCodec> =
+                ReflectWorkLastFullSyncAtWithAvailabilityStatusUpdate(
+                    workLastFullSyncAt = Instant.ofEpochMilli(workLastFullSyncAt),
+                    availabilityStatus = availabilityStatus,
                     contactIdentity = identity,
                 )
         }

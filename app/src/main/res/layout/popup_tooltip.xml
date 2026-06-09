@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="@dimen/tooltip_layout_margin_left"
+    android:paddingStart="@dimen/tooltip_layout_margin_left"
     android:layout_marginTop="2dp"
-    android:layout_marginRight="@dimen/tooltip_layout_margin_right"
-    android:layout_marginBottom="8dp"
+    android:paddingEnd="@dimen/tooltip_layout_margin_right"
+    android:paddingBottom="8dp"
     android:background="@android:color/transparent"
+    android:clipToPadding="false"
     android:elevation="0dp">
 
     <com.google.android.material.card.MaterialCardView
@@ -17,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="12dp"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:cardElevation="6dp"
         app:contentPaddingBottom="6dp"
         app:contentPaddingLeft="12dp"
@@ -89,7 +90,7 @@
         android:layout_marginLeft="@dimen/tooltip_popup_arrow_inset"
         android:importantForAccessibility="no"
         android:visibility="gone"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:cardElevation="6dp"
         app:shapeAppearance="@style/Threema.ShapeAppearance.Arrow.Up"
         app:strokeWidth="0dp" />
@@ -102,7 +103,7 @@
         android:layout_marginRight="@dimen/tooltip_popup_arrow_inset"
         android:importantForAccessibility="no"
         android:visibility="gone"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:cardElevation="6dp"
         app:shapeAppearance="@style/Threema.ShapeAppearance.Arrow.Up"
         app:strokeWidth="0dp" />
@@ -115,7 +116,7 @@
         android:layout_marginLeft="@dimen/tooltip_popup_arrow_inset"
         android:importantForAccessibility="no"
         android:visibility="gone"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:cardElevation="6dp"
         app:shapeAppearance="@style/Threema.ShapeAppearance.Arrow.Down"
         app:strokeWidth="0dp" />
@@ -128,7 +129,7 @@
         android:layout_marginRight="@dimen/tooltip_popup_arrow_inset"
         android:importantForAccessibility="no"
         android:visibility="gone"
-        app:cardBackgroundColor="?attr/colorSurfaceContainerLow"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:cardElevation="6dp"
         app:shapeAppearance="@style/Threema.ShapeAppearance.Arrow.Down"
         app:strokeWidth="0dp"

@@ -63,3 +63,10 @@ fun AvailabilityStatus.Set.onContainerColor(): Color =
         is AvailabilityStatus.Busy -> CustomColors.availabilityStatusOnContainerBusy
         is AvailabilityStatus.Unavailable -> CustomColors.availabilityStatusOnContainerUnavailable
     }
+
+fun AvailabilityStatus.withTrimmedDescription(): AvailabilityStatus =
+    when (this) {
+        is AvailabilityStatus.None -> this
+        is AvailabilityStatus.Busy -> copy(description = description.trim())
+        is AvailabilityStatus.Unavailable -> copy(description = description.trim())
+    }

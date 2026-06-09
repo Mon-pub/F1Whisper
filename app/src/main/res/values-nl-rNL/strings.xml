@@ -1697,6 +1697,7 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, conta
     <string name="remote_secret_notification_text">${remote_secret} is actief. Tik om meer te weten te komen.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">De toegang tot deze app is geblokkeerd door uw beheerder.\n\nNeem contact op met uw beheerder voor meer informatie.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">Het ${remote_secret}-token kon niet worden opgehaald. Controleer uw internetverbinding en probeer het opnieuw.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1739,6 +1740,8 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, conta
     <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">Het gesprek wordt voortgezet wanneer de Bluetooth-headset tijdens een gesprek wordt losgekoppeld. Let op: De ophangknop op de headset kan mogelijk niet meer werken.</string>
     <string name="failed_to_load_conversations">Chats konden niet worden geladen.</string>
     <string name="contact_support">Neem contact op met ondersteuning</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
     <plurals name="contacts_counter_label">
         <item quantity="one">%d contactpersoon</item>
         <item quantity="other">%d contactpersonen</item>

@@ -241,23 +241,25 @@ class ContactModel(
         )
     }
 
-    fun setAvailabilityStatusFromLocal(availabilityStatus: AvailabilityStatus) {
+    /**
+     *  Update the contact's `availabilityStatus` value **without** reflecting the change
+     */
+    fun setAvailabilityStatusFromSync(availabilityStatus: AvailabilityStatus) {
         this.updateFields(
-            methodName = "setAvailabilityStatusFromLocal",
+            methodName = "setAvailabilityStatusFromSync",
             detectChanges = { originalData -> originalData.availabilityStatus != availabilityStatus },
             updateData = { originalData -> originalData.copy(availabilityStatus = availabilityStatus) },
             updateDatabase = ::updateDatabase,
             onUpdated = ::defaultOnUpdated,
-            reflectUpdateTask = ReflectContactSyncUpdateTask.ReflectAvailabilityStatusUpdate(
-                newAvailabilityStatus = availabilityStatus,
-                contactIdentity = identity,
-            ),
         )
     }
 
-    fun setAvailabilityStatusFromSync(availabilityStatus: AvailabilityStatus) {
+    /**
+     *  Persist the contact's `availabilityStatus` locally
+     */
+    fun persistAvailabilityStatus(availabilityStatus: AvailabilityStatus) {
         this.updateFields(
-            methodName = "setAvailabilityStatusFromSync",
+            methodName = "persistAvailabilityStatus",
             detectChanges = { originalData -> originalData.availabilityStatus != availabilityStatus },
             updateData = { originalData -> originalData.copy(availabilityStatus = availabilityStatus) },
             updateDatabase = ::updateDatabase,
@@ -760,7 +762,20 @@ class ContactModel(
     }
 
     /**
-     *  Update the contact's work-last-fill-sync-at and reflect the change.
+     *  Persist the contact's `workLastFullSyncAt` value locally
+     */
+    fun persistWorkLastFullSyncAt(workLastFullSyncAt: Instant) {
+        this.updateFields(
+            methodName = "persistWorkLastFullSyncAt",
+            detectChanges = { originalData -> originalData.workLastFullSyncAt != workLastFullSyncAt },
+            updateData = { originalData -> originalData.copy(workLastFullSyncAt = workLastFullSyncAt) },
+            updateDatabase = ::updateDatabase,
+            onUpdated = null,
+        )
+    }
+
+    /**
+     *  Update the contact's `workLastFullSyncAt` value and **reflect** the change
      */
     fun setWorkLastFullSyncFromLocal(workLastFullSyncAt: Instant) {
         this.updateFields(

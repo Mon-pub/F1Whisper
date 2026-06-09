@@ -350,13 +350,14 @@ public interface GroupService extends AvatarService<GroupModelOld> {
     int countMembersWithoutUser(@NonNull GroupModelOld model);
 
     /**
-     * Get a map from the group member identity to its id color.
+     * Get a map from the group participant identity to their id color.
+     * This includes the creator of the group.
      *
      * @param model the group model
-     * @return a map with the ID colors of the members
+     * @return a map with the ID colors of the participants
      */
     @NonNull
-    Map<String, IdColor> getGroupMemberIDColors(@NonNull GroupModel model);
+    Map<String, IdColor> getGroupParticipantIDColors(@NonNull GroupModel model);
 
     /**
      * Send a group sync request for the group id to the creator.

@@ -22,6 +22,7 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="enter_id_hint">${app_name_short} Kimliğinizi girin</string>
     <string name="account_links">Bağlı hesaplar</string>
+    <string name="title_set_availability_status">Müsaitlik durumu</string>
     <string name="menu_settings">Ayarlar</string>
     <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
     <string name="menu_about">${app_name} Hakkında</string>
@@ -112,6 +113,7 @@
     <string name="set_nickname_title">Takma isim ayarla</string>
     <string name="ok">Tamam</string>
     <string name="cancel">İptal</string>
+    <string name="save">Kaydet</string>
     <string name="copy_message_action">Kopyala</string>
     <string name="delete_contact_action">Sil</string>
     <string name="delete_multiple_contact_action">Kişileri sil</string>
@@ -349,6 +351,7 @@ tekrar denemeden önce girdiğiniz numaranın doğru olduğundan ve mobil ağa b
     <string name="can_not_send_no_group_members">Boş bir gruba mesaj gönderemezsiniz</string>
     <string name="you_are_not_a_member_of_this_group">Bu grubun üyesi değilsiniz</string>
     <string name="title_public_nickname">Takma isim</string>
+    <string name="title_availability_status">Durum</string>
     <string name="prefs_sum_excluded_sync_identities">Kişiler eşitlenirken burada listelenen kimlikler yok sayılacak.</string>
     <string name="prefs_title_excluded_sync_identities">Hariç listesi</string>
     <string name="synchronize_contact">Adres defteri eşitlemesi</string>
@@ -1666,9 +1669,11 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="work_directory_empty_view_text">Şirketinizin ${app_name_short} kullanıcıları dizininde arama yapmaya başlamak için lütfen en az 3 karakterlik bir ad girin.</string>
     <!-- Message that is shown when the user wants to share an invalid file. -->
     <string name="invalid_file_cannot_be_shared">Bu dosya geçersiz ve paylaşılamaz</string>
+    <string name="availability_status_none">Durum Yok</string>
     <!-- Status (only relevant for Work), e.g. as shown on their profile, indicating that the person is currently not available, i.e. out-of-office -->
     <string name="availability_status_unavailable">Kullanılamıyor</string>
     <!-- Status (only relevant for Work), e.g. as shown on their profile, indicating that the person is currently busy-->
+    <string name="availability_status_busy">Meşgul</string>
     <!-- Error message (only relevant for OnPrem) if the preset server url is different from the one provided by the activation link. -->
     <string name="error_preset_onprem_url_mismatch_intent">Aktivasyon bağlantısı geçersiz. Lütfen yöneticinizle iletişime geçin.</string>
     <!-- Warning message displayed on screen where the user can export a debug log file to share with Support. ${company_name} is a placeholder for the company name and should be kept as-is, not translated. -->
@@ -1693,6 +1698,8 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="remote_secret_notification_text">${remote_secret} etkin durumda. Daha fazla bilgi edinmek için dokunun.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">Bu uygulamaya erişim yöneticiniz tarafından engellendi.\n\nDaha fazla bilgi için lütfen yöneticinizle iletişime geçin.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">Uygulamayı Kapat</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">${remote_secret} belirteci alınamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1735,6 +1742,20 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">Görüşme sırasında Bluetooth kulaklığın bağlantısı kesilse bile görüşme devam eder. Not: Bu durum, kulaklıktaki kapatma düğmesinin çalışmasını engelleyebilir.</string>
     <string name="failed_to_load_conversations">Sohbetler yüklenemedi.</string>
     <string name="contact_support">Desteğe başvurun</string>
+    <string name="edit_availability_status_modal_title">Müsaitlik durumu</string>
+    <string name="edit_availability_status_modal_subtitle">Bu durum şirketinizdeki herkes tarafından görülebilir.</string>
+    <string name="edit_availability_status_modal_optional_message_label">Özel Metin (İsteğe bağlı)</string>
+    <string name="edit_availability_status_modal_optional_message_placeholder">Bir toplantıda</string>
+    <string name="edit_availability_status_modal_optional_message_description">Meşgul veya Müsait Değil seçeneği seçildiğinde özel bir durum mesajı ayarlayın.</string>
+    <string name="edit_availability_status_modal_optional_message_too_long">Metin çok uzun, lütfen kısaltın</string>
+    <string name="edit_availability_status_did_change">Kullanılabilirlik durumu değişti</string>
+    <string name="tooltip_title_availability_status">Müsaitlik durumu</string>
+    <string name="tooltip_text_availability_status_in_chat">Birine mesaj atmadan önce meşgul veya uygun olmadığını kontrol edin. Kendi durumunuzu profilinizde ayarlayabilirsiniz.</string>
+    <string name="tooltip_text_availability_status_in_profile">Meşgul veya müsait olmadığınızda durumunuzu gösterin.</string>
+    <string name="view_full_availability_status_modal_title">Müsaitlik durumu</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Tam uygunluk durumuna bakmak için dokunun</string>
     <plurals name="contacts_counter_label">
         <item quantity="one">%d kişi</item>
         <item quantity="other">%d kişi</item>

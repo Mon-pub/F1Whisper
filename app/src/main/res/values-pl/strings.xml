@@ -1704,6 +1704,7 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="remote_secret_notification_text">Funkcja ${remote_secret} jest aktywna. Stuknij, aby dowiedzieć się więcej.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">Administrator zablokował dostęp do tej aplikacji.\n\nAby uzyskać więcej informacji, skontaktuj się z tą osobą.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">Nie udało się pobrać tokena ${remote_secret}. Sprawdź swoje połączenie internetowe i spróbuj ponownie.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1746,6 +1747,8 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">Połączenie jest kontynuowane, nawet jeśli zestaw słuchawkowy Bluetooth zostanie rozłączony w trakcie rozmowy. Uwaga: Może to spowodować, że przycisk zakończenia połączenia na zestawie słuchawkowym nie będzie działał.</string>
     <string name="failed_to_load_conversations">Nie udało się wczytać czatów.</string>
     <string name="contact_support">Skontaktuj się z obsługą</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
     <plurals name="contacts_counter_label">
         <item quantity="one">%d kontakt</item>
         <item quantity="few">%d kontakty</item>

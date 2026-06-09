@@ -20,6 +20,7 @@ class IncomingContactEditMessageTask(
 ) : IncomingCspMessageSubTask<EditMessage>(editMessage, triggerSource, serviceManager) {
     private val messageService by lazy { serviceManager.messageService }
     private val contactService by lazy { serviceManager.contactService }
+    private val identityStore by lazy { serviceManager.identityStore }
 
     override suspend fun executeMessageStepsFromRemote(handle: ActiveTaskCodec): ReceiveStepsResult {
         return applyEdit()
@@ -31,16 +32,25 @@ class IncomingContactEditMessageTask(
 
     private fun applyEdit(): ReceiveStepsResult {
         logger.debug("IncomingContactEditMessageTask id: {}", message.data.messageId)
+        val myIdentity = identityStore.getIdentityString()
+            ?: throw IllegalStateException("Cannot apply edit when no identity is available")
 
         val contactModel = contactService.getByIdentity(message.fromIdentity)
         if (contactModel == null) {
-            logger.warn("Incoming Edit Message: No contact found for ${message.fromIdentity}")
+            logger.warn("Incoming Edit Message: No contact found for {}", message.fromIdentity)
             return ReceiveStepsResult.DISCARD
         }
 
         val fromReceiver: ContactMessageReceiver = contactService.createReceiver(contactModel)
         val editedMessage: AbstractMessageModel =
-            runCommonEditMessageReceiveSteps(message, fromReceiver, messageService)
+            runCommonEditMessageReceiveSteps(
+                myIdentity = myIdentity,
+                editMessageSenderIdentity = message.fromIdentity,
+                editMessageCreatedAt = message.date,
+                messageId = message.data.messageId,
+                receiver = fromReceiver,
+                messageService = messageService,
+            )
                 ?: return ReceiveStepsResult.DISCARD
 
         messageService.saveEditedMessageText(editedMessage, message.data.text, message.date)

@@ -45,6 +45,11 @@ class ColumnIndexCacheTest {
 
     private fun mockCursor(columnName: String, columnIndex: Int) =
         mockk<Cursor> {
+            every { columnNames } answers {
+                Array(columnIndex + 1) { index ->
+                    if (index == columnIndex) columnName else ""
+                }
+            }
             every { getColumnIndex(columnName) } returns columnIndex
         }
 }

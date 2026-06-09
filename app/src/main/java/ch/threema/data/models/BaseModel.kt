@@ -121,6 +121,7 @@ abstract class BaseModel<TData, TReflectionTask : Task<*, TaskCodec>?>(
                 mutableData.value = updatedData
                 updateDatabase(updatedData)
                 if (reflectUpdateTask != null && multiDeviceManager.isMultiDeviceActive) {
+                    @Suppress("DeferredResultUnused")
                     taskManager.schedule(reflectUpdateTask)
                 }
                 updatedData

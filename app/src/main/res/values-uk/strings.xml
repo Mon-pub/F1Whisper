@@ -1733,6 +1733,8 @@
     <string name="remote_secret_notification_text">Ввімкнено ${remote_secret}. Натисніть, щоб дізнатися більше.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">Доступ до цього додатка заблоковано адміністратором.\n\nЩоб дізнатися більше, зверніться до свого адміністратора.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">Закрити додаток</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">Не вдалося завантажити маркер ${remote_secret}. Перевірте інтернет-з\'єднання і повторіть спробу.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1782,6 +1784,13 @@
     <string name="edit_availability_status_modal_optional_message_description">Налаштуйте власне повідомлення для статусів \"Не турбувати\" та \"Не на зв\'язку\".</string>
     <string name="edit_availability_status_modal_optional_message_too_long">Текст задовгий, скоротіть його</string>
     <string name="edit_availability_status_did_change">Статус доступності змінено</string>
+    <string name="tooltip_title_availability_status">Статус доступності</string>
+    <string name="tooltip_text_availability_status_in_chat">Перевірте, чи зайнята людина та чи на зв\'язку вона, перш ніж надсилати їй повідомлення. Ви можете встановити власний статус у своєму профілі.</string>
+    <string name="tooltip_text_availability_status_in_profile">Установіть статус, щоб інші бачили, коли ви зайняті або не на зв\'язку.</string>
+    <string name="view_full_availability_status_modal_title">Статус доступності</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Натисніть, щоб переглянути повний статус доступності</string>
     <plurals name="contacts_counter_label">
         <item quantity="one">%d контакт</item>
         <item quantity="few">%d контакти</item>

@@ -1702,6 +1702,8 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="remote_secret_notification_text">${remote_secret} je aktivní. Klepnutím zjistíte více.</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
     <string name="remote_secrets_blocked_by_admin">Přístup k této aplikaci byl zablokován vaším administrátorem.\n\nPro více informací prosím kontaktujte vašeho administrátora.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">Zavřít aplikaci</string>
     <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secrets_failed_to_fetch">Token ${remote_secret} se nepodařilo načíst. Zkontrolujte prosím stav vašeho připojení k internetu a zkuste to znovu.</string>
     <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
@@ -1751,6 +1753,13 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="edit_availability_status_modal_optional_message_description">Nastavte vlastní zprávu o stavu, když je vybrán stav Zaneprázdněn nebo Nedostupný.</string>
     <string name="edit_availability_status_modal_optional_message_too_long">Text je příliš dlouhý, zkraťte jej prosím</string>
     <string name="edit_availability_status_did_change">Stav dostupnosti byl změněn</string>
+    <string name="tooltip_title_availability_status">Stav dostupnosti</string>
+    <string name="tooltip_text_availability_status_in_chat">Zjistěte, zda ten, komu se chystáte napsat, není zaneprázdněný nebo nedostupný. Ve svém profilu můžete nastavit vlastní stav.</string>
+    <string name="tooltip_text_availability_status_in_profile">Nastavte si svůj stav, který se má zobrazit, když jste zaneprázdněni nebo nedostupní.</string>
+    <string name="view_full_availability_status_modal_title">Stav dostupnosti</string>
+    <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
+    <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
+    <string name="accessibility_view_full_availability_status">Klepněte pro zobrazení úplného stavu dostupnosti</string>
     <plurals name="contacts_counter_label">
         <item quantity="one">%d kontakt</item>
         <item quantity="few">%d kontakty</item>

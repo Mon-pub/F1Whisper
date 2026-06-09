@@ -662,6 +662,9 @@ class PreferenceServiceImpl(
 
     override fun setTooltipPopupDismissed(key: Int, dismissed: Boolean) {
         preferenceStore.save(getKeyName(key), dismissed)
+        if (key == R.string.preferences__tooltip_emoji_reactions_shown && !dismissed) {
+            preferenceStore.save(getKeyName(R.string.preferences__tooltip_emoji_reactions_shown_counter), 0)
+        }
     }
 
     override fun setThreemaSafeEnabled(value: Boolean) {
@@ -827,7 +830,7 @@ class PreferenceServiceImpl(
     }
 
     override fun getLicensedStatus(): Boolean =
-        preferenceStore.getBoolean(getKeyName(R.string.preferences__license_status), true)
+        preferenceStore.getBoolean(getKeyName(R.string.preferences__license_status), false)
 
     override fun setShowDeveloperMenu(show: Boolean) {
         preferenceStore.save(getKeyName(R.string.preferences__developer_menu), show)
@@ -1075,7 +1078,7 @@ class PreferenceServiceImpl(
         preferenceStore.getInstant(getKeyName(R.string.preferences__debug_log_enable_time))
 
     override fun setAvailabilityStatus(availabilityStatus: AvailabilityStatus) {
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
+        if (!BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             logger.error("The current build does not support this feature")
             return
         }
@@ -1086,7 +1089,7 @@ class PreferenceServiceImpl(
     }
 
     override fun getAvailabilityStatus(): AvailabilityStatus? {
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
+        if (!BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             return null
         }
         return preferenceStore
@@ -1095,7 +1098,7 @@ class PreferenceServiceImpl(
     }
 
     override fun watchAvailabilityStatus(): Flow<AvailabilityStatus?> {
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
+        if (!BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             return flowOf(null)
         }
         return preferenceStore

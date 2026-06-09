@@ -1,5 +1,6 @@
 package ch.threema.app.availabilitystatus.edit
 
+import ch.threema.app.availabilitystatus.withTrimmedDescription
 import ch.threema.app.framework.BaseViewModel
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.usecases.availabilitystatus.UpdateUserAvailabilityStatusUseCase
@@ -71,7 +72,7 @@ class EditAvailabilityStatusViewModel(
 
     fun onClickSave() = runAction {
         val currentAvailabilityStatus = getCurrentAvailabilityStatusOrNone()
-        if (currentAvailabilityStatus == currentViewState.status) {
+        if (currentAvailabilityStatus == currentViewState.status.withTrimmedDescription()) {
             emitEvent(EditAvailabilityStatusEvent.Cancel)
             endAction()
         }

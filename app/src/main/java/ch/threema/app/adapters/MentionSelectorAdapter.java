@@ -8,7 +8,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
+
+import ch.threema.app.BuildConfig;
 import ch.threema.app.R;
 import ch.threema.app.glide.AvatarOptions;
 import ch.threema.app.preference.service.PreferenceService;
@@ -18,6 +21,7 @@ import ch.threema.app.services.UserService;
 import ch.threema.app.ui.AvatarView;
 import ch.threema.app.utils.AdapterUtil;
 import ch.threema.app.utils.NameUtil;
+import ch.threema.data.datatypes.AvailabilityStatus;
 import ch.threema.storage.models.ContactModel;
 import ch.threema.data.models.GroupModel;
 
@@ -94,13 +98,20 @@ public class MentionSelectorAdapter extends AbstractRecyclerAdapter<ContactModel
             } else {
                 itemHolder.avatarView.setImageResource(R.drawable.ic_group);
             }
-            itemHolder.avatarView.setBadgeVisible(false);
+            itemHolder.avatarView.setWorkBadgeVisible(false);
         } else {
             avatar = this.contactService.getAvatar(contactModel.getIdentity(), false);
 
             itemHolder.idView.setText(contactModel.getIdentity());
             itemHolder.avatarView.setImageBitmap(avatar);
-            itemHolder.avatarView.setBadgeVisible(contactService.showBadge(contactModel));
+            itemHolder.avatarView.setWorkBadgeVisible(contactService.showBadge(contactModel));
+
+            if (BuildConfig.AVAILABILITY_STATUS_ENABLED) {
+                final @Nullable AvailabilityStatus.Set availabilityStatusSet = (contactModel.getAvailabilityStatus() instanceof AvailabilityStatus.Set)
+                    ? (AvailabilityStatus.Set) contactModel.getAvailabilityStatus()
+                    : null;
+                itemHolder.avatarView.setAvailabilityStatusBadgeState(availabilityStatusSet);
+            }
         }
         AdapterUtil.styleContact(itemHolder.nameView, contactModel);
         itemHolder.view.setOnClickListener(v -> onClickListener.onItemClick(v, contactModel));

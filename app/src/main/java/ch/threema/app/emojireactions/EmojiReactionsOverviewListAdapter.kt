@@ -86,7 +86,7 @@ class EmojiReactionsOverviewListAdapter(
             AdapterUtil.styleContact(contactNameTextView, contactModel)
 
             contactAvatarView.setImageBitmap(avatar)
-            contactAvatarView.setBadgeVisible(contactService.showBadge(contactModel))
+            contactAvatarView.setWorkBadgeVisible(contactService.showBadge(contactModel))
 
             removeIconView.setOnClickListener {
                 val position = absoluteAdapterPosition

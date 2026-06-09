@@ -234,18 +234,6 @@ class ContactModelTest {
     }
 
     @Test
-    fun testSetAvailabilityStatusFromLocal() {
-        assertChangeFromLocal(
-            contactModel = TestData.createContactModel(
-                coreServiceManagerMock = coreServiceManagerMock,
-            ),
-            performChange = { contactModel -> contactModel.setAvailabilityStatusFromLocal(AvailabilityStatus.Busy()) },
-            checkDataChanged = { contactModel -> AvailabilityStatus.Busy() == contactModel.data!!.availabilityStatus },
-            expectedTaskReflectType = ReflectContactSyncUpdateTask.ReflectAvailabilityStatusUpdate::class.java,
-        )
-    }
-
-    @Test
     fun testSetAvailabilityStatusFromSync() {
         assertChangeFromSync(
             contactModel = TestData.createContactModel(

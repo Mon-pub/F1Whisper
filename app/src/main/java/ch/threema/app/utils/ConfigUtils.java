@@ -1595,8 +1595,4 @@ public class ConfigUtils {
     private static AppRestrictions getAppRestrictions() {
         return KoinJavaComponent.get(AppRestrictions.class);
     }
-
-    public static boolean supportsAvailabilityStatus() {
-        return isWorkBuild() && BuildConfig.AVAILABILITY_STATUS_ENABLED;
-    }
 }

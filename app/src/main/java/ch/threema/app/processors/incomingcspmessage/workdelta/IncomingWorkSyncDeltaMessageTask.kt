@@ -1,6 +1,7 @@
 package ch.threema.app.processors.incomingcspmessage.workdelta
 
 import ch.threema.app.AppConstants
+import ch.threema.app.BuildConfig
 import ch.threema.app.ThreemaApplication
 import ch.threema.app.managers.ServiceManager
 import ch.threema.app.processors.incomingcspmessage.IncomingCspMessageSubTask
@@ -48,7 +49,7 @@ class IncomingWorkSyncDeltaMessageTask(
     private suspend fun processWorkSyncDeltaMessage(handle: ActiveTaskCodec): ReceiveStepsResult {
         logger.debug("IncomingWorkSyncDeltaMessageTask id: {}", message.messageId)
 
-        if (!ConfigUtils.supportsAvailabilityStatus()) {
+        if (!BuildConfig.AVAILABILITY_STATUS_ENABLED) {
             logger.info("Discarding work sync delta message because it is not supported by current build")
             return ReceiveStepsResult.DISCARD
         }
@@ -124,7 +125,7 @@ class IncomingWorkSyncDeltaMessageTask(
 
                 // 4.5 Apply all changes persistently.
                 changesToApplyLocally.forEach { (model, status) ->
-                    model.setAvailabilityStatusFromSync(status)
+                    model.persistAvailabilityStatus(status)
                 }
 
                 return ReceiveStepsResult.SUCCESS

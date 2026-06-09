@@ -24,14 +24,6 @@
             android:clickable="false"
             android:contentDescription="@string/mime_contact" />
 
-        <ch.threema.app.availabilitystatus.AvailabilityStatusIconElevatedView
-            android:id="@+id/availability_status_avatar_icon"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_gravity="bottom|end"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
     </FrameLayout>
 
     <RelativeLayout

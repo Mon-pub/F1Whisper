@@ -134,11 +134,11 @@
     <color name="availability_status_icon_none">@color/brand_grey_700</color>
     <color name="availability_status_container_none">@color/brand_grey_200</color>
 
-    <color name="availability_status_icon_unavailable">#B91C1C</color>
+    <color name="availability_status_icon_unavailable">#C0392B</color>
     <color name="availability_status_container_unavailable">#FECACA</color>
     <color name="availability_status_on_container_unavailable">#000000</color>
 
-    <color name="availability_status_icon_busy">#F6A421</color>
+    <color name="availability_status_icon_busy">#D68910</color>
     <color name="availability_status_container_busy">#FFEAA3</color>
     <color name="availability_status_on_container_busy">#000000</color>
 </resources>

@@ -2,11 +2,13 @@ package ch.threema.app.activities.directory
 
 import ch.threema.app.asynctasks.AddOrUpdateWorkContactBackgroundTask
 import ch.threema.app.framework.BaseViewModel
+import ch.threema.app.multidevice.MultiDeviceManager
 import ch.threema.app.stores.IdentityProvider
 import ch.threema.app.utils.DispatcherProvider
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.data.repositories.ContactModelRepository
 import ch.threema.domain.protocol.api.work.WorkDirectoryContact
+import ch.threema.domain.taskmanager.TaskManager
 import kotlinx.coroutines.withContext
 
 private val logger = getThreemaLogger("DirectoryViewModel")
@@ -15,6 +17,8 @@ class DirectoryViewModel(
     private val dispatcherProvider: DispatcherProvider,
     private val identityProvider: IdentityProvider,
     private val contactModelRepository: ContactModelRepository,
+    private val taskManager: TaskManager,
+    private val multiDeviceManager: MultiDeviceManager,
 ) : BaseViewModel<Unit, DirectoryScreenEvent>() {
 
     override fun initialize() = runInitialization {}
@@ -50,6 +54,8 @@ class DirectoryViewModel(
             workContact = workDirectoryContact,
             myIdentity = myIdentity.value,
             contactModelRepository = contactModelRepository,
+            taskManager = taskManager,
+            multiDeviceManager = multiDeviceManager,
         )
         val contactModel = withContext(dispatcherProvider.io) {
             createContactTask.runSynchronously()

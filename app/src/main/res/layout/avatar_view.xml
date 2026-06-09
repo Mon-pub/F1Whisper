@@ -7,7 +7,10 @@
     android:layout_height="match_parent"
     android:layout_alignParentLeft="true"
     android:layout_centerVertical="true"
-    android:clickable="false">
+    android:descendantFocusability="blocksDescendants"
+    android:clickable="false"
+    tools:layout_height="48dp"
+    tools:layout_width="48dp">
 
     <ImageView
         android:id="@+id/avatar"
@@ -18,13 +21,22 @@
         tools:srcCompat="@drawable/ic_profile_filled" />
 
     <ImageView
-        android:id="@+id/avatar_badge"
+        android:id="@+id/avatar_badge_work"
         android:layout_width="18dp"
         android:layout_height="18dp"
         android:layout_gravity="left|bottom"
         android:clickable="false"
         android:visibility="gone"
         app:srcCompat="@drawable/ic_badge_work"
+        tools:visibility="visible" />
+
+    <FrameLayout
+        android:id="@+id/avatar_badge_availability_status_container"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="right|bottom"
+        android:visibility="gone"
+        tools:background="@drawable/ic_availability_status_busy"
         tools:visibility="visible" />
 
 </FrameLayout>

@@ -21,6 +21,7 @@ class IncomingGroupEditMessageTask(
     private val messageService by lazy { serviceManager.messageService }
     private val groupService by lazy { serviceManager.groupService }
     private val groupModelRepository by lazy { serviceManager.modelRepositories.groups }
+    private val identityStore by lazy { serviceManager.identityStore }
 
     override suspend fun executeMessageStepsFromRemote(handle: ActiveTaskCodec): ReceiveStepsResult {
         logger.debug("IncomingGroupEditMessageTask id: {}", message.data.messageId)
@@ -48,11 +49,21 @@ class IncomingGroupEditMessageTask(
     }
 
     private fun applyEdit(groupModel: GroupModel): ReceiveStepsResult {
+        val myIdentity = identityStore.getIdentityString()
+            ?: throw IllegalStateException("Cannot apply edit when no identity is available")
+
         val receiver = groupService.createReceiver(groupModel) ?: run {
             logger.error("Could not get message receiver")
             return ReceiveStepsResult.DISCARD
         }
-        val editedMessage = runCommonEditMessageReceiveSteps(message, receiver, messageService)
+        val editedMessage = runCommonEditMessageReceiveSteps(
+            myIdentity = myIdentity,
+            editMessageSenderIdentity = message.fromIdentity,
+            editMessageCreatedAt = message.date,
+            messageId = message.data.messageId,
+            receiver = receiver,
+            messageService = messageService,
+        )
             ?: return ReceiveStepsResult.DISCARD
 
         messageService.saveEditedMessageText(editedMessage, message.data.text, message.date)

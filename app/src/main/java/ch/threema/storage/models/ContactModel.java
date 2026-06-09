@@ -13,12 +13,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Date;
 
 import ch.threema.app.utils.TextUtil;
+import ch.threema.data.datatypes.AvailabilityStatus;
 import ch.threema.data.datatypes.ContactNameFormat;
 import ch.threema.data.datatypes.IdColor;
 import ch.threema.base.crypto.NaCl;
 import ch.threema.data.datatypes.NotificationTriggerPolicyOverride;
 import ch.threema.app.preference.service.PreferenceService;
+
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
+
 import ch.threema.domain.models.Contact;
 import ch.threema.domain.models.ContactReceiverIdentifier;
 import ch.threema.domain.models.IdentityState;
@@ -126,6 +129,7 @@ public class ContactModel extends Contact implements ReceiverModel {
     private @Nullable String jobTitle;
     private @Nullable String department;
     private @Nullable Long notificationTriggerPolicyOverride;
+    private @NonNull AvailabilityStatus availabilityStatus = AvailabilityStatus.None.INSTANCE;
 
     private ContactModel(String identity, @NonNull byte[] publicKey) {
         super(identity, publicKey, VerificationLevel.UNVERIFIED);
@@ -481,6 +485,16 @@ public class ContactModel extends Contact implements ReceiverModel {
 
     public ContactModel setNotificationTriggerPolicyOverride(@Nullable Long notificationTriggerPolicyOverride) {
         this.notificationTriggerPolicyOverride = notificationTriggerPolicyOverride;
+        return this;
+    }
+
+    @NonNull
+    public AvailabilityStatus getAvailabilityStatus() {
+        return this.availabilityStatus;
+    }
+
+    public ContactModel setAvailabilityStatus(@NonNull AvailabilityStatus availabilityStatus) {
+        this.availabilityStatus = availabilityStatus;
         return this;
     }
 

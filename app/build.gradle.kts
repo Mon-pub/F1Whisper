@@ -1,6 +1,5 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.android.build.gradle.internal.tasks.factory.dependsOn
-import config.BuildFeatureFlags
 import config.PublicKeys
 import config.SentryConfig
 import config.setProductNames
@@ -32,7 +31,7 @@ if (gradle.startParameter.taskRequests.toString().contains("Hms")) {
 /**
  * Only use the scheme "<major>.<minor>.<patch>" for the appVersion
  */
-val appVersion = "6.4.2"
+val appVersion = "6.4.3"
 
 /**
  * betaSuffix with leading dash (e.g. `-beta1`).
@@ -41,7 +40,7 @@ val appVersion = "6.4.2"
  */
 val betaSuffix = ""
 
-val defaultVersionCode = 1142
+val defaultVersionCode = 1148
 
 /**
  * Map with keystore paths (if found).
@@ -130,7 +129,7 @@ android {
 
         stringArrayBuildConfigField("ONPREM_CONFIG_TRUSTED_PUBLIC_KEYS", emptyArray())
         booleanBuildConfigField("MD_SYNC_DISTRIBUTION_LISTS", false)
-        booleanBuildConfigField("AVAILABILITY_STATUS_ENABLED", BuildFeatureFlags["availability_status"] ?: false)
+        booleanBuildConfigField("AVAILABILITY_STATUS_ENABLED", false)
         booleanBuildConfigField("ERROR_REPORTING_SUPPORTED", false)
 
         // config fields for action URLs / deep links
@@ -239,6 +238,7 @@ android {
             stringBuildConfigField("APP_RATING_URL", "https://threema.com/app-rating/android-work/{rating}")
             stringBuildConfigField("LOG_TAG", "3mawrk")
             stringBuildConfigField("DEFAULT_APP_THEME", "2")
+            booleanBuildConfigField("AVAILABILITY_STATUS_ENABLED", true)
 
             // config fields for action URLs / deep links
             stringBuildConfigField("uriScheme", "threemawork")
@@ -462,6 +462,7 @@ android {
             stringBuildConfigField("APP_RATING_URL", "https://threema.com/app-rating/android-work/{rating}")
             stringBuildConfigField("LOG_TAG", "3mawrk")
             stringBuildConfigField("DEFAULT_APP_THEME", "2")
+            booleanBuildConfigField("AVAILABILITY_STATUS_ENABLED", true)
 
             // config fields for action URLs / deep links
             stringBuildConfigField("uriScheme", "threemawork")
