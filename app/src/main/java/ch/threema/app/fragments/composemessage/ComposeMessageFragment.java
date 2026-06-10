@@ -2296,7 +2296,7 @@ public class ComposeMessageFragment extends Fragment implements
         final boolean cameraButtonVisibilityChange = cameraButton.getVisibility() != cameraButtonVisibility;
 
         if (cameraButtonVisibilityChange) {
-            Transition cameraTransition = new Slide(Gravity.RIGHT);
+            Transition cameraTransition = new Slide(Gravity.END);
             cameraTransition.setStartDelay(cameraButtonVisibility == View.VISIBLE && attachButtonVisibilityChange ? 100 : 0);
             cameraTransition.setDuration(120);
             cameraTransition.setInterpolator(new LinearInterpolator());
@@ -2306,7 +2306,7 @@ public class ComposeMessageFragment extends Fragment implements
         }
 
         if (attachButtonVisibilityChange) {
-            Transition attachTransition = new Slide(Gravity.RIGHT);
+            Transition attachTransition = new Slide(Gravity.END);
             attachTransition.setStartDelay(attachButtonVisibility == View.VISIBLE ? 0 : 100);
             attachTransition.setDuration(120);
             attachTransition.setInterpolator(new LinearInterpolator());

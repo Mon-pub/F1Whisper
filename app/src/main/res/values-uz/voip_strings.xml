@@ -1,0 +1,111 @@
+<resources>
+    <string name="voip_title">Threema Call</string>
+    <string name="voip_hangup">Tugatish</string>
+    <string name="voip_toggle_mic">Mikrofonni almashtirish</string>
+    <string name="voip_toggle_speaker">Karnayni almashtirish</string>
+    <string name="voip_switch_cam">Kamerani almashtirish</string>
+    <string name="voip_switch_cam_front">Old kameraga oʻtildi</string>
+    <string name="voip_switch_cam_rear">Orqa kameraga oʻtildi</string>
+    <string name="voip_toggle_video">Video rejimini almashtirish</string>
+    <string name="voip_call_confirm">%1$s ga qoʻngʻiroq qilmoqchimisiz?</string>
+    <string name="voip_error_call">Threema qoʻngʻirogʻi davomida xatolik</string>
+    <string name="voip_error_init_call">Qoʻngʻiroqni boshlashda xatolik</string>
+    <string name="voip_notification_title">Kiruvchi Threema qoʻngʻirogʻi</string>
+    <string name="voip_notification_text">%1$s qoʻngʻiroq qilmoqda</string>
+    <!-- Shown when starting a call, before the peer device is ringing -->
+    <string name="voip_status_initializing">Boshlanmoqda</string>
+    <!-- Shown when the callee has accepted the call and the connection is being established -->
+    <string name="voip_status_connecting">Ulanmoqda</string>
+    <!-- Shown when a call is being disconnected -->
+    <string name="voip_status_disconnecting">Uzilmoqda</string>
+    <!-- Shown when the device of the callee is ringing -->
+    <string name="voip_status_ringing">Jiringlamoqda</string>
+    <string name="voip_mic_enable">Mikrofonni yoqish</string>
+    <string name="voip_mic_disable">Mikrofonni oʻchirish</string>
+    <string name="voip_checking_compatibility">Bu kontakt Threema qoʻngʻiroqlarini qabul qila olishi tekshirilmoqda</string>
+    <string name="voip_incompatible">Bu kontakt hali Threema qoʻngʻiroqlarini qabul qila olmaydi.</string>
+    <string name="voip_call_status_unavailable">Qabul qiluvchi mavjud emas</string>
+    <string name="voip_call_status_rejected">Qoʻngʻiroq rad etildi</string>
+    <string name="voip_call_status_busy">Qabul qiluvchi band</string>
+    <string name="voip_call_status_busy_short">Band</string>
+    <string name="voip_call_status_disabled">Threema qoʻngʻiroqlari qabul qiluvchi tomonidan oʻchirilgan</string>
+    <string name="voip_call_status_missed">Oʻtkazib yuborilgan qoʻngʻiroq</string>
+    <string name="voip_call_finished_outbox">Chiquvchi qoʻngʻiroq</string>
+    <string name="voip_call_finished_inbox">Kiruvchi qoʻngʻiroq</string>
+    <string name="voip_call_status_aborted">Qoʻngʻiroq toʻxtatildi</string>
+    <string name="voip_return_call">Qayta qoʻngʻiroq qilish</string>
+    <string name="voip_accept">Qabul qilish</string>
+    <string name="voip_reject">Rad etish</string>
+    <string name="voip_speakerphone">Karnay</string>
+    <string name="voip_wired_headset">Quloqchin</string>
+    <string name="voip_earpiece">Telefon</string>
+    <string name="voip_bluetooth">Bluetooth</string>
+    <string name="voip_none">Mavjud emas</string>
+    <string name="voip_call_finished">Threema qoʻngʻirogʻi tugadi</string>
+    <string name="voip_another_call">Ulanib boʻlmadi. Ayni paytda boshqa Threema qoʻngʻirogʻi faol.</string>
+    <string name="voip_prefs_title_aec">Aks-sadoni bartaraf qilish</string>
+    <string name="voip_prefs_aec_sw">Dasturiy aks-sadoni bartaraf qilish</string>
+    <string name="voip_prefs_aec_hw">Apparatli aks-sadoni bartaraf qilish</string>
+    <string name="voip_prefs_title_video_codec">Video kodeklar</string>
+    <string name="voip_prefs_video_aec_hw">Apparatli tezlashtirilgan</string>
+    <string name="voip_prefs_video_codec_no_vp8">VP8 ni oʻchirish</string>
+    <string name="voip_prefs_video_codec_no_h264hip">H264-HiP ni oʻchirish</string>
+    <string name="voip_prefs_video_codec_sw">Dasturiy kodeklar</string>
+    <string name="voip_connection_failed">Ulanishni oʻrnatib boʻlmadi</string>
+    <string name="voip_call_disconnected">Qoʻngʻiroq uzildi</string>
+    <string name="prefs_voip_reject_incoming_calls_title">Mobil qoʻngʻiroqlarni rad etish</string>
+    <string name="prefs_voip_reject_incoming_calls_summary">Threema qoʻngʻirogʻi faol boʻlganda kiruvchi mobil qoʻngʻiroqlarni rad etish.</string>
+    <string name="voip_contact_not_found">Bu raqam uchun Threema kontakti topilmadi.</string>
+    <string name="voip_another_pstn_call">Qoʻngʻiroqni boshlab boʻlmadi. Oddiy telefon qoʻngʻirogʻi hali faol.</string>
+    <string name="voip_call_status_off_hours">Ish vaqtidan tashqari qoʻngʻiroq</string>
+    <string name="voip_peer_video_disabled">Video qoʻngʻiroqlar boshqa tomon tomonidan oʻchirib qoʻyilgan.</string>
+
+    <string name="voip_error_processing_call_anser">Qoʻngʻiroq javobini qayta ishlashda xatolik yuz berdi</string>
+    <string name="voip_error_peer_connection">Tengdosh bilan ulanishda xatolik</string>
+    <string name="voip_error_determine_common_video_quality_profile">Umumiy video sifati profilini aniqlab boʻlmadi</string>
+
+    <string name="voip_audio_focus_lost">Audio fokus yoʻqotildi</string>
+
+    <string name="voip_could_not_initialize">Qoʻngʻiroqni boshlab boʻlmadi</string>
+
+    <!-- WebRTC debugger -->
+    <string name="voip_prefs_webrtc_debug">WebRTC diagnostikasi</string>
+    <string name="voip_prefs_webrtc_debug_summary">Ovozli qoʻngʻiroq ulanishini sozlashdagi muammolarni tuzatish uchun ushbu vositani ishga tushiring</string>
+    <string name="voip_webrtc_debug">WebRTC diagnostikasi</string>
+    <string name="voip_webrtc_debug_intro">Testni boshlash uchun “Boshlash“ tugmasini bosing.</string>
+    <string name="voip_webrtc_debug_start">Boshlash</string>
+    <string name="voip_webrtc_debug_done">Bajarildi. Agar qoʻngʻiroq ulanishini oʻrnatishda muammolarga duch kelsangiz, iltimos, ushbu natijani Threema qoʻllab-quvvatlash xizmatiga yuboring.</string>
+    <string name="voip_webrtc_debug_copied">Vaqtinchalik xotiraga nusxalandi.</string>
+    <string name="voip_webrtc_debug_copy_clipboard">Vaqtinchalik xotiraga nusxalash</string>
+
+    <!-- Group Calls -->
+    <string name="voip_gc_notification_call_started">%1$s %2$s da guruh qoʻngʻirogʻini boshladi</string>
+    <string name="voip_gc_notification_call_started_generic">%1$s guruh qoʻngʻirogʻini boshladi</string>
+    <string name="voip_gc_notification_call_started_generic_outbox">Siz guruh qoʻngʻirogʻini boshladingiz</string>
+    <string name="voip_gc_join_call">Qoʻshilish</string>
+    <string name="voip_gc_ongoing_call">Davom etayotgan guruh qoʻngʻirogʻi</string>
+    <string name="voip_gc_waiting_for_participants">Ishtirokchilar kutilmoqda</string>
+    <string name="voip_gc_participant_avatar_description">Ishtirokchining profil rasmi</string>
+    <string name="voip_gc_participant_mute_status_description">Ishtirokchining ovozsizlik holati</string>
+    <string name="voip_gc_participant_screen_share_status_description">Ishtirokchi ekranni ulashmoqda</string>
+    <string name="voip_gc_notification_new_call_public">Yangi guruh qoʻngʻirogʻi boshlandi</string>
+    <string name="voip_gc_open_call">Ochish</string>
+    <string name="voip_gc_call_started">Guruh qoʻngʻirogʻi boshlandi</string>
+    <string name="voip_gc_call_ended">Guruh qoʻngʻirogʻi tugadi</string>
+    <string name="voip_gc_in_call">Guruh qoʻngʻirogʻida</string>
+    <string name="voip_gc_sfu_not_available">Server mavjud emas, keyinroq qayta urinib koʻring</string>
+    <string name="voip_gc_call_error">Qoʻngʻiroq xatolik tufayli toʻxtatildi</string>
+    <string name="voip_gc_call_start_error">Guruh qoʻngʻirogʻini boshlab boʻlmadi</string>
+    <string name="voip_gc_call_already_ended">Guruh qoʻngʻirogʻi allaqachon tugagan</string>
+    <string name="voip_gc_screen_sharing_not_supported">Ekranni ulashish ayni paytda faqat desktop qurilmalari bilan cheklangan.</string>
+    <string name="voip_gc_call_full_generic">Maksimumga yetildi: bu guruh qoʻngʻirogʻiga boshqa ishtirokchilar qoʻshila olmaydi.</string>
+    <string name="voip_gc_call_full_n">Maksimal %1$d ishtirokchiga yetildi, siz bu guruh qoʻngʻirogʻiga qoʻshila olmaysiz.</string>
+    <plurals name="n_participants_in_call">
+        <item quantity="one">%d ishtirokchi</item>
+        <item quantity="other">%d ishtirokchi</item>
+    </plurals>
+    <plurals name="n_members_dont_support_group_calls">
+        <item quantity="one">Eslatma: bitta aʼzo guruh qoʻngʻiroqlarida ishtirok eta olmaydi.</item>
+        <item quantity="other">Eslatma: %d aʼzo guruh qoʻngʻiroqlarida ishtirok eta olmaydi.</item>
+    </plurals>
+</resources>

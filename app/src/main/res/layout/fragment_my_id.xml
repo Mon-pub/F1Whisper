@@ -25,9 +25,9 @@
                 android:id="@+id/policy_explain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="2dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -36,7 +36,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginEnd="8dp"
                     app:srcCompat="@drawable/ic_info_outline"
                     app:tint="?attr/colorOnSurface" />
 
@@ -62,7 +62,7 @@
                     style="@style/Threema.MaterialButton.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:contentDescription="@string/edit"
@@ -269,9 +269,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingLeft="16dp"
+                android:paddingStart="16dp"
                 android:paddingTop="16dp"
-                android:paddingRight="16dp">
+                android:paddingEnd="16dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -290,7 +290,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="24dp"
+                        android:layout_marginEnd="24dp"
                         android:contentDescription="@string/linked_mobile"
                         app:srcCompat="@drawable/ic_call_outline"
                         app:tint="?attr/colorOnSurface" />
@@ -300,7 +300,7 @@
                         style="@style/Threema.MaterialButton.Icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:contentDescription="@string/change"
                         app:icon="@drawable/ic_pencil_outline" />
@@ -309,9 +309,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="8dp"
-                        android:layout_toLeftOf="@+id/change_mobile"
-                        android:layout_toRightOf="@+id/phone"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toStartOf="@+id/change_mobile"
+                        android:layout_toEndOf="@+id/phone"
                         android:orientation="vertical">
 
                         <TextView
@@ -344,7 +344,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="24dp"
+                        android:layout_marginEnd="24dp"
                         android:contentDescription="@string/linked_email"
                         app:srcCompat="@drawable/ic_email_outline"
                         app:tint="?attr/colorOnSurface" />
@@ -354,7 +354,7 @@
                         style="@style/Threema.MaterialButton.Icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:contentDescription="@string/change"
                         app:icon="@drawable/ic_pencil_outline" />
@@ -363,9 +363,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="8dp"
-                        android:layout_toLeftOf="@+id/change_email"
-                        android:layout_toRightOf="@+id/email"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toStartOf="@+id/change_email"
+                        android:layout_toEndOf="@+id/email"
                         android:orientation="vertical">
 
                         <TextView
@@ -398,9 +398,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingLeft="16dp"
+                android:paddingStart="16dp"
                 android:paddingTop="16dp"
-                android:paddingRight="16dp"
+                android:paddingEnd="16dp"
                 android:paddingBottom="16dp">
 
                 <TextView
@@ -420,7 +420,7 @@
                         style="@style/Threema.MaterialButton.Icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:contentDescription="@string/change"
                         android:rotation="180"
@@ -429,10 +429,10 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="8dp"
-                        android:layout_toLeftOf="@+id/revocation_key"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toStartOf="@+id/revocation_key"
                         android:orientation="vertical">
 
                         <TextView
@@ -467,7 +467,7 @@
                         style="@style/Threema.MaterialButton.Icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:contentDescription="@string/change"
                         android:rotation="180"
@@ -476,10 +476,10 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="8dp"
-                        android:layout_toLeftOf="@+id/export_id"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toStartOf="@+id/export_id"
                         android:orientation="vertical">
 
                         <TextView
@@ -514,7 +514,7 @@
                         style="@style/Threema.MaterialButton.Icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:contentDescription="@string/change"
                         android:rotation="180"
@@ -523,10 +523,10 @@
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="8dp"
-                        android:layout_toLeftOf="@+id/delete_id"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toStartOf="@+id/delete_id"
                         android:orientation="vertical">
 
                         <TextView

@@ -7,15 +7,15 @@
     android:layout_height="@dimen/messagelist_item_height"
     android:background="@drawable/listitem_background_selector"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/tablet_additional_padding_horizontal"
-    android:paddingRight="@dimen/tablet_additional_padding_horizontal">
+    android:paddingStart="@dimen/tablet_additional_padding_horizontal"
+    android:paddingEnd="@dimen/tablet_additional_padding_horizontal">
 
     <ch.threema.app.ui.AvatarView
         android:id="@+id/avatar_view"
         android:layout_width="@dimen/avatar_size_small"
         android:layout_height="@dimen/avatar_size_small"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/grid_unit_x2"
+        android:layout_marginStart="@dimen/grid_unit_x2"
         android:contentDescription="@string/show_contact"
         android:foreground="@drawable/selector_avatar"
         tools:background="@drawable/ic_profile" />
@@ -24,9 +24,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toRightOf="@id/avatar_view"
-        android:paddingLeft="@dimen/listitem_standard_margin_left_right"
-        android:paddingRight="@dimen/listitem_standard_margin_left_right">
+        android:layout_toEndOf="@id/avatar_view"
+        android:paddingStart="@dimen/listitem_standard_margin_left_right"
+        android:paddingEnd="@dimen/listitem_standard_margin_left_right">
 
         <ch.threema.app.emojis.EmojiConversationTextView
             android:id="@+id/ballot_name"
@@ -34,9 +34,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
-            android:layout_alignParentLeft="true"
-            android:layout_marginRight="5dip"
-            android:layout_toLeftOf="@+id/ballot_state"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="5dip"
+            android:layout_toStartOf="@+id/ballot_state"
             android:ellipsize="end"
             android:singleLine="true"
             android:textColor="?attr/colorOnBackground"
@@ -47,7 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/ballot_name"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:ellipsize="none"
             android:fontFamily="sans-serif-light"
             android:singleLine="true"
@@ -62,7 +62,7 @@
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/ballot_name"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:ellipsize="end"
             android:singleLine="true"
             tools:text="~ECHOECHO" />
@@ -74,7 +74,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/ballot_creator"
             android:layout_marginHorizontal="5dip"
-            android:layout_toRightOf="@id/ballot_creator"
+            android:layout_toEndOf="@id/ballot_creator"
             android:ellipsize="end"
             android:singleLine="true"
             android:text="-" />
@@ -85,8 +85,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/ballot_creator"
-            android:layout_toLeftOf="@+id/ballot_updates"
-            android:layout_toRightOf="@id/ballot_creator_spacer"
+            android:layout_toStartOf="@+id/ballot_updates"
+            android:layout_toEndOf="@id/ballot_creator_spacer"
             android:ellipsize="end"
             android:singleLine="true"
             tools:text="12.12.1212" />
@@ -97,7 +97,7 @@
             android:layout_width="wrap_content"
             android:layout_height="20dp"
             android:layout_alignBaseline="@+id/ballot_creator"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:textColor="?attr/colorOnPrimary"
             app:backgroundTint="?attr/colorPrimary"
             tools:text="10" />

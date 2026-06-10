@@ -13,9 +13,9 @@
         android:id="@+id/new_fingerprint_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="@dimen/wizard_contents_padding_horizontal"
+        android:paddingStart="@dimen/wizard_contents_padding_horizontal"
         android:paddingTop="@dimen/wizard_contents_padding"
-        android:paddingRight="@dimen/wizard_contents_padding_horizontal"
+        android:paddingEnd="@dimen/wizard_contents_padding_horizontal"
         android:paddingBottom="@dimen/wizard_contents_padding">
 
         <ImageView

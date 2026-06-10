@@ -18,7 +18,7 @@
         android:importantForAccessibility="no"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     <!-- textColor="@null" -> https://stackoverflow.com/a/45198884 -->
 
@@ -28,10 +28,10 @@
         android:layout_height="18dp"
         android:baselineAlignBottom="true"
         android:contentDescription="@string/blocked"
-        android:paddingLeft="4dp"
+        android:paddingStart="4dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@id/verification_level"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/verification_level"
         app:srcCompat="@drawable/ic_block"
         app:tint="@color/material_red"
@@ -42,17 +42,17 @@
         android:id="@+id/contact_text_bottom_right"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
         android:ellipsize="end"
-        android:gravity="right"
+        android:gravity="end"
         android:minHeight="@dimen/listitem_min_height_second_line"
         android:singleLine="true"
         android:textAppearance="@style/Threema.TextAppearance.List.SecondLine"
         android:textColor="@null"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintLeft_toRightOf="@id/contact_text_bottom_left"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toEndOf="@id/contact_text_bottom_left"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/contact_text_top_left"
         tools:text="Department" />
 
@@ -64,7 +64,7 @@
         android:textAppearance="@style/Threema.Material.Header.Big.Text"
         android:textColor="@null"
         app:layout_constraintBottom_toBottomOf="@id/avatar_view"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/avatar_view"
         tools:text="A" />
 
@@ -80,8 +80,8 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintLeft_toLeftOf="@id/contact_text_top_left"
-        app:layout_constraintRight_toLeftOf="@+id/contact_text_bottom_right"
+        app:layout_constraintStart_toStartOf="@id/contact_text_top_left"
+        app:layout_constraintEnd_toStartOf="@+id/contact_text_bottom_right"
         app:layout_constraintTop_toBottomOf="@+id/contactTextTopLeft"
         tools:text="Job Title" />
     <!-- textColor="@null" -> https://stackoverflow.com/a/45198884 -->
@@ -90,7 +90,7 @@
         android:id="@+id/contact_text_top_left"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
         android:layout_marginEnd="32dp"
         android:ellipsize="end"
         android:minHeight="@dimen/listitem_min_height_first_line"
@@ -98,8 +98,8 @@
         android:textAppearance="@style/Threema.TextAppearance.List.FirstLine"
         android:textColor="@null"
         app:layout_constraintBottom_toTopOf="@+id/contact_text_bottom_left"
-        app:layout_constraintLeft_toRightOf="@id/avatar_view"
-        app:layout_constraintRight_toLeftOf="@+id/verification_level"
+        app:layout_constraintStart_toEndOf="@id/avatar_view"
+        app:layout_constraintEnd_toStartOf="@+id/verification_level"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Firstname Lastname" />
     <!-- textColor="@null" -> https://stackoverflow.com/a/45198884 -->
@@ -108,12 +108,12 @@
         android:id="@+id/avatar_view"
         android:layout_width="@dimen/avatar_size_small"
         android:layout_height="@dimen/avatar_size_small"
-        android:layout_marginLeft="34dp"
+        android:layout_marginStart="34dp"
         android:duplicateParentState="true"
         android:stateListAnimator="@animator/selector_list_checkbox_bg"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:background="@drawable/ic_profile_filled" />
 
@@ -125,8 +125,8 @@
         android:duplicateParentState="true"
         android:stateListAnimator="@animator/selector_list_checkbox_fg"
         app:layout_constraintBottom_toBottomOf="@id/avatar_view"
-        app:layout_constraintLeft_toLeftOf="@id/avatar_view"
-        app:layout_constraintRight_toRightOf="@id/avatar_view"
+        app:layout_constraintStart_toStartOf="@id/avatar_view"
+        app:layout_constraintEnd_toEndOf="@id/avatar_view"
         app:layout_constraintTop_toTopOf="@id/avatar_view" />
 
     <ch.threema.app.ui.VerificationLevelImageView

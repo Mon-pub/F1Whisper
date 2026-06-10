@@ -53,7 +53,7 @@
             app:layout_anchor="@id/crop_parent"
             app:layout_anchorGravity="bottom|right"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

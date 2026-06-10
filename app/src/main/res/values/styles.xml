@@ -111,8 +111,8 @@
         <item name="android:textSize">14dp</item> <!-- Don't use sp here! -->
         <item name="android:clickable">false</item>
         <item name="android:focusable">false</item>
-        <item name="android:paddingLeft">4dp</item>
-        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">1dp</item>
         <item name="android:insetTop">0dp</item>
@@ -189,7 +189,7 @@
         <item name="searchHintIcon">@null</item>
         <item name="queryBackground">@null</item>
         <item name="android:paddingStart">-16dp</item>
-        <item name="android:paddingLeft">-16dp</item>
+        <item name="android:paddingStart">-16dp</item>
     </style>
 
     <style name="Threema.MaterialAlertDialog" parent="@style/ThemeOverlay.Material3.MaterialAlertDialog">
@@ -244,8 +244,8 @@
     </style>
 
     <style name="Threema.AlertDialog.ButtonStyle.Flush" parent="@style/Widget.Material3.Button.OutlinedButton">
-        <item name="android:layout_marginLeft">0dp</item>
-        <item name="android:layout_marginRight">0dp</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:letterSpacing">0</item>
         <item name="shapeAppearance">?attr/shapeAppearanceSmallComponent</item>
@@ -698,8 +698,8 @@
     </style>
 
     <style name="Threema.MaterialButton.Minimal" parent="@style/Widget.Material3.Button.IconButton">
-        <item name="android:paddingLeft">8dp</item>
-        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
         <item name="android:paddingTop">8dp</item>
         <item name="android:paddingBottom">8dp</item>
         <item name="android:padding">8dp</item>
@@ -707,8 +707,8 @@
     </style>
 
     <style name="Threema.MaterialButton.Minimal.SmallPadding" parent="@style/Widget.Material3.Button.IconButton">
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
         <item name="android:paddingTop">0dp</item>
         <item name="android:paddingBottom">0dp</item>
         <item name="android:padding">0dp</item>
@@ -717,8 +717,8 @@
 
     <style name="Threema.MaterialButton.Borderless.Flush" parent="@style/Threema.MaterialButton.Outlined.Primary">
         <item name="strokeWidth">0dp</item>
-        <item name="android:paddingLeft">4dp</item>
-        <item name="android:paddingRight">4dp</item>
+        <item name="android:paddingStart">4dp</item>
+        <item name="android:paddingEnd">4dp</item>
         <item name="minWidth">0dp</item>
         <item name="android:minWidth">0dp</item>
         <item name="ensureMinTouchTargetSize">false</item>
@@ -741,8 +741,8 @@
         <item name="android:backgroundTint">?attr/colorPrimary</item>
         <item name="iconTint">?attr/colorOnPrimary</item>
         <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:paddingLeft">14dp</item>
-        <item name="android:paddingRight">14dp</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
         <item name="iconPadding">8dp</item>
         <item name="android:minWidth">80dp</item>
     </style>
@@ -791,8 +791,8 @@
         <item name="android:height">48dp</item>
         <item name="iconSize">24dp</item>
         <item name="rippleColor">@color/m3_chip_ripple_color</item>
-        <item name="android:paddingLeft">12dp</item>
-        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
         <item name="android:insetLeft">0dp</item>
@@ -808,8 +808,8 @@
         <item name="android:height">40dp</item>
         <item name="iconSize">20dp</item>
         <item name="rippleColor">@color/m3_chip_ripple_color</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:paddingRight">10dp</item>>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
         <item name="android:insetLeft">0dp</item>
         <item name="android:insetRight">0dp</item>
         <item name="android:insetTop">0dp</item>
@@ -824,7 +824,7 @@
 
     <style name="Threema.MaterialButton.Borderless.Wizard" parent="@style/Widget.Material3.Button.TextButton.Dialog">
         <item name="android:minWidth">48dp</item>
-        <item name="android:layout_marginLeft">0dp</item>
+        <item name="android:layout_marginStart">0dp</item>
         <item name="android:layout_marginStart">0dp</item>
         <item name="ensureMinTouchTargetSize">false</item>
         <item name="android:textColor">@color/md_theme_dark_primary</item>
@@ -893,9 +893,9 @@
 
     <style name="Threema.PopupMenuStyle.SendMedia" parent="@style/Widget.Material3.PopupMenu">
         <item name="dropdownListPreferredItemHeight">40dp</item>
-        <item name="android:paddingLeft">0dp</item>
-        <item name="android:paddingRight">0dp</item>
-        <item name="android:layout_marginRight">0dp</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+        <item name="android:layout_marginEnd">0dp</item>
         <item name="android:textSize">15sp</item>
     </style>
 
@@ -973,8 +973,8 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
-        <item name="android:layout_marginLeft">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:layout_marginEnd">16dp</item>
         <item name="android:outlineProvider">none</item>
         <item name="strokeWidth">0dp</item>
         <item name="shapeAppearanceOverlay">@style/Threema.ShapeAppearance.CardView.Bubble.Status
@@ -990,8 +990,8 @@
     <style name="Threema.CardView.Bubble.Receive" parent="@style/Widget.Material3.CardView.Filled">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginRight">@dimen/chat_bubble_opposite_inset</item>
-        <item name="android:layout_toRightOf">@id/avatar_view</item>
+        <item name="android:layout_marginEnd">@dimen/chat_bubble_opposite_inset</item>
+        <item name="android:layout_toEndOf">@id/avatar_view</item>
         <item name="android:minWidth">@dimen/chat_bubble_minwidth</item>
         <item name="android:outlineProvider">none</item>
         <item name="strokeWidth">0dp</item>
@@ -1009,8 +1009,8 @@
     <style name="Threema.CardView.Bubble.Send" parent="@style/Widget.Material3.CardView.Filled">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginLeft">@dimen/chat_bubble_opposite_inset</item>
-        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_marginStart">@dimen/chat_bubble_opposite_inset</item>
+        <item name="android:layout_alignParentEnd">true</item>
         <item name="android:minWidth">@dimen/chat_bubble_minwidth</item>
         <item name="android:outlineProvider">none</item>
         <item name="strokeWidth">0dp</item>

@@ -26,6 +26,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 import androidx.annotation.UiThread;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.media3.session.MediaController;
@@ -737,7 +738,7 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
             holder.messageBlockView.setShapeAppearanceModel(getShapeAppearanceForBubble(currentItem.isOutbox(), hasPreviousItem, hasNextItem));
 
             if (itemView.getPaddingBottom() != paddingBottom) {
-                itemView.setPadding(bubblePaddingLeftRight, 0, bubblePaddingLeftRight, paddingBottom);
+                ViewCompat.setPaddingRelative(itemView, bubblePaddingLeftRight, 0, bubblePaddingLeftRight, paddingBottom);
             }
         }
         return isFirstItemInGroup;

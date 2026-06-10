@@ -40,9 +40,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingLeft="16dp"
+                android:paddingStart="16dp"
                 android:paddingTop="10dp"
-                android:paddingRight="16dp"
+                android:paddingEnd="16dp"
                 android:paddingBottom="8dp">
 
                 <TextView
@@ -89,7 +89,7 @@
             style="@style/Threema.TextAppearance.BodyMedium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_marginStart="@dimen/grid_unit_x1"
             android:background="#AAFFFFFF"
@@ -107,7 +107,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_above="@+id/cardview"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_margin="@dimen/grid_unit_x2"
             app:backgroundTint="?attr/colorSurface"
             app:icon="@drawable/ic_gps_fixed"

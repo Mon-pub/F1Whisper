@@ -5,8 +5,8 @@
     android:layout_height="72dp"
     android:background="@drawable/listitem_background_selector"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/listitem_standard_margin_left_right"
-    android:paddingRight="@dimen/listitem_standard_margin_left_right"
+    android:paddingStart="@dimen/listitem_standard_margin_left_right"
+    android:paddingEnd="@dimen/listitem_standard_margin_left_right"
     tools:context=".filepicker.FilePickerActivity">
 
     <LinearLayout
@@ -18,7 +18,7 @@
             android:id="@android:id/icon"
             android:layout_width="24dp"
             android:layout_height="72dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
             android:scaleType="centerInside"
             android:contentDescription="@string/app_name"
             android:tint="?attr/colorOnSurface"
@@ -27,7 +27,7 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
@@ -51,7 +51,7 @@
                     android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
                     android:layout_alignWithParentIfMissing="true"
                     android:minWidth="72dp"
                     android:ellipsize="end"
@@ -64,9 +64,9 @@
                     android:id="@+id/size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_toRightOf="@id/date"
-                    android:layout_toLeftOf="@+id/extra"
-                    android:layout_marginLeft="5dp"
+                    android:layout_toEndOf="@id/date"
+                    android:layout_toStartOf="@+id/extra"
+                    android:layout_marginStart="5dp"
                     android:singleLine="true"
                     android:text="Size"
                     android:textAppearance="?android:attr/textAppearanceSmall"
@@ -76,8 +76,8 @@
                     android:id="@+id/extra"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginLeft="5dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="5dp"
                     android:singleLine="true"
                     android:visibility="gone"
                     android:text="ID"

@@ -3,7 +3,7 @@
     android:id="@+id/msg_list_item_send"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingRight="@dimen/chat_bubble_container_padding_left_right"
+    android:paddingEnd="@dimen/chat_bubble_container_padding_left_right"
     android:paddingBottom="@dimen/chat_bubble_container_padding_bottom">
 
     <com.google.android.material.card.MaterialCardView
@@ -13,7 +13,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:orientation="vertical">
 
             <include layout="@layout/conversation_bubble_header" />
@@ -27,8 +27,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:animateLayoutChanges="true"
-                android:paddingLeft="@dimen/chat_bubble_margin_end"
-                android:paddingRight="@dimen/chat_bubble_margin_start"
+                android:paddingStart="@dimen/chat_bubble_margin_end"
+                android:paddingEnd="@dimen/chat_bubble_margin_start"
                 android:visibility="gone" />
 
             <include layout="@layout/conversation_bubble_footer_send" />

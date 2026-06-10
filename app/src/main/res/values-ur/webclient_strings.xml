@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="webclient" translatable="false">Desktop/Web</string>
+    <string name="webclient_init_session">نیا سیشن شروع کریں</string>
+    <string name="webclient_sessions_really_delete">کیا آپ واقعی اس ڈیسک ٹاپ/ویب سیشن کو حذف کرنا چاہتے ہیں؟</string>
+    <string name="webclient_last_usage">آخری استعمال: %s</string>
+    <string name="webclient_created_at">بنایا گیا: %1$s (%2$s)</string>
+    <string name="webclient_active_since">فعال بمطابق: %s</string>
+    <string name="webclient_enable">ڈیسک ٹاپ ایپ / ویب کلائنٹ فعال کریں</string>
+    <string name="webclient_no_sessions_found">جوڑنے کے لیے، ڈیسک ٹاپ ایپ ڈاؤن لوڈ کریں (<b>https://threema.com/download</b>) یا اپنے کمپیوٹر پر ویب کلائنٹ کھولیں (<b>%s</b>)، اور اپنی کمپیوٹر اسکرین پر دکھائے گئے QR کوڈ کو اسکین کرنے کے لیے نیچے دیے گئے بٹن پر ٹیپ کریں۔</string>
+    <string name="webclient_session_rename">سیشن کا نام تبدیل کریں</string>
+    <string name="webclient_session_label">نیا نام</string>
+    <string name="webclient_session_start">سیشن شروع کریں</string>
+    <string name="webclient_session_stop">سیشن روکیں</string>
+    <string name="webclient_persistent">مستقل</string>
+    <string name="webclient_disposable">عارضی</string>
+    <string name="webclient_unnamed_session">بے نام سیشن</string>
+    <string name="webclient_session_remove">سیشن ہٹائیں</string>
+    <string name="webclient_welcome_title">اپنے PC سے چیٹ کریں!</string>
+    <string name="webclient_welcome_explain">ڈیسک ٹاپ ایپ اور ویب کلائنٹ آپ کو اپنے PC یا نوٹ بک سے چیٹ کرنے کی اجازت دیتے ہیں، اور آپ کو اپنے تمام رابطوں، میڈیا اور چیٹس تک مکمل رسائی دیتے ہیں، حتیٰ کہ گزشتہ گفتگو تک بھی۔\n\n<b>فون اور PC کے درمیان تمام مواصلت مکمل طور پر اینڈ ٹو اینڈ خفیہ شدہ ہے</b> اور اگر فون اور PC دونوں ایک ہی نیٹ ورک پر ہوں تو براہ راست کنکشن استعمال کرتی ہے۔\n\nبراہ کرم نوٹ کریں: ڈیسک ٹاپ ایپ / ویب کلائنٹ فعال رہنے کے دوران کچھ اضافی بیٹری استعمال کر سکتا ہے۔ آپ اسے کسی بھی وقت فعال یا غیر فعال کر سکتے ہیں۔</string>
+    <string name="webclient_launch">ڈیسک ٹاپ ایپ / ویب کلائنٹ ابھی شروع کریں</string>
+    <string name="webclient_qr_scan_message">براہ کرم PC پر دکھائے گئے QR کوڈ کو اسکین کریں۔</string>
+    <string name="webclient_invalid_qr_code">غلط QR کوڈ</string>
+    <string name="webclient_new_connection_toast">ڈیسک ٹاپ/ویب سیشن شروع ہو گیا</string>
+    <string name="webclient_protocol_error">پروٹوکول کی خرابی</string>
+    <string name="webclient_protocol_version_to_old">آپ کی ایپ ڈیسک ٹاپ ایپ / ویب کلائنٹ کے اس ورژن کی معاونت نہیں کرتی۔ براہ کرم Threema for Android کو تازہ ترین ورژن پر اپ ڈیٹ کریں۔</string>
+    <string name="webclient_protocol_version_too_new_selfhosted">آپ کی ایپ ڈیسک ٹاپ ایپ / ویب کلائنٹ کے اس ورژن کی معاونت نہیں کرتی۔ براہ کرم ڈیسک ٹاپ ایپ کا تازہ ترین ورژن ڈاؤن لوڈ کریں، یا اپنے ویب کلائنٹ کے منتظم سے تازہ ترین ورژن پر اپ گریڈ کرنے کی درخواست کریں۔</string>
+    <string name="webclient_protocol_version_too_new_threema">آپ کی ایپ ڈیسک ٹاپ ایپ / ویب کلائنٹ کے اس ورژن کی معاونت نہیں کرتی۔ براہ کرم ڈیسک ٹاپ ایپ / ویب کلائنٹ کا موجودہ ورژن استعمال کریں۔</string>
+    <string name="webclient_session_already_exists">آپ نے جو QR کوڈ اسکین کیا اس کا سیشن پہلے سے موجود ہے۔ براہ کرم ڈیسک ٹاپ ایپ دوبارہ شروع کریں / ویب کلائنٹ دوبارہ لوڈ کریں، اور دوبارہ کوشش کریں۔</string>
+    <string name="webclient_really_start_webclient_by_payload_body">کیا آپ یہ سیشن ابھی شروع کرنا چاہتے ہیں؟</string>
+    <string name="webclient_cannot_restore">سیشن بحال نہیں کیا جا سکتا</string>
+    <string name="webclient_disabled">Desktop/Web فعال نہیں ہے</string>
+    <string name="webclient_cannot_start">سیشن شروع نہیں کیا جا سکتا</string>
+    <string name="webclient_constrained_by_mdm">سرور کو منتظم نے منظور نہیں کیا۔</string>
+    <string name="webclient_clear_all_sessions">تمام سیشن صاف کریں</string>
+    <string name="webclient_clear_all_sessions_confirm">کیا آپ واقعی تمام سیشن روکنا اور ہٹانا چاہتے ہیں؟</string>
+    <string name="webclient_prefs_debug_tool_summary">ڈیسک ٹاپ ایپ یا ویب کلائنٹ سے کنکشن قائم کرنے میں مسائل کی تشخیص کے لیے یہ ٹول شروع کریں</string>
+    <string name="webclient_diagnostics">Desktop/Web تشخیص</string>
+    <string name="webclient_diagnostics_start">شروع کریں</string>
+    <string name="webclient_diagnostics_intro">ٹیسٹ شروع کرنے کے لیے «شروع کریں» پر ٹیپ کریں۔</string>
+    <string name="webclient_diagnostics_done">مکمل ہو گیا۔ اگر آپ کو ڈیسک ٹاپ ایپ یا ویب کلائنٹ سے کنکشن قائم کرنے میں مسائل پیش آتے ہیں، تو براہ کرم یہ لاگ Threema سپورٹ کو بھیجیں۔</string>
+    <string name="webclient_scanned_md_linking_qr_code_title">غلط QR کوڈ</string>
+    <!-- ${app_name_desktop} is a placeholder for the Desktop app's name, e.g. "Threema". ${md_link_device} is a placeholder for the name of a UI element. They must be left as they are and not translated. -->
+    <string name="webclient_scanned_md_linking_qr_code_message">آپ نے جو QR کوڈ اسکین کیا وہ نئی ڈیسک ٹاپ بیٹا ایپ سے تعلق رکھتا ہے۔\n\n“مرکزی مینو > ${app_name_desktop} 2.0 for Desktop (Beta)” پر واپس جائیں اور اس ڈیسک ٹاپ ایپ سے جوڑنے کے لیے “${md_link_device}” منتخب کریں۔</string>
+</resources>

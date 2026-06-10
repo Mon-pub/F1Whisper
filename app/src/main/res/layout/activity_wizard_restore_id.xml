@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="16dp"
-                    android:gravity="left"
+                    android:gravity="start"
                     android:text="@string/password_hint" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -144,7 +144,7 @@
                 android:id="@+id/wizard_cancel_compose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/grid_unit_x0_5"
+                android:layout_marginEnd="@dimen/grid_unit_x0_5"
                 android:layout_weight="1"
                 app:wizardButton_style="wizardButton_inverse"
                 app:wizardButton_text="@string/cancel" />
@@ -153,7 +153,7 @@
                 android:id="@+id/wizard_finish_compose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/grid_unit_x0_5"
+                android:layout_marginStart="@dimen/grid_unit_x0_5"
                 android:layout_weight="1"
                 app:wizardButton_text="@string/restore" />
 

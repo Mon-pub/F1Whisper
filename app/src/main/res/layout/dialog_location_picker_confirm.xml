@@ -4,16 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingRight="@dimen/lp_dialog_margin"
-    android:paddingLeft="@dimen/lp_dialog_margin">
+    android:paddingEnd="@dimen/lp_dialog_margin"
+    android:paddingStart="@dimen/lp_dialog_margin">
 
     <View
         android:id="@+id/header"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/lp_default_margin"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/place_name"
@@ -24,8 +24,8 @@
         android:maxLines="1"
         android:textAppearance="@style/Threema.TextAppearance.List.SecondLine.Bold"
         android:textColor="?attr/colorOnBackground"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header"
         tools:text="Name" />
 
@@ -38,8 +38,8 @@
         android:maxLines="2"
         android:textAppearance="@style/Threema.TextAppearance.List.SecondLine.Bold"
         android:textColor="?attr/colorOnBackground"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/place_name"
         tools:text="Coordinates" />
 
@@ -51,16 +51,16 @@
         android:maxLines="2"
         android:textAppearance="@style/Threema.TextAppearance.BodyMedium"
         android:textColor="?attr/colorOnBackground"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/place_coordinates"
         tools:text="Address" />
 
     <View
         android:layout_width="wrap_content"
         android:layout_height="@dimen/lp_default_margin"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/place_address" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

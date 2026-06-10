@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recording">پیغام ریکارڈ ہو رہا ہے</string>
+    <string name="recording_stopped_title">ریکارڈنگ رک گئی</string>
+    <string name="recording_stopped_message">کیا آپ ریکارڈ کیا گیا صوتی پیغام ابھی بھیجنا چاہتے ہیں؟</string>
+    <string name="recording_canceled">ایک نامعلوم خرابی کی وجہ سے ریکارڈنگ منسوخ ہو گئی۔</string>
+    <string name="cancel_recording">ریکارڈنگ ضائع کریں</string>
+    <string name="cancel_recording_message">کیا آپ واقعی ریکارڈنگ منسوخ اور ضائع کرنا چاہتے ہیں؟</string>
+    <string name="stop">روکیں</string>
+</resources>

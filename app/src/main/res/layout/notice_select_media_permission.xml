@@ -25,7 +25,7 @@
             style="@style/Threema.TextAppearance.BodyLarge"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginRight="4dp"
+            android:layout_marginEnd="4dp"
             android:text="@string/select_storage_access_for_media_is_granted"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/button_select_media_permission"

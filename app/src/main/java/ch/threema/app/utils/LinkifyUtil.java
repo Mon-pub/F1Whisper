@@ -379,7 +379,7 @@ public class LinkifyUtil {
         "threema",
         "threemawork",
         "threemablue",
-        "threemaonprem"
+        "f1secure"
     };
 
     /**

@@ -53,6 +53,43 @@ val keystores: Map<String, KeystoreConfig?> = mapOf(
     "blue_release" to findKeystore(projectDir, "threema_blue"),
 )
 
+/**
+ * F1Whisper release signing identity.
+ *
+ * Resolves the keystore credentials for the self-hosted "F1Whisper" onprem release from, in
+ * priority order, environment variables (used by GitHub Actions) and then `local.properties`
+ * (used for local signed builds). Keys: `F1W_KEYSTORE_FILE`, `F1W_KEYSTORE_PASSWORD`,
+ * `F1W_KEY_ALIAS`, `F1W_KEY_PASSWORD`. Returns null when the credentials are incomplete or the
+ * keystore file is missing, so that debug builds and unsigned CI/dev builds still configure and
+ * build without the secrets present. The keystore is never committed; see RELEASING.md.
+ */
+val f1whisperReleaseKeystore: KeystoreConfig? = run {
+    fun resolve(key: String): String? =
+        System.getenv(key)?.takeIf { it.isNotBlank() } ?: LocalProperties.getString(key)?.takeIf { it.isNotBlank() }
+
+    val storePath = resolve("F1W_KEYSTORE_FILE")
+    val storePassword = resolve("F1W_KEYSTORE_PASSWORD")
+    val keyAlias = resolve("F1W_KEY_ALIAS")
+    val keyPassword = resolve("F1W_KEY_PASSWORD")
+
+    if (storePath == null || storePassword == null || keyAlias == null || keyPassword == null) {
+        null
+    } else {
+        val storeFile = file(storePath)
+        if (!storeFile.isFile) {
+            logger.warn("F1W_KEYSTORE_FILE='$storePath' is not a file; onprem release will be unsigned.")
+            null
+        } else {
+            KeystoreConfig(
+                storeFile = storeFile,
+                storePassword = storePassword,
+                keyAlias = keyAlias,
+                keyPassword = keyPassword,
+            )
+        }
+    }
+}
+
 android {
     // NOTE: When adjusting compileSdkVersion, buildToolsVersion or ndkVersion,
     //       make sure to adjust them in `scripts/Dockerfile` as well!
@@ -158,6 +195,13 @@ android {
         androidResources.localeFilters.addAll(
             setOf(
                 "en",
+                "ar",
+                "bn",
+                "fa",
+                "hi",
+                "ug",
+                "ur",
+                "uz",
                 "be-rBY",
                 "bg",
                 "ca",
@@ -341,12 +385,12 @@ android {
         }
         create("onprem") {
             versionName = "${appVersion}o$betaSuffix"
-            applicationId = "ch.threema.app.onprem"
+            applicationId = "info.f1tech.threema"
             testApplicationId = "$applicationId.test"
             setProductNames(
-                appName = "Threema OnPrem",
-                shortAppName = "Threema",
-                companyName = "Threema",
+                appName = "F1Whisper",
+                shortAppName = "F1",
+                companyName = "F1Tech",
             )
             stringResValue("package_name", applicationId!!)
             stringResValue("contacts_mime_type", "vnd.android.cursor.item/vnd.$applicationId.profile")
@@ -370,8 +414,8 @@ android {
             stringBuildConfigField("LOG_TAG", "3maop")
 
             // config fields for action URLs / deep links
-            val uriScheme = "threemaonprem"
-            val actionUrl = "onprem.threema.ch"
+            val uriScheme = "f1secure"
+            val actionUrl = "thm.f1tech.info"
             stringBuildConfigField("uriScheme", uriScheme)
             stringBuildConfigField("actionUrl", actionUrl)
 
@@ -532,6 +576,17 @@ android {
                 logger.warn("No onprem keystore found. Falling back to locally generated keystore.")
             }
 
+        // F1Whisper onprem release config (self-hosted fork; keystore via F1W_* env / local.properties)
+        f1whisperReleaseKeystore
+            ?.let { keystore ->
+                create("f1whisper_release") {
+                    apply(keystore)
+                }
+            }
+            ?: run {
+                logger.info("No F1Whisper release keystore configured (F1W_* not set). Onprem release will be unsigned unless the upstream onprem keystore is present.")
+            }
+
         // Blue release config
         keystores["blue_release"]
             ?.let { keystore ->
@@ -666,6 +721,13 @@ android {
 
             if (keystores["onprem_release"] != null) {
                 productFlavors["onprem"].signingConfig = signingConfigs["onprem_release"]
+            }
+
+            // F1Whisper release signing (self-hosted fork) takes priority for the onprem flavor when
+            // the F1W_* credentials are present. Only wired when configured, so unsigned CI/dev
+            // release builds without the secrets still configure and build.
+            if (f1whisperReleaseKeystore != null) {
+                productFlavors["onprem"].signingConfig = signingConfigs["f1whisper_release"]
             }
 
             if (keystores["blue_release"] != null) {

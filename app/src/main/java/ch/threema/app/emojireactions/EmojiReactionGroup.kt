@@ -50,7 +50,7 @@ class EmojiReactionGroup :
         setWillNotDraw(false)
 
         orientation = HORIZONTAL
-        gravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
+        gravity = Gravity.START or Gravity.CENTER_VERTICAL
 
         contextThemeWrapper = getContextThemeWrapper(context)
     }

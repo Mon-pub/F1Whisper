@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <locale-config xmlns:android="http://schemas.android.com/apk/res/android">
     <locale android:name="en" /> <!-- English -->
+    <locale android:name="ar" /> <!-- Arabic -->
+    <locale android:name="bn" /> <!-- Bengali -->
+    <locale android:name="fa" /> <!-- Persian -->
+    <locale android:name="hi" /> <!-- Hindi -->
+    <locale android:name="ug" /> <!-- Uyghur -->
+    <locale android:name="ur" /> <!-- Urdu -->
+    <locale android:name="uz" /> <!-- Uzbek -->
     <locale android:name="be-BY" /> <!-- Belarusian -->
     <locale android:name="bg" /> <!-- Bulgarian -->
     <locale android:name="ca" /> <!-- Catalan -->

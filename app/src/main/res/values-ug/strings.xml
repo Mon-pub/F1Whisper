@@ -1,0 +1,1905 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="title_section2">ئالاقەداشلار</string>
+    <!-- Label on first tab on app's main screen, selecting it leads to the list of chats -->
+    <string name="title_section1">ئەڭگىمەلەر</string>
+    <string name="title_compose_message">ئەڭگىمە باشلاش</string>
+    <string name="title_choose_recipient">تاپشۇرۇۋالغۇچىلارنى تاللاش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_mythreemaid">مېنىڭ ${app_name_short} ID ئىم</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_threemaid">${app_name_short} ID</string>
+    <string name="title_adduser">يېڭى ئالاقەداش قوشۇش</string>
+    <string name="title_enter_id">ID كىرگۈزۈش</string>
+    <string name="title_invite_friend">دوست تەكلىپ قىلىش</string>
+    <string name="invite_via">دوست تەكلىپ قىلىش ئۇسۇلى…</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_email_body">سالام،\n\nمەن ئىشلەتكۈچىلەرنىڭ شەخسىي مەخپىيىتىنى قوغدايدىغان بىخەتەر ئۇچۇر دېتالى %1$s نى ئىشلىتىمەن.\n\nمېنىڭ ${app_name_short} ID ئىم: https://threema.id/%2$s\n\nكېلىڭ %1$s ئارقىلىق ئالاقىلىشايلى!\n\nسالاملار بىلەن،\n</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_sms_body">سالام! كېلىڭ %1$s ئارقىلىق بىخەتەر ۋە شەخسىي مەخپىيەتكە ماس كېلىدىغان شەكىلدە ئالاقىلىشايلى! مېنىڭ ${app_name_short} ID ئىم: https://threema.id/%2$s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_email_subject">${app_name_short}. شەخسىي مەخپىيىتىمىزنى قوغدايدىغان بىخەتەر ئۇچۇر دېتالى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="enter_id_hint">${app_name_short} ID كىرگۈزۈڭ</string>
+    <string name="account_links">باغلانغان ھېساباتلار</string>
+    <string name="title_set_availability_status">بولۇش ھالىتى</string>
+    <string name="menu_settings">تەڭشەكلەر</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="menu_about">${app_name} ھەققىدە</string>
+    <string name="menu_add_contact">يېڭى ئالاقەداش</string>
+    <string name="menu_done">تامام</string>
+    <string name="compose_message_and_enter">يېزىش ئۈچۈن بۇ يەرنى چېكىڭ</string>
+    <string name="title_job_title">خىزمەت ئورنى</string>
+    <string name="title_department">تارماق</string>
+    <string name="send">ئەۋەتىش</string>
+    <string name="prefs_privacy">شەخسىي مەخپىيەت</string>
+    <string name="prefs_notifications">ئاۋاز ۋە ئۇقتۇرۇشلار</string>
+    <string name="prefs_chatdisplay">ئەڭگىمە</string>
+    <string name="prefs_security">بىخەتەرلىك</string>
+    <string name="prefs_sum_privacy">شەخسىي مەخپىيەتكە مۇناسىۋەتلىك تەڭشەكلەر</string>
+    <string name="prefs_sum_notifications">ئاۋاز ۋە تەۋرىنىش تەڭشەكلىرىنى بەلگىلەش</string>
+    <string name="prefs_sum_chatdisplay">ئەڭگىمە تەڭشەكلىرى</string>
+    <string name="prefs_masterkey">يەرلىك ساقلانغان سانلىق مەلۇماتلارنى شىفىرلاش</string>
+    <string name="prefs_header_contacts">ئالاقەداشلار</string>
+    <string name="prefs_header_chat">ئەڭگىمە</string>
+    <string name="prefs_header_reset">ئەسلىگە قايتۇرۇش</string>
+    <string name="prefs_header_keyboard">كۇنۇپكا تاختىسى</string>
+    <string name="prefs_sum_sync_contacts_on">%s ئىشلەتكۈچىلىرىنى ئۈسكۈنىڭىزدىكى ئادرېس دەپتىرى بىلەن ماسلاشتۇرۇپ تۇرۇش</string>
+    <string name="prefs_sum_sync_contacts_off">%s ئىشلەتكۈچىلىرىنى ئۈسكۈنىڭىزدىكى ئادرېس دەپتىرى بىلەن ماسلاشتۇرماسلىق</string>
+    <string name="prefs_title_sync_contacts">ئالاقەداشلارنى ماسلاشتۇرۇش</string>
+    <string name="prefs_sum_block_unknown_off">ھەركىم سىزگە ئۇچۇر ئەۋەتەلەيدۇ. تۇنجى ئۇچۇر كەلگەندە يېڭى ئالاقەداشلار ئاپتوماتىك قوشۇلىدۇ.</string>
+    <string name="prefs_sum_block_unknown_on">پەقەت ئالاقەداش تىزىملىكىڭىزدىكى كىشىلەرلا سىزگە ئۇچۇر ئەۋەتەلەيدۇ.</string>
+    <string name="prefs_title_block_unknown">نامەلۇملارنى توسۇش</string>
+    <string name="prefs_title_read_receipts">ئوقۇلدى دېلوسى ئەۋەتىش</string>
+    <string name="prefs_title_typing_indicator">يېزىۋاتىدۇ كۆرسەتكۈچىنى ئەۋەتىش</string>
+    <string name="prefs_media_title">ۋاسىتە ۋە ساقلىغۇچ</string>
+    <string name="prefs_sum_media_title">ۋاسىتە ۋە ساقلىغۇچ تەڭشەكلىرى</string>
+    <string name="prefs_image_size">رەسىم ئۆلچىمى</string>
+    <string name="prefs_notification_sound">ئۇقتۇرۇش ئاۋازى</string>
+    <string name="prefs_sum_notification_sound">سىستېما كۆڭۈلدىكىسى</string>
+    <string name="prefs_vibrate">تەۋرىنىش</string>
+    <string name="prefs_sum_vibrate">كىرىۋاتقان ئۇچۇردا تەۋرىنىش</string>
+    <!-- Label on checkbox in notification settings screen, to let the user enable/disable the use of the device's color LED for notifications. Only relevant on Android 7 -->
+    <string name="prefs_notification_light">ئۇقتۇرۇش چىرىغى</string>
+    <!-- Summary on checkbox in notification settings screen, to let the user enable/disable the use of the device's color LED for notifications. Only relevant on Android 7 -->
+    <string name="prefs_sum_notification_light">كىرىۋاتقان ئۇچۇرلار ئۈچۈن رەڭلىك LED (بار بولسا) ئىشلىتىش</string>
+    <string name="prefs_title_wallpaper_switch">تەگلىك رەسىمى</string>
+    <string name="prefs_title_enter">Enter بىلەن ئەۋەتىش</string>
+    <string name="prefs_sum_enter_on">Enter كۇنۇپكىسى ئۇچۇرنى دەرھال ئەۋەتىدۇ</string>
+    <string name="prefs_sum_enter_off">Enter كۇنۇپكىسى يېڭى قۇر قوشىدۇ</string>
+    <string name="prefs_system_notifications">يەككە ئەڭگىمە</string>
+    <string name="prefs_inapp">دېتال ئىچى</string>
+    <string name="prefs_inapp_sounds">دېتال ئىچى ئاۋازلىرى</string>
+    <string name="prefs_inapp_sounds_on">ئۇچۇر ئەۋەتكەندە/تاپشۇرۇۋالغاندا ئاۋاز چىقىرىش</string>
+    <string name="prefs_inapp_sounds_off">دېتال ئىچى ئاۋازلىرىنى چىقارماسلىق</string>
+    <string name="prefs_inapp_vibrate">دېتال ئىچى تەۋرىنىشى</string>
+    <string name="prefs_inapp_vibrate_on">ئۇچۇر تاپشۇرۇۋالغاندا تەۋرىنىش</string>
+    <string name="prefs_inapp_vibrate_off">ئۇچۇر تاپشۇرۇۋالغاندا تەۋرىنمەسلىك</string>
+    <string name="workarounds">ۋاقىتلىق ھەل قىلىش ئۇسۇللىرى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_threema_push_switch">${app_name_short} Push ئىشلىتىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_threema_push_on">يېڭى ئۇچۇرلاردىن خەۋەردار بولۇش ئۈچۈن ${app_name_short} Push ئىشلىتىش</string>
+    <string name="prefs_sum_threema_push_off">سىستېما push مۇلازىمىتى ئارقىلىق يېڭى ئۇچۇرلارنى تەكشۈرۈش</string>
+    <string name="prefs_logging">خاتىرىلەش</string>
+    <string name="prefs_title_message_log_switch">ھۆججەتكە خاتىرىلەش</string>
+    <string name="prefs_title_sum_message_log_on">ھادىسىلەر ۋە تور ئۇچۇرلىرى debug_log.txt ھۆججىتىگە خاتىرىلىنىدۇ</string>
+    <string name="prefs_title_sum_message_log_off">ھادىسىلەر خاتىرىلەنمەيدۇ</string>
+    <string name="prefs_reset_push">push بەلگىسىنى ئەسلىگە قايتۇرۇش</string>
+    <string name="prefs_sum_reset_push">ئۈسكۈنىنى FCM/HMS ئارقىلىق push ئۇقتۇرۇشلىرىغا قايتا تىزىملاش</string>
+    <string name="prefs_notification_preview">ئۇچۇر ئالدىن كۆرۈنۈشىنى كۆرسىتىش</string>
+    <string name="prefs_sum_reset_ringtones">سىستېما كۆڭۈلدىكىسىنى ئەسلىگە كەلتۈرۈش</string>
+    <string name="prefs_title_reset_ringtones">ئۇقتۇرۇش ئاۋازى تەڭشەكلىرىنى ئەسلىگە قايتۇرۇش</string>
+    <string name="image_size_small">كىچىك (640x640)</string>
+    <string name="image_size_medium">ئوتتۇرا (1024x1024)</string>
+    <string name="image_size_large">چوڭ (1600x1600)</string>
+    <string name="image_size_xlarge">بەك چوڭ (2592x2592)</string>
+    <string name="image_size_original">ئەسلى ئۆلچەم</string>
+    <string name="next">كېيىنكى</string>
+    <string name="finish">تاماملاش</string>
+    <string name="please_wait">كۈتۈپ تۇرۇڭ…</string>
+    <!-- Text shown when a task which shows a loading spinner takes longer than expected (e.g. creating a group) -->
+    <string name="please_wait_timeout">بۇ مۆلچەرلىگەندىنمۇ ئۇزۇنراق ۋاقىت ئالماقتا</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard_first_create_id">${app_name_short} ID ئىڭىز قۇرۇلۇۋاتىدۇ…</string>
+    <string name="wizard1_sync_contacts">ئالاقەداشلار ماسلاشتۇرۇلۇۋاتىدۇ…</string>
+    <string name="wizard2_email_hint">ئېلخەت ئادرېسىڭىزنى كىرگۈزۈڭ</string>
+    <string name="wizard2_email_linking">ئېلخەت ID ئىڭىزغا باغلىنىۋاتىدۇ</string>
+    <string name="wizard2_phone_hint">يانفون نومۇرىڭىزنى كىرگۈزۈڭ</string>
+    <string name="wizard2_phone_number_confirm_title">نومۇرنى جەزىملەش</string>
+    <string name="wizard2_phone_number_confirm">بىز تۆۋەندىكى نومۇرغا قىسقا ئۇچۇر ئەۋەتمەكچى:\n\n%1$s\n\nبۇ نومۇر توغرىمۇ؟</string>
+    <string name="wizard2_phone_linking">يانفون نومۇرى ID ئىڭىزغا باغلىنىۋاتىدۇ</string>
+    <string name="wizard3_nickname_hint">لەقىمىڭىزنى كىرگۈزۈڭ</string>
+    <string name="set_nickname_title">لەقەم بەلگىلەش</string>
+    <string name="ok">جەزىم</string>
+    <string name="cancel">بىكار قىلىش</string>
+    <string name="save">ساقلاش</string>
+    <string name="copy_message_action">كۆچۈرۈش</string>
+    <string name="delete_contact_action">ئالاقەداشنى ئۆچۈرۈش</string>
+    <string name="delete_multiple_contact_action">ئالاقەداشلارنى ئۆچۈرۈش</string>
+    <string name="scan_id">ID سايلەش</string>
+    <string name="id_scanned">ID سايلاندى</string>
+    <string name="id_mismatch">سىز سايلىغان ئاممىۋى ئاچقۇچ مۇلازىمېتىر بۇ ID ئۈچۈن ساقلىغان ئاچقۇچقا ماس كەلمەيدۇ.
+        بۇ بىرسىنىڭ سايلانغان كودنى ئۆزگەرتكەنلىكىنى، ئاچقۇچقا ئىشەنمەسلىك كېرەكلىكىنى بىلدۈرىدۇ.</string>
+    <string name="scan_successful">ID مۇۋەپپەقىيەتلىك سايلاندى ۋە ئالاقەداش ھازىر دەلىللەندى.</string>
+    <string name="scan_duplicate">بۇ ID ئاللىبۇرۇن سايلانغان ۋە دەلىللەنگەن.</string>
+    <string name="linked_email">ئېلخەت</string>
+    <!-- Pattern for displaying the user's email address on the My Profile screen. %1$s is a placeholder for the email address, %2$s is a placeholder for the verification state (e.g. "pending") -->
+    <string name="linked_email_pattern">%1$s (%2$s)</string>
+    <string name="linked_mobile">يانفون نومۇرى</string>
+    <!-- Pattern for displaying the user's mobile phone number on the My Profile screen. %1$s is a placeholder for the phone number, %2$s is a placeholder for the verification state (e.g. "pending") -->
+    <string name="linked_mobile_pattern">%1$s (%2$s)</string>
+    <string name="public_nickname">لەقەم</string>
+    <string name="share_via">ھەمبەھىرلەش ئۇسۇلى…</string>
+    <string name="share_subject">%s ئەڭگىمەسى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="mobile_already_linked">${app_name_short} ID ئىڭىز ئاللىبۇرۇن بۇ يانفون نومۇرىغا باغلانغان</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="email_already_linked">${app_name_short} ID ئىڭىز ئاللىبۇرۇن بۇ ئېلخەت ئادرېسىغا باغلانغان</string>
+    <string name="whoaaa">دىققەت</string>
+    <string name="really_delete_message_title">ئۇچۇرنى ئۆچۈرۈش</string>
+    <string name="really_delete_thread">ئەڭگىمەنى ئۆچۈرۈش</string>
+    <string name="really_delete_multiple_threads">ئەڭگىمەلەرنى ئۆچۈرۈش</string>
+    <string name="really_delete_contact">بۇ ئالاقەداش ۋە ئۇنىڭغا مۇناسىۋەتلىك بارلىق ئۇچۇرلارنى راستىنلا ئۆچۈرەمسىز؟</string>
+    <string name="image_placeholder">رەسىم</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invalid_threema_id">ئىناۋەتسىز ${app_name_short} ID</string>
+    <string name="close">يېپىش</string>
+    <string name="creating_contact">يېڭى ئالاقەداش قوشۇلۇۋاتىدۇ</string>
+    <string name="creating_contact_successful">ئالاقەداش مۇۋەپپەقىيەتلىك قوشۇلدى</string>
+    <string name="invalid_threema_qr_code">ئىناۋەتسىز QR كودى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="threema_contact">${app_name_short} ئالاقەداشى</string>
+    <string name="first_name">ئىسمى</string>
+    <string name="last_name">فامىلىسى</string>
+    <string name="os_licenses">ئىجازەتنامىلەر</string>
+    <string name="verify_title">يانفون نومۇرى دەلىللىنىۋاتىدۇ</string>
+    <string name="verify_success_text">يانفون نومۇرىڭىز مۇۋەپپەقىيەتلىك دەلىللەندى.</string>
+    <string name="verify_failed">مەغلۇپ بولدى</string>
+    <string name="verify_failed_summary">يانفون نومۇرىڭىزنى دەلىللەش مەغلۇپ بولدى. قايتا سىناشتىن بۇرۇن كىرگۈزگەن نومۇرنىڭ
+        توغرىلىقىنى ۋە يانفون تورىغا ئۇلانغانلىقىڭىزنى جەزىملەشتۈرۈڭ.</string>
+    <string name="verify_failed_not_linked">يانفون نومۇرىڭىزنى دەلىللەش مەغلۇپ بولدى. دەلىللەش جەريانى توختىتىلدى.</string>
+    <string name="backup_title">ID نى چىقىرىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_sum">${app_name_short} ID ئىڭىزنى چىقىرىش</string>
+    <string name="backup_and_delete">زاپاسلاپ ئۆچۈرۈش</string>
+    <string name="delete_id_title">ID نى ئۆچۈرۈش</string>
+    <string name="delete_id_message">ئەگەر زاپاسلىماي ياكى بۇ ID نى چىقىرىپ ساقلىماي تۇرۇپ ئۆچۈرسىڭىز، بۇ ID بىلەن قايتا ئەسلا ئۇچۇر
+        ئەۋەتەلمەيسىز ياكى تاپشۇرۇۋالالمايسىز.\n\nئەگەر بۇ ID نى ئىشلەتمەكچى بولمىسىڭىز، ئۆچۈرۈشتىن بۇرۇن بىكار قىلىش ئىمى بەلگىلەپ، myid.threema.ch/revoke دا ID نى بىكار قىلىش تەۋسىيە قىلىنىدۇ.</string>
+    <string name="delete_id_message2">ئاخىرقى ئاگاھلاندۇرۇش: بۇ ئۈسكۈنىدىكى ID ئىڭىزنى راستىنلا ئۆچۈرەمسىز؟</string>
+    <string name="delete_id_sum">${app_name_short}-ID ئىڭىز ۋە بۇ ئۈسكۈنىدىكى بارلىق سانلىق مەلۇماتلارنى مەڭگۈلۈك ئۆچۈرۈش</string>
+    <string name="delete_all_data_prompt">بارلىق دېتال سانلىق مەلۇماتلىرى ئۆچۈرۈلسۇنمۇ؟</string>
+    <string name="backup_password_summary">ID چىقىرىشىڭىز ئىم بىلەن شىفىرلىنىدۇ. ھەرپ، رەقەم ۋە بەلگىلەرنى ئارىلاشتۇرۇپ ئىشلىتىڭ. بۇ يەرگە كىرگۈزگىنىڭىزنى ئۇنتۇپ قالماڭ!</string>
+    <string name="backup_password_again_summary">ئىمنى قايتا كىرگۈزۈڭ</string>
+    <string name="password_hint">ئىم</string>
+    <string name="generating_backup_data">زاپاس سانلىق مەلۇماتى ھاسىللىنىۋاتىدۇ</string>
+    <string name="backup_id_title">ID چىقىرىشىڭىز</string>
+    <string name="backup_id_summary">يۇقىرىدا كۆرسىتىلگەن تېكىست تىزمىسى ياكى QR كودى، تاللىغان ئىمىڭىز بىلەن بىرلىكتە
+        باشقا ئۈسكۈنىدە ID ئىڭىزنى ئەسلىگە كەلتۈرۈشكە ئىشلىتىلىدۇ. ئۇنى مۇۋاپىق بىر جايغا كۆچۈرۈپ قويۇڭ، ئېلخەت ئارقىلىق
+        ھەمبەھىرلەڭ ياكى باشقا ئۈسكۈنە بىلەن QR كودىنى سايلەڭ.</string>
+    <string name="support">ياردەم</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_share_content">تۆۋەندىكى تېكىست تىزمىسى تاللانغان ئىم بىلەن بىرلىكتە ${app_name_short} ID ئىڭىزنى ئەسلىگە كەلتۈرۈشكە ئىشلىتىلىدۇ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_share_subject">${app_name_short} ID چىقىرىشى</string>
+    <string name="add_attachment">يېڭى قوشۇمچە</string>
+    <string name="invalid_passphrase">ئىناۋەتسىز ئىم سۆزى</string>
+    <string name="master_key_locked">ئاساسىي ئاچقۇچ قۇلۇپلانغان</string>
+    <string name="master_key_locked_notify_description">ئىم سۆزىڭىزنى كىرگۈزۈش ئۈچۈن بۇ يەرنى چېكىڭ</string>
+    <string name="prefs_masterkey_passphrase">ئىم سۆزى بەلگىلەنمىگەن</string>
+    <string name="prefs_title_masterkey_passphrase">ئىم سۆزى</string>
+    <string name="setting_masterkey_passphrase">ئاساسىي ئاچقۇچ ئىم سۆزى بەلگىلىنىۋاتىدۇ</string>
+    <string name="masterkey_passphrase_title">ئاساسىي ئاچقۇچ ئىم سۆزى</string>
+    <string name="masterkey_passphrase_summary">ئاساسىي ئاچقۇچىڭىزنى قوغداش ئۈچۈن ئىم سۆزى بەلگىلەڭ. دېتال ھەر قېتىم قايتا قوزغالغاندا ئۇنى كىرگۈزۈشىڭىز كېرەكلىكىگە دىققەت قىلىڭ.</string>
+    <string name="masterkey_passphrase_again_summary">ئىم سۆزىنى قايتا كىرگۈزۈڭ</string>
+    <string name="masterkey_passphrase_hint">ئىم سۆزى</string>
+    <string name="master_key_locked_want_exit">ئاساسىي ئاچقۇچ يەنىلا قۇلۇپلانغان. قايتا سىنامسىز؟</string>
+    <string name="click_here_to_change_passphrase">ئىم سۆزىنى ئۆزگەرتىش ئۈچۈن بۇ يەرنى چېكىڭ</string>
+    <string name="attach_camera">سىستېما كامېراسى</string>
+    <string name="menu_restore">زاپاستىن ئەسلىگە كەلتۈرۈش</string>
+    <string name="restore_id_hint">ئەسلىگە كەلتۈرۈش ئۈچۈن ID چىقىرىشىنىڭ تېكىست تىزمىسىنى كىرگۈزۈڭ ياكى چاپلاڭ</string>
+    <string name="location_placeholder">ئورۇن</string>
+    <string name="video_placeholder">سىن</string>
+    <string name="audio_placeholder">ئۈن</string>
+    <string name="restoring_backup">زاپاس ئەسلىگە كەلتۈرۈلۈۋاتىدۇ</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="server_message_title">${company_name} مۇلازىمېتىرىدىن كەلگەن ئۇچۇر</string>
+    <string name="error">خاتالىق</string>
+    <!-- Empty state text for Contacts tab, shown when there are no contacts and Contact Synchronization is disabled -->
+    <string name="no_contacts"><![CDATA[تېخى ھېچقانداق ئالاقەداشىڭىز يوق. ماسلاشتۇرۇشنى قوزغىتىڭ (تەڭشەكلەر > شەخسىي مەخپىيەت)، ياكى ئالاقەداشلارنى قولدا قوشۇڭ.]]></string>
+    <!-- Empty state text for Contacts tab, shown when there are no contacts and Contact Synchronization is enabled -->
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="no_contacts_sync_on"><![CDATA[تېخى ھېچقانداق ئالاقەداشىڭىز يوق. ماسلاشتۇرۇش ئوچۇق، بىراق ئادرېس دەپتىرىڭىزدىكى ئالاقەداشلارنىڭ ھېچقايسىسى ${app_name_short} دا يوققا ئوخشايدۇ (ئۇلارنى تەكلىپ قىلىڭ!).]]></string>
+    <string name="masterkey_title">ئىم سۆزىنى كىرگۈزۈڭ</string>
+    <string name="masterkey_body">ئاساسىي ئاچقۇچىڭىز ئىم سۆزى بىلەن قوغدالغان. ئاچقۇچنى قۇلۇپتىن چىقىرىش ئۈچۈن ئىم سۆزىڭىزنى كىرگۈزۈڭ.</string>
+    <string name="masterkey_unlocking">ئاساسىي ئاچقۇچ قۇلۇپتىن چىقىرىلىۋاتىدۇ</string>
+    <string name="verify_phonecall_text">چاقىرىق تەلەپ قىلىش</string>
+    <string name="prepare_call_message">داۋاملاشتۇرسىڭىز، بىز سىزنى دەرھال چاقىرماقچى. دەلىللەش كودىڭىز سىزگە ئىككى قېتىم
+        ئوقۇپ بېرىلىدۇ. بىز پەقەت بىر قېتىملا سىنايدىغانلىقىمىزغا دىققەت قىلىپ، داۋاملاشتۇرۇشتىن بۇرۇن تەييارلىقىڭىزنى
+        جەزىملەشتۈرۈڭ.</string>
+    <string name="enter_code_hint">كودنى كىرگۈزۈڭ</string>
+    <string name="enter_code_sum">دەلىللەش قىسقا ئۇچۇرىدىكى ياكى تېلېفون چاقىرىقىدا تىلغا ئېلىنغان كودنى كىرگۈزۈڭ.</string>
+    <string name="no_matching_contacts">ئالاقەداش تېپىلمىدى.</string>
+    <string name="code_invalid">سىز كىرگۈزگەن كود ئىناۋەتسىز.</string>
+    <string name="try_again">قايتا سىناش</string>
+    <string name="decoding_message">ئۇچۇر شىفىرسىزلىنىۋاتىدۇ</string>
+    <string name="expired_barcode">بۇ كودنىڭ ۋاقتى ئۆتكەن. باشقا ئىشلەتكۈچىنىڭ دېتالىدىن بىۋاسىتە قايتا سايلەڭ.</string>
+    <string name="pending">كۈتۈلۈۋاتىدۇ</string>
+    <string name="unlinking_email">ئېلخەت باغلىنىشى ئۈزۈلۈۋاتىدۇ</string>
+    <string name="unlink">باغلىنىشنى ئۈزۈش</string>
+    <string name="threema_version">نەشرى</string>
+    <string name="threema_version_code">نەشر كودى</string>
+    <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
+    <string name="about_server_config_title">مۇلازىمېتىر سەپلىمىسى</string>
+    <string name="wrong_backupid_or_password_or_no_internet_connection">ئىنتېرنېتقا ئۇلانمىغان، ئىناۋەتسىز ID چىقىرىش سانلىق مەلۇماتى ياكى خاتا ئىم</string>
+    <string name="prefs_header_other">باشقىلار</string>
+    <string name="an_error_occurred">خاتالىق كۆرۈلدى</string>
+    <string name="an_error_occurred_more">خاتالىق كۆرۈلدى: “%1$s”</string>
+    <string name="acknowledge">قوشۇلىمەن</string>
+    <string name="decline">قوشۇلمايمەن</string>
+    <string name="forward_message">ئۇچۇرنى يوللاش</string>
+    <string name="connection_error">ئۇلىنىش خاتالىقى، كېيىن قايتا سىناڭ.</string>
+    <string name="me_myself_and_i">مەن</string>
+    <string name="really_forward">“%1$s” غا يوللامسىز؟</string>
+    <string name="really_send">“%1$s” غا ئەۋەتەمسىز؟</string>
+    <string name="ringtone_none">ئاۋازسىز</string>
+    <string name="no_camera_installed">ئىشلەتكىلى بولىدىغان كامېرا يوق</string>
+    <string name="save_message_action">ساقلاش</string>
+    <string name="masterkey_is_unlocked">ئاساسىي ئاچقۇچ قۇلۇپتىن چىقىرىلدى</string>
+    <string name="file_too_large">ھۆججەت ئەڭ چوڭ چەك %1$d MB دىن چوڭ</string>
+    <string name="enter_serial_body"><![CDATA[دۇكان ئىجازەت ئاچقۇچىڭىزنى كىرگۈزۈڭ. سىز ئىجازەتنامە <a href="https://shop.threema.ch/">سېتىۋالالايسىز</a> ياكى ئىلگىرى ئىجازەتنامە سېتىۋالغان بولسىڭىز ئاچقۇچلىرىڭىزنى <a href="https://shop.threema.ch/retrieve_keys">قايتۇرۇپ ئالالايسىز</a>.]]></string>
+    <!-- ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_enter_serial_body">شىركىتىڭىز تەمىنلىگەن ${app_name_short} سالاھىيەت ئۇچۇرلىرىنى كىرگۈزۈڭ.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="enter_serial_title">${app_name} نى قۇلۇپتىن چىقىرىش</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="serial_required_want_exit">ئىجازەت ئاچقۇچى ئىناۋەتسىز. قايتا سىنامسىز ياكى ${app_name} نى تاقامسىز؟</string>
+    <!-- Message shown on progress dialog that shows while checking whether the user has a valid license -->
+    <string name="checking_serial">ئىجازەتنامە تەكشۈرۈلۈۋاتىدۇ</string>
+    <!-- Message shown on progress dialog that shows while the credentials that the user entered are being checked for their validity -->
+    <string name="work_checking_credentials">سالاھىيەت ئۇچۇرلىرى تەكشۈرۈلۈۋاتىدۇ</string>
+    <string name="update_available">يېڭىلاش بار</string>
+    <!-- Message shown in Update dialog to inform the user that a new version of the app is available -->
+    <string name="update_available_message">يېڭى نەشرى بار. ھازىر چۈشۈرەمسىز؟</string>
+    <string name="no_update_available">يېڭىلاش يوق</string>
+    <string name="download">چۈشۈرۈش</string>
+    <string name="not_now">كېيىن ئەسلىتىش</string>
+    <string name="preparing_messages">ئۇچۇرلار تەييارلىنىۋاتىدۇ</string>
+    <string name="select_emoji">ئېموجىلار</string>
+    <string name="push_reset_title">push بەلگىسى ئەسلىگە قايتۇرۇلدى</string>
+    <string name="push_reset_text">push بەلگىسى ئەسلىگە قايتۇرۇلدى</string>
+    <string name="emoji_recent">يېقىنقى</string>
+    <string name="emoji_smileys">كۈلكە ۋە ھېسسىيات</string>
+    <string name="emoji_people">كىشىلەر ۋە بەدەن</string>
+    <string name="emoji_nature">ھايۋانلار ۋە تەبىئەت</string>
+    <string name="emoji_food">يېمەك ۋە ئىچىملىك</string>
+    <string name="emoji_travel">ساياھەت ۋە جايلار</string>
+    <string name="emoji_activity">پائالىيەتلەر</string>
+    <string name="emoji_objects">نەرسىلەر</string>
+    <string name="emoji_symbols">بەلگىلەر</string>
+    <string name="emoji_flags">بايراقلار</string>
+    <string name="emoji_search">ئېموجى ئىزدەش</string>
+    <string name="emoji_search_no_result">ئىزدەش نەتىجىسى يوق</string>
+    <string name="title_lock">قۇلۇپلاش</string>
+    <string name="new_messages_locked">يېڭى ئۇچۇرلار بار</string>
+    <string name="new_messages_locked_description">يېڭى ئۇچۇرلارنى كۆرۈش ئۈچۈن چېكىڭ.</string>
+    <string name="new_unprocessed_messages">يېڭى ئۇچۇرلار بار</string>
+    <string name="new_unprocessed_messages_description">يېڭى كىرىۋاتقان ئۇچۇرلارنى ئېلىش ۋە كۆرۈش ئۈچۈن چېكىڭ.</string>
+    <string name="prefs_title_masterkey_notification_newmsg">يېڭى ئۇچۇر ئۇقتۇرۇشلىرى</string>
+    <string name="prefs_masterkey_notification_newmsg_off">ئاساسىي ئاچقۇچ قۇلۇپلانغاندا يېڭى ئۇچۇرلار
+        ئۇقتۇرۇش قوزغاتمايدۇ</string>
+    <string name="prefs_masterkey_notification_newmsg_on">ئاساسىي ئاچقۇچ قۇلۇپلانغاندا يېڭى ئۇچۇرلار ئادەتتىكى
+        ئۇقتۇرۇش قوزغىتىدۇ</string>
+    <string name="chat_history_attached">ئەڭگىمە خاتىرىسى قوشۇمچە قىلىندى.</string>
+    <string name="backup_data_title">سانلىق مەلۇمات زاپاسى</string>
+    <string name="backup_data_password_msg">سانلىق مەلۇماتىڭىز ئىچكى USB ساقلىغۇچىڭىزدا ZIP ھۆججىتى شەكلىدە ساقلىنىدۇ ۋە
+        خالىغان Android ئۈسكۈنىدە ئەسلىگە كەلتۈرۈلىدۇ. سانلىق مەلۇمات زاپاسىڭىزنى قوغداش ئۈچۈن ئىم كىرگۈزۈڭ.</string>
+    <string name="restore_data_password_msg">بۇ زاپاسنى قۇرغاندا ئىشلەتكەن ئىمنى كىرگۈزۈڭ.</string>
+    <string name="backup_data_media">چوڭ ۋاسىتە ھۆججەتلىرىنى ئىچىگە ئالسۇن (سىن، ھۆججەت، ئەسلى رەسىملەر)</string>
+    <string name="backup_data_new">سانلىق مەلۇمات زاپاسى قۇرۇش</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="pinentry_enter_pin">داۋاملاشتۇرۇش ئۈچۈن ${app_name} PIN ئىڭىزنى كىرگۈزۈڭ</string>
+    <string name="pinentry_wrong_pin">PIN خاتا</string>
+    <string name="prefs_sum_security_pin">ئارايۈزگە كىرىشنى قۇلۇپلاش</string>
+    <string name="prefs_title_pin_switch">دېتال قۇلۇپى</string>
+    <string name="prefs_title_pin_code">PIN بەلگىلەش</string>
+    <string name="prefs_pin_grace">قۇلۇپلىنىش ۋاقتى</string>
+    <string name="prefs_sum_pin_grace">ئېكران قۇلۇپى ئاكتىپلىنىشقا قەدەرلىك ۋاقىت</string>
+    <string name="click_here_to_change_pin">PIN بەلگىلەندى. ئۆزگەرتىش ئۈچۈن بۇ يەرنى چېكىڭ</string>
+    <string name="set_pin_menu_title">يېڭى PIN بەلگىلەش</string>
+    <string name="set_pin_summary_intro">سانلىق PIN (پەقەت رەقەم) بەلگىلەش ئارقىلىق شەخسىي مەخپىيىتىڭىزنى قوغداڭ. بۇ PIN مۆھلەت ئۆتكەندىن كېيىن دېتال ئارايۈزىگە كىرىشنى قۇلۇپلاش ياكى شەخسىي ئەڭگىمەلەرنى قوغداش ئۈچۈن ئىشلىتىلىدۇ</string>
+    <string name="set_pin_again_summary">PIN نى قايتا كىرگۈزۈڭ</string>
+    <string name="set_pin_hint">PIN</string>
+    <string name="title_addgroup">يېڭى گۇرۇپپا</string>
+    <string name="updating_system">سىستېما يېڭىلىنىۋاتىدۇ</string>
+    <string name="title_select_contacts">ئەزالارنى تاللاش</string>
+    <string name="pin_invalid_not_set">PIN ئىناۋەتسىز. بەلگىلەنمىدى.</string>
+    <string name="prefs_group_notifications">گۇرۇپپا ئەڭگىمەسى</string>
+    <string name="group_select_at_least_two">داۋاملاشتۇرۇش ئۈچۈن كەم دېگەندە بىر ئەزا تاللاش كېرەك</string>
+    <string name="group_select_max">%1$d دىن ئارتۇق گۇرۇپپا ئەزاسى تاللىيالمايسىز</string>
+    <string name="search">ئىزدەش</string>
+    <string name="hint_search_keyword">ئىزدەش ئاچقۇچلۇق سۆزى</string>
+    <string name="add_group_owner">گۇرۇپپا قۇرغۇچى</string>
+    <string name="title_tab_users">ئالاقەداشلار</string>
+    <string name="title_tab_groups">گۇرۇپپىلار</string>
+    <string name="no_matching_groups">گۇرۇپپا تېپىلمىدى</string>
+    <string name="action_leave_group">گۇرۇپپىدىن چىقىش</string>
+    <string name="group_edit_title">گۇرۇپپىنى تەھرىرلەش</string>
+    <string name="really_leave_group_message">بۇ گۇرۇپپىدىن راستىنلا چىقامسىز؟</string>
+    <string name="search_no_matches">ماس كېلىدىغان نەتىجە تېپىلمىدى</string>
+    <string name="search_no_more_matches">باشقا ماس نەتىجە يوق</string>
+    <string name="backup_share">زاپاسنى ھەمبەھىرلەش</string>
+    <string name="my_backups_title">زاپاسلار</string>
+    <string name="backup_delete_confirm">زاپاس ھۆججىتى ئۆچۈرۈلدى</string>
+    <string name="message_log_title">ئۇچۇر تەپسىلاتى</string>
+    <string name="state_read">ئوقۇلدى</string>
+    <string name="state_delivered">يەتكۈزۈلدى</string>
+    <string name="state_sending">ئەۋەتىلىۋاتىدۇ</string>
+    <string name="state_pending">كۈتۈلۈۋاتىدۇ</string>
+    <string name="state_failed">مەغلۇپ بولدى</string>
+    <string name="state_sent">ئەۋەتىلدى</string>
+    <string name="state_dialog_created">قۇرۇلدى</string>
+    <string name="state_dialog_posted">ئەۋەتىلدى</string>
+    <string name="state_dialog_modified">يېڭىلاندى</string>
+    <string name="state_dialog_edited">تەھرىرلەندى</string>
+    <string name="state_dialog_deleted">ئۆچۈرۈلدى</string>
+    <string name="title_tab_recent">يېقىنقىلار</string>
+    <string name="no_recent_conversations">ئەڭگىمە تېپىلمىدى</string>
+    <string name="creating_group">گۇرۇپپا قۇرۇلۇۋاتىدۇ</string>
+    <string name="updating_group">گۇرۇپپا يېڭىلىنىۋاتىدۇ</string>
+    <string name="leaving_group">گۇرۇپپىدىن چىقىلىۋاتىدۇ</string>
+    <string name="disbanding_group">گۇرۇپپا تارقىتىلىۋاتىدۇ</string>
+    <string name="removing_group">گۇرۇپپا ئۆچۈرۈلۈۋاتىدۇ</string>
+    <string name="resyncing_group">گۇرۇپپا قايتا ماسلاشتۇرۇلۇۋاتىدۇ</string>
+    <string name="status_create_group">گۇرۇپپا قۇرۇلدى.</string>
+    <string name="status_rename_group">گۇرۇپپا نامى “%1$s” غا ئۆزگەرتىلدى</string>
+    <string name="status_group_new_photo">گۇرۇپپا رەسىمى يېڭىلاندى.</string>
+    <string name="status_group_new_member">“%1$s” گۇرۇپپىغا قوشۇلدى.</string>
+    <string name="status_group_member_left">“%1$s” گۇرۇپپىدىن چىقتى.</string>
+    <string name="status_group_member_kicked">“%1$s” گۇرۇپپىدىن چىقىرىۋېتىلدى.</string>
+    <string name="can_not_send_no_group_members">بوش گۇرۇپپىغا ئۇچۇر ئەۋەتەلمەيسىز</string>
+    <string name="you_are_not_a_member_of_this_group">سىز بۇ گۇرۇپپىنىڭ ئەزاسى ئەمەس</string>
+    <string name="title_public_nickname">لەقەم</string>
+    <string name="title_availability_status">ھالەت</string>
+    <string name="prefs_sum_excluded_sync_identities">بۇ يەردە كۆرسىتىلگەن ID لار ئالاقەداش ماسلاشتۇرۇشتا نەزەرگە ئېلىنمايدۇ</string>
+    <string name="prefs_title_excluded_sync_identities">ئايرىش تىزىملىكى</string>
+    <string name="synchronize_contact">ئادرېس دەپتىرى ماسلاشتۇرۇش</string>
+    <string name="exclude_contact">ئاپتوماتىك ماسلاشتۇرۇشتىن ئايرىش</string>
+    <string name="prefs_header_lists">تىزىملىكلەر</string>
+    <string name="prefs_title_blocked_contacts">توسۇلغان ئالاقەداشلار</string>
+    <string name="prefs_sum_blocked_contacts">بۇ يەردە كۆرسىتىلگەن ID لاردىن كەلگەن ئۇچۇرلار نەزەرگە ئېلىنمايدۇ.</string>
+    <string name="verified">دەلىللەنگەن</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="want_to_add_to_exclude_list">بۇ ئالاقەداش تېلېفونىڭىزدىكى ئادرېس دەپتىرىدىكى بىر خاتىرىگە باغلانغان. ئەگەر ئۇنى
+        ${app_name_short} دا ئۆچۈرسىڭىز، ئالاقەداش ماسلاشتۇرۇشتىن كېيىن قايتا پەيدا بولىدۇ.\nئۇنى ماسلاشتۇرۇشتىن ئايرىۋېتەمسىز؟</string>
+    <string name="no">ياق</string>
+    <string name="yes">ھەئە</string>
+    <string name="deleting_contact">ئالاقەداش ئۆچۈرۈلۈۋاتىدۇ</string>
+    <string name="prefs_contact_soring">تەرتىپلەش</string>
+    <string name="prefs_contact_format">ئالاقەداش ئىسىملىرىنى كۆرۈش</string>
+    <string name="prefs_contact_list_title">ئالاقەداش تىزىملىكى</string>
+    <string name="prefs_default_contact_picture_colored">كۆڭۈلدىكى ئالاقەداش رەسىملىرى</string>
+    <string name="prefs_show_inactive_contacts">ئاكتىپسىز ID لارنى كۆرسىتىش</string>
+    <string name="prefs_sum_default_contact_picture_colored_on">ئالاقەداش رەسىمى يوق بولسا كۆپ رەڭلىك ئورۇنباسارلارنى
+        كۆرسىتىش</string>
+    <string name="prefs_sum_default_contact_picture_colored_off">ئالاقەداش رەسىمى يوق بولسا كۈلرەڭ ئورۇنباسارلارنى ئىشلىتىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_show_inactive_contacts_on">ئالاقەداش تىزىملىكىڭىزدىكى بارلىق ${app_name_short} ID لارنى كۆرسىتىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_show_inactive_contacts_off">ئاكتىپسىز/بىكار قىلىنغان ${app_name_short} ID لارنى يوشۇرۇش</string>
+    <string name="contact_sorting_first_name">ئىسمى - فامىلىسى</string>
+    <string name="contact_sorting_last_name">فامىلىسى - ئىسمى</string>
+    <string name="contact_format_first_name_last_name">ئىسمى فامىلىسى</string>
+    <string name="contact_format_last_name_first_name">فامىلىسى ئىسمى</string>
+    <string name="block_contact">ئالاقەداشنى توسۇش</string>
+    <string name="unblock_contact">ئالاقەداش توسۇشىنى ئەمەلدىن قالدۇرۇش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="add_acount_from_within_threema">${app_name_short} ID ئىڭىزنى ${app_name_short} ئىچىدە باشقۇرۇڭ.</string>
+    <string name="share_image">رەسىمنى ھەمبەھىرلەش</string>
+    <string name="view_in_gallery">گالېرىيەدە كۆرۈش</string>
+    <string name="token_register_failed">push بەلگىسىنى يېڭىلاش مەغلۇپ بولدى، كېيىن قايتا سىناڭ.</string>
+    <string name="internet_connection_required">ئىنتېرنېت ئۇلىنىشى يوق.</string>
+    <string name="prefs_sum_save_media">كىرىۋاتقان رەسىم ۋە سىنلار، شۇنىڭدەك چىقىۋاتقان كامېرا رەسىملىرىنى شىفىرسىز شەكىلدە ساقلاش</string>
+    <string name="prefs_save_media">گالېرىيەگە ئاپتوماتىك ساقلاش</string>
+    <string name="title_add_distribution_list">يېڭى تارقىتىش تىزىملىكى</string>
+    <string name="title_edit_distribution_list">تارقىتىش تىزىملىكىنى تەھرىرلەش</string>
+    <string name="really_delete_distribution_list">تارقىتىش تىزىملىكىنى ئۆچۈرۈش</string>
+    <string name="really_delete_distribution_list_message">بۇ تىزىملىك ۋە ئۇنىڭ ئۇچۇرلىرىنى راستىنلا
+        ئۆچۈرەمسىز؟</string>
+    <string name="enter_distribution_list_name">بۇ تىزىملىككە نام تاللاڭ</string>
+    <string name="distribution_list">تارقىتىش تىزىملىكى</string>
+    <string name="title_tab_distribution_list">تارقىتىش تىزىملىكلىرى</string>
+    <string name="no_matching_distribution_lists">ماس كېلىدىغان تارقىتىش تىزىملىكى يوق</string>
+    <string name="is_typing">يېزىۋاتىدۇ…</string>
+    <string name="push_not_available_title">push مۇلازىمىتى تېپىلمىدى</string>
+    <string name="push_not_available_text1">ئۈسكۈنىڭىزدە push مۇلازىمىتى تېپىلمىدى، چۈنكى Google Play Services ئورنىتىلمىغان ياكى كونىراپ كەتكەن.</string>
+    <string name="push_not_available_text2">%s مۇلازىمېتىرغا ئارقا سۇپىدا مۇقىم ئۇلىنىش ئېچىشقا تىرىشىدۇ. ئەگەر ئۈسكۈنىڭىزنىڭ توك ئۈنۈملەشتۈرۈش مېخانىزملىرى ئارقا سۇپا ئۇلىنىشىغا توسقۇنلۇق قىلسا، بۇ ئىشەنچلىك ئىشلىمەسلىكى مۇمكىن.</string>
+    <string name="backup_in_progress">زاپاسلاش جەريانىدا</string>
+    <string name="backup_or_restore_success_body">سانلىق مەلۇمات زاپاسى مۇۋەپپەقىيەتلىك تاماملاندى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_or_restore_error">${app_name_short} زاپاسى</string>
+    <string name="backup_or_restore_error_body">زاپاسلاش مۇۋەپپەقىيەتلىك تاماملانمىدى</string>
+    <string name="could_not_download_message">ئۇچۇرنى چۈشۈرگىلى بولمىدى</string>
+    <string name="info">ئۇچۇر</string>
+    <string name="resync_group">گۇرۇپپىنى قايتا ماسلاشتۇرۇش</string>
+    <string name="edit_name">نام ۋە رەسىمنى تەھرىرلەش</string>
+    <string name="edit_name_only">نامنى تەھرىرلەش</string>
+    <string name="group_was_synchronized">گۇرۇپپا ماسلاشتۇرۇلدى.</string>
+    <string name="verification_level2_work_explain">ئىچكى ئالاقەداش، تەشكىلاتىڭىز تەرىپىدىن ئالدىن تولدۇرۇلغان.</string>
+    <string name="verification_level3_work_explain">ئىچكى ئالاقەداش بولۇپ، ئۇنىڭ سالاھىيىتى ۋە ئاممىۋى ئاچقۇچىنى QR كودىنى سايلەش ئارقىلىق شەخسەن دەلىللىگەن.</string>
+    <string name="verification_level3_explain">ئالاقەداش بولۇپ، ئۇنىڭ سالاھىيىتى ۋە ئاممىۋى ئاچقۇچىنى QR كودىنى سايلەش ئارقىلىق شەخسەن دەلىللىگەن.</string>
+    <string name="verification_level2_explain">يانفون نومۇرى ۋە/ياكى ئېلخەت ئادرېسى ئادرېس دەپتىرىڭىزدە بار ئالاقەداش.</string>
+    <string name="verification_level1_explain">نامەلۇم ئالاقەداش؛ يا بۇ ئالاقەداش ID ئىغا يانفون نومۇرى ياكى ئېلخەت ئادرېسى باغلىمىغان، يا ئادرېس دەپتىرىڭىزدە بۇ ئالاقەداش ئۇچۇرلىرى يوق.</string>
+    <string name="state_dialog_received">تاپشۇرۇۋېلىندى</string>
+    <string name="prefs_title_hide_screenshots">كىچىك رەسىم ۋە ئېكران رەسىمى يوق</string>
+    <string name="prefs_summary_hide_screenshots">دېتال ئالماشتۇرغۇچتا كىچىك رەسىملەرنى كۆرسەتمەسلىك ۋە بەزى
+        ئېكرانلارنىڭ ئېكران رەسىمىنى چەكلەش</string>
+    <string name="media_gallery">ۋاسىتە گالېرىيەسى</string>
+    <string name="media_file_not_found">ۋاسىتە ھۆججىتىنى ئاچقىلى بولمىدى. ئۇ ئۆچۈرۈلگەن ياكى مۇلازىمېتىردىن چۈشۈرۈلمىگەن.</string>
+    <string name="media_gallery_pictures">رەسىملەر</string>
+    <string name="media_gallery_videos">سىنلار</string>
+    <string name="group_membership_title">بۇ گۇرۇپپىلارنىڭ ئەزاسى</string>
+    <string name="group_description">گۇرۇپپا چۈشەندۈرۈشى</string>
+    <string name="change_group_description">گۇرۇپپا چۈشەندۈرۈشىنى ئۆزگەرتىش</string>
+    <string name="add_group_description">گۇرۇپپا چۈشەندۈرۈشى قوشۇش</string>
+    <string name="read_more">تېخىمۇ كۆپ ئوقۇش</string>
+    <string name="read_less">ئازراق ئوقۇش</string>
+    <string name="changed_group_desc_date">ئاخىرقى ئۆزگەرتىلگەن ۋاقتى: </string>
+    <string name="num_items_sected">%s تاللاندى</string>
+    <string name="really_delete_media">%d ۋاسىتە ئۇچۇرىنى راستىنلا ئۆچۈرەمسىز؟</string>
+    <string name="check_updates">يېڭىلاشلارنى تەكشۈرۈش</string>
+    <!-- ${app_name} and ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
+    <string name="masterkey_lock_explain">${app_name} ئىم سۆزىنى ئەستە ساقلايدۇ. ئىم سۆزىنى دائىم قايتا كىرگۈزۈشكە توغرا كەلسە، ${app_name_short} نى ۋاقتىدىن بۇرۇن توختىتىپ قويۇشى مۇمكىن بولغان ۋەزىپە ئۆلتۈرگۈچ ۋە توك ئۈنۈملەشتۈرۈش دېتاللىرىنىڭ چەكلەنگەنلىكىنى جەزىملەشتۈرۈڭ.</string>
+    <string name="identity_already_exists">بۇ ID ئاللىبۇرۇن ئالاقەداش تىزىملىكىڭىزدە بار</string>
+    <string name="share_contact">ئالاقەداشنى ھەمبەھىرلەش</string>
+    <string name="add_shortcut">تېزلەتمە قوشۇش</string>
+    <string name="group_not_found">بۇنداق گۇرۇپپا تېپىلمىدى.</string>
+    <string name="contact_not_found">بۇنداق ئالاقەداش يوق</string>
+    <string name="contact_now_blocked">ئالاقەداش توسۇلدى</string>
+    <string name="contact_now_unblocked">ئالاقەداش توسۇشى ئەمەلدىن قالدۇرۇلدى</string>
+    <string name="share_conversation_body">ھۆججەتنى يېشىش ئۈچۈن AES قوللايدىغان زامانىۋى ZIP قورالى كېرەك، مەسىلەن
+        http://www.7-zip.org ياكى https://itunes.apple.com/us/app/the-unarchiver/id425424353</string>
+    <string name="enter_zip_password_body">ئەڭگىمە شىفىرلانغان zip ھۆججىتى شەكلىدە ئەۋەتىلىدۇ. ئىم تاللاڭ:</string>
+    <string name="ballot_create">سوئالنامە قۇرۇش</string>
+    <string name="ballot_choice_add">تاللاش قوشۇش</string>
+    <string name="ballot_state_closed">تاقالدى</string>
+    <string name="ballot_vote">رەي بېرىش</string>
+    <string name="ballot_placeholder">سوئالنامە</string>
+    <string name="ballot_close">بۇ سوئالنامىنى تاقاش</string>
+    <string name="ballot_really_close">بۇ سوئالنامىنى راستىنلا تاقامسىز؟</string>
+    <string name="ballot_multiple_choice">كۆپ تاللاش</string>
+    <string name="ballot_result_intermediate">ئارىلىق نەتىجىلەر</string>
+    <string name="ballot_error_more_than_x_choices">كەم دېگەندە ئىككى تاللاش بەلگىلەش كېرەك</string>
+    <string name="ballot_message_closed">نەتىجىلەر تەييار</string>
+    <string name="ballot_vote_posted_successfully">رەي مۇۋەپپەقىيەتلىك ئەۋەتىلدى</string>
+    <string name="ballot_vote_posted_failed">رەي ئەۋەتىش مەغلۇپ بولدى</string>
+    <string name="attach_ballot">سوئالنامە</string>
+    <string name="ballot_overview">بارلىق سوئالنامىلەر</string>
+    <string name="ballot_copy">سوئالنامىنى كۆچۈرۈش</string>
+    <string name="ballot_remove">سوئالنامىنى ئۆچۈرۈش</string>
+    <string name="ballot_not_exist">سوئالنامە مەۋجۇت ئەمەس</string>
+    <string name="ballot_tap_to_vote">رەي بېرىش ئۈچۈن چېكىڭ</string>
+    <string name="ballot_tap_to_view_results">سوئالنامە تاقالدى. نەتىجىنى كۆرۈش ئۈچۈن چېكىڭ</string>
+    <string name="ballot_subject_hint">بۇ سوئالنامىنىڭ تېمىسىنى كىرگۈزۈڭ</string>
+    <string name="ballot_no_ballots_yet">تېخى سوئالنامە يوق.</string>
+    <string name="print">بېسىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="ballot_wizard0_explain">${app_name_short} دا بىۋاسىتە تور سوئالنامىسى تېز قۇرۇڭ. پائالىيەت ئورۇنلاشتۇرۇڭ، تەكشۈرۈش
+        قۇرۇڭ ياكى ئالاقەداشلىرىڭىزدىن خالىغان نەرسىنى سوراڭ.</string>
+    <string name="ballot_add_choices">جاۋابلار قوشۇش</string>
+    <string name="blocked_cannot_send">توسۇلغان ئالاقەداشقا ئۇچۇر ئەۋەتەلمەيسىز</string>
+    <string name="invalid_some_cannot_send">بەزى تاپشۇرۇۋالغۇچىلارنى تاللىغىلى بولمايدۇ.</string>
+    <string name="invalid_all_cannot_send">بۇ تاپشۇرۇۋالغۇچىلارنى تاللىغىلى بولمايدۇ.</string>
+    <string name="really_block_contact">بۇ ئالاقەداشتىن كېلىدىغان كەلگۈسى ئۇچۇرلار تاشلىۋېتىلىدۇ. داۋاملاشتۇرامسىز؟</string>
+    <string name="ballot_result_final">ئاخىرقى نەتىجە</string>
+    <string name="invalid_cannot_send">ئىناۋەتسىز ئالاقەداشقا ئۇچۇر ئەۋەتەلمەيسىز</string>
+    <string name="ballot_answer_count_error">سوئالنامە ئۈچۈن كەم دېگەندە ئىككى جاۋاب كىرگۈزۈڭ.</string>
+    <string name="contact_state_inactive">ئاكتىپسىز</string>
+    <string name="contact_state_invalid">ئىناۋەتسىز</string>
+    <string name="back">قايتىش</string>
+    <string name="wearable_reply">جاۋاب</string>
+    <string name="wearable_reply_label">%s غا جاۋاب</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="push_disable_text">داۋاملاشتۇرسىڭىز، سىستېمىنىڭ push مۇلازىمىتى ئورنىغا “${app_name_short} Push” ئىشلىتىلىدۇ. بۇ رەقەملىك ئىزىڭىزنى ئازايتىشقا ياردەم بېرىدۇ، بىراق تېلېفونىڭىزنىڭ دېتالنى ئارقا سۇپىدا ئىجرا قىلىشقا يول قويىدىغان شەكىلدە سەپلىنىشىنى تەلەپ قىلىدۇ. ئۈسكۈنە تەڭشەكلىرىدە مۇناسىپ تاللانمىلار تېپىلمىسا، سەپلەشتە ياردەم ئېلىش ئۈچۈن ئۈسكۈنە ئىشلەپچىقارغۇچىڭىزنىڭ قوللاش مەركىزى بىلەن ئالاقىلىشىڭ.</string>
+    <string name="debug_log_enabled_recently_warning">ئەگەر مەلۇم بىر مەسىلىگە دۇچ كەلسىڭىز، بىزگە ساڭگىشلاش خاتىرە ھۆججىتىنى ئەۋەتىشتىن بۇرۇن ئۇنى قايتا كۆرسىتىشكە تىرىشىڭ. بۇ بىزنىڭ مەسىلىنى تېخىمۇ ئۈنۈملۈك تەكشۈرۈشىمىزگە ياردەم بېرىدۇ. رەھمەت.</string>
+    <string name="ballot_intermediate_results_show">ئارىلىق نەتىجىلەرنى كۆرسىتىش</string>
+    <string name="converting_video">سىن بىر تەرەپ قىلىنىۋاتىدۇ</string>
+    <string name="video_size_small">يۇقىرى (ئاز سانلىق مەلۇمات)</string>
+    <string name="video_size_large">تۆۋەن (كۆپ سانلىق مەلۇمات)</string>
+    <string name="video_size_original">يوق (ناھايىتى كۆپ سانلىق مەلۇمات)</string>
+    <string name="prefs_video_size">سىن پرېسلاش</string>
+    <string name="menu_video_size_small">كىچىك ئۆلچەم</string>
+    <string name="menu_video_size_medium">ئوتتۇرا ئۆلچەم</string>
+    <string name="menu_video_size_large">ئەسلى ئۆلچەم</string>
+    <string name="show_contact">ئالاقەداشنى كۆرسىتىش</string>
+    <string name="chat_with">%1$s بىلەن ئەڭگىمە</string>
+    <string name="kick_user_from_group">%1$s نى گۇرۇپپىدىن چىقىرىش</string>
+    <string name="show_as_qrcode">QR كودى شەكلىدە كۆرسىتىش</string>
+    <string name="qr_code">QR كودى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="really_leave_id_export">ئەگەر تېخى قىلمىغان بولسىڭىز، ID چىقىرىش تېكىست تىزمىسى ياكى ئۇنىڭغا مۇناسىپ QR كودىنى بىخەتەر بىر جايغا ساقلاڭ ياكى بېسىپ چىقىرىڭ. ${app_name_short} ID ئىڭىزنى زاپاسسىز ئەسلىگە كەلتۈرگىلى بولمايدۇ.</string>
+    <string name="revocation_key_title">ID نى بىكار قىلىش</string>
+    <string name="revocation_key_not_set">بىكار قىلىش ئىمى بەلگىلەنمىگەن</string>
+    <string name="revocation_key_set_at">ئىم %1$s دە بەلگىلەندى</string>
+    <string name="prefs_sum_remove_wallpapers">بارلىق يەككە تەگلىك رەسىملىرىنى ئۆچۈرۈش</string>
+    <string name="prefs_title_remove_wallpapers">بارلىق تەگلىك رەسىملىرىنى ئۆچۈرۈش</string>
+    <string name="really_remove_wallpapers">بارلىق تەگلىك رەسىملىرىنى راستىنلا ئۆچۈرەمسىز؟</string>
+    <string name="wallpapers_removed">تەگلىك رەسىملىرى ئۆچۈرۈلدى</string>
+    <string name="invalid_backup">ئىناۋەتسىز زاپاس سانلىق مەلۇماتى. ئەسلىگە كەلتۈرگىلى بولمايدۇ.</string>
+    <string name="invalid_zip_restore_failed">ئەسلىگە كەلتۈرۈش مەغلۇپ بولدى. ئىناۋەتسىز زاپاس ھۆججىتى: %1$s</string>
+    <string name="revocation_explain">بۇ يەرگە كىرگۈزگەن ئىم ID ئىڭىزنى يوقىتىپ قويسىڭىز ياكى ئوغرىلانسا
+        https://myid.threema.ch/revoke دا بىكار قىلىشقا يول قويىدۇ</string>
+    <!-- Empty state text shown on home screen widget when there are no unread messages -->
+    <string name="no_unread_messages">ئوقۇلمىغان ئۇچۇر يوق</string>
+    <string name="send_media">ۋاسىتە ئەۋەتىش</string>
+    <string name="rotate">ئايلاندۇرۇش</string>
+    <string name="remove">ئۆچۈرۈش</string>
+    <string name="item_already_added">بۇ تۈر ئاللىبۇرۇن قوشۇلغان.</string>
+    <string name="password_too_short" tools:ignore="PluralsCandidate">ئەڭ ئاز %d ھەرپ.</string>
+    <string name="mark_read">ئوقۇلدى دەپ بەلگىلەش</string>
+    <string name="attach_document">ھۆججەت</string>
+    <string name="parent_directory">ئۈستى مۇندەرىجە</string>
+    <string name="file_placeholder">ھۆججەت</string>
+    <string name="internal_storage">ئىچكى ساقلىغۇچ</string>
+    <string name="no_activity_for_mime_type">بۇ ھۆججەتنى ئاچىدىغان دېتال تېپىلمىدى.</string>
+    <string name="no_activity_for_intent">دېتال تېپىلمىدى.</string>
+    <string name="open_from">بۇ يەردىن ئېچىش</string>
+    <string name="mime_android_apk">Android بوغچىسى</string>
+    <string name="mime_audio">ئۈن ھۆججىتى</string>
+    <string name="mime_certificate">رەقەملىك گۇۋاھنامە</string>
+    <string name="mime_codes">مەنبە كودى</string>
+    <string name="mime_compressed">ئارخىپ</string>
+    <string name="mime_contact">ئالاقەداش</string>
+    <string name="mime_event">كالېندار پائالىيىتى</string>
+    <string name="mime_font">خەت نۇسخىسى</string>
+    <string name="mime_image">رەسىم ھۆججىتى</string>
+    <string name="mime_pdf">PDF پۈتۈكى</string>
+    <string name="mime_presentation">سۇنۇلما</string>
+    <string name="mime_spreadsheet">جەدۋەل</string>
+    <string name="mime_text">تېكىست ھۆججىتى</string>
+    <string name="mime_video">سىن ھۆججىتى</string>
+    <string name="mime_word">تېكىست پۈتۈكى</string>
+    <string name="no_filename"><![CDATA[<ھۆججەت نامى يوق>]]></string>
+    <string name="send_as_files">ھۆججەت شەكلىدە ئەۋەتىش</string>
+    <string name="send_as_files_warning">پرېسلانمىغان ھۆججەت ۋە رەسىملەرنى يوللاش زور مىقداردا سانلىق مەلۇمات سەرپىياتى
+        كەلتۈرۈپ چىقىرىپ، يانفون مۇلازىمەت تەمىنلىگۈچىڭىز تەرىپىدىن قوشۇمچە ھەق ئېلىنىشىغا سەۋەب بولۇشى مۇمكىن. ھۆججەتلەرنى پەقەت WiFi
+        تورىدا چۈشۈرۈش ۋە يوللاشنى تەۋسىيە قىلىمىز.</string>
+    <string name="prefs_theme">لايىھە ئۇسلۇبى</string>
+    <string name="list_theme_light">ئاچ</string>
+    <string name="list_theme_dark">توق</string>
+    <string name="prefs_header_appearance">كۆرۈنۈش</string>
+    <string name="prefs_sum_passphrase">يەرلىك شىفىرلاشنى قۇلۇپتىن چىقىرىش ئۈچۈن ئىم سۆزى تەلەپ قىلىش</string>
+    <string name="prefs_title_masterkey_change_passphrase">ئىم سۆزىنى ئۆزگەرتىش</string>
+    <string name="storage_total">ئىچكى ساقلىغۇچتىكى بوشلۇق</string>
+    <string name="storage_threema">%s تەرىپىدىن ئىشلىتىلگەن</string>
+    <string name="storage_total_free">جەمئىي بوش بوشلۇق</string>
+    <string name="storage_total_in_use">ئىشلىتىلىۋاتىدۇ</string>
+    <string name="one_year">1 يىل</string>
+    <string name="six_months">6 ئاي</string>
+    <string name="three_months">3 ئاي</string>
+    <string name="one_month">1 ئاي</string>
+    <string name="one_week">1 ھەپتە</string>
+    <string name="everything">ھەممىسى</string>
+    <string name="delete_media_files_time">شۇ ۋاقىتتىن كونا ۋاسىتە ۋە ھۆججەتلەرنى ئۆچۈرۈش:</string>
+    <string name="storage_explain">بوش بوشلۇق يېتىشمىسە، ئورۇن بوشىتىش ئۈچۈن كونىراق شىفىرلانغان ۋاسىتە ھۆججەتلىرىنى
+        ئۆچۈرەلەيسىز. كىچىك رەسىملەر يەنىلا ساقلىنىپ قالىدۇ. بۇ ئاپتوماتىك جەريان ئەمەسلىكىگە دىققەت قىلىڭ. تۆۋەندىكى كۇنۇپكىلارنىڭ بىرىنى باسمىسىڭىز، ھېچنېمە ئۆچۈرۈلمەيدۇ.</string>
+    <string name="delete_data">سانلىق مەلۇماتنى ھازىر ئۆچۈرۈش</string>
+    <string name="delete_date_confirm_message">داۋاملاشتۇرسىڭىز، ھۆججەتلەر ئۆچۈرۈلۈپ، پەقەت كىچىك رەسىملەرلا
+        ساقلىنىپ قالىدۇ.</string>
+    <string name="storage_management">ساقلىغۇچ باشقۇرۇش</string>
+    <string name="media">ۋاسىتە</string>
+    <string name="prefs_storage_mgmt_title">ۋاسىتە، ھۆججەت ۋە ئۇچۇرلارنى تازىلاش</string>
+    <string name="num_messages">ئۇچۇر سانى</string>
+    <string name="delete_messages_explain">شۇ ۋاقىتتىن كونا ئۇچۇرلارنى ئۆچۈرۈش:</string>
+    <string name="delete_message">ئۇچۇرلارنى ھازىر ئۆچۈرۈش</string>
+    <string name="really_delete_messages">داۋاملاشتۇرسىڭىز، ئۇچۇرلار مەڭگۈلۈك ئۆچۈرۈلىدۇ. ئۇلارنى ئەسلىگە
+        كەلتۈرەلمەيسىز.</string>
+    <string name="messages_delete_explain">كونىراق ئۇچۇرلارنى پۈتۈنلەي ئۆچۈرۈۋەتسىڭىزمۇ بولىدۇ.</string>
+    <string name="backup_started">سانلىق مەلۇمات زاپاسى باشلاندى</string>
+    <string name="invalid_data">ئىناۋەتسىز سانلىق مەلۇمات. ئەۋەتكىلى بولمايدۇ.</string>
+    <string name="prefs_emoji_style">ئېموجى ئۇسلۇبى</string>
+    <string name="prefs_android_emojis">سىستېما ئېموجىلىرى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_default_emojis">${app_name_short} ئېموجىلىرى (كۆڭۈلدىكى)</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="android_emojis_warning">دىققەت: سىستېمىنىڭ ھەرپ توپلىمى ${app_name_short} قوللايدىغان بارلىق ئېموجىلارنى كۆرسىتەلمەسلىكى مۇمكىن.</string>
+    <string name="crop">كېسىش</string>
+    <string name="scan_id_mismatch_title">ID ماس كەلمىدى</string>
+    <string name="scan_id_mismatch_message">سىز سايلىغان ID سىز ساقلىغان ئالاقەداشقا ماس
+        كەلمەيدۇ.</string>
+    <string name="title_remove_picture">رەسىمنى ئۆچۈرۈش</string>
+    <string name="blocked">توسۇلغان</string>
+    <string name="name">نام</string>
+    <string name="privacy_policy">شەخسىي مەخپىيەت تۈزۈمى</string>
+    <string name="terms_of_service">مۇلازىمەت شەرتلىرى</string>
+    <string name="eula">ئاخىرقى ئىشلەتكۈچى ئىجازەت كېلىشىمى</string>
+    <string name="save_group_changes">گۇرۇپپا ئۆزگەرتىشلىرىنى ساقلامسىز؟</string>
+    <string name="prefs_title_fontsize">خەت چوڭلۇقى</string>
+    <string name="fontsize_normal">ئادەتتىكى</string>
+    <string name="fontsize_large">چوڭ</string>
+    <string name="fontsize_xlarge">بەك چوڭ</string>
+    <string name="no_app_for_location">بۇ ئۈسكۈنىدە خەرىتە دېتالى تېپىلمىدى</string>
+    <string name="prefs_sendlog">خاتىرە ئەۋەتىش</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sendlog_summary">مەسىلە كۆرۈلگەندە تەھلىل قىلىش ئۈچۈن خاتىرە ھۆججىتىنى ${company_name} غا ئەۋەتىش</string>
+    <string name="prefs_exportlog">خاتىرە چىقىرىش</string>
+    <string name="prefs_exportlog_summary">خاتىرە ھۆججىتىنى باشقا دېتال بىلەن ھەمبەھىرلەش</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_storage_required">ۋاسىتە ساقلاش ياكى ئەۋەتىش ئۈچۈن ${app_name} غا ساقلىغۇچقا يېتىش ئىجازىتى بېرىڭ.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_location_required">ئورۇن ئەۋەتىش ئۈچۈن ${app_name} غا ئورنىڭىزغا يېتىش ئىجازىتى بېرىڭ.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_contacts_required">ئالاقەداش ئەۋەتىش ئۈچۈن ${app_name} غا ئالاقەداشلارنى ئوقۇش ئىجازىتى بېرىڭ.</string>
+    <!-- "Thumbs up" should be translated by the name of the emoji 👍 -->
+    <string name="message_acknowledged">“چوڭ بارماق” ئەۋەتىلدى</string>
+    <!-- "Thumbs down" should be translated by the name of the emoji 👎 -->
+    <string name="message_declined">“تۆۋەن بارماق” ئەۋەتىلدى</string>
+    <string name="notifications_settings">ئۇقتۇرۇش تەڭشەكلىرى</string>
+    <string name="notifications_default">كۆڭۈلدىكى تەڭشەكلەر</string>
+    <string name="notifications_until">%s غىچە</string>
+    <string name="notifications_mute">ئاۋازى ئۆچۈرۈلگەن</string>
+    <string name="notifications_choose_sound">ئاۋاز تاللاش</string>
+    <string name="confirm_your_pin">PIN ئىڭىزنى جەزىملەڭ</string>
+    <string name="too_many_incorrect_attempts">خاتا سىناش بەك كۆپ. %s سېكۇنتتىن كېيىن قايتا سىناڭ.</string>
+    <string name="no_lockscreen_set">سىستېما ئېكران قۇلۇپى بەلگىلەنمىگەن.</string>
+    <string name="on">ئوچۇق</string>
+    <string name="off">ئېتىك</string>
+    <string name="new_wizard_select_country">دۆلىتىڭىزنى تاللاڭ</string>
+    <string name="new_wizard_lets_get_started">كېلىڭ باشلايلى!</string>
+    <string name="new_wizard_setup_threema">ھازىر تەڭشەش</string>
+    <!-- Label on call-to-action button in setup wizard when app is first opened, to allow the user to start setting up the app. ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_new_wizard_setup_threema">${app_name} نى تەڭشەش</string>
+    <string name="new_wizard_restore_id_backup">چىقىرىلغان ID نى ئەسلىگە كەلتۈرۈش</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="new_wizard_welcome">${app_name} غا خۇش كەلدىڭىز!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_move_finger">يېڭى ${app_name_short} ID ھاسىللاش ئۈچۈن بارمىقىڭىزنى ئېكراندا ھەرىكەتلەندۈرۈڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_this_is_your_id">بۇ سىزنىڭ ${app_name_short} ID ئىڭىز:</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_works_like_phone_number">${app_name_short} ID ئىڭىز خۇددى تېلېفون نومۇرىغا ئوخشاش ئىشلەيدۇ.\nئالاقەداشلىرىڭىز سىزنى بۇ ID ئارقىلىق تاپالايدۇ.</string>
+    <string name="new_wizard_choose_nickname">لەقەم تاللاش</string>
+    <string name="new_wizard_nickname_explain">ئالاقەداشلىرىڭىز ئۇقتۇرۇشلىرىدا لەقىمىڭىزنى كۆرىدۇ</string>
+    <string name="new_wizard_hint_enter_nickname">لەقەم كىرگۈزۈڭ</string>
+    <string name="new_wizard_help_your_friends_find_you">ئالاقەداشلىرىڭىزنىڭ سىزنى تېپىشىغا ياردەم قىلىڭ!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_link_mobile">يانفون نومۇرىڭىز ۋە/ياكى ئېلخىتىڭىزنى ${app_name_short} ID ئىڭىزغا باغلاڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_link_mobile_only">يانفون نومۇرىڭىزنى ${app_name_short} ID ئىڭىزغا باغلاڭ.</string>
+    <string name="new_wizard_hint_mobile_number">يانفون نومۇرى (ئىختىيارى)</string>
+    <string name="new_wizard_hint_email">ئېلخەت (ئىختىيارى)</string>
+    <string name="new_wizard_done_title">تامام بولدى!\nھەممىسى توغرىمۇ؟</string>
+    <string name="new_wizard_linked_to">باغلانغان</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_need_internet">بىردىنبىر ${app_name_short} ID ئىڭىزنى قۇرۇش ئۈچۈن مۇقىم ئىنتېرنېت ئۇلىنىشى كېرەك. قايتا سىناڭ.</string>
+    <string name="new_wizard_more_information">تېخىمۇ كۆپ ئۇچۇر</string>
+    <string name="message_details_message_id_copied">ئۇچۇر ID سى چاپلاش تاختىسىغا كۆچۈرۈلدى</string>
+    <string name="contact_details_id_copied">ID چاپلاش تاختىسىغا كۆچۈرۈلدى</string>
+    <string name="contact_details_nickname_copied">لەقەم چاپلاش تاختىسىغا كۆچۈرۈلدى</string>
+    <string name="generic_copied_to_clipboard_hint">چاپلاش تاختىسىغا كۆچۈرۈلدى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_use_id_as_nickname">${app_name_short} ID ئىڭىزنى لەقەم قىلىپ ئىشلىتەمسىز؟</string>
+    <string name="new_wizard_phone_email_invalid">سىز كىرگۈزگەن تېلېفون نومۇرى ياكى ئېلخەت ئادرېسى ئىناۋەتسىز.\nداۋاملاشتۇرۇشتىن بۇرۇن تۈزىتىڭ.</string>
+    <string name="new_wizard_phone_invalid">سىز كىرگۈزگەن تېلېفون نومۇرى ئىناۋەتسىز.\nداۋاملاشتۇرۇشتىن بۇرۇن تۈزىتىڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_fingerprint">بارمىقىڭىزنى ھەرىكەتلەندۈرۈش ئارقىلىق، سىز يېڭى بىردىنبىر ${app_name_short} ID ئىڭىزغا مۇناسىپ ئاچقۇچ جۈپىنى ھاسىللاشقا
+        ئىشلىتىلىدىغان تاسادىپىي سانلىق مەلۇمات (entropy دەپ ئاتىلىدۇ) ھاسىللايسىز. ئاچقۇچ جۈپى ئالاقەداشلىرىڭىزغا تارقىتىلىدىغان بىر <b>ئاممىۋى ئاچقۇچ</b> ۋە
+        تېلېفونىڭىزدا بىخەتەر ساقلىنىدىغان بىر <b>مەخپىي ئاچقۇچ</b> تىن تەركىب تاپىدۇ. ئالاقەداشلىرىڭىز سىزگە ئۇچۇرلارنى
+        ئاممىۋى ئاچقۇچىڭىز بىلەن شىفىرلايدۇ. پەقەت مەخپىي ئاچقۇچ ئىگىسىلا بۇ ئۇچۇرلارنى شىفىرسىزلىيالايدۇ، باشقا ھېچكىم قىلالمايدۇ.</string>
+    <string name="new_wizard_info_id">سىز يەنە ئاچقۇچ جۈپى قۇردىڭىز. ئاممىۋى ئاچقۇچ بىزنىڭ مۇلازىمېتىرلىرىمىزغا بىخەتەر
+        يوللاندى. مەخپىي ئاچقۇچ ئۈسكۈنىڭىزدىن ھەرگىز چىقمايدۇ. بۇ باشقا ھېچكىمنىڭ ئۇچۇرلىرىڭىزنى ئوقۇيالماسلىقىنى كاپالەتلەندۈرىدۇ.</string>
+    <string name="new_wizard_info_sync_contacts_dialog">ئالاقەداش ماسلاشتۇرۇش ئالاقەداشلىرىڭىزنى ئاپتوماتىك تېپىشىڭىزغا ياردەم بېرىدۇ. قوشۇلسىڭىز، تېلېفون دەپتىرىڭىزدىكى تېلېفون نومۇرلىرى ۋە ئېلخەت ئادرېسلىرى ماس ئالاقەداشلارنى ئىزدەش ئۈچۈن مۇلازىمېتىرىمىزغا ئەۋەتىلىشتىن بۇرۇن شىفىرلىنىدۇ. مۇتلەق ھېچقانداق سانلىق مەلۇمات ساقلانمايدۇ ياكى ھەمبەھىرلەنمەيدۇ.\n\nئالاقەداش ماسلاشتۇرۇشنى قوزغىتامسىز؟</string>
+    <!-- Instructions shown during the setup wizard. Only used for work builds (i.e., Threema Work or OnPrem). ${app_name_short} is a placeholders for the app's name, it must be kept as-is and should not be translated. -->
+    <string name="new_wizard_info_link">تېلېفون نومۇرى ۋە ئېلخەت ئادرېسىڭىزنى تەمىنلىسىڭىز، ئالاقەداشلىرىڭىز سىزنى تېلېفون ئادرېس دەپتىرىدە ساقلىغان بولسا، ${app_name_short} ئۇلارنىڭ سىزنى ئاپتوماتىك تېپىشىغا ياردەم بېرەلەيدۇ. سانلىق مەلۇمات مۇلازىمېتىرىمىزدا بىر تەرەپلىمە شىفىرلانغان (hashed) شەكىلدە ساقلىنىدۇ. ئەگەر ${app_name} نى پۈتۈنلەي ئاتسىز ئىشلەتمەكچى بولسىڭىز، بۇ باسقۇچنى ئاتلاپ ئۆتسىڭىزمۇ بولىدۇ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_link_phone_only">تېلېفون نومۇرىڭىزنى تەمىنلىسىڭىز، ئالاقەداشلىرىڭىز سىزنى تېلېفون ئادرېس دەپتىرىدە ساقلىغان بولسا،
+        ${app_name_short} ئۇلارنىڭ سىزنى ئاپتوماتىك تېپىشىغا ياردەم بېرەلەيدۇ. نومۇر مۇلازىمېتىرىمىزدا
+        بىر تەرەپلىمە شىفىرلانغان (hashed) شەكىلدە ساقلىنىدۇ. ئەگەر ${app_name_short} نى پۈتۈنلەي ئاتسىز ئىشلەتمەكچى
+        بولسىڭىز، بۇ باسقۇچنى ئاتلاپ ئۆتسىڭىزمۇ بولىدۇ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_nickname">لەقەم بەزى ئۈسكۈنىلەردە push ئۇقتۇرۇشلىرىدا ياكى سىزنى تېخى ئادرېس دەپتىرىگە
+        قوشمىغان ئىشلەتكۈچىلەرگە تونۇشتۇرۇشنىڭ قوشۇمچە ۋاسىتىسى سۈپىتىدە ئىشلىتىلىدۇ. پەقەت ئىسمىڭىزنى ياكى
+        تەخەللۇسنى تەمىنلەشنى تەۋسىيە قىلىمىز. ئەگەر لەقەم بەلگىلىمىسىڭىز، كۆڭۈلدىكى ھالەتتە ${app_name_short} ID ئىڭىزنى ئىشلىتىمىز.</string>
+    <string name="not_linked">باغلانمىغان</string>
+    <string name="linked">باغلانغان</string>
+    <string name="pending_sms_verification_notice">يانفون نومۇرىڭىز تېخى دەلىللەنمىگەن.</string>
+    <string name="no_sms_received">قىسقا ئۇچۇر كەلمىدىمۇ؟</string>
+    <string name="really_cancel_verify">يانفون نومۇرى دەلىللەشنى راستىنلا توختىتامسىز؟</string>
+    <string name="verification_of">%s نى دەلىللەش</string>
+    <string name="status_ballot_voting_changed">“%1$s” سوئالنامىسىگە يېڭى رەي كەلدى</string>
+    <string name="status_ballot_user_first_vote">“%1$s” “%2$s” غا رەي بەردى</string>
+    <string name="status_ballot_user_modified_vote">“%1$s” “%2$s” غا بەرگەن رەيىنى ئۆزگەرتتى</string>
+    <string name="status_ballot_all_votes">“%1$s” ئۈچۈن رەيلەر تاماملاندى</string>
+    <string name="restore">ئەسلىگە كەلتۈرۈش</string>
+    <!-- Shown in prompt dialog during the setup wizard. Only used for work builds (i.e. Threema Work and OnPrem). ${app_name} and ${app_name_short} are placeholders for the app's name, they must be kept as-is and not translated. -->
+    <string name="new_wizard_anonymous_confirm">سىز ${app_name_short} ID ئىڭىزغا باغلاش ئۈچۈن يانفون نومۇرى ياكى ئېلخەت ئادرېسى كىرگۈزمىدىڭىز. سىز ئالاقەداش تىزىملىكلىرىدە كۆرۈنمەيسىز. ${app_name} نى راستىنلا ئاتسىز ئىشلىتەمسىز؟</string>
+    <!-- ${app_name} and ${app_name_short} are placeholders for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_anonymous_confirm_phone_only">سىز ${app_name_short} ID ئىڭىزغا باغلاش ئۈچۈن تېلېفون نومۇرى كىرگۈزمىدىڭىز. شۇڭا ئالاقەداش تىزىملىكلىرىگە ئاپتوماتىك قوشۇلمايسىز. ${app_name} نى راستىنلا ئاتسىز ئىشلىتەمسىز؟</string>
+    <string name="new_wizard_scan_id_backup">ياكى ID چىقىرىشىڭىزنىڭ QR كودىنى سايلەڭ</string>
+    <string name="error_saving_file">بەزى ھۆججەتلەرنى ساقلىغىلى بولمىدى</string>
+    <string name="wait_one_minute">چاقىرىق تەلەپ قىلىشتىن بۇرۇن قىسقا ئۇچۇرنىڭ كېلىشى ئۈچۈن كەم دېگەندە 10 مىنۇت كۈتۈڭ.</string>
+    <string name="backup_id">چىقىرىلغان ID</string>
+    <string name="backup_data">سانلىق مەلۇمات زاپاسى</string>
+    <string name="action_delete_group">گۇرۇپپىنى ئۆچۈرۈش</string>
+    <string name="action_leave_and_delete_group">گۇرۇپپىدىن چىقىپ ئۆچۈرۈش</string>
+    <string name="action_dissolve_and_delete_group">گۇرۇپپىنى تارقىتىپ ئۆچۈرۈش</string>
+    <string name="delete_my_group_message">بۇ گۇرۇپپىنى راستىنلا پۈتۈنلەي ئۆچۈرەمسىز؟ بارلىق ئۇچۇرلار ئۆچۈرۈلىدۇ ۋە قالغان ئەزالار گۇرۇپپىنى قايتا ئىشلىتەلمەيدۇ.</string>
+    <string name="configure">سەپلەش</string>
+    <string name="disabled_by_policy">بەزى تەڭشەكلەر باشقۇرغۇچى تەرىپىدىن چەكلەنگەن</string>
+    <string name="select_all">ھەممىنى تاللاش</string>
+    <string name="deleting_messages">ئۇچۇرلار ئۆچۈرۈلۈۋاتىدۇ</string>
+    <string name="media_gallery_files">ھۆججەتلەر</string>
+    <string name="prefs_gif_autoplay">ھەرىكەتلىك رەسىملەرنى ئاپتوماتىك قويۇش</string>
+    <string name="media_gallery_audio">ئاۋازلىق ئۇچۇرلار</string>
+    <string name="action_clone_group">گۇرۇپپىنى كۆچۈرۈش</string>
+    <string name="clone_group_message">بۇ، سىزنى باشقۇرغۇچى قىلىپ بۇ گۇرۇپپىنىڭ كۆچۈرمىسىنى قۇرىدۇ. داۋاملاشتۇرامسىز؟</string>
+    <string name="prefs_proximity_sensor">يېقىنلىق سەزگۈرىنى ئىشلىتىش</string>
+    <string name="prefs_proximity_sensor_explain">يېقىنلىق سەزگۈرى يېپىلسا ئاۋازلىق ئۇچۇر قويۇش ئۈچۈن قۇلاق ئاۋازچىسىنى ئىشلىتىش</string>
+    <string name="error_creating_group_network">گۇرۇپپا قۇرۇلمىدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <string name="error_creating_group_internal">ئىچكى خاتالىق سەۋەبىدىن گۇرۇپپا قۇرۇلمىدى. كېيىن قايتا سىناڭ.</string>
+    <string name="error_cloning_group_network">گۇرۇپپا كۆچۈرۈلمىدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <string name="error_cloning_group_internal">ئىچكى خاتالىق سەۋەبىدىن گۇرۇپپا كۆچۈرۈلمىدى. كېيىن قايتا سىناڭ.</string>
+    <string name="error_updating_group_network">ئۆزگەرتىشلەرنى قوللىنىشقا بولمىدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <string name="error_updating_group_internal">ئىچكى خاتالىق سەۋەبىدىن ئۆزگەرتىشلەرنى قوللىنىشقا بولمىدى. كېيىن قايتا سىناڭ.</string>
+    <string name="error_leaving_group_network">گۇرۇپپىدىن چىقىلمىدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <string name="error_leaving_group_internal">ئىچكى خاتالىق سەۋەبىدىن گۇرۇپپىدىن چىقىلمىدى. كېيىن قايتا سىناڭ.</string>
+    <string name="error_disbanding_group_network">گۇرۇپپا تارقىتىلمىدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <string name="error_disbanding_group_internal">ئىچكى خاتالىق سەۋەبىدىن گۇرۇپپا تارقىتىلمىدى. كېيىن قايتا سىناڭ.</string>
+    <string name="error_removing_group_network">گۇرۇپپا ئۆچۈرۈلمىدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <string name="error_removing_group_internal">ئىچكى خاتالىق سەۋەبىدىن گۇرۇپپا ئۆچۈرۈلمىدى. كېيىن قايتا سىناڭ.</string>
+    <string name="error_resyncing_group_network">گۇرۇپپا قايتا ماسلاشتۇرۇلمىدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <string name="error_resyncing_group_internal">ئىچكى خاتالىق سەۋەبىدىن گۇرۇپپا قايتا ماسلاشتۇرۇلمىدى. كېيىن قايتا سىناڭ.</string>
+    <string name="no_media_found_generic">بۇ ئەڭگىمەدە تاللاشقا ماس كېلىدىغان ۋاسىتە تېپىلمىدى.</string>
+    <string name="max_images_reached">بىر قېتىمدا ئەڭ كۆپ %d تۈر تەھرىرلىگىلى بولىدۇ</string>
+    <string name="enter_description">كەمتۈكلۈك/مەسىلىنى بۇ يەردە چۈشەندۈرۈڭ.</string>
+    <string name="add_caption_hint">ئىختىيارى ئىزاھات قوشۇڭ</string>
+    <string name="disable">چەكلەش</string>
+    <string name="continue_anyway">شۇنداقتىمۇ داۋاملاشتۇرۇش</string>
+    <string name="invalid_input">ئىناۋەتسىز كىرگۈزۈش</string>
+    <string name="already_licensed">ئاللىبۇرۇن ئىجازەتلەنگەن</string>
+    <string name="hide_chat">شەخسىي ئەڭگىمەلەر</string>
+    <string name="really_hide_chat_message">بۇ ئەڭگىمەنى شەخسىي دەپ بەلگىلەمسىز؟ تىزىملىكنى ئىشلىتىپ ئۇچۇر تىزىملىكىدە شەخسىي ئەڭگىمەلەرنىڭ كۆرۈنۈشىنى ئالماشتۇرۇڭ.</string>
+    <string name="chat_hidden">ئەڭگىمە شەخسىي دەپ بەلگىلەندى</string>
+    <string name="title_show_private_chats">شەخسىي ئەڭگىمەلەرنى كۆرسىتىش</string>
+    <string name="title_hide_private_chats">شەخسىي ئەڭگىمەلەرنى يوشۇرۇش</string>
+    <string name="chat_visible">ئەڭگىمە ئەمدى شەخسىي ئەمەس</string>
+    <string name="prefs_title_locking_mechanism">قۇلۇپلاش مېخانىزمى</string>
+    <string name="lock_option_none">يوق</string>
+    <string name="lock_option_pin">PIN</string>
+    <string name="lock_option_screenlock">سىستېما ئېكران قۇلۇپى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="hide_chat_message_explain">${app_name_short} مەلۇم ئەڭگىمەلەرنى PIN بىلەن قوغداش ۋە ئۇچۇر تىزىملىكىڭىزدىن ۋاقتىنچە يوشۇرۇشقا يول قويىدۇ. شەخسىي ئەڭگىمەلەرنى قوزغىتىش ئۈچۈن، تەڭشەكتە PIN بەلگىلەڭ ياكى سىستېما ئېكران قۇلۇپىنى قوزغىتىڭ.</string>
+    <string name="set_lock">ھازىر تەڭشەش</string>
+    <string name="prefs_title_access_protection">كىرىش قوغدىشى</string>
+    <string name="private_chat_subject">شەخسىي</string>
+    <string name="grace_thirty_seconds">30 سېكۇنت</string>
+    <string name="grace_one_minute">1 مىنۇت</string>
+    <string name="grace_two_minutes">2 مىنۇت</string>
+    <string name="grace_five_minutes">5 مىنۇت</string>
+    <string name="grace_ten_minutes">10 مىنۇت</string>
+    <string name="grace_thirty_minutes">30 مىنۇت</string>
+    <string name="grace_never">ھەرگىز (قولدا)</string>
+    <string name="never">ھەرگىز</string>
+    <string name="access_protection_private_chats_warning">كىرىش قوغدىشىنى ئۆچۈرسىڭىز، بارلىق شەخسىي ئەڭگىمەلىرىڭىز قايتا كۆرۈنىدۇ.</string>
+    <string name="verification_started">دەلىللەش باشلاندى</string>
+    <string name="cannot_open_file">ھۆججەتنى ئاچقىلى بولمىدى</string>
+    <string name="prefs_title_image_attach_previews">ۋاسىتە تېز تاللاش</string>
+    <string name="prefs_sum_image_attach_previews">قوشۇمچە كۆرسەتمە كۆزنىكىدە يېقىندا قوشۇلغان رەسىملەر تىزىملىكىنى كۆرسىتىش</string>
+    <string name="prefs_title_direct_share">بىۋاسىتە ھەمبەھىرلەش</string>
+    <string name="prefs_sum_direct_share">باشقا دېتاللاردىن ھەمبەھىرلىگەندە يېقىنقى ئەڭگىمەلەرنى كۆرسىتىش</string>
+    <string name="restore_disable_energy_saving">ئۈسكۈنىڭىزنى زاپاسلاش ياكى ئەسلىگە كەلتۈرۈش جەريانىنى ئۈزۈپ قويۇشنىڭ ئالدىنى ئېلىش ئۈچۈن، ئۈسكۈنىڭىزنى توك مەنبەسىگە ئۇلاپ، بارلىق توك ئۈنۈملەشتۈرۈش تاللانمىلىرىنى چەكلەڭ.</string>
+    <string name="draft">دەسلەپكى نۇسخا</string>
+    <string name="prefs_bigger_single_emojis">يەككە ئېموجىلارنى چوڭراق كۆرسىتىش</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard1_sync_work">${app_name} سانلىق مەلۇماتى ماسلاشتۇرۇلۇۋاتىدۇ…</string>
+    <string name="notification_hidden_text">مەزمۇن يوشۇرۇلغان</string>
+    <string name="really_reset_ringtones">ئۇقتۇرۇش ئاۋازى تەڭشەكلىرىنى راستىنلا كۆڭۈلدىكىگە قايتۇرامسىز؟</string>
+    <string name="reset_ringtones_confirm">ئۇقتۇرۇش ئاۋازى تەڭشەكلىرى ئەسلىگە قايتۇرۇلدى.</string>
+    <string name="prefs_language_override">تىل</string>
+    <!-- ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
+    <string name="threema_channel_intro">${app_name_short} قانىلى سىزگە ${app_name_short} غا مۇناسىۋەتلىك بارلىق خەۋەرلەرنى يەتكۈزىدۇ. ${app_name_short} قانىلىغا مۇشتەرى بولۇپ، ئۇنى ئالاقەداشلىرىڭىزغا قوشامسىز؟ ئۇ ھەقسىز ۋە خالىغان ۋاقىتتا مۇشتەرىلىكنى توختىتالايسىز.</string>
+    <string name="quote">نەقىل</string>
+    <string name="contacts_deleted">ئالاقەداشلار ئۆچۈرۈلدى</string>
+    <string name="take_photo">سۈرەتكە ئېلىش</string>
+    <string name="select_from_gallery">گالېرىيەدىن تاللاش</string>
+    <string name="palette">رەڭ تاختىسى</string>
+    <string name="stickers">چاپلاقلار</string>
+    <string name="text">تېكىست</string>
+    <string name="undo">يېنىۋېلىش</string>
+    <string name="android_backup_date">ئاخىرقى زاپاس</string>
+    <string name="discard">تاشلىۋېتىش</string>
+    <string name="android_backup_restart_threema">كۈتۈپ تۇرۇڭ. دېتال بىر نەچچە سېكۇنتتىن كېيىن قايتا قوزغىلىدۇ.</string>
+    <string name="battery_optimizations_title">توك ئۈنۈملەشتۈرۈشنى چەكلەش</string>
+    <string name="battery_optimizations_explain">توك ئۈنۈملەشتۈرۈش تېلېفونىڭىز ئۇيقۇ ھالىتىگە كىرگەندە %1$s نىڭ نورمال ئىشلىشىگە توسقۇنلۇق قىلىدۇ. %2$s ئۈچۈن توك ئۈنۈملەشتۈرۈشنى چەكلەڭ.</string>
+    <string name="battery_optimizations_disable_guide">تاشلانما تىزىملىكتىن “بارلىق دېتاللار” نى تاللاڭ</string>
+    <string name="battery_optimizations_disable_guide_ctd">تىزىملىكتىن %s نى ئىزدەپ، ئۈنۈملەشتۈرۈشنى چەكلەڭ</string>
+    <string name="enter_text_hint">تېكىست كىرگۈزۈڭ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_explain_text">ئۈسكۈنىڭىزنى ئالماشتۇرسىڭىز ياكى يوقىتىپ قويسىڭىز، زاپاسىڭىز بولمىسا ھېچكىم ${app_name_short} ID ئىڭىز ياكى ئەڭگىمەلىرىڭىزنى ئەسلىگە كەلتۈرەلمەيدۇ. مۇناسىپ زاپاس تاللانمىلىرى ئارقىلىق سانلىق مەلۇماتلىرىڭىزنى ساقلاڭ.</string>
+    <string name="data_backup_explain">سانلىق مەلۇمات زاپاسلىرى تۆۋەندىكىلەرنى ئۆز ئىچىگە ئالىدۇ:\n\n&#9679; ID ئىڭىز ۋە ئاچقۇچ جۈپىڭىز\n&#9679; ئالاقەداشلار ۋە ئىشەنچ دەرىجىلىرى\n&#9679; گۇرۇپپا ئەزالىقلىرى\n&#9679; ئەڭگىمەلەر\n&#9679; ۋاسىتە ۋە ھۆججەتلەر (ئىختىيارى)\n\nسانلىق مەلۇمات شىفىرلانغان ZIP ھۆججىتىگە ساقلىنىدۇ. زاپاس مۇۋەپپەقىيەتلىك تاماملانغاندىن كېيىن ھۆججەتنى ئۈسكۈنىدىن باشقا جايغا يۆتكەش تەۋسىيە قىلىنىدۇ.</string>
+    <string name="draw">سىزىش</string>
+    <string name="edit">تەھرىرلەش</string>
+    <string name="edit_message">ئۇچۇرنى تەھرىرلەش</string>
+    <string name="edited">تەھرىرلەنگەن</string>
+    <string name="confirm_edit_desc">تەھرىرنى جەزىملەش</string>
+    <string name="edit_history">تەھرىرلەش تارىخى</string>
+    <string name="discard_changes">ئۆزگەرتىشلەرنى تاشلىۋېتەمسىز؟</string>
+    <string name="prefs_title_network">تور</string>
+    <string name="prefs_title_ipv6_preferred">ئۇچۇرلار ئۈچۈن IPv6</string>
+    <string name="prefs_ipv6_preferred_off">پەقەت IPv4 ئۇلىنىشلىرىنى ئىشلىتىش</string>
+    <string name="prefs_ipv6_preferred_on">IPv6 ئۇلىنىشلىرىنى IPv4 دىن ئەۋزەل كۆرۈش</string>
+    <string name="prefs_title_ipv6_webrtc_allowed">چاقىرىق ۋە تور ئۈچۈن IPv6</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_ipv6_webrtc_allowed_on">${app_name_short} چاقىرىقلىرى ۋە كومپيۇتېر دېتالى / تور خېرىدارى ئۈچۈن IPv6 غا يول قويۇش.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_ipv6_webrtc_allowed_off">${app_name_short} چاقىرىقلىرى ۋە كومپيۇتېر دېتالى / تور خېرىدارى ئۈچۈن IPv6 غا يول قويماسلىق</string>
+    <string name="ipv6_requires_restart">بۇ تەڭشەكنى قوللىنىش ئۈچۈن دېتالنى قايتا قوزغىتىش كېرەك.</string>
+    <string name="ipv6_restart_now">ھازىر قايتا قوزغىتىش</string>
+    <string name="on_cap">ئوچۇق</string>
+    <string name="off_cap">ئېتىك</string>
+    <string name="share_chat">ئەڭگىمەنى ھەمبەھىرلەش</string>
+    <string name="flip">ئۆرۈش</string>
+    <string name="to_front">ئالدىغا</string>
+    <string name="play">قويۇش</string>
+    <string name="pause">ۋاقىتلىق توختىتىش</string>
+    <string name="retry">قايتا سىناش</string>
+    <string name="voice_message">ئاۋازلىق ئۇچۇر</string>
+    <string name="voice_message_record">ئاۋازلىق ئۇچۇر خاتىرىلەش</string>
+    <string name="open_navdrawer">يول باشلاش تارتمىسىنى ئېچىش</string>
+    <string name="profile_picture">سەپلىمە رەسىمى</string>
+    <string name="profile_picture_release">سەپلىمە رەسىمىڭىزنى كىم كۆرەلەيدۇ؟</string>
+    <string name="picrelease_nobody">ھېچكىم</string>
+    <string name="picrelease_selected">تاللانغان ئالاقەداشلار</string>
+    <string name="picrelease_everyone">ئۇچۇر يازغان ھەركىم</string>
+    <string name="prefs_title_receive_profilepics">سەپلىمە رەسىملىرىنى كۆرسىتىش</string>
+    <string name="prefs_sum_receive_profilepics_off">ئالاقەداشلىرىڭىز تەمىنلىگەن سەپلىمە رەسىملىرىنى يوشۇرۇش</string>
+    <string name="prefs_sum_receive_profilepics_on">ئالاقەداشلىرىڭىز تەمىنلىگەن سەپلىمە رەسىملىرىنى كۆرسىتىش</string>
+    <string name="prefs_sum_receive_profilepics_recipients_list">بۇ تىزىملىكتە تاللانغان ئالاقەداشلار ئۇلارغا ئۇچۇر ئەۋەتكىنىڭىزدە سەپلىمە رەسىمىڭىزنى تاپشۇرۇۋالىدۇ.</string>
+    <string name="menu_send_profilpic">سەپلىمە رەسىمى تاپشۇرۇۋالغۇچى قىلىپ قوشۇش</string>
+    <string name="menu_send_profilpic_off">سەپلىمە رەسىمى تاپشۇرۇۋالغۇچىدىن چىقىرىش</string>
+    <string name="menu_send_profilpic_now">سەپلىمە رەسىمىنى ھازىر ئەۋەتىش</string>
+    <string name="sending_messages">ئەۋەتىلىۋاتىدۇ…</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_data_media_confirm">چوڭ ۋاسىتە ھۆججەتلىرىنى يەرلىك ZIP زاپاسىغا ساقلاش ئۈسكۈنىڭىزنىڭ CPU ۋە ئەسلەك سىغىمىدىن ئېشىپ كېتىشى ۋە ناھايىتى ئۇزۇن ۋاقىت ئېلىشى مۇمكىن. زاپاسلاش جەريانىدا ${app_name} ئۇچۇر ئەۋەتمەيدۇ ۋە تاپشۇرۇۋالمايدۇ. شۇنداقتىمۇ داۋاملاشتۇرامسىز؟</string>
+    <string name="backup_data_cancelled">زاپاسلاش بىكار قىلىندى</string>
+    <string name="message_sent">ئۇچۇر ئەۋەتىلدى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_call">${app_name_short} چاقىرىقى</string>
+    <string name="threema_message_to">%s غا ئۇچۇر</string>
+    <string name="threema_call_with">%s نى چاقىرىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_voip">${app_name_short} چاقىرىقلىرى</string>
+    <string name="prefs_title_force_turn">چاقىرىقلارنى دائىم ئۆتكۈزۈش</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_force_turn_off">ئىمكان بولسا بىۋاسىتە ئۇلىنىش ئورنىتىپ، پەقەت دەلىللەنمىگەن ئالاقەداشلارغا قىلىنغان چاقىرىقلارنىلا ${company_name} مۇلازىمېتىرلىرى ئارقىلىق ئۆتكۈزۈش. IP ئادرېسىڭىزنى ئاشكارىلىشى مۇمكىن.</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_force_turn_on">بارلىق چاقىرىقلارنى ${company_name} مۇلازىمېتىرلىرى ئارقىلىق ئۆتكۈزۈشكە مەجبۇرلاش، IP ئادرېسىڭىزنى قوغداش. چاقىرىق سۈپىتىگە تەسىر يەتكۈزۈشى مۇمكىن.</string>
+    <string name="permission_record_audio_required">شىفىرلانغان چاقىرىق قىلىش ۋە ئاۋازلىق ئۇچۇر ئەۋەتىش ئۈچۈن مىكروفونغا يېتىشكە يول قويۇڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_voice_call_notifications">${app_name_short} چاقىرىقلىرى</string>
+    <string name="prefs_voice_call_sound">جىرىڭلىما</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_voice_call_sound">كىرىۋاتقان ${app_name_short} چاقىرىقلىرى ئۈچۈن جىرىڭلىما تاللاش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_voice_call_vibrate">كىرىۋاتقان ${app_name_short} چاقىرىقلىرىدا تەۋرىنىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_voip_enable">${app_name_short} چاقىرىقلىرىنى قوزغىتىش</string>
+    <string name="webclient_invalid_push_token_message">قولدا باشلاش كېرەك</string>
+    <string name="threema_work_contact">Threema Work ئالاقەداشى</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_phone_required">${app_name} چاقىرىقىنى ئىشلىتىۋاتقاندا تېلېفون چاقىرىقلىرىنى باشقۇرۇشقا ئىجازەت بېرىڭ</string>
+    <string name="strikethrough">سىزىپ ئۆچۈرۈش</string>
+    <string name="italic">يانتۇ</string>
+    <string name="bold">توم</string>
+    <string name="shortcut_choice_title">… ئۈچۈن تېزلەتمە قۇرۇش</string>
+    <string name="notifications_disabled_title">ئۇقتۇرۇشلار چەكلەنگەن</string>
+    <string name="error_attaching_files">قوشۇمچە قوشۇشتا خاتالىق كۆرۈلدى.</string>
+    <string name="prefs_fix_powermanager_problems">توك چەكلىمىلىرىنى چەكلەش</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_fix_powermanager_problems_desc">${app_name} نىڭ ئارقا سۇپىدا ئىجرا بولۇشىغا يول قويۇپ، ئاكتىپ بولمىغاندىمۇ ئۇچۇر تاپشۇرۇۋالالايدىغان قىلىش.</string>
+    <string name="disable_powermanager_explain">كېيىنكى ئېكراندا، “%s” نىڭ تېلېفونىڭىزنىڭ ھەرقانداق توك باشقۇرۇش چەكلىمىلىرىدىن قوغدالغان ياكى ئايرىلغانلىقىنى جەزىملەشتۈرۈڭ. تاماملانغاندا “قايتىش” كۇنۇپكىسىنى بېسىڭ.</string>
+    <string name="disable_autostart_explain">كېيىنكى ئېكراندا، “%s” نىڭ ئاپتوماتىك قوزغىلالايدىغان دېتاللار تىزىملىكىدە بارلىقىنى جەزىملەشتۈرۈڭ. تاماملانغاندا “قايتىش” كۇنۇپكىسىنى بېسىڭ.</string>
+    <string name="notification_priority_default">تۆۋەن</string>
+    <string name="notification_priority_high">يۇقىرى</string>
+    <string name="notification_priority_max">ئەڭ يۇقىرى</string>
+    <string name="prefs_title_notification_priority">ئالدىنلىق</string>
+    <string name="pin">قىستۇرۇش</string>
+    <string name="unpin">قىستۇرۇشنى ئەمەلدىن قالدۇرۇش</string>
+    <string name="location_services_disabled">ئورۇن مۇلازىمەتلىرى چەكلەنگەن. ھازىر قوزغىتامسىز؟</string>
+    <string name="send_location">ئورۇن ئەۋەتىش</string>
+    <string name="forward_location">ئورۇننى يوللاش</string>
+    <string name="unknown_address">نامەلۇم ئادرېس</string>
+    <string name="your_location">ئورنىڭىز</string>
+    <string name="reply_later">كېيىن سۆزلىشەيلى</string>
+    <string name="reply_on_my_way">يولدا كېلىۋاتىمەن</string>
+    <string name="reply_thank_you">رەھمەت</string>
+    <string name="reply_youre_welcome">ئەرزىمەيدۇ</string>
+    <string name="prefs_auto_download_title">ۋاسىتىنى ئاپتوماتىك چۈشۈرۈش</string>
+    <string name="prefs_auto_download_wifi">WiFi دا</string>
+    <string name="prefs_auto_download_mobile">يانفون سانلىق مەلۇماتىدا</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rate_intro">${app_name} نى قانداق باھالايسىز؟</string>
+    <string name="rate_feedback_intro">ياخشىلىشىمىز ئۈچۈن نېمە قىلسەك بولىدىغانلىقىنى بىزگە بىلدۈرۈڭ (ئىختىيارى).</string>
+    <string name="rate_positive">باھا ئەۋەتىش</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rate_title">${app_name} نى باھالاش</string>
+    <string name="rate_thank_you">باھاڭىزغا رەھمەت!</string>
+    <string name="disabled_by_policy_short">ئىقتىدار باشقۇرغۇچى تەرىپىدىن چەكلەنگەن</string>
+    <string name="rate_forward_to_play_store">Google Play دىمۇ بىزنى باھالامسىز؟</string>
+    <string name="rate_error">باھاڭىزنى مۇلازىمېتىرغا ئەۋەتكىلى بولمىدى. قايتا سىناشتىن بۇرۇن ئىنتېرنېتقا ئۇلانغانلىقىڭىزنى جەزىملەشتۈرۈڭ.</string>
+    <string name="off_unless_i_was_mentioned">ئوچۇق، مەن تىلغا ئېلىنمىسام</string>
+    <string name="dnd">مالايماڭ</string>
+    <string name="minus">مىنۇس</string>
+    <string name="plus">پليۇس</string>
+    <string name="switched_off">ئېتىك</string>
+    <string name="switched_on">ئوچۇق</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_tab_work_users">${app_name} ئىشلەتكۈچىلىرى</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="no_matching_work_contacts">باشقۇرغۇچى دەلىللىگەن ${app_name} ئالاقەداشى تېپىلمىدى</string>
+    <string name="all">ھەممىسى</string>
+    <string name="webclient_session_stop_all">ھەممىنى تاقاش</string>
+    <string name="passphrase_service_name">ئىم سۆزى مۇلازىمىتى</string>
+    <string name="passphrase_service_description">ئىم سۆزى قۇلۇپتىن چىقىرىلغاندىكى ئۇقتۇرۇش</string>
+    <string name="webclient_service_description">تور/كومپيۇتېر ئەڭگىمەسى ئاكتىپ بولغاندىكى ئۇقتۇرۇش</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="privacy_policy_explain">${app_name} شەخسىي مەخپىيىتىڭىزنى باشقا ھەرقانداق ئۇچۇر دېتالىدىن قاتتىق قوغدايدۇ. تېخىمۇ كۆپ ئۇچۇرنى %1$s دىن كۆرۈڭ.</string>
+    <string name="prefs_title_incognito_keyboard">يوشۇرۇن كۇنۇپكا تاختىسى تەلەپ قىلىش</string>
+    <string name="prefs_sum_incognito_keyboard">شەخسىيلەشتۈرۈلگەن تەۋسىيەلەر ئۈچۈن سانلىق مەلۇمات توپلاشنى چەكلەش (كۇنۇپكا تاختىسى قوللىسا)</string>
+    <string name="call_ongoing">داۋاملىشىۋاتقان چاقىرىق</string>
+    <string name="ballot_received_votes">تاپشۇرۇۋالغان رەي سانى: %1$d/%2$d</string>
+    <string name="quote_not_found">نەقىل ئۇچۇرى تېپىلمىدى</string>
+    <string name="ballot_secret">مەخپىي</string>
+    <string name="password_too_short_generic">ئىم بەك قىسقا</string>
+    <string name="passwords_dont_match">ئىملار ماس كەلمىدى</string>
+    <!-- Error message shown when setting up a custom server for the Threema Safe feature. %s is a placeholder for the details of the error. -->
+    <string name="threema_safe_test_unsuccessful">سىناق مۇۋەپپەقىيەتسىز: %s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="preparing_threema_safe">${app_name_short} Safe تەييارلىنىۋاتىدۇ</string>
+    <string name="disable_powermanager_title">توك چەكلىمىلىرى</string>
+    <string name="disable_autostart_title">ئاپتوماتىك قوزغىلىش</string>
+    <string name="unchanged">ئۆزگەرتىلمىگەن</string>
+    <string name="safe_learn_more_button">تېخىمۇ كۆپ بىلىش</string>
+    <string name="safe_enable_explain">پاراڭلىشىش ئۈچۈن لازىملىق ھەممە نەرسە پەقەت ئۈسكۈنىڭىزدىلا ساقلىنىدۇ. بىزدە ھېساباتىڭىز يوق، شۇڭا تېلېفونىڭىزنى يوقىتىپ قويسىڭىز ياكى سانلىق مەلۇماتلىرىڭىزنى تاسادىپىي ئۆچۈرۈۋەتسىڭىز سىزگە ياردەم بېرەلمەيمىز.\n\n${app_name_short} Safe بارلىق مۇھىم سانلىق مەلۇماتلارنىڭ، جۈملىدىن ئاچقۇچلىرىڭىز، ئالاقەداش تىزىملىكىڭىز ۋە گۇرۇپپا ئەزالىقلىرىڭىزنىڭ (لېكىن ئۇچۇر مەزمۇنى ئەمەس) ئاپتوماتىك زاپاسلىرىنى، سىز تاللىغان بىخەتەر مۇلازىمېتىردا ئاتسىز قۇرىدۇ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_disable_confirm">${app_name_short} Safe نى قوزغاتماي داۋاملاشتۇرامسىز؟ ${app_name_short} Safe نى ئىشلەتكەندە، ئۈسكۈنىڭىزگە كىرەلمەي قالسىڭىز، ${app_name_short} ID، ئالاقەداشلار ۋە گۇرۇپپىلىرىڭىزنى ئەسلىگە كەلتۈرەلەيسىز.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_password">كۈچلۈك ئىم تاللاڭ. ${app_name_short} Safe زاپاسىڭىزنى ئەسلىگە كەلتۈرۈش ئۈچۈن بۇ ئىم كېرەك بولىدۇ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_server">${app_name_short} Safe مۇلازىمېتىرى تاللاش</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_server_explain">${company_name} نىڭ مۇلازىمېتىرىنى ئىشلىتەلەيسىز ياكى ئۇنىڭ ئورنىغا ئىشلىتىش ئۈچۈن باشقا تەرەپ زاپاس مۇلازىمېتىرى بەلگىلىيەلەيسىز.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="onprem_safe_configure_server_explain">${app_name_short} Safe زاپاسىڭىزنى تەشكىلاتىڭىزنىڭ مۇلازىمېتىرىغا ساقلاڭ ياكى باشقا زاپاس مۇلازىمېتىرى بەلگىلەڭ.</string>
+    <string name="safe_use_default_server">كۆڭۈلدىكى مۇلازىمېتىرنى ئىشلىتىش</string>
+    <string name="safe_test_server">مۇلازىمېتىرنى سىناش</string>
+    <string name="safe_advanced_options">مۇتەخەسسىس تەڭشەكلىرى</string>
+    <string name="safe_enter_password">${app_name_short} Safe ئىمىڭىزنى كىرگۈزۈڭ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_threema_id">${app_name_short} ID ئىڭىز</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_restore_enter_id">ئەسلىگە كەلتۈرمەكچى بولغان ${app_name_short} ID نى كىرگۈزۈڭ</string>
+    <string name="safe_search_id_title">${app_name_short}-ID ئىڭىزغا باغلانغان يانفون نومۇرى ياكى ئېلخەت ئادرېسىنى كىرگۈزۈڭ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_id_lookup">${app_name_short} ID ئىزدىلىۋاتىدۇ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_no_id_found">${app_name_short} ID تېپىلمىدى</string>
+    <string name="safe_no_backup_found">مۇلازىمېتىردا زاپاس تېپىلمىدى. ID ۋە ئىمنى تەكشۈرۈڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_select_id">بىر قانچە ${app_name_short} ID تېپىلدى. ئىشلىتىدىغان ID نى تاللاڭ:</string>
+    <string name="safe_backup_now">ھازىر زاپاسلاش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_enable_explain_short">بارلىق مۇھىم سانلىق مەلۇماتلىرىڭىزنىڭ ئاپتوماتىك بىخەتەر ۋە ئاتسىز زاپاسلىرىنى قۇرۇش ئۈچۈن ${app_name_short} Safe نى قوزغىتىڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deleting">${app_name_short} Safe زاپاسى ئۆچۈرۈلۈۋاتىدۇ</string>
+    <string name="safe_delete_error">زاپاس ئۆچۈرۈشتە خاتالىق: %s</string>
+    <string name="safe_delete_success">زاپاس مۇلازىمېتىردا مۇۋەپپەقىيەتلىك ئۆچۈرۈلدى</string>
+    <string name="safe_error_preparing">${app_name_short} Safe زاپاسى تەييارلاشتا خاتالىق</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_password_force">${app_name_short} ID ئىڭىزنى ${app_name_short} Safe بىلەن قوغداش ئۈچۈن كۈچلۈك ئىم بەلگىلەڭ. بۇ يەرگە كىرگۈزگىنىڭىزنى ئۇنتۇپ قالماڭ!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deactivate">${app_name_short} Safe نى ئېتىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deactivate_explain">${app_name_short} Safe نى چەكلىسىڭىز، مۇلازىمېتىردىكى مەۋجۇت زاپاسلار ئۆچۈرۈلىدۇ. داۋاملاشتۇرامسىز؟</string>
+    <string name="add_group_members">تېخىمۇ كۆپ ئەزا قوشۇش</string>
+    <string name="contact_add_confirm">يېڭى ئالاقەداش “%1$s” نى ئالاقەداش تىزىملىكىڭىزگە قوشامسىز؟</string>
+    <string name="password_bad">ئاجىز ئىم</string>
+    <string name="prefs_fix_device">ئۈسكۈنە سەپلىمە مەسىلىلىرىنى ئوڭشاش</string>
+    <string name="safe_successful">مۇۋەپپەقىيەتلىك</string>
+    <string name="safe_unsuccessful">مەغلۇپ بولدى</string>
+    <string name="safe_upload_failed">يۈكلەش مەغلۇپ بولدى</string>
+    <string name="safe_upload_size_exceeded">مۇلازىمېتىرنىڭ يۈكلەش ئۆلچىمىدىن ئېشىپ كەتتى</string>
+    <string name="safe_connection_error">ئۇلىنىش خاتالىقى</string>
+    <string name="safe_server_name">مۇلازىمېتىر نامى</string>
+    <string name="safe_max_backup_size">ئەڭ چوڭ زاپاس ئۆلچىمى</string>
+    <string name="safe_retention">زاپاس ساقلاش مۇددىتى</string>
+    <string name="safe_result">زاپاس نەتىجىسى</string>
+    <string name="number_of_days">%d كۈن</string>
+    <string name="safe_size">زاپاس ئۆلچىمى</string>
+    <string name="backup_version_mismatch">بۇ زاپاسنىڭ نەشرى قوللىنىلىدىغان نەشردىن يۇقىرى. بۇ دېتالنى ئەڭ يېڭى نەشرىگە يېڭىلاڭ.</string>
+    <string name="safe_restore_failed">ئەسلىگە كەلتۈرۈش مەغلۇپ بولدى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_failed_notification">${app_name_short} Safe زاپاسى %d كۈن ئۇدا مەغلۇپ بولدى. تەكشۈرۈش ئۈچۈن بۇ يەرنى چېكىڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_restore">${app_name_short} Safe نى ئەسلىگە كەلتۈرۈش</string>
+    <string name="backup_restore_in_progress">زاپاسلاش ياكى ئەسلىگە كەلتۈرۈش جەريانىدا. ھالەت ئۇچۇرى ئۈچۈن ئۇقتۇرۇشنى تەكشۈرۈڭ.</string>
+    <string name="restore_error_body">ئەسلىگە كەلتۈرۈش مۇۋەپپەقىيەتلىك تاماملانمىدى</string>
+    <string name="forgot_your_id">ID ئىڭىزنى ئۇنتۇپ قالدىڭىزمۇ؟</string>
+    <string name="restore_success_body">ئەسلىگە كەلتۈرۈش مۇۋەپپەقىيەتلىك تاماملاندى</string>
+    <string name="work_data_sync">سانلىق مەلۇمات ماسلاشتۇرۇش</string>
+    <string name="private_contact">شەخسىي ئالاقەداش</string>
+    <string name="ringtone_selection_default">كۆڭۈلدىكى (%s)</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_data_sync_desc">${app_name} ماسلاشتۇرۇش</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="ballot_not_connected">سوئالنامىنى تاقاشتىن بۇرۇن ${app_name} نىڭ تورغا ئۇلانغانلىقىنى جەزىملەشتۈرۈڭ.</string>
+    <string name="empty_chat_title">بوش ئەڭگىمە</string>
+    <string name="empty_chat_confirm">بۇ ئەڭگىمەدىكى بارلىق ئۇچۇرلار ئۆچۈرۈلىدۇ. داۋاملاشتۇرامسىز؟</string>
+    <string name="emptying_chat">ئەڭگىمە بوشىتىلىۋاتىدۇ</string>
+    <string name="emptying_chat_deleting_messages">ئۇچۇرلار ئۆچۈرۈلۈۋاتىدۇ…</string>
+    <string name="delete_chat_title">ئەڭگىمەنى ئۆچۈرۈش</string>
+    <string name="delete_chat_confirm">بۇ ئەڭگىمەدىكى بارلىق ئۇچۇرلار ئۆچۈرۈلىدۇ ۋە ئەڭگىمە چىقىرىۋېتىلىدۇ. داۋاملاشتۇرامسىز؟</string>
+    <string name="deleting_chat">ئەڭگىمە ئۆچۈرۈلۈۋاتىدۇ</string>
+    <string name="set_private">“شەخسىي ئەڭگىمە” دەپ بەلگىلەش</string>
+    <string name="unset_private">“شەخسىي ئەڭگىمە” نى ئەمەلدىن قالدۇرۇش</string>
+    <string name="delete_group_message">بۇ گۇرۇپپىدىن چىقىپ ئۇنى پۈتۈنلەي ئۆچۈرەمسىز؟ بارلىق ئۇچۇرلار ئۆچۈرۈلىدۇ.</string>
+    <string name="delete_left_group_message">بۇ گۇرۇپپىنى راستىنلا ئۆچۈرەمسىز؟ بارلىق ئۇچۇرلار ئۆچۈرۈلىدۇ.</string>
+    <string name="chats">ئەڭگىمەلەر</string>
+    <string name="notification_channel_alerts">ئاگاھلاندۇرۇش ۋە خاتالىقلار</string>
+    <string name="notification_channel_notices">ئۇقتۇرۇشلار</string>
+    <string name="chat_updates">ئەڭگىمە يېڭىلىنىشلىرى</string>
+    <string name="backup_or_restore_progress">زاپاسلاش ۋە ئەسلىگە كەلتۈرۈش جەريانى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="tooltip_export_id">شىفىرلانغان ${app_name_short} ID ئىڭىزنى ھازىر ھەمبەھىرلەش ياكى بېسىش ئۈچۈن بۇ يەرنى چېكىڭ</string>
+    <string name="downloading">چۈشۈرۈلۈۋاتىدۇ</string>
+    <string name="restore_data_cancelled">ئەسلىگە كەلتۈرۈش بىكار قىلىندى</string>
+    <string name="safe_change_password">ئىمنى ئۆزگەرتىش</string>
+    <string name="safe_configure_choose_password_title">ئىم تاللاش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="password_bad_explain">${app_name_short} Safe ئۈچۈن تاللانغان ئىم بىخەتەر ئەمەس، ھۇجۇمچىلار ئاسانلا تېپىۋالالايدۇ. باشقا بىرنى تاللاڭ. ئەسكەرتىش: بىر قانچە يەككە سۆزدىن تەركىب تاپقان ئىم ئىشلىتىڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_password_updated">${app_name_short} Safe ئىمى يېڭىلاندى.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_activated">${app_name_short} Safe ھازىر ئاكتىپلاندى.</string>
+    <string name="push_token_cleared">push بەلگىسى تازىلاندى</string>
+    <string name="insert_date">چېسلا قىستۇرۇش</string>
+    <string name="add_answer">جاۋاب قوشۇش</string>
+    <string name="title_cannot_be_empty">سوئالنامە تېمىسى بوش بولسا بولمايدۇ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="voip_disabled">${app_name_short} چاقىرىقلىرى چەكلەنگەن</string>
+    <string name="hide_chat_enter_message_explain">بۇ ئەڭگىمە شەخسىي ئەڭگىمە دەپ بەلگىلەنگەن. ئۇنىڭغا كىرىش ئۈچۈن، ئالدى بىلەن كىرىش قوغدىشىنى تەڭشەڭ.</string>
+    <string name="unknown">نامەلۇم</string>
+    <string name="dont_show_again">قايتا كۆرسەتمە</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_safe_upload_successful">${app_name_short} Safe زاپاسى مۇۋەپپەقىيەتلىك يۈكلەندى</string>
+    <string name="time_remaining">%s قالدى</string>
+    <string name="safe_configure_server_credentials_title">دەلىللەش (ئىختىيارى)</string>
+    <string name="username_hint">ئىشلەتكۈچى نامى</string>
+    <string name="server_hint">مۇلازىمېتىر</string>
+    <!-- Shown in "About" to indicate that the DualLock (a.k.a. "Remote Secret") feature is currently activated -->
+    <string name="about_screen_remote_secrets_activated">ئاكتىپلاندى</string>
+    <string name="lock_option_biometric">بىئولوگىيىلىك بەلگە</string>
+    <string name="biometric_enter_authentication">قۇلۇپتىن چىقىرىش ئۈچۈن دەلىللەڭ</string>
+    <string name="biometric_authentication_successful">مۇۋەپپەقىيەتلىك دەلىللەندى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_safe_forced_explain">باشقۇرغۇچىڭىز ئۈسكۈنىڭىز ئۈچۈن ${app_name_short} Safe نى قوزغاتتى.</string>
+    <string name="pin_locked_cannot_send">دېتال قۇلۇپلانغان. ئەۋەتكىلى بولمايدۇ.</string>
+    <string name="prefs_summary_hide_screenshots_notice">شەخسىي مەخپىيەت سەۋەبىدىن، بىخەتەرلىك تەڭشەكلىرىدە "دېتال قۇلۇپى" قوزغىتىلغاندا كىچىك رەسىم ۋە ئېكران رەسىملىرى دائىم چەكلىنىدۇ</string>
+    <string name="work_select_categories">تۈرلەرنى تاللاش</string>
+    <string name="my_profile">سەپلىمەم</string>
+    <string name="message_too_long">ئۇچۇر بەك ئۇزۇن. ئەۋەتكىلى بولمايدۇ.</string>
+    <string name="url_warning_body">سىز ئاچماقچى بولغان ئۇلانمىنىڭ ساھىبخانا نامى گۇمانلىق:\n\nكۆرسىتىلگەن ساھىبخانا نامى: <b>%s</b>\nھەقىقىي ساھىبخانا نامى: <b>%s</b>\n\nبۇ سىزنى باشقا نەرسىگە ئوخشاش قىلىپ كۆرسىتىلگەن بەتنى ئاچىدىغان قىلىپ ئالداش ئۇرۇنۇشى بولۇشى مۇمكىن.\n\nشۇنداقتىمۇ داۋاملاشتۇرامسىز؟</string>
+    <string name="url_warning_title">تور قارمىقى ئاگاھلاندۇرۇشى</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_camera_qr_required">QR كودلىرىنى سايلەش ئۈچۈن ${app_name} كامېراغا يېتىشكە موھتاج</string>
+    <string name="voice_action_title">ئاۋازلىق مەشغۇلاتلار</string>
+    <string name="voice_action_body">ئاۋازلىق مەشغۇلات بىر تەرەپ قىلىنىۋاتىدۇ</string>
+    <string name="permission_camera_photo_required">سۈرەتكە ئېلىش ئۈچۈن كامېراغا يېتىشكە يول قويۇڭ</string>
+    <string name="global_search">ئەڭگىمەلەرنى ئىزدەش</string>
+    <string name="global_search_empty_view_text">ئۇچۇرلاردا ئىزدەش ئۈچۈن كەم دېگەندە ئىككى ھەرپ كىرگۈزۈڭ</string>
+    <string name="my_id">ID ئىم</string>
+    <string name="profile_picture_and_nickname">سەپلىمە رەسىمى ۋە لەقەم</string>
+    <string name="lp_select_this_place">بۇ جاينى تاللاش</string>
+    <string name="lp_or_select_nearby">ياكى يېقىندىكى بىر جاينى تاللاش</string>
+    <string name="lp_use_this_location">بۇ ئورۇننى ئەۋەتەمسىز؟</string>
+    <string name="lp_search_place">شەھەر كىرگۈزۈڭ</string>
+    <string name="data_backup_headline">بارلىق سانلىق مەلۇماتلىرىڭىزنى، جۈملىدىن ئەڭگىمە ۋە ۋاسىتىلەرنى ساقلاش ئۈچۈن سانلىق مەلۇمات زاپاسى قۇرۇڭ.</string>
+    <string name="data_backup_save_path">زاپاس يولى</string>
+    <string name="change">ئۆزگەرتىش</string>
+    <string name="data_backup_last_date">ئاخىرقى مۇۋەپپەقىيەتلىك سانلىق مەلۇمات زاپاسى</string>
+    <string name="archived">ئارخىپلانغان</string>
+    <string name="to_archive">ئارخىپلاش</string>
+    <string name="archived_chats">ئارخىپلانغان ئەڭگىمەلەر</string>
+    <!-- Menu option in context menu when long-pressing a chat in the Chats tab, allows the user to move the selected chat to the archive -->
+    <string name="archive_chat">ئەڭگىمەنى ئارخىپلاش</string>
+    <string name="unarchive">ئارخىپتىن چىقىرىش</string>
+    <string name="no_archived_chats">ئارخىپلانغان ئەڭگىمە يوق.\nئەڭگىمەنى ئارخىپلاش ئۈچۈن، ئۇچۇر تىزىملىكىدە ئۇنى سولغا سۈرۈڭ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="add_contact_enter_id_hint">قوشماقچى بولغان ئالاقەداشنىڭ ${app_name_short} ID سىنى كىرگۈزۈڭ</string>
+    <string name="notification_channel_new_contact">يېڭى ئالاقەداشلار</string>
+    <string name="notification_channel_new_contact_desc">يېڭى ئالاقەداشلار ھەققىدىكى ئۇقتۇرۇش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. %1$s is a placeholder for a person's name. -->
+    <string name="notification_contact_has_joined">%1$s ${app_name_short} غا قوشۇلدى. ئۇچۇر ئەۋەتىش ئۈچۈن بۇ يەرنى چېكىڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. %1$s is a placeholder for a number (of contacts). %2$s is a summary of people's names. -->
+    <string name="notification_contact_has_joined_multiple">%1$d ئالاقەداش ${app_name_short} غا قوشۇلدى: %2$s. ئۇلارغا ئۇچۇر ئەۋەتىش ئۈچۈن بۇ يەرنى چېكىڭ.</string>
+    <string name="system_default">سىستېما كۆڭۈلدىكىسى</string>
+    <string name="open_in_maps_app">خەرىتە دېتالىدا ئېچىش</string>
+    <string name="delete">ئۆچۈرۈش</string>
+    <string name="delete_from_this_device">بۇ ئۈسكۈنىدىن ئۆچۈرۈش</string>
+    <string name="delete_for_all">ھەممىسى ئۈچۈن ئۆچۈرۈش</string>
+    <string name="message_was_deleted">بۇ ئۇچۇر ئۆچۈرۈلگەن</string>
+    <string name="continue_recording">خاتىرىلەشنى داۋاملاشتۇرۇش</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". %1$s is a placeholder for the version number. They must not be translated. -->
+    <string name="whatsnew_title">${app_name} %1$s دىكى يېڭىلىقلار نېمە؟</string>
+    <string name="whatsnew_headline"><![CDATA[
+        <p>سىز ئەمدى Android ئۈسكۈنىڭىزنى يېڭى كومپيۇتېر دېتالى (بېتا) غا باغلاپ، كۆپ ئۈسكۈنە ئىقتىدارىنى سىنىيالايسىز.</p>
+        <p>تېخىمۇ كۆپ تەپسىلات ئۈچۈن، “تىزىملىك > Threema 2.0 for Desktop (Beta)” گە كىرىڭ.</p>
+        ]]>
+    </string>
+    <string name="tap_to_start">%s نى ھازىر باشلاش ئۈچۈن بۇ يەرنى چېكىڭ.</string>
+    <string name="notification_title_restart">قايتا قوزغىتىش كېرەك</string>
+    <string name="two_years">2 يىل</string>
+    <string name="backup_data_no_permission">بۇ مۇندەرىجىگە يازغىلى بولمىدى. باشقا بىرنى تاللاڭ.</string>
+    <string name="prefs_sum_show_unread_badge">ئاستى يول باشلاش بەتكۈچلىرىدە بەلگىلەرنى كۆرسىتىش</string>
+    <string name="prefs_title_show_unread_badge">بەلگىلەر</string>
+    <string name="open_myid_popup">تېز كىرىش كۆرسەتمە كۆزنىكىنى ئېچىش</string>
+    <string name="logo">لوگو / ئۈستىگە سۈرۈش</string>
+    <string name="quote_subj">نەقىل</string>
+    <string name="duration">داۋاملىشىش ۋاقتى</string>
+    <string name="seconds">سېكۇنت</string>
+    <string name="minutes">مىنۇت</string>
+    <string name="and">ۋە</string>
+    <string name="edit_type_content_description">%1$s %2$s نى كۆرۈش ياكى تەھرىرلەش</string>
+    <string name="group">گۇرۇپپا</string>
+    <string name="play_services_not_installed_unable_to_use_push">مۇلازىمەتلەر ئورنىتىلمىغان. Google FCM ياكى HMS push قا ئالماشتۇرغىلى بولمايدۇ.</string>
+    <string name="unable_to_get_current_location">نۆۋەتتىكى ئورۇننى ئېنىقلىغىلى بولمىدى.</string>
+    <string name="lp_search_place_min_chars">جاي ئىزدەش ئۈچۈن كەم دېگەندە ئۈچ ھەرپ كىرگۈزۈڭ.</string>
+    <string name="lp_search_place_no_matches">ماس كېلىدىغان جاي تېپىلمىدى. سوئالىڭىزنى ئۆزگەرتىڭ.</string>
+    <string name="wallpaper_default">كۆڭۈلدىكى تەگلىك رەسىمى</string>
+    <string name="wallpaper_gallery">گالېرىيەدىن تاللاش</string>
+    <string name="wallpaper_none">بوش تەگلىك</string>
+    <string name="wallpaper_threema">%s تەگلىك رەسىمى</string>
+    <string name="message_id">ئۇچۇر ID سى</string>
+    <string name="mime_type">MIME تىپى</string>
+    <string name="password_does_not_comply">ئىم باشقۇرغۇچى بەلگىلىگەن كۆرسەتمىلەرگە ماس كەلمەيدۇ.</string>
+    <string name="audio_mute_due_to_focus_loss">فوكۇس يوقالغانلىقى ئۈچۈن ئاۋاز ۋاقتىنچە ئۆچۈرۈلدى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="restore_data_backup_explain">سانلىق مەلۇمات زاپاسىنى ئەسلىگە كەلتۈرۈش ئۈچۈن، ئالدى بىلەن “سەپلىمەم” ئېكرانىدىن ${app_name_short} ID ئىڭىزنى ئۆچۈرۈڭ.\n\nدېتال قايتا قوزغالغاندا، “زاپاستىن ئەسلىگە كەلتۈرۈش”، “باشقا ئەسلىگە كەلتۈرۈش تاللانمىلىرى”، “سانلىق مەلۇمات زاپاسى” نى تاللاپ، ئاندىن ئەسلىگە كەلتۈرمەكچى بولغان سانلىق مەلۇمات زاپاس ھۆججىتىنى تاللاڭ.</string>
+    <string name="audio_focus_loss_complete">ئاۋاز فوكۇسىنىڭ تولۇق يوقىلىشى سەۋەبىدىن چاقىرىق ئۈزۈلدى.</string>
+    <string name="tap_for_picture_hold_for_video">رەسىم ئۈچۈن چېكىڭ، سىن ئۈچۈن بېسىپ تۇرۇڭ</string>
+    <string name="media_files">ھۆججەتلەر</string>
+    <string name="auto_download_limit_explain">%s دىن چوڭ سىن ۋە ھۆججەتلەر دائىم تەلەپ بويىچە چۈشۈرۈلىدۇ</string>
+    <string name="quoted_message_deleted">نەقىل ئۇچۇرى ئەمدى مەۋجۇت ئەمەس</string>
+    <string name="searching">ئىزدىلىۋاتىدۇ…</string>
+    <string name="prefs_work_life_balance">مالايماڭ</string>
+    <string name="prefs_title_working_days">خىزمەت كۈنلىرى</string>
+    <string name="prefs_working_days_sum">خىزمەت كۈنلىرىنى تاللاش</string>
+    <string name="prefs_work_time_start">خىزمەت ۋاقتىنىڭ بېشى</string>
+    <string name="prefs_work_time_start_sum">باشلىنىش ۋاقتىنى بەلگىلەش</string>
+    <string name="prefs_work_time_end">خىزمەت ۋاقتىنىڭ ئاخىرى</string>
+    <string name="prefs_work_time_end_sum">ئاخىرلىشىش ۋاقتىنى بەلگىلەش</string>
+    <string name="prefs_working_days_enable_title">خىزمەت سىرتى تۈزۈمى</string>
+    <string name="prefs_working_days_enable_sum">خىزمەت ۋاقتى سىرتىدا ئۇقتۇرۇشلارنى چەكلەش ۋە چاقىرىقلارنى رەت قىلىش</string>
+    <string name="work_life_dnd_active">خىزمەت سىرتى ئاكتىپ</string>
+    <string name="warning">ئاگاھلاندۇرۇش</string>
+    <string name="password_remember_warning">بۇ يەرگە كىرگۈزگىنىڭىزنى ئەستە ساقلاڭ! %s مۇلازىمېتىرلاردا ھېچقانداق ئىم ساقلىمايدىغانلىقى ئۈچۈن، PIN ياكى ئىمىڭىزنى ئۇنتۇپ قالسىڭىز سىزگە ياردەم بېرەلمەيمىز.</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="send_to_support">${company_name} قوللاش مەركىزىگە ئەۋەتىش</string>
+    <string name="menu_legal">قانۇنىي</string>
+    <string name="tooltip_work_hint">بۇ ئالاقەداش Threema Work ئىشلىتىدۇ.</string>
+    <string name="video_camera_on">سىن كامېراسى قوزغىتىلدى</string>
+    <string name="video_camera_off">سىن كامېراسى چەكلەندى</string>
+    <string name="enable_picture_in_picture">رەسىم ئىچىدە رەسىم ھالىتىنى باشلاش</string>
+    <string name="call_with">%s نى چاقىرىش</string>
+    <string name="picture_in_picture_disabled_in_setting">%s ئۈچۈن رەسىم ئىچىدە رەسىم ھالىتى چەكلەنگەن. سىستېما تەڭشەكلىرىدە قوزغىتىڭ.</string>
+    <string name="delete_everything">ھەممىنى ئۆچۈرۈش</string>
+    <string name="prefs_title_voip_video_enable">سىنغا يول قويۇش</string>
+    <string name="video_calls">سىنلىق چاقىرىقلار</string>
+    <string name="prefs_videocall_profile">ئەۋزەل كۆرۈلىدىغان رەسىم سۈپىتى</string>
+    <string name="videocall_profile_auto">تەڭپۇڭ (تەۋسىيە قىلىنىدۇ)</string>
+    <string name="videocall_profile_low_bandwidth">ئاز سانلىق مەلۇمات سەرپىياتى</string>
+    <string name="videocall_profile_max_quality">ئەڭ يۇقىرى سۈپەت</string>
+    <string name="unable_to_play_video">سىننى قويغىلى بولمىدى</string>
+    <string name="tooltip_voip_turn_on_camera">كامېرانى قوزغىتىش ئۈچۈن بۇ يەرنى چېكىڭ</string>
+    <string name="prefs_videocall_profile_explain">ئەمەلىي رەسىم سۈپىتى تور ۋە سۆزلىشىۋاتقان كىشىنىڭ تەڭشەكلىرىگە باغلىق</string>
+    <string name="permission_camera_videocall_required">سىنلىق چاقىرىق ئۈچۈن كامېراغا يېتىشكە يول قويۇڭ</string>
+    <string name="tooltip_voip_enable_speakerphone">ياڭراتقۇنى قوزغىتىش ئۈچۈن بۇ يەرنى چېكىڭ</string>
+    <string name="ballot_open">ئوچۇق سوئالنامىلەر</string>
+    <string name="ballot_window_hide">ئوچۇق سوئالنامىلەرنى يوشۇرۇش</string>
+    <string name="ballot_window_show">ئوچۇق سوئالنامىلەرنى كۆرسىتىش</string>
+    <string name="single_ballot_really_delete">بۇ سوئالنامىنى ئۆچۈرۈش</string>
+    <string name="single_ballot_really_delete_text">بۇ سوئالنامىنى راستىنلا ئۆچۈرەمسىز؟ رەيلەرنى ئەسلىگە كەلتۈرەلمەيسىز.</string>
+    <string name="tooltip_voip_other_party_video_on">قارشى تەرەپ سىنلىق چاقىرىق باشلىدى. سىزمۇ كامېراڭىزنى قوزغىتىش ئۈچۈن بۇ يەرنى چېكىڭ.</string>
+    <string name="tooltip_voip_other_party_video_disabled">قارشى تەرەپ نۆۋەتتىكى دېتال نەشرىنى ئىشلەتمەيدۇ ياكى سىنلىق چاقىرىققا يول قويمايدۇ.</string>
+    <string name="biometrics_not_enrolled">سىستېمىدا ھېچقانداق بىئولوگىيىلىك بەلگە تىزىملانمىغان.</string>
+    <string name="biometrics_not_avilable">بۇ سىستېمىدا بىئولوگىيىلىك بەلگە مەۋجۇت ئەمەس.</string>
+    <string name="biometrics_no_permission">بىئولوگىيىلىك بەلگە سانلىق مەلۇماتى ياكى قاتتىق دېتالىغا يېتىش ئىجازىتى يوق.</string>
+    <string name="verification_settings_desc">نۇقتىلار ئالاقەداشنىڭ دەلىللىنىش دەرىجىسىنىڭ كۆرسەتكۈچى.</string>
+    <string name="verification_levels_title">دەلىللىنىش دەرىجىلىرى</string>
+    <string name="work_verification_levels_title">تەشكىلاتىڭىزدىكى ئالاقەداشلار</string>
+    <string name="external_verification_levels_title">باشقا ئالاقەداشلار</string>
+    <string name="switch_flash">چاقماق ھالىتىنى ئالماشتۇرۇش</string>
+    <string name="message_not_found">ئۇچۇر تېپىلمىدى</string>
+    <string name="insert_datetime">چېسلا ۋە ۋاقىت قىستۇرۇش</string>
+    <string name="prefs_sum_disable_smart_replies">Android ئۇقتۇرۇشلىرىدا ئەقلىي جاۋابلارنى توسۇش</string>
+    <string name="prefs_title_disable_smart_replies">ئەقلىي جاۋابلارنى چەكلەش</string>
+    <string name="url_warning_body_alt">سىز ئاچماقچى بولغان ئۇلانمىنىڭ ساھىبخانا نامى گۇمانلىق.\n\nبۇ سىزنى باشقا نەرسىگە ئوخشاش قىلىپ كۆرسىتىلگەن بەتنى ئاچىدىغان قىلىپ ئالداش ئۇرۇنۇشى بولۇشى مۇمكىن.\n\nشۇنداقتىمۇ داۋاملاشتۇرامسىز؟</string>
+    <string name="read_on">داۋاملىق ئوقۇش…</string>
+    <string name="forward_text">تېكىستنى يوللاش</string>
+    <string name="an_error_occurred_during_send">بىر ياكى بىر قانچە ئۇچۇر ئەۋەتىشتە خاتالىق كۆرۈلدى.</string>
+    <string name="state_processing">بىر تەرەپ قىلىنىۋاتىدۇ</string>
+    <string name="selected_media">تاللىغىنىڭىز</string>
+    <string name="attach_gif">Gif</string>
+    <string name="attach_gallery">گالېرىيە</string>
+    <string name="attach_picture">رەسىم</string>
+    <string name="attach_video">سىن</string>
+    <string name="attach_location">ئورۇن</string>
+    <string name="filter_by_album">ئالبوم بويىچە سۈزۈش</string>
+    <string name="media_date_taken">ئېلىنغان چېسلا: %s</string>
+    <string name="media_date_added">قوشۇلغان چېسلا: %s</string>
+    <string name="media_date_modified">ئۆزگەرتىلگەن چېسلا: %s</string>
+    <string name="media_date_unknown">چېسلا نامەلۇم</string>
+    <string name="max_selectable_media_exceeded">بىر قېتىمدا %d دىن ئارتۇق نەرسە ئەۋەتكىلى بولمايدۇ.</string>
+    <string name="error_unable_loading_media_thumb">خاتالىق. ۋاسىتە كىچىك رەسىمىنى يۈكلىگىلى بولمىدى</string>
+    <string name="filter_list">تىزىملىكنى سۈزۈش</string>
+    <string name="hint_filter_list">سۈزۈش تېكىستى كىرگۈزۈڭ</string>
+    <string name="add">قوشۇش</string>
+    <string name="only_images_or_videos">پەقەت رەسىم ياكى سىنلارنىلا تاللىغىلى بولىدۇ</string>
+    <string name="media_gallery_gifs">GIF لار</string>
+    <string name="no_media_found_global">بۇ ئۈسكۈنىدە ۋاسىتە تېپىلمىدى</string>
+    <string name="original_file_no_longer_avilable">ئەسلى ھۆججەتكە ئەمدى يېتىشكە بولمايدۇ. ئۇچۇرنى قايتا ئەۋەتىڭ.</string>
+    <string name="importing_files">ھۆججەتلەر ئەكىرىلىۋاتىدۇ</string>
+    <string name="ballot_created_successfully">سوئالنامە مۇۋەپپەقىيەتلىك قۇرۇلدى.</string>
+    <string name="file_size">ھۆججەت ئۆلچىمى</string>
+    <string name="thirty_days_abbrev">30كۈن</string>
+    <string name="show_in_chat">ئەڭگىمەدە كۆرسىتىش</string>
+    <string name="group_create_no_members">بوش گۇرۇپپا قۇرۇشقا جەزىممۇ؟</string>
+    <string name="notes">خاتىرىلەر</string>
+    <string name="blur_faces">يۈزلەرنى غۇۋالاش</string>
+    <string name="brush">چوتكا</string>
+    <string name="pencil">قەلەم</string>
+    <string name="highlighter">يورۇتقۇچ</string>
+    <string name="no_faces_detected">يۈز بايقالمىدى</string>
+    <string name="smiley">كۈلكە</string>
+    <string name="blur">غۇۋالاش</string>
+    <string name="face_blur_tooltip_title">يۈز تونۇش</string>
+    <string name="face_blur_tooltip_text">رەسىمدىكى يۈزلەرنى تېپىپ، غۇۋالاڭ ياكى كۈلكە بىلەن ياپىڭ.</string>
+    <string name="listened_to">ئاڭلاندى</string>
+    <string name="transcoder_unsupported_audio_format">سىستېما قوللىمىغانلىقى ئۈچۈن ئۈننى كود ئالماشتۇرغىلى بولمىدى.</string>
+    <string name="transcoder_unknown_audio_error">نامەلۇم ئۈن كود ئالماشتۇرۇش خاتالىقى كۆرۈلدى.</string>
+    <string name="video_size_explain">بەك چوڭ سىنلار بۇ تەڭشەكتىن قەتئىينەزەر پرېسلىنىشى مۇمكىن.</string>
+    <string name="status_create_notes">*سىز بۇ گۇرۇپپىنىڭ بىردىنبىر ئەزاسى*\nبۇ ئەڭگىمەنى تېكىست، ۋاسىتە ياكى پۈتۈكلەر ئۈچۈن بىخەتەر خاتىرە دەپتىرى قىلىپ ئىشلىتىڭ.</string>
+    <string name="status_create_notes_off">*سىز بۇ ئەڭگىمەدە ئەمدى يالغۇز ئەمەس*\nيېڭى ئۇچۇرلار بارلىق گۇرۇپپا ئەزالىرىغا ئەۋەتىلىدۇ.</string>
+    <string name="note_group_howto">ئەسكەرتىش: گۇرۇپپا ئەزاسى قوشمىسىڭىز، بۇ گۇرۇپپىغا ئەۋەتىلگەن ئۇچۇرلار يەرلىك بولۇپ قالىدۇ. بۇ خاتىرە، ۋاسىتە ياكى پۈتۈكلەرنى بىخەتەر ساقلاش ياكى ئۇلارنى كومپيۇتېرغا يۆتكەش ئۈچۈن ئەڭ مۇۋاپىق.</string>
+    <string name="mark_unread">ئوقۇلمىغان دەپ بەلگىلەش</string>
+    <string name="mark_read_short">ئوقۇلدى دەپ بەلگىلەش</string>
+    <string name="missing_app_licence">دېتال دۇكىنى سېتىۋېلىشىڭىزنى دەلىللىيەلمىدى. ئەگەر Google Play ئىشلەتسىڭىز، Google Play Store دېتالىنىڭ سانلىق مەلۇماتىنى تازىلاپ، ئۈسكۈنىڭىزنى قايتا قوزغىتىڭ.</string>
+    <string name="set_backup_path">زاپاس يولىنى بەلگىلەش</string>
+    <string name="set_backup_path_intro">كېيىنكى ئېكراندا سانلىق مەلۇمات زاپاسلىرى ساقلىنىدىغان قىسقۇچنى تاللاڭ.</string>
+    <string name="discard_changes_title">ئۆزگەرتىشلەرنى تاشلىۋېتىش</string>
+    <string name="accept">قوبۇل قىلىش</string>
+    <string name="tap_here_for_more">تېخىمۇ كۆپ ئۇچۇر ئۈچۈن بۇ يەرنى چېكىڭ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="another_connection_instructions"><![CDATA[مۇلازىمېتىر ئوخشاش ${app_name_short} ID بىلەن ئوخشىمىغان ئۈسكۈنىلەردىن كەلگەن ئىككى ياكى ئۇنىڭدىن ئارتۇق ئۇلىنىشنى بايقىدى.<br><br>ئوخشاش ${app_name_short} ID نى بىر قانچە ئۈسكۈنىدە بىرلا ۋاقىتتا ئىشلىتىشكە بولمايدۇ. يېڭى ئۇچۇرلار پەقەت مۇلازىمېتىرغا ئەڭ ئاخىرىدا كىرگەن ئۈسكۈنىگىلا يوللىنىدۇ.<br><br>يېڭى ئۈسكۈنىگە ئالماشتۇرۇۋاتقان بولسىڭىز، كونا ئۈسكۈنىدىن %s نى ئۆچۈرۈڭ ياكى چەكلەڭ، ئاندىن يېڭىسىنى قايتا قوزغىتىڭ.]]></string>
+    <string name="app_store_error_code">دېتال دۇكىنى خاتالىق كودى: %d</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_restore_type"><![CDATA[قانداق زاپاسنى ئەسلىگە كەلتۈرمەكچىسىز؟ <br/><br/> <a href=%s>${app_name_short} دىكى زاپاسلار ھەققىدە تېخىمۇ كۆپ بىلىش</a>]]></string>
+    <string name="new_to_threema">%s غا يېڭىمۇ؟</string>
+    <string name="back_to_threema">%s غا قايتامسىز؟</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_safe_backup">${app_name_short} Safe زاپاسى</string>
+    <string name="forgot_your_password"><![CDATA[<a href=%s>ياردەم</a>]]></string>
+    <string name="download_failed">چۈشۈرۈش مۇۋەپپەقىيەتسىز. خاتالىق كودى: %d</string>
+    <string name="edit_answer">جاۋابنى تەھرىرلەش</string>
+    <string name="share_media">باشقا دېتال بىلەن ھەمبەھىرلەش…</string>
+    <string name="miui_battery_optimization">بۇ ۋەزىپىنى ئورۇنداش ئۈچۈن %s نىڭ "توك ئۈنۈملەشتۈرۈش" ئىنى چەكلەڭ. Xiaomi دېتاللارنىڭ بۇ تەڭشەك ئېكرانىنى بىۋاسىتە چاقىرىشىغا يول قويمايدىغانلىقى ئۈچۈن، بۇنى تېلېفونىڭىزنىڭ تەڭشەكلىرىدە قولدا قىلىشىڭىزغا توغرا كېلىدۇ. توك ئۈنۈملەشتۈرۈشنى چەكلەشتە ياردەم كېرەك بولسا Xiaomi قوللاش مەركىزى بىلەن ئالاقىلىشىڭ.</string>
+    <string name="forward_captions">ئىزاھاتلارنى ئىچىگە ئېلىش</string>
+    <string name="label_continue">داۋاملاشتۇرۇش</string>
+    <string name="select_date">چېسلا تاللاش</string>
+    <string name="select_time">ۋاقىت تاللاش</string>
+    <string name="send_to">%s غا ئەۋەتىش</string>
+    <string name="receipts_override_choice_send">ئەۋەتىش</string>
+    <string name="receipts_override_choice_dont_send">ئەۋەتمەسلىك</string>
+    <string name="receipts_override_choice_default">كۆڭۈلدىكى (%s)</string>
+    <string name="unable_to_determine_recording_length">بوش خاتىرە ياكى ئۇزۇنلۇقىنى ئېنىقلىغىلى بولمىدى</string>
+    <string name="prefs_header_receipts">دېلولار</string>
+    <string name="prefs_title_reset_receipts">يەككە تەڭشەكلەرنى تازىلاش</string>
+    <string name="prefs_sum_reset_receipts">ئوقۇلدى دېلوسى ۋە يېزىۋاتىدۇ كۆرسەتكۈچىنىڭ ئالاقەداشقا خاس تەڭشەكلىرىنى كۆڭۈلدىكىگە قايتۇرۇش</string>
+    <string name="reset_successful">كۆڭۈلدىكىگە مۇۋەپپەقىيەتلىك قايتۇرۇلدى</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="qr_scanner_id_hint">ئالاقەداشنىڭ سالاھىيىتىنى دەلىللەش ئۈچۈن ئۇنىڭ QR كودىنى سايلەڭ. كودنى كۆرسىتىش ئۈچۈن، ئالاقەداشىڭىزدىن ${app_name_short} باش ئېكرانىنىڭ سول ئۈستى بۇلۇڭىدىكى سەپلىمە رەسىمىنى چېكىشنى تەلەپ قىلىڭ.</string>
+    <string name="enable_storage_access_for_media">ئۈسكۈنىڭىزدىكى رەسىم ۋە سىنلارنى كۆرۈش ئۈچۈن ساقلىغۇچقا يېتىشنى قوزغىتىڭ</string>
+    <string name="select_storage_access_for_media_is_granted">سىز مەلۇم سانلىق سۈرەت ۋە سىنلارغا يېتىشكە يول قويدىڭىز.</string>
+    <string name="take_me_there">مېنى ئۇ يەرگە ئاپىرىش…</string>
+    <string name="manage">باشقۇرۇش</string>
+    <string name="show_public_key">ئاممىۋى ئاچقۇچنى كۆرسىتىش</string>
+    <string name="public_key_for">%s نىڭ ئاممىۋى ئاچقۇچى</string>
+    <string name="copied">كۆچۈرۈلدى</string>
+    <string name="no_votes_yet">ھازىرغىچە ھېچقانداق رەي بېرىلمىدى.</string>
+    <string name="permission_contacts_sync_required">ئالاقەداشلىرىڭىزنى ماسلاشتۇرالايدىغان بولۇش ئۈچۈن ئۇلارغا يېتىشكە يول قويۇڭ.</string>
+    <string name="not_voted_user_list">بۇ قاتناشقۇچىلار رەي بەرمىدى: %s</string>
+    <string name="enable_unknown_sources">ئورناتقىلى بولمىدى. %s ئۈچۈن “نامەلۇم دېتاللارنى ئورنىتىش” نىڭ قوزغىتىلغانلىقىنى جەزىملەشتۈرۈڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push">${app_name_short} Push</string>
+    <string name="threema_push_notification_text">تېخىمۇ كۆپ بىلىش ئۈچۈن چېكىڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_notification_info_text_1">${app_name_short} Push ئارقا سۇپىدا ئاكتىپ بولۇپ، كىرىۋاتقان ئۇچۇر ۋە چاقىرىقلاردىن خەۋەردار قىلىدۇ.</string>
+    <string name="threema_push_notification_info_text_2">دېتاللار مۇقىم ئۇقتۇرۇش كۆرسەتمەي ئارقا سۇپىدا ئىجرا بولالمايدۇ. بۇ ئۇقتۇرۇشنى كۆرسىتىش ئارقىلىق، دېتالنى ئاكتىپ ئىشلەتمىگەندىمۇ ${app_name_short} Push نىڭ ئاكتىپ تۇرۇشىنى كاپالەتلەندۈرەلەيمىز.</string>
+    <string name="threema_push_notification_info_text_3">ئۇقتۇرۇشلارنىڭ كېچىكىشى ياكى يوقىلىشى مەسىلىسىگە يەنىلا دۇچ كەلسىڭىز، دېتالنىڭ ھېچقانداق چەكلىمىسىز ئارقا سۇپىدا ئاكتىپ بولۇشى ۋە بارلىق توك ئۈنۈملەشتۈرگۈچلەرنىڭ چەكلىنىشى ئۈچۈن سىستېما تەڭشەكلىرىڭىزنى تەڭشەڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_service_description">${app_name_short} Push ئاكتىپ بولغاندا كۆرسىتىلىدىغان مۇقىم ئۇقتۇرۇش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_activated">${app_name_short} Push ئاكتىپلاندى.</string>
+    <string name="add_shortcut_error">قوزغاتقۇچ ئېكرانىغا تېزلەتمە قوشۇشتا خاتالىق</string>
+    <string name="web_link">ئۇلانما</string>
+    <string name="link_copied">%s كۆچۈرۈلدى</string>
+    <string name="invalid_onprem_id_title">ID قوشقىلى بولمىدى</string>
+    <string name="name_given">ئىسمى</string>
+    <string name="name_family">فامىلىسى</string>
+    <string name="name_prefix">نام ئالدى قوشۇلغۇچىسى</string>
+    <string name="name_middle">ئوتتۇرا ئىسمى</string>
+    <string name="name_suffix">نام كەينى قوشۇلغۇچىسى</string>
+    <string name="full_name">تولۇق ئىسمى</string>
+    <string name="send_contact">ئالاقەداش ئەۋەتىش</string>
+    <string name="edit_send_contact_detail_icon">ئالاقەداش تەپسىلات تىپى</string>
+    <string name="phoneTypeCustom">ئىختىيارى</string>
+    <string name="phoneTypeHome">ئۆي</string>
+    <string name="phoneTypeMobile">يانفون</string>
+    <string name="phoneTypeWork">خىزمەت</string>
+    <string name="phoneTypePager">چاقىرغۇچ</string>
+    <string name="phoneTypeOther">باشقا</string>
+    <string name="phoneTypeCar">ماشىنا</string>
+    <string name="phoneTypeIsdn">ISDN</string>
+    <string name="phoneTypeOtherFax">باشقا فاكس</string>
+    <string name="eventTypeCustom">ئىختىيارى</string>
+    <string name="eventTypeBirthday">تۇغۇلغان كۈن</string>
+    <string name="eventTypeAnniversary">خاتىرە كۈن</string>
+    <string name="eventTypeOther">باشقا</string>
+    <string name="emailTypeHome">ئۆي</string>
+    <string name="emailTypeWork">خىزمەت</string>
+    <string name="emailTypeOther">باشقا</string>
+    <string name="postalTypeCustom">ئىختىيارى</string>
+    <string name="postalTypeHome">ئۆي</string>
+    <string name="postalTypeWork">خىزمەت</string>
+    <string name="postalTypeOther">باشقا</string>
+    <string name="relationTypeCustom">ئىختىيارى</string>
+    <string name="relationTypeChild">بالا</string>
+    <string name="relationTypeFriend">دوست</string>
+    <string name="relationTypeParent">ئاتا-ئانا</string>
+    <string name="relationTypeSpouse">جورا</string>
+    <string name="contact_property_key">"ئاچقۇچ"</string>
+    <string name="header_nickname_entry">"لەقەم"</string>
+    <string name="prefs_title_use_system_ringtone">سىستېما جىرىڭلىمىسىنى ئىشلىتىش</string>
+    <string name="organization_type">تەشكىلات</string>
+    <string name="permission_bluetooth_connect_required">ئۇلانغان كۆكچىش قۇلاقچىنلىرىنى تېپىش ئۈچۈن “يېقىندىكى ئۈسكۈنىلەر” ئىجازىتىنى قوزغىتىڭ</string>
+    <string name="tooltip_multiple_recipients_title">كۆپ تاپشۇرۇۋالغۇچى</string>
+    <string name="tooltip_multiple_recipients_text">ئوخشاش ئۇچۇرنى ئەۋەتىش ئۈچۈن كۆپ تاپشۇرۇۋالغۇچى تاللاشقا ئۇزۇن بېسىڭ.</string>
+    <string name="forward_security_mode">مۇكەممەل ئالدىغا مەخپىيلىك (PFS)</string>
+    <string name="forward_security_mode_none">يوق</string>
+    <string name="clear_forward_security">بۇ ئالاقەداش ئۈچۈن مۇكەممەل ئالدىغا مەخپىيلىكنى ئەسلىگە قايتۇرۇش</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="clear_forward_security_warning">بۇ مەشغۇلاتنى پەقەت ${company_name} نىڭ قوللاش ئەترىتى كۆرسەتمە بەرگەندىلا ئورۇنداڭ.</string>
+    <string name="forward_security_cleared">بۇ ئالاقەداش بىلەن بولغان مۇكەممەل ئالدىغا مەخپىيلىك ئەڭگىمەلىرى تازىلاندى</string>
+    <string name="message_without_forward_security">مۇكەممەل ئالدىغا مەخپىيلىكسىز بىر ئۇچۇر تاپشۇرۇۋېلىندى. ئەۋەتكۈچىنىڭ مۇكەممەل ئالدىغا مەخپىيلىكنى قەستەن چەكلىگەنلىكىنى دەلىللەڭ.</string>
+    <string name="forward_security_disabled">بۇ ئەڭگىمە ئۈچۈن مۇكەممەل ئالدىغا مەخپىيلىك چەكلەنگەن.</string>
+    <string name="forward_security_established">بۇ ئەڭگىمە شېرىكىڭىز بىلەن بولغان ئۇچۇرلار ھازىر مۇكەممەل ئالدىغا مەخپىيلىك بىلەن قوغدالدى.</string>
+    <string name="forward_security_established_rx">بۇ ئەڭگىمەدە تاپشۇرۇۋالغان ئۇچۇرلار ھازىر مۇكەممەل ئالدىغا مەخپىيلىك بىلەن قوغدالدى.</string>
+    <string name="forward_security_reset">مۇكەممەل ئالدىغا مەخپىيلىك ئەڭگىمەسى ئەسلىگە قايتۇرۇلدى. بۇ ئەڭگىمە شېرىكىڭىز ئۈسكۈنە ئالماشتۇرغاندا ياكى دېتالنى قايتا ئورناتقاندا يۈز بېرىشى مۇمكىن.</string>
+    <string name="forward_security_reset_simple">بۇ ئالاقەداش بىلەن بولغان مۇكەممەل ئالدىغا مەخپىيلىك ئەڭگىمەسى ئەسلىگە قايتۇرۇلدى.</string>
+    <string name="forward_security_message_out_of_order">بىر ئۇچۇر تەرتىپسىز تاپشۇرۇۋېلىنىپ، شىفىرسىزلانمىدى.</string>
+    <string name="forward_security_notification_channel_name">مۇكەممەل ئالدىغا مەخپىيلىك ئاگاھلاندۇرۇشلىرى</string>
+    <string name="forward_security_notification_rejected_title">ئۇچۇر ئەۋەتىش مەغلۇپ بولدى</string>
+    <string name="forward_security_notification_rejected_text_contact">بىر ياكى بىر قانچە ئۇچۇرنى %1$s غا ئەۋەتكىلى بولمىدى.</string>
+    <string name="forward_security_notification_rejected_text_group">بىر ياكى بىر قانچە ئۇچۇرنى “%1$s.” غا ئەۋەتكىلى بولمىدى</string>
+    <string name="forward_security_notification_rejected_text_generic">بىر ياكى بىر قانچە ئۇچۇرنى ئەۋەتكىلى بولمىدى.</string>
+    <string name="self_updater_installation_failed">يېڭىلاشنى چۈشۈرۈش مەغلۇپ بولدى. يېڭىلاشنى <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> دىن قولدا چۈشۈرۈپ ئورنىتىڭ.</string>
+    <string name="spam_first_contact">بۇ ئەڭگىمە نامەلۇم ئالاقەداشتىن</string>
+    <string name="spam_report">ئەخلەتنى مەلۇم قىلىش</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="spam_report_dialog_explain">داۋاملاشتۇرسىڭىز، بۇ ئالاقەداشنىڭ ID ۋە لەقىمى ID ئىڭىز بىلەن بىرلىكتە ${company_name} غا يوللىنىدۇ. ھېچقانداق مەزمۇن ياكى شەخسىي سانلىق مەلۇمات ئەۋەتىلمەيدۇ. ئالاقەداشقا بۇ ھەقتە ئۇقتۇرۇلمايدۇ.</string>
+    <string name="spam_report_dialog_block_checkbox">بۇ ئالاقەداشنىمۇ توسۇپ ئەڭگىمەنى ئۆچۈرۈش</string>
+    <string name="spam_report_dialog_title">%s نى مەلۇم قىلىش</string>
+    <string name="spam_successfully_reported">بۇ ID ئەخلەت ئەۋەتكۈچى دەپ مەلۇم قىلىندى.</string>
+    <string name="spam_error_reporting">ئەخلەتنى مەلۇم قىلىشتا خاتالىق كۆرۈلدى: %s</string>
+    <string name="spam_report_short">مەلۇم قىلىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard_incompatible_contact_sync_params">ماس كەلمەيدىغان MDM پارامېتىرلىرى بەلگىلەنگەن. ئەگەر ئىشلەتكۈچى چەكلىمىسى DISALLOW_MODIFY_ACCOUNTS بەلگىلەنگەن بولسا، ${app_name_short} MDM پارامېتىرى th_contact_sync نى true قىلىپ بەلگىلىگىلى بولمايدۇ. ئۈسكۈنە باشقۇرغۇچىڭىز بىلەن ئالاقىلىشىڭ.</string>
+    <string name="messages_cannot_be_recovered">ئۇچۇرلارنى ئەسلىگە كەلتۈرەلمەيسىز.</string>
+    <string name="groups_left_or_dissolved">گۇرۇپپىلاردىن چىقىلىدۇ ياكى تارقىتىلىدۇ، ئاندىن ئۆچۈرۈلىدۇ.</string>
+    <string name="contact_deleted">ئالاقەداش ئۆچۈرۈلدى</string>
+    <string name="last_added_contact">ئاخىرقى قوشۇلغان</string>
+    <string name="directory_explain_text">ئالاقەداش تىزىملىكىڭىزدە تېخى يوق خىزمەتچىلەرنى شىركەت مۇندەرىجىسىدىن ئىزدەڭ.</string>
+    <string name="cannot_display_location">بۇ ئورۇننى كۆرسەتكىلى بولمايدۇ.</string>
+    <string name="draw_reply">سىزىش بىلەن جاۋاب بېرىش</string>
+    <string name="drawing">سىزىلىۋاتىدۇ</string>
+    <string name="background_color">تەگلىك رەڭگى</string>
+    <string name="send_video_muted">سىندىن ئاۋازنى ئۆچۈرۈش</string>
+    <string name="send_without_audio">ئاۋازنى ئۆچۈرۈش</string>
+    <string name="edit_filename">ھۆججەت نامىنى تەھرىرلەش</string>
+    <string name="unable_to_restore_identity_because">ID نى ئەسلىگە كەلتۈرگىلى بولمىدى. سەۋەبى: %s</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="share_with_app">${app_name} بىلەن ھەمبەھىرلەش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="read_phone_state_dialog_message">${app_name_short} چاقىرىقلىرىنىڭ ئادەتتىكى چاقىرىقلارنى ئۈزۈشىنىڭ ئالدىنى ئېلىش ئۈچۈن، تېلېفون ئىجازىتى كېرەك. بۇ ئىجازەت بېرىلمىسە، داۋاملىشىۋاتقان ئادەتتىكى چاقىرىق بولسىمۇ كىرىۋاتقان ${app_name_short} چاقىرىقى جىرىڭلايدۇ.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="read_phone_state_short_message">داۋاملىشىۋاتقان چاقىرىقلارنى تەكشۈرۈش ئۈچۈن، ${app_name} غا تېلېفون ئىجازىتى بېرىڭ.</string>
+    <string name="prefs_title_read_phone_state">تېلېفون ئىجازىتى بېرىش</string>
+    <string name="prefs_title_hibernation">ئىشلىتىلمىگەن دېتال تەڭشەكلىرى</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_hibernation_api_32">${app_name} نىڭ ئۇزۇن ۋاقىت پائالىيەتسىزلىكتىن كېيىن سىستېما تەرىپىدىن ۋاقىتلىق توختىتىلىشىنىڭ ئالدىنى ئېلىش ئۈچۈن، “ئىجازەتلەرنى ئۆچۈرۈش ۋە بوشلۇق بوشىتىش” سىستېما تەڭشىكىنى چەكلەڭ.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_hibernation_api">${app_name} نىڭ ئۇزۇن ۋاقىت پائالىيەتسىزلىكتىن كېيىن سىستېما تەرىپىدىن ۋاقىتلىق توختىتىلىشىنىڭ ئالدىنى ئېلىش ئۈچۈن، “ئىشلىتىلمىسە دېتال پائالىيىتىنى ۋاقىتلىق توختىتىش” سىستېما تەڭشىكىنى چەكلەڭ.</string>
+    <string name="unable_to_fetch_configuration">سەپلىمە مۇلازىمېتىرىدىن سانلىق مەلۇمات ئالغىلى بولمىدى. كېيىن قايتا سىناڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rogue_device_warning"><![CDATA[ئوخشاش ${app_name_short} ID بىلەن ئوخشىمىغان ئۈسكۈنىدىن كەلگەن بىر ئۇلىنىش بايقالدى. يېقىندا ${app_name_short} ID ئىڭىزنى باشقا ئۈسكۈنىدە ئىشلەتتىڭىزمۇ؟ <br><br> ئىشلەتكەن بولسىڭىز، بۇ ئۇچۇرنى نەزەرگە ئالماي قويسىڭىز بولىدۇ. <br><br> ئىشلەتمىگەن بولسىڭىز، مەخپىي ئاچقۇچىڭىز پاش بولغان بولۇشى مۇمكىن. يېڭى ID قۇرۇشتىن بۇرۇن ئۈسكۈنە ۋە سانلىق مەلۇماتلىرىڭىزنى قوغداش ئۈچۈن <a href="https://threema.com/faq/another_connection">تەۋسىيەلىرىمىزگە ئەمەل قىلىڭ</a>.]]></string>
+    <string name="fetch2_failure">تەمىنلەش مۇلازىمېتىرى بىلەن ماسلاشتۇرۇش مەغلۇپ بولدى.</string>
+    <string name="no_members_support_group_calls">بۇ گۇرۇپپىدا گۇرۇپپا چاقىرىقىغا جاۋاب بېرەلەيدىغان باشقا ئەزا يوق</string>
+    <string name="group_calls">گۇرۇپپا چاقىرىقلىرى</string>
+    <string name="prefs_title_group_calls_enable">گۇرۇپپا چاقىرىقلىرىنى قوزغىتىش</string>
+    <string name="group_no_members">بۇ گۇرۇپپىدا باشقا ئەزا يوق</string>
+    <string name="group_call">گۇرۇپپا چاقىرىقى</string>
+    <string name="checking_compatibility">ماسلىشىش تەكشۈرۈلۈۋاتىدۇ…</string>
+    <string name="group_call_mic_permission_description">گۇرۇپپا چاقىرىقى قىلىش ئۈچۈن، باشقىلار ئاۋازىڭىزنى ئاڭلىيالايدىغان بولۇشى ئۈچۈن مىكروفون ئىجازىتىگە يول قويۇشىڭىز كېرەك.</string>
+    <string name="call_mic_permission_description">چاقىرىق قىلىش ئۈچۈن، باشقىلار ئاۋازىڭىزنى ئاڭلىيالايدىغان بولۇشى ئۈچۈن مىكروفون ئىجازىتىگە يول قويۇشىڭىز كېرەك.</string>
+    <string name="group_call_camera_permission_rationale">باشقا قاتناشقۇچىلار رەسىمىڭىزنى كۆرەلەيدىغان بولۇشى ئۈچۈن، %s نىڭ “ئىجازەتلەر” ئاستىدا كامېراغا يېتىشىگە يول قويۇشىڭىز كېرەك.</string>
+    <string name="group_call_phone_permission_description">گۇرۇپپا چاقىرىقى قىلىش ئۈچۈن، باشقا چاقىرىقنىڭ گۇرۇپپا چاقىرىقىنى ئۈزگەنلىكىنى بايقاشقا تېلېفون ئىجازىتى كېرەك.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="call_phone_permission_description">${app_name_short} چاقىرىقلىرى قىلىش ئۈچۈن، باشقا چاقىرىقنىڭ ${app_name_short} چاقىرىقىنى ئۈزگەنلىكىنى بايقاشقا تېلېفون ئىجازىتى كېرەك.</string>
+    <string name="group_call_nearby_devices_permission_description">كۆكچىش قۇلاقچىنى بىلەن گۇرۇپپا چاقىرىقى قىلىش ئۈچۈن، كۆكچىش قۇلاقچىنلىرىنى بايقاش مەقسىتىدە “يېقىندىكى ئۈسكۈنىلەر” ئىجازىتىگە يول قويۇشىڭىز كېرەك.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="call_nearby_devices_permission_description">كۆكچىش قۇلاقچىنى بىلەن ${app_name_short} چاقىرىقلىرى قىلىش ئۈچۈن، كۆكچىش قۇلاقچىنلىرىنى بايقاش مەقسىتىدە “يېقىندىكى ئۈسكۈنىلەر” ئىجازىتىگە يول قويۇشىڭىز كېرەك.</string>
+    <string name="settings">تەڭشەكلەر</string>
+    <string name="leave">چىقىش</string>
+    <string name="fs_key_mismatch">ئاچقۇچ ماس كەلمىدى</string>
+    <string name="tap_to_resend">قايتا ئەۋەتىش ئۈچۈن چېكىڭ</string>
+    <string name="group_calls_tooltip_title">گۇرۇپپا چاقىرىقلىرى</string>
+    <string name="group_calls_tooltip_text">بارلىق گۇرۇپپا ئەزالىرىنى چاقىرىققا قاتنىشىشقا تەكلىپ قىلىش ئۈچۈن بۇ يەرنى چېكىڭ. بارلىق گۇرۇپپا ئەزالىرى ئۇقتۇرۇش تاپشۇرۇۋېلىپ، چاقىرىققا قاتنىشىش-قاتناشماسلىقىنى ئۆزى قارار قىلالايدۇ.</string>
+    <string name="prefs_title_calls">بىخەتەر چاقىرىقلار</string>
+    <string name="prefs_sum_group_calls_vibration">گۇرۇپپا چاقىرىقى باشلانغاندا تەۋرىنىش-تەۋرىنمەسلىكنى تاللاش</string>
+    <string name="forward_security_mode_4dh">مۇكەممەل</string>
+    <string name="forward_security_mode_2dh">بىر تەرەپلىمە</string>
+    <string name="forward_security_mode_all">تولۇق</string>
+    <string name="forward_security_mode_partial">قىسمەن</string>
+    <string name="group_call_inactivity_left">پائالىيەتسىزلىك سەۋەبىدىن گۇرۇپپا چاقىرىقىدىن چىقىلدى</string>
+    <string name="missing_permission_external_storage">ھۆججەتنى كۆچۈرگىلى بولمىدى. تۆۋەندىكى باسقۇچلارنى سىناڭ:\n1. تەڭشەك دېتالىنى ئېچىڭ.\n2. “دېتاللار” غا كىرىپ “ئالاھىدە دېتال يېتىشى” نى تاللاڭ.\n3. “بارلىق ھۆججەتلەرگە يېتىش” نى چېكىڭ.\n4. ئوڭ ئۈستى بۇلۇڭدىكى ئۈچ نۇقتىنى چېكىپ “سىستېمىنى كۆرسىتىش” نى تاللاڭ.\n5. “سىرتقى ساقلىغۇچ” نى چېكىپ “بارلىق ھۆججەتلەرنى باشقۇرۇشقا يول قويۇش” نىڭ بېرىلگەنلىكىنى جەزىملەشتۈرۈڭ.\n6. زاپاسنى قايتا ئەسلىگە كەلتۈرۈشنى سىناڭ.</string>
+    <string name="forward_security_downgraded_status_message">بۇ ئەڭگىمەدە مۇكەممەل ئالدىغا مەخپىيلىك چەكلەندى، چۈنكى ئەڭگىمە شېرىكىڭىزنىڭ دېتال نەشرى ئۇنى قوللىمايدۇ ياكى ${app_name_desktop} 2.0 for Desktop (beta) ئىشلىتىلىۋاتىدۇ.</string>
+    <string name="forward_security_illegal_session_status_message">مۇكەممەل ئالدىغا مەخپىيلىك ئەڭگىمەسى ئىناۋەتسىزلىك سەۋەبىدىن ئەسلىگە قايتۇرۇلدى.</string>
+    <string name="crop_image_title">رەسىمنى كېسىش</string>
+    <string name="scroll_to_bottom">ئاستىغا سۈرۈش</string>
+    <string name="scroll_to_top">ئۈستىگە سۈرۈش</string>
+    <string name="contact_sync_mdm_rationale">باشقۇرغۇچىڭىز ئۈسكۈنىڭىز ئۈچۈن ئالاقەداش ماسلاشتۇرۇشنى قوزغاتتى. شۇڭا ئالاقەداشلارغا يېتىش ئىجازىتى كېرەك.</string>
+    <string name="welcome_back">قايتا خۇش كەلدىڭىز!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="id_restored_successfully">${app_name_short} ID ئىڭىز مۇۋەپپەقىيەتلىك ئەسلىگە كەلتۈرۈلدى</string>
+    <string name="prefs_dynamic_colors">ھەرىكەتچان رەڭ</string>
+    <string name="prefs_dynamic_colors_sum">سىستېما رەڭلىرىنى ئىشلىتىش</string>
+    <string name="apply_changes">ئۆزگەرتىشلەرنى قوللىنىش</string>
+    <string name="prefs_threema_work_summary">Threema نىڭ يەنە كارخانىلار ئۈچۈن كەسپىي ئالاقە ھەل قىلىش چارىسى تەمىنلەيدىغانلىقىنى بىلەمسىز؟ Threema Work ھەققىدە تېخىمۇ كۆپ بىلىش ئۈچۈن بۇ يەرنى چېكىڭ.</string>
+    <string name="notification_channel_voice_message_player">ئاۋازلىق ئۇچۇر قويغۇچ</string>
+    <string name="voice_message_from">%s دىن كەلگەن ئاۋازلىق ئۇچۇر</string>
+    <string name="vm_fg_service_not_allowed">ئاۋازلىق ئۇچۇر قويۇش خاتالىقى</string>
+    <string name="vm_fg_service_not_allowed_explain">ۋاسىتە ئۇقتۇرۇشى يەنىلا بار بولسا قويۇش كۇنۇپكىسىنى بېسىڭ، بولمىسا ئەڭگىمەدىن قويۇشنى باشلاش ئۈچۈن دېتالنى ئېچىڭ.</string>
+    <string name="use_threema_without_this_permission">%s نى بۇ ئىجازەتسىز ئىشلىتىش</string>
+    <string name="grant_permission">ئىجازەت بېرىش</string>
+    <string name="grant_permission_settings">تەڭشەكلەردە ئىجازەت بېرىش</string>
+    <string name="ignore_permission">قايتا سورىما</string>
+    <string name="permission_nearby_devices">يېقىندىكى ئۈسكۈنىلەر</string>
+    <string name="permission_bluetooth">كۆكچىش</string>
+    <string name="permission_camera">كامېرا</string>
+    <string name="permission_microphone">مىكروفون</string>
+    <string name="permission_read_phone_state">تېلېفون</string>
+    <string name="permission_enable_in_settings_rationale">تەڭشەكلەردە ئىجازەتنى قوزغىتىڭ. “ئىجازەتلەر” نى تاللاپ، ئاندىن “%s” غا يول قويۇڭ.</string>
+    <string name="group_name">گۇرۇپپا نامى</string>
+    <string name="star_message">ئۇچۇرغا يۇلتۇز قويۇش</string>
+    <string name="starred_message">يۇلتۇز قويۇلغان ئۇچۇر</string>
+    <string name="starred_messages">يۇلتۇز قويۇلغان ئۇچۇرلار</string>
+    <string name="sorting">تەرتىپلەش</string>
+    <string name="sort_by">… بويىچە تەرتىپلەش</string>
+    <string name="newest_first">يېڭىسى ئالدىدا</string>
+    <string name="oldest_first">كونىسى ئالدىدا</string>
+    <string name="no_starred_messages">يۇلتۇز قويۇلغان ئۇچۇر تېپىلمىدى. ئۇچۇرغا يۇلتۇز قويۇش ئۈچۈن، ئۇنىڭغا ئۇزۇن بېسىپ يۇلتۇز كۇنۇپكىسىنى تاللاڭ.</string>
+    <string name="remove_all_stars">بارلىق يۇلتۇزلارنى ئۆچۈرۈش</string>
+    <string name="remove_star">يۇلتۇزنى ئۆچۈرۈش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="samsung_permission_problem_explain">سىستېما دېتالىدا ئىجازەت يېتىشمىگەنلىكى ئۈچۈن ${app_name} ۋاسىتە ھۆججەتلىرىگە يېتەلمەيدۇ. ئوڭشاش ئۈچۈن، كېيىنكى ئېكراندا “سىرتقى ساقلىغۇچ” يېنىدىكى كۇنۇپكىنىڭ قوزغىتىلغانلىقىنى جەزىملەشتۈرۈپ %1$s نى قايتا قوزغىتىڭ.</string>
+    <string name="min_n_chars">ئەڭ ئاز %d ھەرپ</string>
+    <string name="prefs_title_grant_bluetooth_permission">كۆكچىش ئىجازىتى بېرىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_managed_password_confirm">${app_name_short} Safe زاپاسىڭىز ئۈچۈن باشقۇرۇلغان ئىم بەلگىلەندى.\n\nبۇ ئىمنى ئىشلىتەمسىز؟ گۇمانلانسىڭىز، باشقۇرغۇچىڭىز بىلەن ئالاقىلىشىڭ.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_managed_new_password_confirm">${app_name_short} Safe زاپاسىڭىز ئۈچۈن يېڭى باشقۇرۇلغان ئىم بەلگىلەندى.\n\nنۆۋەتتىكى ئىمنى بۇ يېڭى، باشقۇرۇلغان ئىم بىلەن ئالماشتۇرامسىز؟ گۇمانلانسىڭىز، باشقۇرغۇچىڭىز بىلەن ئالاقىلىشىڭ.</string>
+    <string name="real_not_now">ھازىر ئەمەس</string>
+    <string name="add_contact_in">… دا ئالاقەداش قوشۇش</string>
+    <string name="really_remove_all_stars">بارلىق ئۇچۇرلارنىڭ يۇلتۇزىنى راستىنلا ئېلىۋېتەمسىز؟</string>
+    <string name="prefs_sum_storage_management">ئەسلەكنى باشقۇرۇش ۋە ئۇچۇر ياكى ۋاسىتىلەرنى ئۆچۈرۈش</string>
+    <string name="delete_automatically">ئاپتوماتىك ئۆچۈرۈش</string>
+    <string name="keep_messages">ئۇچۇرلارنى ساقلاش ۋاقتى:</string>
+    <string name="clean_up_manually">قولدا تازىلاش</string>
+    <string name="forever">مەڭگۈ</string>
+    <string name="autodelete_explain">“مەڭگۈ” دىن باشقا قىممەتكە تەڭشەلسە، كىرىۋاتقان ۋە چىقىۋاتقان ئۇچۇرلار بەلگىلەنگەن ۋاقىتتىن كېيىن ئەسلىگە كەلتۈرگىلى بولمايدىغان شەكىلدە ئۆچۈرۈلىدۇ. بۇ ئوقۇلمىغان ۋە ئەۋەتىلمىگەن ئۇچۇرلارنىمۇ ئۆز ئىچىگە ئالىدۇ. لېكىن خاتىرە گۇرۇپپىلىرىدىكى ئۇچۇرلار ۋە يۇلتۇز قويۇلغان ئۇچۇرلار ئۆچۈرۈلمەيدۇ. ئۆچۈرۈش جەريانى قەرەللىك قوزغىتىلىدۇ، چوقۇم ئاكتىپلانغان ھامان دەرھال ئەمەس.</string>
+    <string name="autodelete_confirm">ئۇچۇرلار %s دىن كېيىن ئاپتوماتىك ئۆچۈرۈلىدۇ. داۋاملاشتۇرامسىز؟</string>
+    <string name="autodelete_activated">ئاپتوماتىك ئۆچۈرۈش ئاكتىپلاندى.</string>
+    <string name="autodelete_disabled">ئاپتوماتىك ئۆچۈرۈش چەكلەندى.</string>
+    <string name="set_by_administrator">قىممەت باشقۇرغۇچى تەرىپىدىن بەلگىلەنگەن ۋە ئۆزگەرتكىلى بولمايدۇ.</string>
+    <string name="action_dissolve_group">گۇرۇپپىنى تارقىتىش</string>
+    <string name="really_dissolve_group">گۇرۇپپىنى پەقەت تارقاتسىڭىز، ھېچكىم گۇرۇپپىغا يېڭى ئۇچۇر ئەۋەتەلمەيدۇ ۋە ئۇنى قايتا باشقۇرغىلى بولمايدۇ. تارقىتىلغان گۇرۇپپىنى يەنىلا كۆچۈرگىلى بولىدۇ.</string>
+    <string name="status_orphaned_group">*بۇ گۇرۇپپا ئىگىسىز قالغان*\nگۇرۇپپا قۇرغۇچى گۇرۇپپىدىن چىقىپ كەتتى، ئۇنى قايتا باشقۇرغىلى بولمايدۇ. قالغان ئەزالارنىڭ بىرى يېڭى باشقۇرغۇچى بولۇش ئۈچۈن گۇرۇپپىنى (گۇرۇپپا تەپسىلاتى ئارقىلىق) كۆچۈرەلەيدۇ.</string>
+    <string name="group_not_a_member_notice">سىز ئەمدى بۇ گۇرۇپپىنىڭ بىر قىسمى ئەمەس ۋە ئۇنى قايتا ئىشلىتەلمەيسىز.</string>
+    <string name="group_dissolved_notice">بۇ گۇرۇپپا تارقىتىلغان ۋە قايتا ئىشلەتكىلى بولمايدۇ.</string>
+    <string name="md_linked_devices">${app_name_desktop} 2.0 for Desktop (Beta)</string>
+    <string name="md_link_device">ئۈسكۈنە قوشۇش</string>
+    <!-- ${app_name_desktop} is a placeholder for the desktop app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. ${app_name_desktop} is a placeholder for the app's name and must NOT be translated -->
+    <string name="md_linked_devices_empty">يېڭى ئۈسكۈنە باغلاشتىن بۇرۇن، [${app_name_desktop} for Desktop] نىڭ ئەڭ يېڭى بېتا نەشرىنى چۈشۈرۈپ ئېچىڭ.</string>
+    <string name="directory_request_failed">مۇندەرىجە سوئالى مەغلۇپ بولدى. قايتا سىناڭ.</string>
+    <string name="add_shortcut_exists">بۇ نىشان ئۈچۈن تېزلەتمە ئاللىبۇرۇن بار.</string>
+    <string name="scan_qr_code">QR كودى سايلەش</string>
+    <!-- ${app_name_desktop} is a placeholder for the desktop app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="scan_qr_code_explain">باغلىماقچى بولغان ئۈسكۈنىدە ${app_name_desktop} for Desktop نىڭ بېتا نەشرىدە كۆرسىتىلگەن QR كودىنى سايلەڭ.</string>
+    <string name="connecting">ئۇلىنىۋاتىدۇ…</string>
+    <string name="trust_new_device">يېڭى ئۈسكۈنىگە ئىشىنىش</string>
+    <string name="trust_new_device_explain">يېڭى ئۈسكۈنىگە ئىشىنىدىغانلىقىڭىزنى جەزىملەش ئۈچۈن يېڭى ئۈسكۈنىدە كۆرسىتىلگەن رەسىملەرنى تاللاڭ.</string>
+    <string name="trust_new_device_info">يېڭى ئۈسكۈنە %s سەپلىمەڭىزنىڭ مۇستەقىل كۆچۈرمىسىنى ساقلايدۇ، ئۇچۇرلار سىزنىڭ نامىڭىزدىن ئەۋەتىلىدۇ ۋە تاپشۇرۇۋېلىنىدۇ.</string>
+    <string name="no_match_question">ماس كەلمىدىمۇ؟</string>
+    <string name="sending_data">سانلىق مەلۇمات ئەۋەتىلىۋاتىدۇ…</string>
+    <string name="continue_on_new_device">يېڭى ئۈسكۈنىدە داۋاملاشتۇرۇڭ</string>
+    <string name="device_linked_successfully">ئۈسكۈنە مۇۋەپپەقىيەتلىك باغلاندى</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="device_linked_successfully_explain">${app_name} نى ئەمدى سىز باغلىغان ئۈسكۈنىدە ئىشلەتكىلى بولىدۇ (بۇ ئۈسكۈنە ئېتىك ياكى ئىنتېرنېتقا ئۇلانمىغان بولسىمۇ).</string>
+    <string name="resend_message_dialog_title">گۇرۇپپا ئۇچۇرى قايتا ئەۋەتىلسۇنمۇ؟</string>
+    <string name="resend_message_dialog_message">بۇ ئۇچۇرنى بارلىق ئەزالارغا ئەۋەتكىلى بولمىدى. ئۇچۇرنى %1$s غا قايتا ئەۋەتەمسىز؟</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_lost_credentials_help">سالاھىيەت ئۇچۇرلىرىڭىزنى ئۇنتۇپ قالدىڭىزمۇ؟ ${app_name_short} باشقۇرغۇچىڭىز بىلەن ئالاقىلىشىڭ.</string>
+    <string name="problemsolver_intro">بەزى سىستېما سەپلىمە مەسىلىلىرى %s نىڭ نورمال ئىشلىشىگە توسقۇنلۇق قىلىۋاتقان بولۇشى مۇمكىن. تۆۋەندىكى كۆرسەتمىلەرگە ئەمەل قىلىپ بۇ مەسىلىلەرنى ئوڭشاڭ.</string>
+    <string name="problemsolver_title">سەپلىمە مەسىلىلىرىنى ئوڭشاش</string>
+    <string name="problemsolver_title_background">ئارقا سۇپا ئىشلىتىش چەكلەنگەن</string>
+    <string name="problemsolver_title_background_data">ئارقا سۇپا سانلىق مەلۇماتى چەكلەنگەن</string>
+    <string name="problemsolver_title_notifications">ئۇقتۇرۇشلار چەكلەنگەن</string>
+    <string name="problemsolver_title_fullscreen_notifications">تولۇق ئېكران ئۇقتۇرۇشلىرىغا يول قويۇلمىغان</string>
+    <string name="problemsolver_title_debug_log_enabled">خاتىرىلەش يەنىلا قوزغىتىلغان</string>
+    <string name="problemsolver_explain_fullscreen_notifications">دېتالنىڭ تولۇق ئېكران ئۇقتۇرۇشلىرىنى كۆرسىتىشىگە يول قويۇلمايدۇ. ئۈسكۈنە قۇلۇپلانغاندا كىرىۋاتقان چاقىرىقلارنى ئۆتكۈزۈپ قويۇشىڭىز مۇمكىن. ئوڭشاش ئۈچۈن، “تولۇق ئېكران ئۇقتۇرۇشلىرىغا يول قويۇش” نى ئاكتىپلاڭ.</string>
+    <string name="problemsolver_explain_notifications">بۇ دېتال ئۈچۈن ئۇقتۇرۇشلار پۈتۈنلەي چەكلەنگەن. سىز كىرىۋاتقان ئۇچۇر ياكى چاقىرىقلاردىن خەۋەردار بولالمايسىز، دېتال مۆلچەردىكىدەك ئىشلىمەسلىكى مۇمكىن. ئوڭشاش ئۈچۈن، “بارلىق ئۇقتۇرۇشلار” نى ئاكتىپلاڭ.</string>
+    <string name="problemsolver_explain_background_data">دېتال ئارقا سۇپىدا يانفون سانلىق مەلۇماتىنى ئىشلىتەلمەيدۇ. دېتالنى ئاكتىپ ئاچمىسىڭىز كىرىۋاتقان ئۇچۇرلاردىن خەۋەردار بولالمايسىز. ئوڭشاش ئۈچۈن، “ئارقا سۇپا سانلىق مەلۇماتى” نى ئاكتىپلاڭ.</string>
+    <string name="problemsolver_explain_background">دېتالنىڭ ئارقا سۇپا ئىشلىتىشى چەكلەنگەن. سىز ھېچقانداق ئۇقتۇرۇش تاپشۇرۇۋالالمايسىز، نۇرغۇن ئىقتىدارلار مۆلچەردىكىدەك ئىشلىمەيدۇ. ئوڭشاش ئۈچۈن، “دېتال توك ئىشلىتىشى” نى چېكىپ “چەكلىمىسىز” نى تاللاڭ.</string>
+    <string name="problemsolver_explain_debug_log_enabled">بىر مەزگىل ئىلگىرى، سىز ساڭگىشلاش خاتىرىسىنى ئاكتىپلىغانسىز. ئەگەر ھادىسە ۋە تور ئۇچۇرلىرىنى خاتىرىلەشكە ئەمدى ئېھتىياجىڭىز بولمىسا، خاتىرىنى قايتا چەكلەشنى ئويلىشىڭ.</string>
+    <string name="problemsolver_explain_debug_log_force_enabled">${app_name} ھازىر ھادىسە ۋە تور ئۇچۇرلىرىنى ھۆججەتكە خاتىرىلەۋاتىدۇ، چۈنكى سىز “%s” ھۆججىتىنى قۇردىڭىز. خاتىرىلەشكە ئەمدى ئېھتىياجىڭىز بولمىسا، ھۆججەتنى ئۆچۈرۈشنى ئويلىشىڭ.</string>
+    <string name="problemsolver_info_text">يۇقىرىدا تىلغا ئېلىنغان بەزى سىستېما-تەڭشەك تاللانمىلىرىنىڭ ئاتىلىشى Android نەشرى ۋە ئۈسكۈنە ئىشلەپچىقارغۇچىغا قاراپ ئوخشىماسلىقى مۇمكىن.</string>
+    <string name="problemsolver_title_app_battery_usgae_optimized">دېتال توك ئىشلىتىشى “ئۈنۈملەشتۈرۈلگەن” گە تەڭشەلگەن</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="problemsolver_explain_app_battery_usgae_optimized">دېتالنىڭ ${app_name_short} Push نىڭ ئىشلىشى ئۈچۈن زۆرۈر بولغان مۇلازىمېتىرلارغا مۇقىم ئۇلىنىش ساقلىشىغا يول قويۇلمايدۇ. دېتال ئارقا سۇپىدا بولغاندا يېڭى ئۇچۇرلاردىن خەۋەردار بولالمايسىز. ئوڭشاش ئۈچۈن، “دېتال توك ئىشلىتىشى” نى چېكىپ “چەكلىمىسىز” نى تاللاڭ.</string>
+    <string name="problemsolver_to_settings">تەڭشەككە</string>
+    <!-- Label on button to dismiss/hide a warning -->
+    <string name="problemsolver_dismiss">يېپىش</string>
+    <string name="prefs_advanced_options">ئالىي تاللانمىلار</string>
+    <string name="push_service">push مۇلازىمىتى</string>
+    <string name="edit_and_send">تەھرىرلەپ ئەۋەتىش</string>
+    <string name="media_gallery_animated_webps">ھەرىكەتلىك WebP لار</string>
+    <string name="unsupported_image_type">قوللىمايدىغان رەسىم تىپى: %s</string>
+    <string name="application_setup_steps_failed">ئالاقەداشلىرىڭىزنىڭ ھالىتىنى تەكشۈرۈش ئۈچۈن ئاكتىپ ئىنتېرنېت ئۇلىنىشى كېرەك. ئىنتېرنېتقا ئۇلانغانلىقىڭىزنى جەزىملەشتۈرۈپ قايتا سىناڭ.</string>
+    <string name="add_contact_failed">ئالاقەداش قوشۇش مەغلۇپ بولدى</string>
+    <string name="edit_message_not_supported_for_contact">ئۇچۇرنى تەھرىرلىگىلى بولمىدى، چۈنكى تاپشۇرۇۋالغۇچىنىڭ دېتال نەشرى بۇ ئىقتىدارنى قوللىمايدۇ.</string>
+    <string name="edit_message_not_supported_for_all_group_members">تۆۋەندىكى گۇرۇپپا ئەزالىرى تەھرىرلىرىڭىزنى كۆرەلمەيدۇ: %1$s</string>
+    <string name="edit_message_not_supported_for_any_group_members">ئۇچۇرنى تەھرىرلىگىلى بولمىدى، چۈنكى ھېچقانداق گۇرۇپپا ئەزاسىنىڭ دېتال نەشرى بۇ ئىقتىدارنى قوللىمايدۇ.</string>
+    <string name="prefs_notification_settings_summary">سىستېما تەڭشەك سۆزلىشىش رامكىسىدا ئاۋاز ۋە تەۋرىنىشنى ئۆزگەرتىش</string>
+    <string name="new_messages">يېڭى ئۇچۇرلار</string>
+    <string name="new_group_messages">يېڭى گۇرۇپپا ئۇچۇرلىرى</string>
+    <string name="individual_notification_settings">يەككە ئۇقتۇرۇش تەڭشەكلىرى</string>
+    <string name="delete_message_not_supported_for_all_group_members">بۇ ئۇچۇر تۆۋەندىكى گۇرۇپپا ئەزالىرى ئۈچۈن ئۆچۈرۈلمەيدۇ: %1$s</string>
+    <string name="individual_notification_settings_warn">يەككە ئۇقتۇرۇش تەڭشەكلىرى بار ھەر بىر ئەڭگىمە ئۈچۈن بىر ئۇقتۇرۇش قانىلى قۇرۇلىدۇ، بۇ دېتال قۇلۇپلانغان بولسىمۇ ئەڭگىمە نامىنىڭ ئۈسكۈنە تەڭشەكلىرىدە كۆرۈنىدىغانلىقىنى بىلدۈرىدۇ. شۇنداقتىمۇ داۋاملاشتۇرامسىز؟</string>
+    <string name="incoming_calls">كىرىۋاتقان چاقىرىقلار</string>
+    <string name="group_chats">گۇرۇپپا ئەڭگىمەلىرى</string>
+    <string name="edit_history_file_no_caption">ئىزاھات يوق</string>
+    <string name="prefs_title_error_reporting">خاتالىق دوكلاتى</string>
+    <string name="prefs_send_error_reports">ئاتسىز دوكلات ئەۋەتىش</string>
+    <string name="error_reporting_option_never_send">ھەرگىز</string>
+    <string name="error_reporting_option_always_send">دائىم</string>
+    <string name="error_reporting_option_always_ask">ھەر قېتىم سوراش</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_never_send">خاتالىق دوكلاتلىرىنى ${company_name} غا ھەرگىز ئەۋەتمەسلىك</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_always_send">ئېغىر خاتالىق بايقالغاندا خاتالىق دوكلاتلىرىنى ${company_name} غا ئاپتوماتىك ئەۋەتىش</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_always_ask">خاتالىق دوكلاتىنى ${company_name} غا ئەۋەتىش-ئەۋەتمەسلىكنى ھەر قېتىم سوراش</string>
+    <string name="error_detected_dialog_title">ئاتسىز دوكلات ئەۋەتىش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="crash_detected_dialog_text">${app_name_short} يېقىندا گۇلداپ كەتكەندەك قىلىدۇ. ئاتسىز خاتالىق دوكلاتى تاپشۇرامسىز؟</string>
+    <string name="crash_detected_dialog_remember_choice">تاللىشىمنى ئەستە ساقلاش</string>
+    <string name="crash_detected_dialog_send_button">ئەۋەتىش</string>
+    <!-- Shown in the advanced settings, shows the user their own Device's uniquely generated ID, which is used for sending error reports -->
+    <string name="prefs_error_reporting_id">ئاتسىز ئۈسكۈنە ID سى</string>
+    <!-- The %s is a placeholder for an ID. It must be left as-is. -->
+    <string name="prefs_error_reporting_id_summary">بۇ ID خاتالىق دوكلاتلىرىنى تەقسىملەشكە ئىشلىتىلىدۇ. ئۇ ئاتسىز ۋە Threema ID ئىڭىزغا باغلانمىغان.\n%s</string>
+    <string name="md_device_currently_active">ھازىر ئاكتىپ</string>
+    <string name="md_device_last_active_at">ئاخىرقى ئاكتىپ: %s</string>
+    <plurals name="md_max_device_slots_reached_info">
+        <item quantity="one">بىر ۋاقىتتا پەقەت بىر ئۈسكۈنىنىلا باغلىغىلى بولىدۇ.</item>
+        <item quantity="other">ئەڭ كۆپ %d باغلانغان ئۈسكۈنە چەكلىمىسىگە يەتتى. يېڭىسىنى قوشۇش ئۈچۈن باغلانغان بىر ئۈسكۈنىنى ئۆچۈرۈڭ.</item>
+    </plurals>
+    <string name="md_device_invalid_label">ئۈسكۈنە</string>
+    <string name="md_device_invalid_hint">ئۇچۇرغا ئېرىشكىلى بولمىدى</string>
+
+    <string name="device_linking_cancel_dialog_title">باغلاشنى بىكار قىلىش</string>
+    <string name="device_linking_cancel_dialog_message">باغلاش تېخى تاماملانمىدى. بىكار قىلامسىز؟</string>
+    <string name="device_linking_cancel_dialog_cancel">باغلاشنى بىكار قىلىش</string>
+    <string name="device_linking_cancel_dialog_continue">داۋاملاشتۇرۇش</string>
+
+    <string name="md_drop_device_dialog_drop_button">ئۈسكۈنىنى ئۆچۈرۈش</string>
+    <string name="md_drop_device_dialog_close_button">يېپىش</string>
+
+    <string name="md_drop_device_failed_dialog_title">باغلانغان ئۈسكۈنىنى ئۆچۈرۈش مەغلۇپ بولغان بولۇشى مۇمكىن</string>
+    <string name="md_drop_device_failed_dialog_message">ئىنتېرنېت ئۇلىنىشىنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <string name="md_drop_device_failed_dialog_button_close">يېپىش</string>
+
+    <!-- Message shown in dialog when the user starts configuring a backup, but we detected that there might be a problem and thus offer a workaround option to choose from -->
+    <string name="backup_path_selection_message">قىسقۇچ تاللىغاندا مۇمكىن بولغان بىر مەسىلە بايقالدى. مەسىلە داۋاملاشسا، ئىختىيارى قىسقۇچ تاللاشنىڭ ئورنىغا زاپاسنى “پۈتۈكلەر” قىسقۇچىغا ساقلىيالايسىز.</string>
+    <!-- Button label on dialog when configuring a backup, shown on dialog that lets the user choose how they want to select the backup folder. This option lets them use the regular file picker. -->
+    <string name="backup_path_selection_default">ئىختىيارى قىسقۇچ تاللاش</string>
+    <!-- Button label on dialog when configuring a backup, shown on dialog that lets the user choose how they want to select the backup folder. This option lets them bypass the file picker and use the default Documents folder instead -->
+    <string name="backup_path_selection_documents">“پۈتۈكلەر” قىسقۇچىنى ئىشلىتىش</string>
+
+    <!-- accessibility -->
+    <string name="cd_edited">ئۇچۇر تەھرىرلەندى</string>
+    <string name="cd_created_at">%s دە قۇرۇلدى</string>
+    <string name="cd_edited_at">%s دە تەھرىرلەندى</string>
+    <string name="cd_index_in_edit_history">تارىختىكى %d-تەھرىر</string>
+    <string name="cd_message_details_container">ئۇچۇر تەپسىلاتى</string>
+    <string name="cd_enable_formatting">پىچىمنى قوزغىتىش</string>
+    <string name="cd_message">ئۇچۇر</string>
+    <string name="reactions_on_this_message">بارلىق ئىنكاسلار</string>
+    <string name="select_emoji_content_description">ئېموجى تاللىغۇچتىن قوشۇلىدىغان ئېموجى تاللاش</string>
+    <string name="group_emoji_reactions_partially_supported">كونا نەشر سەۋەبىدىن بەزىلەر ئىنكاسلىرىڭىزنى كۆرەلمەيدۇ.</string>
+    <string name="tab_emoji_reactions_overview_content_description">%2$s بىلەن %1$s ئىنكاسلىرى</string>
+    <string name="reaction_cannot_be_displayed">بۇ ئىنكاسنى كۆرسەتكىلى بولمايدۇ. نامەلۇم ئېموجى.</string>
+    <string name="emoji_reactions_unavailable_title">ئېموجى ئىنكاسلىرى مەۋجۇت ئەمەس</string>
+    <string name="emoji_reactions_unavailable_body">%1$s بۇ ئىقتىدارنى تېخى قوللىمايدىغان دېتال نەشرىنى ئىشلىتىۋاتىدۇ.</string>
+    <string name="emoji_reactions_unavailable_group_body">بۇ ئۇچۇرغا ئېموجى بىلەن ئىنكاس بىلدۈرگىلى بولمايدۇ، چۈنكى ھېچقانداق گۇرۇپپا ئەزاسىنىڭ دېتال نەشرى بۇ ئىقتىدارنى قوللىمايدۇ.</string>
+    <string name="emoji_reactions_cannot_remove_title">ئىنكاسلارنى ئۆچۈرۈش مەۋجۇت ئەمەس</string>
+    <string name="emoji_reactions_cannot_remove_body">%1$s ئېموجى ئىنكاسلىرىنى ئۆچۈرۈش ياكى بىردىن ئارتۇق ئېموجى ئىنكاسى ئەۋەتىشنى تېخى قوللىمايدىغان دېتال نەشرىنى ئىشلىتىۋاتىدۇ. سىز يەنىلا 👍 نى 👎 بىلەن ياكى ئەكسىچە ئالماشتۇرالايسىز.</string>
+    <string name="emoji_reactions_cannot_remove_group_body">گۇرۇپپا ئەزالىرىنىڭ ھېچقايسىسى ئېموجى ئىنكاسلىرىنى ئۆچۈرۈش ياكى بىردىن ئارتۇق ئېموجى ئىنكاسى ئەۋەتىشنى قوللايدىغان دېتال نەشرىنى ئىشلەتمەيدۇ. سىز 👍 نى 👎 بىلەن ياكى ئەكسىچە ئالماشتۇرالايسىز.</string>
+    <!-- Hint shown on message details screen, to let the user know how they can view a message's emoji reactions -->
+    <string name="emoji_reactions_message_details_hint">بۇ ئۇچۇردا ئېموجى ئىنكاسلىرى بار. ئەڭگىمەدە، ھەممىسىنى كۆرۈش ئۈچۈن ھەرقانداق ئېموجى كۆپۈكچىسىنى چېكىپ بېسىپ تۇرۇڭ.</string>
+    <!-- Title shown in popup above emoji reaction buttons on a message, to hint to the user that they can long-press to view the details -->
+    <string name="emoji_reactions_popup_hint_title">ئېموجى ئىنكاسى</string>
+    <!-- Message shown in popup above emoji reaction buttons on a message, to hint to the user that they can long-press to view the details -->
+    <string name="emoji_reactions_popup_hint_text">بۇ ئۇچۇردا ئېموجى ئىنكاسلىرى بار. ئەڭگىمەدە، ھەممىسىنى كۆرۈش ئۈچۈن ھەرقانداق ئېموجى كۆپۈكچىسىنى چېكىپ بېسىپ تۇرۇڭ.</string>
+
+    <string name="accessibility_device_linking_pfs_warning_icon">ئۇچۇر</string>
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_pfs_warning_body">ئۈسكۈنە باغلىغىنىڭىزدا، بارلىق ئالاقەداشلار ئۈچۈن مۇكەممەل ئالدىغا مەخپىيلىك چەكلىنىدۇ.\n\nبۇ نۆۋەتتىكى بېتا نەشرىنىڭ بىر چەكلىمىسى. تېخىمۇ كۆپ چەكلىمىلەر ئۈچۈن، [بۇ FAQ تۈرى] گە مۇراجىئەت قىلىڭ.</string>
+    <string name="device_linking_pfs_warning_button_continue">يېڭى ئۈسكۈنە باغلاش</string>
+    <string name="device_linking_pfs_warning_button_cancel">بىكار قىلىش</string>
+
+    <!-- Title shown on a banner shown in the old Threema web sessions screen to point to the new multi device feature instead -->
+    <!-- ${app_name_desktop} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_web_link_to_multi_device_feature_banner_title">يېڭى: ${app_name_desktop} 2.0 for Desktop (Beta)</string>
+    <!-- Body shown on a banner shown in the old Threema web sessions screen to point to the new multi device feature instead -->
+    <string name="threema_web_link_to_multi_device_feature_banner_body">كۆپ ئۈسكۈنە قوللايدىغان يېڭى ئەۋلاد كومپيۇتېر دېتالىنى ئىشلىتىش ئۈچۈن بۇ يەرنى چېكىڭ.</string>
+    <!-- Screen reader text on a cross icon button to close a hint banner -->
+    <string name="accessibility_dismiss_hint">ئەسكەرتمىنى يېپىش</string>
+
+    <string name="device_linking_error_generic_title">سانلىق مەلۇمات ئەۋەتىش مەغلۇپ بولدى</string>
+    <string name="device_linking_error_generic_body">ئۈسكۈنە باغلاشنى قايتا سىناڭ. بۇ مەسىلە داۋاملاشسا، قوللاش مەركىزى بىلەن ئالاقىلىشىڭ (“باش تىزىملىك > ياردەم”).</string>
+    <string name="device_linking_error_generic_network_title">ئىنتېرنېت ئۇلىنىشى يوق</string>
+    <string name="device_linking_error_generic_network_body">ئۈسكۈنە باغلاشنى قايتا سىناڭ. بۇ مەسىلە داۋاملاشسا، قوللاش مەركىزى بىلەن ئالاقىلىشىڭ (“باش تىزىملىك > ياردەم”).</string>
+    <string name="device_linking_error_unknown_qr_code_title">نامەلۇم QR كودى</string>
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_error_unknown_qr_code_body">بۇ ${app_name_desktop} 2.0 for Desktop (Beta) دىن كەلگەن QR كودىغا ئوخشىمايدۇ. كومپيۇتېر دېتالىنىڭ ئەڭ يېڭى بېتا نەشرىنى [تور بېتىمىز] دىن چۈشۈرۈپ، دېتالنى ئاچقاندا كۆرسىتىلگەن QR كودىنى سايلەڭ.</string>
+    <string name="device_linking_error_web_qr_code_title">توغرا QR كودى ئەمەس</string>
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_error_web_qr_code_body">بۇ QR كودى ${app_name_short} نىڭ تور خېرىدارىغا تەۋە.\nكومپيۇتېر دېتالى ${app_name_desktop} 2.0 for Desktop (Beta) نىڭ ئەڭ يېڭى نەشرىنى [تور بېتىمىز] دىن چۈشۈرۈپ، دېتالنى ئاچقاندا كۆرسىتىلگەن QR كودىنى سايلەڭ.</string>
+    <string name="device_linking_error_old_rendezvous_version_title">ماس كەلمەيدىغان نەشر</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="device_linking_error_old_rendezvous_version_body">ھەر ئىككى ئۈسكۈنىگە ${app_name} نىڭ ئەڭ يېڭى نەشرىنى ئورنىتىڭ.</string>
+    <string name="device_linking_error_emoji_mismatch_title">رەسىملەر ماس كەلمىدىمۇ؟</string>
+    <string name="device_linking_error_emoji_mismatch_body">ئۈسكۈنىگە ئۇلىنىشتا مەسىلە بارغا ئوخشايدۇ. يېڭى ئۈسكۈنىدە دېتالنى قايتا قوزغىتىپ قايتا سىناڭ.</string>
+    <string name="device_linking_error_unexpected_title">كۈتۈلمىگەن خاتالىق</string>
+    <string name="device_linking_error_unexpected_body">ئۈسكۈنە باغلاشنى قايتا سىناڭ. بۇ مەسىلە داۋاملاشسا، قوللاش مەركىزى بىلەن ئالاقىلىشىڭ (“باش تىزىملىك > ياردەم”).</string>
+    <string name="device_linking_error_invalid_contact_title">ئىناۋەتسىز ئالاقەداش</string>
+    <!-- Error message when linking of a new device failed due to an invalid contact. %1$s will be replaced with the threema identity of the affected contact. -->
+    <string name="device_linking_error_invalid_contact_body">سالاھىيىتى %1$s بولغان ئالاقەداش بۇ ئۈسكۈنىدە خاتا ساقلانغان ۋە يېڭى ئۈسكۈنىنى باغلاشقا توسقۇنلۇق قىلىۋاتىدۇ. قوللاش مەركىزى بىلەن ئالاقىلىشىڭ (“باش تىزىملىك > ياردەم”).</string>
+    <string name="device_linking_error_invalid_timestamp_title">ئىناۋەتسىز چېسلا</string>
+    <string name="device_linking_error_invalid_timestamp_body">ئىناۋەتسىز چېسلاغا يولۇقتى. قوللاش مەركىزى بىلەن ئالاقىلىشىڭ (“باش تىزىملىك > ياردەم”).</string>
+
+    <string name="work_directory_title">شىركەت مۇندەرىجىسى</string>
+    <!-- Instruction text for the user directory search -->
+    <string name="work_directory_search">مۇندەرىجىدە ئىزدەش</string>
+    <!-- Prompt to the user shown in the work directory search. ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_directory_empty_view_text">شىركىتىڭىزنىڭ ${app_name_short} ئىشلەتكۈچىلىرى مۇندەرىجىسىدە ئىزدەشنى باشلاش ئۈچۈن ئىسىمنىڭ كەم دېگەندە 3 ھەرپىنى كىرگۈزۈڭ.</string>
+
+    <!-- Message that is shown when the user wants to share an invalid file. -->
+    <string name="invalid_file_cannot_be_shared">بۇ ھۆججەت ئىناۋەتسىز ۋە ھەمبەھىرلىگىلى بولمايدۇ</string>
+
+    <string name="availability_status_none">ھالەت يوق</string>
+    <!-- Status (only relevant for Work), e.g. as shown on their profile, indicating that the person is currently not available, i.e. out-of-office -->
+    <string name="availability_status_unavailable">يوق</string>
+    <!-- Status (only relevant for Work), e.g. as shown on their profile, indicating that the person is currently busy-->
+    <string name="availability_status_busy">ئالدىراش</string>
+
+    <!-- Error message (only relevant for OnPrem) if the preset server url is different from the one provided by the activation link. -->
+    <string name="error_preset_onprem_url_mismatch_intent">ئاكتىپلاش ئۇلانمىسى ئىناۋەتسىز. باشقۇرغۇچىڭىز بىلەن ئالاقىلىشىڭ.</string>
+
+    <!-- Warning message displayed on screen where the user can export a debug log file to share with Support. ${company_name} is a placeholder for the company name and should be kept as-is, not translated. -->
+    <string name="export_logs_screen_warning">شەخسىي مەخپىيەت سەۋەبىدىن، خاتىرە ھۆججىتىنى پەقەت ${company_name} نىڭ قوللاش ئەترىتى بىلەنلا ۋە پەقەت تەلەپ قىلىنغاندىلا ھەمبەھىرلەڭ.</string>
+
+    <string name="work_intro_screen_work_title">كارخانىلار ئۈچۈن يۇقىرى دەرىجىلىك بىخەتەر ئالاقە</string>
+    <string name="work_intro_screen_work_subtitle">Threema Work شىركەتلەر ئۈچۈن بىخەتەر ئالاقە ھەل قىلىش چارىسى – ئۇچتىن-ئۇچقىچە شىفىرلانغان، GDPR گە ماس كېلىدۇ ۋە شىۋىتسارىيەدە ئىشلەپچىقىرىلغان.</string>
+    <string name="work_intro_screen_work_sign_in_button_label">ھازىر كىرىش</string>
+    <string name="work_intro_screen_work_learn_more_hint">تېخى Threema Work ئىشلەتمەيۋاتامسىز؟</string>
+    <string name="work_intro_screen_work_learn_more_button_label">تېخىمۇ كۆپ بىلىش</string>
+    <string name="work_intro_screen_work_use_private_hint">Threema نى شەخسىي مەقسەتتە ئىشلەتمەكچى بولسىڭىز، Threema Private دېتالىنى تەۋسىيە قىلىمىز.</string>
+    <string name="work_intro_screen_work_download_private_button_label">ھازىر چۈشۈرۈش</string>
+
+    <string name="work_intro_screen_onprem_title">ئەڭ يۇقىرى بىخەتەرلىك دەرىجىسىدىكى ئالاقە</string>
+    <string name="work_intro_screen_onprem_subtitle">Threema OnPrem كارخانىلار، ھۆكۈمەت ئورگانلىرى ۋە ھەربىي تەشكىلاتلار ئۈچۈن ئۆزى مۇلازىمېتىرلايدىغان ئالاقە ھەل قىلىش چارىسى – تولۇق سانلىق مەلۇمات ئىگىدارلىقى، شىفىرلانغان سانلىق مەلۇمات يوللاش ۋە بىخەتەرلىككە سەزگۈر مۇھىتنىڭ يۇقىرى تەلەپلىرى ئۈچۈن.</string>
+    <string name="work_intro_screen_onprem_sign_in_button_label">ھازىر كىرىش</string>
+    <string name="work_intro_screen_onprem_learn_more_hint">تېخى Threema OnPrem ئىشلەتمەيۋاتامسىز؟</string>
+    <string name="work_intro_screen_onprem_learn_more_button_label">تېخىمۇ كۆپ بىلىش</string>
+    <string name="work_intro_screen_onprem_use_private_hint">Threema نى شەخسىي مەقسەتتە ئىشلەتمەكچى بولسىڭىز، Threema Private دېتالىنى تەۋسىيە قىلىمىز.</string>
+    <string name="work_intro_screen_onprem_download_private_button_label">ھازىر چۈشۈرۈش</string>
+
+    <!-- Description of the notification channel which is used when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_notification_channel_description">${remote_secret} ئاكتىپ بولغاندا مۇقىم ئۇقتۇرۇش كۆرسىتىلىدۇ.</string>
+    <!-- Text of the notification which is shown when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_notification_text">${remote_secret} ئاكتىپ. تېخىمۇ كۆپ بىلىش ئۈچۈن چېكىڭ.</string>
+    <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
+    <string name="remote_secrets_blocked_by_admin">بۇ دېتالغا كىرىش باشقۇرغۇچىڭىز تەرىپىدىن توسۇلغان.\n\nتېخىمۇ كۆپ ئۇچۇر ئۈچۈن باشقۇرغۇچىڭىز بىلەن ئالاقىلىشىڭ.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">دېتالنى تاقاش</string>
+    <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secrets_failed_to_fetch">${remote_secret} بەلگىسىگە ئېرىشكىلى بولمىدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="fetching_remote_secret">${remote_secret} بەلگىسىگە ئېرىشىلىۋاتىدۇ</string>
+    <!-- Shown as the title of an info dialog when DualLock (a.k.a. "Remote Secret") has been activated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activated_notification_title">${remote_secret} ئاكتىپلاندى</string>
+    <!-- Shown as the content of an info dialog when DualLock (a.k.a. "Remote Secret") has been activated. The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="remote_secret_activated_dialog_content">ئۈسكۈنىڭىزنى يوقىتىپ قويسىڭىز، بۇ ئىقتىدار باشقۇرغۇچىڭىزنىڭ دېتالنى قۇلۇپلىشىغا يول قويىدۇ، شۇنىڭ بىلەن رۇخسەتسىز كىشىلەر ئۈسكۈنىڭىزنى قۇلۇپتىن چىقىرالىسىمۇ، ئەڭگىمەلىرىڭىز شىفىرلانغان پېتى قالىدۇ.\n[تېخىمۇ كۆپ بىلىش]</string>
+    <!-- Shown as the title of an info dialog when DualLock (a.k.a. "Remote Secret") has been deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivated_notification_title">${remote_secret} ئاكتىپسىزلاندۇرۇلدى</string>
+    <!-- Shown as the content of an info dialog when DualLock (a.k.a. "Remote Secret") has been deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="remote_secret_deactivated_dialog_content">باشقۇرغۇچىڭىز ${remote_secret} نى ئاكتىپسىزلاندۇردى. ${remote_secret} ھەققىدە تېخىمۇ كۆپ ئۇچۇرنى بۇ [FAQ تۈرى] دىن تاپقىلى بولىدۇ.</string>
+    <!-- Shown on loading indicator while the DualLock (a.k.a. "Remote Secret") feature is being activated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activating">${remote_secret} ئاكتىپلىنىۋاتىدۇ</string>
+    <!-- Error message shown fullscreen when activating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activating_failed">${remote_secret} نى ئاكتىپلاش مەغلۇپ بولدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+    <!-- Shown on loading indicator while the DualLock (a.k.a. "Remote Secret") feature is being deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivating">${remote_secret} ئاكتىپسىزلاندۇرۇلۇۋاتىدۇ</string>
+    <!-- Error message shown fullscreen when deactivating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivating_failed">${remote_secret} نى ئاكتىپسىزلاندۇرۇش مەغلۇپ بولدى. ئىنتېرنېت ئۇلىنىشىڭىزنى تەكشۈرۈپ قايتا سىناڭ.</string>
+
+    <string name="referral_banner_title">تەۋسىيە قىلىپ پايدىلىنىڭ</string>
+    <string name="referral_banner_body">دوستلىرىڭىزنى شىركىتىدە Threema Work ئىشلىتىشكە تەكلىپ قىلىپ، تەۋسىيە مۇكاپاتىغا ئېرىشىڭ!</string>
+    <string name="referral_screen_title">تەۋسىيە قىلىپ پايدىلىنىڭ</string>
+    <string name="referral_screen_subtitle">تەۋسىيە قىلىنغان شىركەتنىڭ تۇنجى تالون سوممىسىنىڭ %10 غىچىسىنى تاپشۇرۇۋېلىڭ.</string>
+    <string name="referral_how_it_works_title">قانداق ئىشلەيدۇ</string>
+    <string name="referral_how_it_works_referral_title">تەۋسىيە</string>
+    <string name="referral_how_it_works_referral_body">دوستىڭىز ياكى ئۇلارنىڭ شىركىتىنى Threema Work قا قاتنىشىشقا تەكلىپ قىلىڭ. تەۋسىيەڭىزنىڭ ھېسابقا ئېلىنىشى ئۈچۈن، تىزىملاش ياكى ئىجازەتنامە سېتىۋېلىش جەريانىدا Threema ID ئىڭىزنىڭ تەمىنلىنىشى مۇھىم.</string>
+    <string name="referral_how_it_works_requirements_title">تەلەپلەر</string>
+    <string name="referral_how_it_works_requirements_body">تەۋسىيە قىلىنغان شىركەت ئاللىبۇرۇن خېرىدارىمىز بولماسلىقى ۋە ئىجازەتنامە زاكاز قىلىشى كېرەك</string>
+    <string name="referral_how_it_works_confirmation_title">جەزىملەش</string>
+    <string name="referral_how_it_works_confirmation_body">تەۋسىيەڭىزنىڭ توغرا تەقسىملىنىشى ۋە دەلىللىنىشىنى كاپالەتلەندۈرۈش ئۈچۈن، تۆلەم قىلىشتىن بۇرۇن سىز بىلەن ئالاقىلىشىمىز. دەلىللەش جەريانى تاماملانغان ھامان سىزگە ئۇقتۇرىمىز.</string>
+    <string name="referral_your_reward_title">مۇكاپاتىڭىز</string>
+    <string name="referral_your_reward_subtitle">تەۋسىيە مۇكاپاتىغا ئېرىشىڭ</string>
+    <string name="referral_your_reward_body">تەۋسىيەڭىز ئۈچۈن، تەۋسىيە قىلىنغان شىركەتنىڭ تۇنجى تالون سوممىسىنىڭ %10 ئىنى (باج/ھەقلەر چىقىرىۋېتىلىدۇ) تاپشۇرۇۋالىسىز. مۇكاپات تۆلەم تاپشۇرۇۋالغاندىن كېيىن 30–60 كۈن ئىچىدە سىزگە يوللىنىدۇ.</string>
+    <string name="referral_share_invitation_link">تەكلىپنامە ئۇلانمىسىنى ھەمبەھىرلەش</string>
+    <string name="referral_view_terms_and_conditions">شەرت ۋە ماددىلارنى كۆرۈش</string>
+    <string name="referral_invitation_message_content">سالام، بۇ سىزگە ئەسقاتارمىكىن دەپ ئويلىدىم: Threema Work بىخەتەر سودا ئالاقىسى ئۈچۈن ناھايىتى ياخشى تاللاش. مانا سىناق ئۇلانمىڭىز: %1$s</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_title">كۆكچىش ئۈزۈلگەندە چاقىرىقنى ئاخىرلاشتۇرۇش</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_on">چاقىرىق جەريانىدا كۆكچىش قۇلاقچىنى ئۈزۈلگەندە چاقىرىق ئاخىرلىشىدۇ.</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">چاقىرىق جەريانىدا كۆكچىش قۇلاقچىنى ئۈزۈلگەندە چاقىرىق داۋاملىشىدۇ. دىققەت: بۇ قۇلاقچىندىكى تېلېفون قويۇش كۇنۇپكىسىنىڭ ئىشلىمەسلىكىگە سەۋەب بولۇشى مۇمكىن.</string>
+
+    <string name="failed_to_load_conversations">ئەڭگىمەلەرنى يۈكلىگىلى بولمىدى.</string>
+    <string name="contact_support">قوللاش مەركىزى بىلەن ئالاقىلىشىش</string>
+
+    <string name="edit_availability_status_modal_title">بولۇش ھالىتى</string>
+    <string name="edit_availability_status_modal_subtitle">بۇ ھالەتنى شىركىتىڭىزدىكى ھەركىم كۆرەلەيدۇ.</string>
+    <string name="edit_availability_status_modal_optional_message_label">ئىختىيارى تېكىست (ئىختىيارى)</string>
+    <string name="edit_availability_status_modal_optional_message_placeholder">يىغىندا</string>
+    <string name="edit_availability_status_modal_optional_message_description">ئالدىراش ياكى يوق تاللانغاندا ئىختىيارى ھالەت ئۇچۇرى بەلگىلەش.</string>
+    <string name="edit_availability_status_modal_optional_message_too_long">تېكىست بەك ئۇزۇن، قىسقارتىڭ</string>
+    <string name="edit_availability_status_did_change">بولۇش ھالىتى ئۆزگەردى</string>
+
+    <plurals name="contacts_counter_label">
+        <item quantity="one">%d ئالاقەداش</item>
+        <item quantity="other">%d ئالاقەداش</item>
+    </plurals>
+    <plurals name="really_delete_thread_message">
+        <item quantity="one">%d ئەڭگىمەنى راستىنلا ئۆچۈرەمسىز؟</item>
+        <item quantity="other">%d ئەڭگىمەنى راستىنلا ئۆچۈرەمسىز؟</item>
+    </plurals>
+    <plurals name="sending_message_failed">
+        <item quantity="one">%1$d ئۇچۇرنى ئەۋەتكىلى بولمىدى</item>
+        <item quantity="other">%1$d ئۇچۇرنى ئەۋەتكىلى بولمىدى</item>
+    </plurals>
+    <plurals name="selection_counter_label">
+        <item quantity="one">%d رەسىم تاللاندى</item>
+        <item quantity="other">%d رەسىم تاللاندى</item>
+    </plurals>
+    <plurals name="message_copied">
+        <item quantity="one">ئۇچۇر كۆچۈرۈلدى</item>
+        <item quantity="other">ئۇچۇرلار كۆچۈرۈلدى</item>
+    </plurals>
+    <plurals name="new_messages">
+        <item quantity="one">%d يېڭى ئۇچۇر</item>
+        <item quantity="other">%d يېڭى ئۇچۇر</item>
+    </plurals>
+    <plurals name="unread_messages">
+        <item quantity="one">%d ئوقۇلمىغان ئۇچۇر</item>
+        <item quantity="other">%d ئوقۇلمىغان ئۇچۇر</item>
+    </plurals>
+    <plurals name="file_saved">
+        <item quantity="one">%d ھۆججەت مۇۋەپپەقىيەتلىك ساقلاندى.</item>
+        <item quantity="other">%d ھۆججەت مۇۋەپپەقىيەتلىك ساقلاندى.</item>
+    </plurals>
+    <plurals name="saving_media">
+        <item quantity="one">ۋاسىتە ساقلىنىۋاتىدۇ</item>
+        <item quantity="other">%d ۋاسىتە ھۆججىتى ساقلىنىۋاتىدۇ</item>
+    </plurals>
+    <plurals name="ballot_really_delete">
+        <item quantity="one">سوئالنامىنى ئۆچۈرۈش</item>
+        <item quantity="other">سوئالنامىلەرنى ئۆچۈرۈش</item>
+    </plurals>
+    <plurals name="ballot_really_delete_text">
+        <item quantity="one">%1$d سوئالنامىنى راستىنلا ئۆچۈرەمسىز؟ رەيلەرنى ئەسلىگە كەلتۈرەلمەيسىز.</item>
+        <item quantity="other">%1$d سوئالنامىنى راستىنلا ئۆچۈرەمسىز؟ رەيلەرنى ئەسلىگە كەلتۈرەلمەيسىز.</item>
+    </plurals>
+    <plurals name="media_files_deleted">
+        <item quantity="one">%d ۋاسىتە ھۆججىتى ئۆچۈرۈلدى</item>
+        <item quantity="other">%d ۋاسىتە ھۆججىتى ئۆچۈرۈلدى</item>
+    </plurals>
+    <plurals name="message_deleted">
+        <item quantity="one">%d ئۇچۇر ئۆچۈرۈلدى</item>
+        <item quantity="other">%d ئۇچۇر ئۆچۈرۈلدى</item>
+    </plurals>
+    <plurals name="notifications_for_x_hours">
+        <item quantity="one">%d سائەت</item>
+        <item quantity="other">%d سائەت</item>
+    </plurals>
+    <plurals name="really_delete_contacts_message">
+        <item quantity="one">%1$d ئالاقەداش ۋە ئۇنىڭغا مۇناسىۋەتلىك بارلىق ئەڭگىمەلەرنى راستىنلا ئۆچۈرەمسىز؟</item>
+        <item quantity="other">%1$d ئالاقەداش ۋە ئۇلارغا مۇناسىۋەتلىك بارلىق ئەڭگىمەلەرنى راستىنلا ئۆچۈرەمسىز؟</item>
+    </plurals>
+    <plurals name="some_contacts_not_deleted">
+        <item quantity="one">%d ئالاقەداشنى ئۆچۈرگىلى بولمىدى، چۈنكى ئۇ يەنىلا بىر گۇرۇپپىنىڭ بىر قىسمى.</item>
+        <item quantity="other">%d ئالاقەداشنى ئۆچۈرگىلى بولمىدى، چۈنكى ئۇلار يەنىلا بىر گۇرۇپپىنىڭ بىر قىسمى.</item>
+    </plurals>
+    <plurals name="message_archived">
+        <item quantity="one">%d ئەڭگىمە ئارخىپلاندى</item>
+        <item quantity="other">%d ئەڭگىمە ئارخىپلاندى</item>
+    </plurals>
+    <plurals name="new_messages_in_chats">
+        <item quantity="one">%2$d ئەڭگىمەدە %1$d يېڭى ئۇچۇر</item>
+        <item quantity="other">%2$d ئەڭگىمەدە %1$d يېڭى ئۇچۇر</item>
+    </plurals>
+    <plurals name="webclient_running_sessions">
+        <item quantity="one">%d ئەڭگىمە ئىجرا بولۇۋاتىدۇ</item>
+        <item quantity="other">%d ئەڭگىمە ئىجرا بولۇۋاتىدۇ</item>
+    </plurals>
+    <plurals name="chat_deleted">
+        <item quantity="one">%d ئەڭگىمە ئۆچۈرۈلدى.</item>
+        <item quantity="other">%d ئەڭگىمە ئۆچۈرۈلدى.</item>
+    </plurals>
+    <plurals name="num_archived_chats">
+        <item quantity="one">%d ئارخىپلانغان ئەڭگىمە</item>
+        <item quantity="other">%d ئارخىپلانغان ئەڭگىمە</item>
+    </plurals>
+    <plurals name="forward_security_messages_skipped">
+        <item quantity="one">ئاخىرقى ئۇچۇردىن بۇيان بىر ئۇچۇر يوقالدى.</item>
+        <item quantity="other">ئاخىرقى ئۇچۇردىن بۇيان %d ئۇچۇر يوقالدى.</item>
+    </plurals>
+    <plurals name="delete_messages">
+        <item quantity="one">بۇ ئۇچۇر ئۆچۈرۈلسۇنمۇ؟</item>
+        <item quantity="other">%d ئۇچۇر ئۆچۈرۈلسۇنمۇ؟</item>
+    </plurals>
+    <plurals name="number_of_group_members">
+        <item quantity="one">%d گۇرۇپپا ئەزاسى</item>
+        <item quantity="other">%d گۇرۇپپا ئەزاسى</item>
+    </plurals>
+    <string name="wizard_change_language">تىلنى ئۆزگەرتىش</string>
+    <string name="activation_key_hint">ئاكتىپلاش ئاچقۇچى</string>
+    <string name="use_username_password">ئىشلەتكۈچى ئىسمى ۋە ئىمنى ئىشلىتىش</string>
+    <string name="use_activation_key">ئاكتىپلاش ئاچقۇچىنى ئىشلىتىش</string>
+    <string name="invalid_activation_key">ئىناۋەتسىز ئاكتىپلاش ئاچقۇچى</string>
+</resources>

@@ -10,17 +10,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/edittext_padding"
+        android:paddingStart="@dimen/edittext_padding"
         android:paddingTop="@dimen/dialog_margin_below_title"
-        android:paddingRight="@dimen/edittext_padding">
+        android:paddingEnd="@dimen/edittext_padding">
 
         <TextView
             android:id="@+id/message_text"
             style="@style/Threema.MaterialAlertDialog.Body.Style"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="3dp"
-            android:paddingRight="3dp"
+            android:paddingStart="3dp"
+            android:paddingEnd="3dp"
             android:text="@string/enter_code_sum" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -51,8 +51,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:paddingLeft="3dp"
-            android:paddingRight="3dp"
+            android:paddingStart="3dp"
+            android:paddingEnd="3dp"
             android:text="@string/no_sms_received" />
 
         <com.google.android.material.button.MaterialButton

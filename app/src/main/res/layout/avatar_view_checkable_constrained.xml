@@ -10,8 +10,8 @@
         android:stateListAnimator="@animator/selector_list_checkbox_bg"
         android:visibility="visible"
         android:layout_marginTop="2dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/name"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
@@ -23,8 +23,8 @@
         android:duplicateParentState="true"
         android:stateListAnimator="@animator/selector_list_checkbox_fg"
         app:layout_constraintBottom_toBottomOf="@id/avatar_view"
-        app:layout_constraintLeft_toLeftOf="@id/avatar_view"
-        app:layout_constraintRight_toRightOf="@id/avatar_view"
+        app:layout_constraintStart_toStartOf="@id/avatar_view"
+        app:layout_constraintEnd_toEndOf="@id/avatar_view"
         app:layout_constraintTop_toTopOf="@id/avatar_view" />
 
 </merge>

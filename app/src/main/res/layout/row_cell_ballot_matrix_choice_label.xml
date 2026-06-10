@@ -8,18 +8,18 @@
         android:id="@+id/cell"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/ballot_matrix_cell_height"
-        android:paddingRight="4dp">
+        android:paddingEnd="4dp">
 
         <ch.threema.app.ui.HintedTextView
             android:id="@+id/choice_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:ellipsize="end"
-            android:gravity="right"
+            android:gravity="end"
             android:maxWidth="@dimen/ballot_matrix_label_maxwidth"
             android:maxLines="2"
             android:textAppearance="?android:attr/textAppearanceSmall"

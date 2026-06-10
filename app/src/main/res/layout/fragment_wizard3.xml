@@ -80,7 +80,7 @@
                         style="@style/WizardEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="1dp"
+                        android:layout_marginStart="1dp"
                         android:hint="@string/new_wizard_hint_mobile_number"
                         android:inputType="phone"
                         android:minHeight="@dimen/wizard_default_view_height"

@@ -299,7 +299,7 @@ class StorageManagementActivity : ThreemaToolbarActivity(), DialogClickListener,
                     (fullWidth * storageSizes.freeBytes / storageSizes.totalBytes).toInt(),
                     FrameLayout.LayoutParams.MATCH_PARENT,
                 )
-                params.gravity = Gravity.RIGHT
+                params.gravity = Gravity.END
                 storageEmpty.setLayoutParams(params)
             } else {
                 inUseView.text = Formatter.formatFileSize(context, 0)

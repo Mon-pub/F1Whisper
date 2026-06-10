@@ -5,16 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/edittext_padding"
+    android:paddingStart="@dimen/edittext_padding"
     android:paddingTop="@dimen/dialog_margin_below_title"
-    android:paddingRight="@dimen/edittext_padding">
+    android:paddingEnd="@dimen/edittext_padding">
 
     <TextView
         android:id="@+id/subtitle_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
         android:layout_marginBottom="8dp"
         android:clickable="false"
         android:text="@string/add_caption_hint"
@@ -28,16 +28,16 @@
         android:foreground="?attr/selectableItemBackground"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="2dp"
+        android:paddingStart="2dp"
         android:paddingTop="4dp"
-        android:paddingRight="2dp"
+        android:paddingEnd="2dp"
         android:paddingBottom="4dp">
 
         <ImageView
             android:id="@+id/expand_button"
             android:layout_width="16dp"
             android:layout_height="16dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
             android:clickable="false"
             android:contentDescription="@string/switched_on"
             android:src="@drawable/ic_arrow_right_dark"
@@ -58,7 +58,7 @@
         android:id="@+id/edittext_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="@dimen/edittext_padding"
+        android:paddingStart="@dimen/edittext_padding"
         android:visibility="gone"
         app:endIconMode="clear_text">
 

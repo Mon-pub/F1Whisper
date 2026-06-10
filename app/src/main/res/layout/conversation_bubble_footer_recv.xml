@@ -10,8 +10,8 @@
     android:gravity="bottom"
     android:minHeight="16sp"
     android:orientation="horizontal"
-    android:paddingLeft="@dimen/chat_bubble_margin_start"
-    android:paddingRight="@dimen/chat_bubble_margin_end">
+    android:paddingStart="@dimen/chat_bubble_margin_start"
+    android:paddingEnd="@dimen/chat_bubble_margin_end">
 
     <TextView
         android:id="@+id/edited_text"
@@ -19,7 +19,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
-        android:layout_marginRight="4dp"
+        android:layout_marginEnd="4dp"
         android:layout_weight="1.0"
         android:alpha="0.6"
         android:ellipsize="end"
@@ -36,7 +36,7 @@
         android:layout_height="18dp"
         android:layout_gravity="center_vertical"
         android:alpha="0.6"
-        android:paddingRight="3dp"
+        android:paddingEnd="3dp"
         android:visibility="gone"
         app:tint="@color/bubble_receive_text_colorstatelist"
         tools:src="@drawable/ic_baseline_hearing_24"

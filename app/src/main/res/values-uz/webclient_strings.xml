@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="webclient" translatable="false">Desktop/Web</string>
+    <string name="webclient_init_session">Yangi sessiyani boshlash</string>
+    <string name="webclient_sessions_really_delete">Ushbu desktop/web sessiyasini oʻchirib tashlamoqchimisiz?</string>
+    <string name="webclient_last_usage">Oxirgi foydalanish: %s</string>
+    <string name="webclient_created_at">Yaratilgan vaqti: %1$s (%2$s)</string>
+    <string name="webclient_active_since">Faol boʻlganidan beri: %s</string>
+    <string name="webclient_enable">Desktop ilovasi / web mijozini yoqish</string>
+    <string name="webclient_no_sessions_found">Ulanish uchun kompyuteringizga desktop ilovasini (<b>https://threema.com/download</b>) yuklab oling yoki web mijozni (<b>%s</b>) oching va kompyuter ekranida koʻrsatilgan QR kodni skanerlash uchun quyidagi tugmani bosing.</string>
+    <string name="webclient_session_rename">Sessiya nomini oʻzgartirish</string>
+    <string name="webclient_session_label">Yangi nom</string>
+    <string name="webclient_session_start">Sessiyani boshlash</string>
+    <string name="webclient_session_stop">Sessiyani toʻxtatish</string>
+    <string name="webclient_persistent">doimiy</string>
+    <string name="webclient_disposable">bir martalik</string>
+    <string name="webclient_unnamed_session">Nomsiz sessiya</string>
+    <string name="webclient_session_remove">Sessiyani olib tashlash</string>
+    <string name="webclient_welcome_title">Kompyuteringizdan suhbatlashing!</string>
+    <string name="webclient_welcome_explain">Desktop ilovasi va web mijoz orqali kompyuteringiz yoki noutbukingizdan suhbatlashishingiz mumkin. Bu sizga barcha kontaktlaringiz, media va suhbatlaringizga, hatto avvalgi yozishmalaringizga toʻliq kirish imkonini beradi.\n\n<b>Telefon va kompyuter oʻrtasidagi barcha aloqa toʻliq uchma-uch shifrlanadi</b> va agar telefon va kompyuter bir tarmoqda boʻlsa, toʻgʻridan-toʻgʻri ulanishdan foydalaniladi.\n\nEslatib oʻtamiz: desktop ilovasi / web mijoz faol boʻlganda batareya biroz koʻproq sarflanishi mumkin. Uni istalgan vaqtda yoqishingiz yoki oʻchirishingiz mumkin.</string>
+    <string name="webclient_launch">Desktop ilovasi / web mijozni hozir ishga tushirish</string>
+    <string name="webclient_qr_scan_message">Iltimos, kompyuterda koʻrsatilgan QR kodni skanerlang.</string>
+    <string name="webclient_invalid_qr_code">Yaroqsiz QR kod</string>
+    <string name="webclient_new_connection_toast">Desktop/Web sessiyasi boshlandi</string>
+    <string name="webclient_protocol_error">Protokol xatosi</string>
+    <string name="webclient_protocol_version_to_old">Ilovangiz desktop ilovasi / web mijozning ushbu versiyasini qoʻllab-quvvatlamaydi. Iltimos, Threema for Android ilovasini eng soʻnggi versiyaga yangilang.</string>
+    <string name="webclient_protocol_version_too_new_selfhosted">Ilovangiz desktop ilovasi / web mijozning ushbu versiyasini qoʻllab-quvvatlamaydi. Iltimos, desktop ilovasining eng soʻnggi versiyasini yuklab oling yoki web mijoz administratoridan eng soʻnggi versiyaga yangilashni soʻrang.</string>
+    <string name="webclient_protocol_version_too_new_threema">Ilovangiz desktop ilovasi / web mijozning ushbu versiyasini qoʻllab-quvvatlamaydi. Iltimos, desktop ilovasi / web mijozning joriy versiyasidan foydalaning.</string>
+    <string name="webclient_session_already_exists">Siz skanerlagan QR kod sessiyasi allaqachon mavjud. Iltimos, desktop ilovasini qayta ishga tushiring / web mijozni qayta yuklang va qaytadan urinib koʻring.</string>
+    <string name="webclient_really_start_webclient_by_payload_body">Ushbu sessiyani hozir boshlamoqchimisiz?</string>
+    <string name="webclient_cannot_restore">Sessiyani tiklab boʻlmadi</string>
+    <string name="webclient_disabled">Desktop/Web yoqilmagan</string>
+    <string name="webclient_cannot_start">Sessiyani boshlab boʻlmadi</string>
+    <string name="webclient_constrained_by_mdm">Server administrator tomonidan tasdiqlanmagan.</string>
+    <string name="webclient_clear_all_sessions">Barcha sessiyalarni tozalash</string>
+    <string name="webclient_clear_all_sessions_confirm">Barcha sessiyalarni toʻxtatib, olib tashlamoqchi ekanligingizga ishonchingiz komilmi?</string>
+    <string name="webclient_prefs_debug_tool_summary">Desktop ilovasi yoki web mijozga ulanishni sozlashdagi muammolarni tuzatish uchun ushbu vositani ishga tushiring</string>
+    <string name="webclient_diagnostics">Desktop/Web diagnostikasi</string>
+    <string name="webclient_diagnostics_start">Boshlash</string>
+    <string name="webclient_diagnostics_intro">Testni ishga tushirish uchun «Boshlash» tugmasini bosing.</string>
+    <string name="webclient_diagnostics_done">Bajarildi. Agar desktop ilovasi yoki web mijozga ulanishda muammolarga duch kelsangiz, iltimos, ushbu jurnalni Threema qoʻllab-quvvatlash xizmatiga yuboring.</string>
+    <string name="webclient_scanned_md_linking_qr_code_title">Notoʻgʻri QR kod</string>
+    <!-- ${app_name_desktop} is a placeholder for the Desktop app's name, e.g. "Threema". ${md_link_device} is a placeholder for the name of a UI element. They must be left as they are and not translated. -->
+    <string name="webclient_scanned_md_linking_qr_code_message">Siz skanerlagan QR kod yangi desktop beta ilovasiga tegishli.\n\n“Asosiy menyu > ${app_name_desktop} 2.0 for Desktop (Beta)” boʻlimiga qayting va ushbu desktop ilovasiga bogʻlash uchun “${md_link_device}” ni tanlang.</string>
+</resources>

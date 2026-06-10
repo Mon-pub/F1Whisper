@@ -33,13 +33,13 @@
             android:id="@+id/chip_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="16dp"
+            android:paddingStart="16dp"
             android:paddingTop="8dp"
-            android:paddingRight="16dp"
+            android:paddingEnd="16dp"
             android:paddingBottom="8dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_container">
 
             <com.google.android.material.chip.Chip
@@ -81,8 +81,8 @@
         android:id="@+id/recycler_chats"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/tablet_additional_padding_horizontal"
-        android:layout_marginRight="@dimen/tablet_additional_padding_horizontal"
+        android:layout_marginStart="@dimen/tablet_additional_padding_horizontal"
+        android:layout_marginEnd="@dimen/tablet_additional_padding_horizontal"
         android:background="?android:attr/colorBackground"
         android:clipToPadding="false"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"

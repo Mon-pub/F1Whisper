@@ -5,15 +5,15 @@
     android:layout_height="match_parent"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingLeft="@dimen/edittext_padding"
+    android:paddingStart="@dimen/edittext_padding"
     android:paddingTop="@dimen/dialog_margin_below_title"
-    android:paddingRight="@dimen/edittext_padding">
+    android:paddingEnd="@dimen/edittext_padding">
 
     <ch.threema.app.ui.AvatarEditView
         android:id="@+id/avatar_edit_view"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:layout_marginRight="16dip"
+        android:layout_marginEnd="16dip"
         android:contentDescription="@string/profile_picture"
         android:visibility="visible" />
 

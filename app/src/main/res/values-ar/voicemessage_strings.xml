@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recording">جارٍ تسجيل الرسالة</string>
+    <string name="recording_stopped_title">توقف التسجيل</string>
+    <string name="recording_stopped_message">هل تريد إرسال الرسالة الصوتية المسجَّلة الآن؟</string>
+    <string name="recording_canceled">أُلغي التسجيل بسبب خطأ غير معروف.</string>
+    <string name="cancel_recording">تجاهل التسجيل</string>
+    <string name="cancel_recording_message">هل تريد فعلاً إلغاء التسجيل وتجاهله؟</string>
+    <string name="stop">إيقاف</string>
+</resources>

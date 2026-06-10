@@ -797,6 +797,11 @@
     <string name="really_reset_ringtones">Really reset notification sound settings to defaults?</string>
     <string name="reset_ringtones_confirm">Notification sound settings have been reset.</string>
     <string name="prefs_language_override">Language</string>
+    <string name="wizard_change_language">Change language</string>
+    <string name="activation_key_hint">Activation key</string>
+    <string name="use_username_password">Use username &amp; password</string>
+    <string name="use_activation_key">Use activation key</string>
+    <string name="invalid_activation_key">Invalid activation key</string>
     <!-- ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
     <string name="threema_channel_intro">${app_name_short} Channel provides you with news about all things ${app_name_short}. Would you like to subscribe to ${app_name_short} Channel and add it to your contacts? It’s free and you can unsubscribe at any time.</string>
     <string name="quote">Quote</string>

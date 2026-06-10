@@ -1,0 +1,1873 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="title_section2">مخاطبان</string>
+    <!-- Label on first tab on app's main screen, selecting it leads to the list of chats -->
+    <string name="title_section1">گفت‌وگوها</string>
+    <string name="title_compose_message">شروع گفت‌وگو</string>
+    <string name="title_choose_recipient">انتخاب گیرندگان</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_mythreemaid">شناسه ${app_name_short} من</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_threemaid">شناسه ${app_name_short}</string>
+    <string name="title_adduser">افزودن مخاطب جدید</string>
+    <string name="title_enter_id">وارد کردن شناسه</string>
+    <string name="title_invite_friend">دعوت از یک دوست</string>
+    <string name="invite_via">دعوت از یک دوست از طریق…</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_email_body">سلام،\n\nمن از %1$s استفاده می‌کنم، پیام‌رسان امنی که از حریم خصوصی کاربران محافظت می‌کند.\n\nشناسه ${app_name_short} من: https://threema.id/%2$s\n\nبیایید از طریق %1$s ارتباط برقرار کنیم!\n\nبا احترام،\n</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_sms_body">سلام! بیایید از %1$s برای ارتباطی امن و محترمانه به حریم خصوصی استفاده کنیم! شناسه ${app_name_short} من: https://threema.id/%2$s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_email_subject">${app_name_short}. پیام‌رسان امنی که از حریم خصوصی ما محافظت می‌کند</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="enter_id_hint">شناسه ${app_name_short} را وارد کنید</string>
+    <string name="account_links">حساب‌های پیوندشده</string>
+    <string name="title_set_availability_status">وضعیت در دسترس بودن</string>
+    <string name="menu_settings">تنظیمات</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="menu_about">درباره ${app_name}</string>
+    <string name="menu_add_contact">مخاطب جدید</string>
+    <string name="menu_done">انجام شد</string>
+    <string name="compose_message_and_enter">برای نوشتن اینجا بزنید</string>
+    <string name="title_job_title">عنوان شغلی</string>
+    <string name="title_department">بخش</string>
+    <string name="send">ارسال</string>
+    <string name="prefs_privacy">حریم خصوصی</string>
+    <string name="prefs_notifications">صدا و اعلان‌ها</string>
+    <string name="prefs_chatdisplay">گفت‌وگو</string>
+    <string name="prefs_security">امنیت</string>
+    <string name="prefs_sum_privacy">تنظیمات مربوط به حریم خصوصی</string>
+    <string name="prefs_sum_notifications">تنظیم صدا و لرزش</string>
+    <string name="prefs_sum_chatdisplay">تنظیمات گفت‌وگو</string>
+    <string name="prefs_masterkey">رمزگذاری داده‌های ذخیره‌شده محلی</string>
+    <string name="prefs_header_contacts">مخاطبان</string>
+    <string name="prefs_header_chat">گفت‌وگو</string>
+    <string name="prefs_header_reset">بازنشانی</string>
+    <string name="prefs_header_keyboard">صفحه‌کلید</string>
+    <string name="prefs_sum_sync_contacts_on">همگام نگه داشتن %s کاربر با دفترچه تلفن دستگاه شما</string>
+    <string name="prefs_sum_sync_contacts_off">همگام‌سازی نکردن %s کاربر با دفترچه تلفن دستگاه شما</string>
+    <string name="prefs_title_sync_contacts">همگام‌سازی مخاطبان</string>
+    <string name="prefs_sum_block_unknown_off">هر کسی می‌تواند به شما پیام بفرستد. مخاطبان جدید هنگام دریافت نخستین پیام به‌طور خودکار افزوده می‌شوند.</string>
+    <string name="prefs_sum_block_unknown_on">فقط افراد فهرست مخاطبان شما می‌توانند به شما پیام بفرستند.</string>
+    <string name="prefs_title_block_unknown">مسدود کردن ناشناس‌ها</string>
+    <string name="prefs_title_read_receipts">ارسال رسید خواندن</string>
+    <string name="prefs_title_typing_indicator">ارسال نشانگر در حال تایپ</string>
+    <string name="prefs_media_title">رسانه و حافظه</string>
+    <string name="prefs_sum_media_title">تنظیمات رسانه و حافظه</string>
+    <string name="prefs_image_size">ابعاد تصویر</string>
+    <string name="prefs_notification_sound">صدای اعلان</string>
+    <string name="prefs_sum_notification_sound">پیش‌فرض سیستم</string>
+    <string name="prefs_vibrate">لرزش</string>
+    <string name="prefs_sum_vibrate">لرزش هنگام دریافت پیام</string>
+    <!-- Label on checkbox in notification settings screen, to let the user enable/disable the use of the device's color LED for notifications. Only relevant on Android 7 -->
+    <string name="prefs_notification_light">چراغ اعلان</string>
+    <!-- Summary on checkbox in notification settings screen, to let the user enable/disable the use of the device's color LED for notifications. Only relevant on Android 7 -->
+    <string name="prefs_sum_notification_light">استفاده از چراغ LED رنگی (در صورت وجود) برای پیام‌های ورودی</string>
+    <string name="prefs_title_wallpaper_switch">کاغذدیواری</string>
+    <string name="prefs_title_enter">Enter برای ارسال</string>
+    <string name="prefs_sum_enter_on">کلید Enter بلافاصله پیام را ارسال می‌کند</string>
+    <string name="prefs_sum_enter_off">کلید Enter یک خط جدید اضافه می‌کند</string>
+    <string name="prefs_system_notifications">گفت‌وگوی تکی</string>
+    <string name="prefs_inapp">درون‌برنامه‌ای</string>
+    <string name="prefs_inapp_sounds">صداهای درون‌برنامه‌ای</string>
+    <string name="prefs_inapp_sounds_on">پخش صدا هنگام ارسال/دریافت پیام</string>
+    <string name="prefs_inapp_sounds_off">پخش نکردن هیچ صدای درون‌برنامه‌ای</string>
+    <string name="prefs_inapp_vibrate">لرزش درون‌برنامه‌ای</string>
+    <string name="prefs_inapp_vibrate_on">لرزش هنگام دریافت پیام</string>
+    <string name="prefs_inapp_vibrate_off">لرزش نکردن هنگام دریافت پیام</string>
+    <string name="workarounds">راهکارهای موقت</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_threema_push_switch">استفاده از ${app_name_short} Push</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_threema_push_on">استفاده از ${app_name_short} Push برای اطلاع از پیام‌های جدید</string>
+    <string name="prefs_sum_threema_push_off">بررسی پیام‌های جدید با استفاده از سرویس پوش سیستم</string>
+    <string name="prefs_logging">ثبت گزارش</string>
+    <string name="prefs_title_message_log_switch">ثبت در فایل</string>
+    <string name="prefs_title_sum_message_log_on">رویدادها و اطلاعات شبکه در فایل debug_log.txt ثبت خواهند شد</string>
+    <string name="prefs_title_sum_message_log_off">رویدادها ثبت نخواهند شد</string>
+    <string name="prefs_reset_push">بازنشانی توکن پوش</string>
+    <string name="prefs_sum_reset_push">ثبت مجدد دستگاه برای اعلان‌های پوش با FCM/HMS</string>
+    <string name="prefs_notification_preview">نمایش پیش‌نمایش پیام</string>
+    <string name="prefs_sum_reset_ringtones">بازگرداندن پیش‌فرض‌های سیستم</string>
+    <string name="prefs_title_reset_ringtones">بازنشانی تنظیمات صدای اعلان</string>
+    <string name="image_size_small">کوچک (640x640)</string>
+    <string name="image_size_medium">متوسط (1024x1024)</string>
+    <string name="image_size_large">بزرگ (1600x1600)</string>
+    <string name="image_size_xlarge">خیلی بزرگ (2592x2592)</string>
+    <string name="image_size_original">اندازه اصلی</string>
+    <string name="next">بعدی</string>
+    <string name="finish">پایان</string>
+    <string name="please_wait">لطفاً صبر کنید…</string>
+    <!-- Text shown when a task which shows a loading spinner takes longer than expected (e.g. creating a group) -->
+    <string name="please_wait_timeout">این کار بیش از حد انتظار طول می‌کشد</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard_first_create_id">در حال ایجاد شناسه ${app_name_short} شما…</string>
+    <string name="wizard1_sync_contacts">در حال همگام‌سازی مخاطبان…</string>
+    <string name="wizard2_email_hint">آدرس ایمیل خود را وارد کنید</string>
+    <string name="wizard2_email_linking">در حال پیوند دادن ایمیل به شناسه شما</string>
+    <string name="wizard2_phone_hint">شماره موبایل خود را وارد کنید</string>
+    <string name="wizard2_phone_number_confirm_title">تأیید شماره</string>
+    <string name="wizard2_phone_number_confirm">قصد داریم پیامکی به این شماره ارسال کنیم:\n\n%1$s\n\nآیا این شماره درست است؟</string>
+    <string name="wizard2_phone_linking">در حال پیوند دادن شماره تلفن به شناسه شما</string>
+    <string name="wizard3_nickname_hint">نام مستعار خود را وارد کنید</string>
+    <string name="set_nickname_title">تنظیم نام مستعار</string>
+    <string name="ok">تأیید</string>
+    <string name="cancel">لغو</string>
+    <string name="save">ذخیره</string>
+    <string name="copy_message_action">رونوشت</string>
+    <string name="delete_contact_action">حذف مخاطب</string>
+    <string name="delete_multiple_contact_action">حذف مخاطبان</string>
+    <string name="scan_id">اسکن شناسه</string>
+    <string name="id_scanned">شناسه اسکن شد</string>
+    <string name="id_mismatch">کلید عمومی که اسکن کرده‌اید با کلیدی که سرور برای این شناسه ذخیره کرده مطابقت ندارد. این یعنی کسی کد اسکن‌شده را دستکاری کرده است و نباید به این کلید اعتماد کرد.</string>
+    <string name="scan_successful">شناسه با موفقیت اسکن شد و مخاطب اکنون تأیید شده است.</string>
+    <string name="scan_duplicate">این شناسه قبلاً اسکن و تأیید شده است.</string>
+    <string name="linked_email">ایمیل</string>
+    <!-- Pattern for displaying the user's email address on the My Profile screen. %1$s is a placeholder for the email address, %2$s is a placeholder for the verification state (e.g. "pending") -->
+    <string name="linked_email_pattern">%1$s (%2$s)</string>
+    <string name="linked_mobile">شماره موبایل</string>
+    <!-- Pattern for displaying the user's mobile phone number on the My Profile screen. %1$s is a placeholder for the phone number, %2$s is a placeholder for the verification state (e.g. "pending") -->
+    <string name="linked_mobile_pattern">%1$s (%2$s)</string>
+    <string name="public_nickname">نام مستعار</string>
+    <string name="share_via">هم‌رسانی از طریق…</string>
+    <string name="share_subject">گفت‌وگوی %s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="mobile_already_linked">شناسه ${app_name_short} شما قبلاً به این شماره موبایل پیوند داده شده است</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="email_already_linked">شناسه ${app_name_short} شما قبلاً به این آدرس ایمیل پیوند داده شده است</string>
+    <string name="whoaaa">توجه</string>
+    <string name="really_delete_message_title">حذف پیام</string>
+    <string name="really_delete_thread">حذف گفت‌وگو</string>
+    <string name="really_delete_multiple_threads">حذف گفت‌وگوها</string>
+    <string name="really_delete_contact">آیا واقعاً می‌خواهید این مخاطب و تمام پیام‌های مرتبط را حذف کنید؟</string>
+    <string name="image_placeholder">تصویر</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invalid_threema_id">شناسه ${app_name_short} نامعتبر</string>
+    <string name="close">بستن</string>
+    <string name="creating_contact">در حال افزودن مخاطب جدید</string>
+    <string name="creating_contact_successful">مخاطب با موفقیت افزوده شد</string>
+    <string name="invalid_threema_qr_code">کد QR نامعتبر</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="threema_contact">مخاطب ${app_name_short}</string>
+    <string name="first_name">نام</string>
+    <string name="last_name">نام خانوادگی</string>
+    <string name="os_licenses">مجوزها</string>
+    <string name="verify_title">در حال تأیید شماره موبایل</string>
+    <string name="verify_success_text">شماره موبایل شما با موفقیت تأیید شد.</string>
+    <string name="verify_failed">ناموفق</string>
+    <string name="verify_failed_summary">تأیید شماره موبایل شما ناموفق بود. لطفاً پیش از تلاش مجدد مطمئن شوید که شماره وارد‌شده درست است و به شبکه موبایل خود متصل هستید.</string>
+    <string name="verify_failed_not_linked">تأیید شماره موبایل شما ناموفق بود. فرایند تأیید لغو شد.</string>
+    <string name="backup_title">صدور شناسه</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_sum">صدور شناسه ${app_name_short} شما</string>
+    <string name="backup_and_delete">پشتیبان‌گیری و حذف</string>
+    <string name="delete_id_title">حذف شناسه</string>
+    <string name="delete_id_message">جز در صورتی که پشتیبانی ایجاد کرده یا نسخه‌ای از این شناسه را صادر و ذخیره کرده باشید، دیگر هرگز نخواهید توانست با این شناسه پیام ارسال یا دریافت کنید.\n\nاگر دیگر نمی‌خواهید از این شناسه استفاده کنید، توصیه می‌شود پیش از حذف آن، یک رمز ابطال تنظیم کرده و شناسه را در myid.threema.ch/revoke باطل کنید.</string>
+    <string name="delete_id_message2">آخرین هشدار: آیا واقعاً می‌خواهید شناسه خود را روی این دستگاه حذف کنید؟</string>
+    <string name="delete_id_sum">حذف دائمی شناسه ${app_name_short} و تمام داده‌های این دستگاه</string>
+    <string name="delete_all_data_prompt">تمام داده‌های برنامه حذف شود؟</string>
+    <string name="backup_password_summary">صدور شناسه شما با یک رمز عبور رمزگذاری خواهد شد. از ترکیبی از حروف، اعداد و نمادها استفاده کنید. آنچه را اینجا وارد می‌کنید فراموش نکنید!</string>
+    <string name="backup_password_again_summary">رمز عبور را دوباره وارد کنید</string>
+    <string name="password_hint">رمز عبور</string>
+    <string name="generating_backup_data">در حال تولید داده‌های پشتیبان</string>
+    <string name="backup_id_title">صدور شناسه شما</string>
+    <string name="backup_id_summary">رشته متنی نمایش‌داده‌شده در بالا یا کد QR، همراه با رمز عبوری که انتخاب کرده‌اید، می‌تواند برای بازیابی شناسه شما روی دستگاه دیگری استفاده شود. باید آن را در جای مناسبی رونوشت کنید، از طریق ایمیل هم‌رسانی کنید یا کد QR را با دستگاه دیگری اسکن کنید.</string>
+    <string name="support">راهنما</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_share_content">رشته متنی زیر را می‌توان همراه با رمز عبور انتخاب‌شده برای بازیابی شناسه ${app_name_short} شما استفاده کرد.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_share_subject">صدور شناسه ${app_name_short} برای</string>
+    <string name="add_attachment">پیوست جدید</string>
+    <string name="invalid_passphrase">عبارت عبور نامعتبر</string>
+    <string name="master_key_locked">کلید اصلی قفل است</string>
+    <string name="master_key_locked_notify_description">برای وارد کردن عبارت عبور اینجا بزنید</string>
+    <string name="prefs_masterkey_passphrase">هیچ عبارت عبوری تنظیم نشده است</string>
+    <string name="prefs_title_masterkey_passphrase">عبارت عبور</string>
+    <string name="setting_masterkey_passphrase">در حال تنظیم عبارت عبور کلید اصلی</string>
+    <string name="masterkey_passphrase_title">عبارت عبور کلید اصلی</string>
+    <string name="masterkey_passphrase_summary">برای محافظت از کلید اصلی خود یک عبارت عبور تنظیم کنید. توجه داشته باشید که هر بار با راه‌اندازی مجدد برنامه باید آن را وارد کنید.</string>
+    <string name="masterkey_passphrase_again_summary">عبارت عبور را دوباره وارد کنید</string>
+    <string name="masterkey_passphrase_hint">عبارت عبور</string>
+    <string name="master_key_locked_want_exit">کلید اصلی هنوز قفل است. آیا می‌خواهید دوباره تلاش کنید؟</string>
+    <string name="click_here_to_change_passphrase">برای تغییر عبارت عبور اینجا بزنید</string>
+    <string name="attach_camera">دوربین سیستم</string>
+    <string name="menu_restore">بازیابی از پشتیبان</string>
+    <string name="restore_id_hint">رشته متنی صدور شناسه را برای بازیابی وارد یا الصاق کنید</string>
+    <string name="location_placeholder">موقعیت مکانی</string>
+    <string name="video_placeholder">ویدیو</string>
+    <string name="audio_placeholder">صدا</string>
+    <string name="restoring_backup">در حال بازیابی پشتیبان</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="server_message_title">پیام از سرور ${company_name}</string>
+    <string name="error">خطا</string>
+    <!-- Empty state text for Contacts tab, shown when there are no contacts and Contact Synchronization is disabled -->
+    <string name="no_contacts"><![CDATA[You don’t have any contacts yet. Turn on synchronization (Settings > Privacy), or add contacts manually.]]></string>
+    <!-- Empty state text for Contacts tab, shown when there are no contacts and Contact Synchronization is enabled -->
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="no_contacts_sync_on"><![CDATA[You don’t have any contacts yet. Synchronization is on, but it looks like none of your address book contacts are on ${app_name_short} (invite them!).]]></string>
+    <string name="masterkey_title">عبارت عبور را وارد کنید</string>
+    <string name="masterkey_body">کلید اصلی شما با یک عبارت عبور محافظت می‌شود. برای باز کردن قفل کلید، عبارت عبور خود را وارد کنید.</string>
+    <string name="masterkey_unlocking">در حال باز کردن قفل کلید اصلی</string>
+    <string name="verify_phonecall_text">درخواست تماس</string>
+    <string name="prepare_call_message">اگر ادامه دهید، بلافاصله تلاش می‌کنیم با شما تماس بگیریم. کد تأیید شما دو بار برایتان خوانده می‌شود. توجه داشته باشید که فقط یک بار تلاش می‌کنیم، بنابراین لطفاً پیش از ادامه مطمئن شوید که آماده هستید.</string>
+    <string name="enter_code_hint">وارد کردن کد</string>
+    <string name="enter_code_sum">لطفاً کد پیامک تأیید یا کد ذکرشده در تماس تلفنی را وارد کنید.</string>
+    <string name="no_matching_contacts">مخاطبی یافت نشد.</string>
+    <string name="code_invalid">کدی که وارد کردید معتبر نیست.</string>
+    <string name="try_again">تلاش مجدد</string>
+    <string name="decoding_message">در حال رمزگشایی پیام</string>
+    <string name="expired_barcode">این کد منقضی شده است. لطفاً آن را دوباره مستقیماً از برنامه کاربر دیگر اسکن کنید.</string>
+    <string name="pending">در انتظار</string>
+    <string name="unlinking_email">در حال لغو پیوند ایمیل</string>
+    <string name="unlink">لغو پیوند</string>
+    <string name="threema_version">نسخه</string>
+    <string name="threema_version_code">کد نسخه</string>
+    <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
+    <string name="about_server_config_title">پیکربندی سرور</string>
+    <string name="wrong_backupid_or_password_or_no_internet_connection">اتصالی به اینترنت وجود ندارد، داده‌های صدور شناسه نامعتبر است یا رمز عبور نادرست است</string>
+    <string name="prefs_header_other">سایر</string>
+    <string name="an_error_occurred">خطایی رخ داد</string>
+    <string name="an_error_occurred_more">خطایی رخ داد: «%1$s»</string>
+    <string name="acknowledge">موافقم</string>
+    <string name="decline">مخالفم</string>
+    <string name="forward_message">هدایت پیام</string>
+    <string name="connection_error">خطای اتصال، لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="me_myself_and_i">من</string>
+    <string name="really_forward">به «%1$s» هدایت شود؟</string>
+    <string name="really_send">به «%1$s» ارسال شود؟</string>
+    <string name="ringtone_none">بی‌صدا</string>
+    <string name="no_camera_installed">دوربین قابل‌استفاده‌ای در دسترس نیست</string>
+    <string name="save_message_action">ذخیره</string>
+    <string name="masterkey_is_unlocked">قفل کلید اصلی باز است</string>
+    <string name="file_too_large">حجم فایل بیشتر از حداکثر %1$d مگابایت است</string>
+    <string name="enter_serial_body"><![CDATA[Please enter your shop license key. You can <a href="https://shop.threema.ch/">purchase</a> a license or <a href="https://shop.threema.ch/retrieve_keys">retrieve</a> your keys in case you already purchased a license previously.]]></string>
+    <!-- ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_enter_serial_body">لطفاً اعتبارنامه‌های ${app_name_short} ارائه‌شده توسط سازمان خود را وارد کنید.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="enter_serial_title">باز کردن قفل ${app_name}</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="serial_required_want_exit">کلید مجوز نامعتبر است. آیا می‌خواهید دوباره تلاش کنید یا از ${app_name} خارج شوید؟</string>
+    <!-- Message shown on progress dialog that shows while checking whether the user has a valid license -->
+    <string name="checking_serial">در حال بررسی مجوز</string>
+    <!-- Message shown on progress dialog that shows while the credentials that the user entered are being checked for their validity -->
+    <string name="work_checking_credentials">در حال بررسی اعتبارنامه‌ها</string>
+    <string name="update_available">به‌روزرسانی در دسترس است</string>
+    <!-- Message shown in Update dialog to inform the user that a new version of the app is available -->
+    <string name="update_available_message">نسخه جدیدی در دسترس است. آیا می‌خواهید آن را اکنون دانلود کنید؟</string>
+    <string name="no_update_available">به‌روزرسانی در دسترس نیست</string>
+    <string name="download">دانلود</string>
+    <string name="not_now">بعداً یادآوری کن</string>
+    <string name="preparing_messages">در حال آماده‌سازی پیام‌ها</string>
+    <string name="select_emoji">ایموجی‌ها</string>
+    <string name="push_reset_title">بازنشانی توکن پوش</string>
+    <string name="push_reset_text">توکن پوش بازنشانی شد</string>
+    <string name="emoji_recent">اخیر</string>
+    <string name="emoji_smileys">شکلک‌ها و احساسات</string>
+    <string name="emoji_people">افراد و بدن</string>
+    <string name="emoji_nature">حیوانات و طبیعت</string>
+    <string name="emoji_food">غذا و نوشیدنی</string>
+    <string name="emoji_travel">سفر و مکان‌ها</string>
+    <string name="emoji_activity">فعالیت‌ها</string>
+    <string name="emoji_objects">اشیا</string>
+    <string name="emoji_symbols">نمادها</string>
+    <string name="emoji_flags">پرچم‌ها</string>
+    <string name="emoji_search">جست‌وجوی ایموجی‌ها</string>
+    <string name="emoji_search_no_result">نتیجه‌ای یافت نشد</string>
+    <string name="title_lock">قفل</string>
+    <string name="new_messages_locked">پیام‌های جدید در دسترس است</string>
+    <string name="new_messages_locked_description">برای مشاهده پیام‌های جدید لمس کنید.</string>
+    <string name="new_unprocessed_messages">پیام‌های جدید در دسترس است</string>
+    <string name="new_unprocessed_messages_description">برای دریافت و مشاهده پیام‌های ورودی جدید لمس کنید.</string>
+    <string name="prefs_title_masterkey_notification_newmsg">اعلان‌های پیام جدید</string>
+    <string name="prefs_masterkey_notification_newmsg_off">هنگامی که کلید اصلی قفل است، پیام‌های جدید اعلانی ایجاد نمی‌کنند</string>
+    <string name="prefs_masterkey_notification_newmsg_on">هنگامی که کلید اصلی قفل است، پیام‌های جدید یک اعلان عمومی ایجاد می‌کنند</string>
+    <string name="chat_history_attached">گزارش گفت‌وگو پیوست شده است.</string>
+    <string name="backup_data_title">پشتیبان‌گیری داده</string>
+    <string name="backup_data_password_msg">داده‌های شما در یک فایل ZIP روی حافظه USB داخلی شما ذخیره می‌شوند و می‌توانند روی هر دستگاه اندرویدی بازیابی شوند. لطفاً برای محافظت از پشتیبان داده‌های خود یک رمز عبور وارد کنید.</string>
+    <string name="restore_data_password_msg">رمز عبوری را که برای ایجاد این پشتیبان استفاده کرده‌اید وارد کنید.</string>
+    <string name="backup_data_media">شامل فایل‌های رسانه‌ای بزرگ (ویدیو، اسناد، تصاویر اصلی)</string>
+    <string name="backup_data_new">ایجاد پشتیبان داده</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="pinentry_enter_pin">برای ادامه پین ${app_name} خود را وارد کنید</string>
+    <string name="pinentry_wrong_pin">پین نادرست</string>
+    <string name="prefs_sum_security_pin">قفل دسترسی به رابط کاربری</string>
+    <string name="prefs_title_pin_switch">قفل برنامه</string>
+    <string name="prefs_title_pin_code">تنظیم پین</string>
+    <string name="prefs_pin_grace">زمان تا قفل شدن</string>
+    <string name="prefs_sum_pin_grace">زمان تا فعال شدن قفل صفحه</string>
+    <string name="click_here_to_change_pin">پین تنظیم شد. برای تغییر اینجا بزنید</string>
+    <string name="set_pin_menu_title">تنظیم پین جدید</string>
+    <string name="set_pin_summary_intro">با تنظیم یک پین عددی (فقط ارقام) از حریم خصوصی خود محافظت کنید. این پین می‌تواند برای قفل دسترسی به رابط کاربری برنامه پس از یک زمان مهلت یا برای محافظت از گفت‌وگوهای خصوصی استفاده شود</string>
+    <string name="set_pin_again_summary">پین را دوباره وارد کنید</string>
+    <string name="set_pin_hint">پین</string>
+    <string name="title_addgroup">گروه جدید</string>
+    <string name="updating_system">در حال به‌روزرسانی سیستم</string>
+    <string name="title_select_contacts">انتخاب اعضا</string>
+    <string name="pin_invalid_not_set">پین نامعتبر است. تنظیم نشد.</string>
+    <string name="prefs_group_notifications">گفت‌وگوی گروهی</string>
+    <string name="group_select_at_least_two">برای ادامه باید حداقل یک عضو انتخاب کنید</string>
+    <string name="group_select_max">نمی‌توانید بیش از %1$d عضو گروه انتخاب کنید</string>
+    <string name="search">جست‌وجو</string>
+    <string name="hint_search_keyword">کلیدواژه جست‌وجو</string>
+    <string name="add_group_owner">سازنده گروه</string>
+    <string name="title_tab_users">مخاطبان</string>
+    <string name="title_tab_groups">گروه‌ها</string>
+    <string name="no_matching_groups">گروهی یافت نشد</string>
+    <string name="action_leave_group">ترک گروه</string>
+    <string name="group_edit_title">ویرایش گروه</string>
+    <string name="really_leave_group_message">آیا واقعاً می‌خواهید این گروه را ترک کنید؟</string>
+    <string name="search_no_matches">موردی یافت نشد</string>
+    <string name="search_no_more_matches">مورد بیشتری وجود ندارد</string>
+    <string name="backup_share">هم‌رسانی پشتیبان</string>
+    <string name="my_backups_title">پشتیبان‌ها</string>
+    <string name="backup_delete_confirm">فایل پشتیبان حذف شد</string>
+    <string name="message_log_title">جزئیات پیام</string>
+    <string name="state_read">خوانده‌شده</string>
+    <string name="state_delivered">تحویل‌شده</string>
+    <string name="state_sending">در حال ارسال</string>
+    <string name="state_pending">در انتظار</string>
+    <string name="state_failed">ناموفق</string>
+    <string name="state_sent">ارسال‌شده</string>
+    <string name="state_dialog_created">ایجاد شد</string>
+    <string name="state_dialog_posted">ارسال شد</string>
+    <string name="state_dialog_modified">به‌روزرسانی شد</string>
+    <string name="state_dialog_edited">ویرایش شد</string>
+    <string name="state_dialog_deleted">حذف شد</string>
+    <string name="title_tab_recent">اخیر</string>
+    <string name="no_recent_conversations">گفت‌وگویی یافت نشد</string>
+    <string name="creating_group">در حال ایجاد گروه</string>
+    <string name="updating_group">در حال به‌روزرسانی گروه</string>
+    <string name="leaving_group">در حال ترک گروه</string>
+    <string name="disbanding_group">در حال انحلال گروه</string>
+    <string name="removing_group">در حال حذف گروه</string>
+    <string name="resyncing_group">در حال همگام‌سازی مجدد گروه</string>
+    <string name="status_create_group">گروه ایجاد شد.</string>
+    <string name="status_rename_group">نام گروه به «%1$s» تغییر یافت</string>
+    <string name="status_group_new_photo">تصویر گروه به‌روزرسانی شد.</string>
+    <string name="status_group_new_member">«%1$s» به گروه افزوده شد.</string>
+    <string name="status_group_member_left">«%1$s» گروه را ترک کرد.</string>
+    <string name="status_group_member_kicked">«%1$s» از گروه حذف شد.</string>
+    <string name="can_not_send_no_group_members">نمی‌توانید به یک گروه خالی پیام بفرستید</string>
+    <string name="you_are_not_a_member_of_this_group">شما عضو این گروه نیستید</string>
+    <string name="title_public_nickname">نام مستعار</string>
+    <string name="title_availability_status">وضعیت</string>
+    <string name="prefs_sum_excluded_sync_identities">شناسه‌های فهرست‌شده در اینجا هنگام همگام‌سازی مخاطبان نادیده گرفته می‌شوند</string>
+    <string name="prefs_title_excluded_sync_identities">فهرست استثناها</string>
+    <string name="synchronize_contact">همگام‌سازی دفترچه تلفن</string>
+    <string name="exclude_contact">استثنا کردن از همگام‌سازی خودکار</string>
+    <string name="prefs_header_lists">فهرست‌ها</string>
+    <string name="prefs_title_blocked_contacts">مخاطبان مسدودشده</string>
+    <string name="prefs_sum_blocked_contacts">پیام‌های شناسه‌های فهرست‌شده در اینجا نادیده گرفته می‌شوند.</string>
+    <string name="verified">تأییدشده</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="want_to_add_to_exclude_list">این مخاطب به رکوردی در دفترچه تلفن گوشی شما پیوند داده شده است. اگر آن را در ${app_name_short} حذف کنید، پس از همگام‌سازی مخاطبان دوباره ظاهر می‌شود.\nآیا می‌خواهید آن را از همگام‌سازی استثنا کنید؟</string>
+    <string name="no">خیر</string>
+    <string name="yes">بله</string>
+    <string name="deleting_contact">در حال حذف مخاطب</string>
+    <string name="prefs_contact_soring">مرتب‌سازی</string>
+    <string name="prefs_contact_format">نمایش نام مخاطبان</string>
+    <string name="prefs_contact_list_title">فهرست مخاطبان</string>
+    <string name="prefs_default_contact_picture_colored">تصاویر پیش‌فرض مخاطب</string>
+    <string name="prefs_show_inactive_contacts">نمایش شناسه‌های غیرفعال</string>
+    <string name="prefs_sum_default_contact_picture_colored_on">نمایش جای‌نمای چندرنگ در صورت نبود تصویر مخاطب</string>
+    <string name="prefs_sum_default_contact_picture_colored_off">استفاده از جای‌نمای خاکستری در صورت نبود تصویر مخاطب</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_show_inactive_contacts_on">نمایش تمام شناسه‌های ${app_name_short} در فهرست مخاطبان شما</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_show_inactive_contacts_off">پنهان کردن شناسه‌های ${app_name_short} غیرفعال/باطل‌شده</string>
+    <string name="contact_sorting_first_name">نام - نام خانوادگی</string>
+    <string name="contact_sorting_last_name">نام خانوادگی - نام</string>
+    <string name="contact_format_first_name_last_name">نام نام خانوادگی</string>
+    <string name="contact_format_last_name_first_name">نام خانوادگی نام</string>
+    <string name="block_contact">مسدود کردن مخاطب</string>
+    <string name="unblock_contact">رفع مسدودیت مخاطب</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="add_acount_from_within_threema">شناسه ${app_name_short} خود را از داخل ${app_name_short} مدیریت کنید.</string>
+    <string name="share_image">هم‌رسانی تصویر</string>
+    <string name="view_in_gallery">مشاهده در گالری</string>
+    <string name="token_register_failed">به‌روزرسانی توکن پوش ناموفق بود، لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="internet_connection_required">اتصال اینترنت وجود ندارد.</string>
+    <string name="prefs_sum_save_media">ذخیره تصاویر و ویدیوهای ورودی و همچنین تصاویر دوربین خروجی به‌صورت رمزگذاری‌نشده</string>
+    <string name="prefs_save_media">ذخیره خودکار در گالری</string>
+    <string name="title_add_distribution_list">فهرست توزیع جدید</string>
+    <string name="title_edit_distribution_list">ویرایش فهرست توزیع</string>
+    <string name="really_delete_distribution_list">حذف فهرست توزیع</string>
+    <string name="really_delete_distribution_list_message">آیا واقعاً می‌خواهید این فهرست را حذف کنید و پیام‌های آن را پاک کنید؟</string>
+    <string name="enter_distribution_list_name">برای این فهرست نامی انتخاب کنید</string>
+    <string name="distribution_list">فهرست توزیع</string>
+    <string name="title_tab_distribution_list">فهرست‌های توزیع</string>
+    <string name="no_matching_distribution_lists">فهرست توزیع منطبقی یافت نشد</string>
+    <string name="is_typing">در حال تایپ…</string>
+    <string name="push_not_available_title">سرویس پوش یافت نشد</string>
+    <string name="push_not_available_text1">نتوانستیم سرویس پوشی روی دستگاه شما پیدا کنیم زیرا Google Play Services نصب نشده یا قدیمی است.</string>
+    <string name="push_not_available_text2">%s تلاش خواهد کرد یک اتصال پس‌زمینه پایدار به سرور باز کند. اگر سازوکارهای بهینه‌سازی باتری دستگاه شما با اتصال پس‌زمینه تداخل داشته باشند، ممکن است این کار به‌طور قابل‌اعتماد عمل نکند.</string>
+    <string name="backup_in_progress">پشتیبان‌گیری در حال انجام</string>
+    <string name="backup_or_restore_success_body">پشتیبان‌گیری داده با موفقیت کامل شد</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_or_restore_error">پشتیبان ${app_name_short}</string>
+    <string name="backup_or_restore_error_body">پشتیبان‌گیری با موفقیت کامل نشد</string>
+    <string name="could_not_download_message">دانلود پیام ممکن نشد</string>
+    <string name="info">اطلاعات</string>
+    <string name="resync_group">همگام‌سازی مجدد گروه</string>
+    <string name="edit_name">ویرایش نام و تصویر</string>
+    <string name="edit_name_only">ویرایش نام</string>
+    <string name="group_was_synchronized">گروه همگام شد.</string>
+    <string name="verification_level2_work_explain">مخاطب داخلی، که توسط سازمان شما از پیش تنظیم شده است.</string>
+    <string name="verification_level3_work_explain">مخاطب داخلی که هویت و کلید عمومی او را شخصاً با اسکن کد QR او تأیید کرده‌اید.</string>
+    <string name="verification_level3_explain">مخاطبی که هویت و کلید عمومی او را شخصاً با اسکن کد QR او تأیید کرده‌اید.</string>
+    <string name="verification_level2_explain">مخاطبی که شماره تلفن و/یا آدرس ایمیل او در دفترچه تلفن شما موجود است.</string>
+    <string name="verification_level1_explain">مخاطب ناشناس؛ یا این مخاطب شماره تلفن یا آدرس ایمیلی به شناسه خود پیوند نداده، یا دفترچه تلفن شما این اطلاعات تماس را ندارد.</string>
+    <string name="state_dialog_received">دریافت شد</string>
+    <string name="prefs_title_hide_screenshots">بدون بندانگشتی و عکس صفحه</string>
+    <string name="prefs_summary_hide_screenshots">نمایش ندادن بندانگشتی‌ها در تعویض‌کننده برنامه و غیرفعال کردن عکس صفحه در صفحات منتخب</string>
+    <string name="media_gallery">گالری رسانه</string>
+    <string name="media_file_not_found">نمی‌توان فایل رسانه را باز کرد. این فایل حذف شده یا از سرور دانلود نشده است.</string>
+    <string name="media_gallery_pictures">تصاویر</string>
+    <string name="media_gallery_videos">ویدیوها</string>
+    <string name="group_membership_title">عضو این گروه‌ها</string>
+    <string name="group_description">توضیحات گروه</string>
+    <string name="change_group_description">تغییر توضیحات گروه</string>
+    <string name="add_group_description">افزودن توضیحات گروه</string>
+    <string name="read_more">بیشتر بخوانید</string>
+    <string name="read_less">کمتر بخوانید</string>
+    <string name="changed_group_desc_date">آخرین تغییر: </string>
+    <string name="num_items_sected">%s انتخاب شد</string>
+    <string name="really_delete_media">آیا واقعاً می‌خواهید %d پیام رسانه‌ای را حذف کنید؟</string>
+    <string name="check_updates">بررسی به‌روزرسانی‌ها</string>
+    <!-- ${app_name} and ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
+    <string name="masterkey_lock_explain">${app_name} عبارت عبور را در حافظه نگه می‌دارد. اگر نیاز دارید عبارت عبور را اغلب دوباره وارد کنید، مطمئن شوید برنامه‌های پایان‌دهنده وظیفه و صرفه‌جویی باتری که ممکن است ${app_name_short} را زودهنگام ببندند، غیرفعال هستند.</string>
+    <string name="identity_already_exists">این شناسه از قبل در فهرست مخاطبان شما وجود دارد</string>
+    <string name="share_contact">هم‌رسانی مخاطب</string>
+    <string name="add_shortcut">افزودن میان‌بر</string>
+    <string name="group_not_found">چنین گروهی یافت نشد.</string>
+    <string name="contact_not_found">چنین مخاطبی وجود ندارد</string>
+    <string name="contact_now_blocked">مخاطب مسدود شد</string>
+    <string name="contact_now_unblocked">مسدودیت مخاطب رفع شد</string>
+    <string name="share_conversation_body">برای باز کردن فایل ZIP به یک ابزار ZIP مدرن با پشتیبانی AES نیاز است، مثلاً http://www.7-zip.org یا https://itunes.apple.com/us/app/the-unarchiver/id425424353</string>
+    <string name="enter_zip_password_body">گفت‌وگو به‌صورت یک فایل zip رمزگذاری‌شده ارسال خواهد شد. لطفاً یک رمز عبور انتخاب کنید:</string>
+    <string name="ballot_create">ایجاد نظرسنجی</string>
+    <string name="ballot_choice_add">افزودن گزینه</string>
+    <string name="ballot_state_closed">بسته‌شده</string>
+    <string name="ballot_vote">رأی</string>
+    <string name="ballot_placeholder">نظرسنجی</string>
+    <string name="ballot_close">بستن این نظرسنجی</string>
+    <string name="ballot_really_close">این نظرسنجی واقعاً بسته شود؟</string>
+    <string name="ballot_multiple_choice">چندگزینه‌ای</string>
+    <string name="ballot_result_intermediate">نتایج میانی</string>
+    <string name="ballot_error_more_than_x_choices">باید حداقل دو گزینه تعریف کنید</string>
+    <string name="ballot_message_closed">نتایج در دسترس است</string>
+    <string name="ballot_vote_posted_successfully">رأی با موفقیت ثبت شد</string>
+    <string name="ballot_vote_posted_failed">ثبت رأی ناموفق بود</string>
+    <string name="attach_ballot">نظرسنجی</string>
+    <string name="ballot_overview">همه نظرسنجی‌ها</string>
+    <string name="ballot_copy">رونوشت نظرسنجی</string>
+    <string name="ballot_remove">حذف نظرسنجی</string>
+    <string name="ballot_not_exist">نظرسنجی وجود ندارد</string>
+    <string name="ballot_tap_to_vote">برای رأی دادن بزنید</string>
+    <string name="ballot_tap_to_view_results">نظرسنجی بسته شد. برای مشاهده نتایج بزنید</string>
+    <string name="ballot_subject_hint">عنوان این نظرسنجی را وارد کنید</string>
+    <string name="ballot_no_ballots_yet">هنوز نظرسنجی‌ای وجود ندارد.</string>
+    <string name="print">چاپ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="ballot_wizard0_explain">به‌سرعت یک نظرسنجی آنلاین را مستقیماً با ${app_name_short} ایجاد کنید. رویدادی را برنامه‌ریزی کنید، نظرسنجی بسازید یا هر چیزی را که می‌خواهید از مخاطبان خود بپرسید.</string>
+    <string name="ballot_add_choices">افزودن پاسخ‌ها</string>
+    <string name="blocked_cannot_send">نمی‌توانید به یک مخاطب مسدودشده پیام بفرستید</string>
+    <string name="invalid_some_cannot_send">برخی از گیرندگان قابل انتخاب نیستند.</string>
+    <string name="invalid_all_cannot_send">این گیرندگان قابل انتخاب نیستند.</string>
+    <string name="really_block_contact">پیام‌های آینده از این مخاطب نادیده گرفته خواهند شد. ادامه می‌دهید؟</string>
+    <string name="ballot_result_final">نتیجه نهایی</string>
+    <string name="invalid_cannot_send">نمی‌توانید به یک مخاطب نامعتبر پیام بفرستید</string>
+    <string name="ballot_answer_count_error">لطفاً برای نظرسنجی حداقل دو پاسخ وارد کنید.</string>
+    <string name="contact_state_inactive">غیرفعال</string>
+    <string name="contact_state_invalid">نامعتبر</string>
+    <string name="back">بازگشت</string>
+    <string name="wearable_reply">پاسخ</string>
+    <string name="wearable_reply_label">پاسخ به %s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="push_disable_text">اگر ادامه دهید، به‌جای سرویس پوش سیستم از «${app_name_short} Push» استفاده خواهد شد. این کار به کاهش ردپای دیجیتال شما کمک می‌کند اما مستلزم آن است که گوشی شما به‌گونه‌ای پیکربندی شود که به برنامه اجازه اجرا در پس‌زمینه را بدهد. اگر گزینه‌های مربوطه در تنظیمات دستگاه یافت نشدند، ممکن است بخواهید برای کمک در پیکربندی با پشتیبانی سازنده دستگاه خود تماس بگیرید.</string>
+    <string name="debug_log_enabled_recently_warning">اگر مشکل خاصی دارید، لطفاً پیش از ارسال فایل گزارش رفع اشکال برای ما، سعی کنید آن را بازتولید کنید. این کار به ما کمک می‌کند مسئله را مؤثرتر بررسی کنیم. متشکریم.</string>
+    <string name="ballot_intermediate_results_show">نمایش نتایج میانی</string>
+    <string name="converting_video">در حال پردازش ویدیو</string>
+    <string name="video_size_small">بالا (داده کمتر)</string>
+    <string name="video_size_large">پایین (داده بیشتر)</string>
+    <string name="video_size_original">هیچ (حجم بسیار زیاد داده)</string>
+    <string name="prefs_video_size">فشرده‌سازی ویدیو</string>
+    <string name="menu_video_size_small">اندازه کوچک</string>
+    <string name="menu_video_size_medium">اندازه متوسط</string>
+    <string name="menu_video_size_large">اندازه اصلی</string>
+    <string name="show_contact">نمایش مخاطب</string>
+    <string name="chat_with">گفت‌وگو با %1$s</string>
+    <string name="kick_user_from_group">اخراج %1$s از گروه</string>
+    <string name="show_as_qrcode">نمایش به‌صورت کد QR</string>
+    <string name="qr_code">کد QR</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="really_leave_id_export">اگر هنوز این کار را نکرده‌اید، رشته متنی صدور شناسه یا کد QR متناظر آن را در جایی امن ذخیره یا چاپ کنید. شناسه ${app_name_short} شما بدون پشتیبان قابل بازیابی نیست.</string>
+    <string name="revocation_key_title">ابطال شناسه</string>
+    <string name="revocation_key_not_set">رمز ابطالی تنظیم نشده است</string>
+    <string name="revocation_key_set_at">رمز تنظیم شد %1$s</string>
+    <string name="prefs_sum_remove_wallpapers">حذف تمام کاغذدیواری‌های شخصی</string>
+    <string name="prefs_title_remove_wallpapers">حذف تمام کاغذدیواری‌ها</string>
+    <string name="really_remove_wallpapers">آیا واقعاً می‌خواهید تمام کاغذدیواری‌ها را حذف کنید؟</string>
+    <string name="wallpapers_removed">کاغذدیواری‌ها حذف شدند</string>
+    <string name="invalid_backup">داده پشتیبان نامعتبر است. نمی‌توان بازیابی کرد.</string>
+    <string name="invalid_zip_restore_failed">بازیابی ناموفق بود. فایل پشتیبان نامعتبر: %1$s</string>
+    <string name="revocation_explain">رمز عبوری که در اینجا وارد می‌کنید به شما امکان می‌دهد در صورت گم شدن یا سرقت شناسه، آن را در https://myid.threema.ch/revoke باطل کنید</string>
+    <!-- Empty state text shown on home screen widget when there are no unread messages -->
+    <string name="no_unread_messages">پیام خوانده‌نشده‌ای وجود ندارد</string>
+    <string name="send_media">ارسال رسانه</string>
+    <string name="rotate">چرخش</string>
+    <string name="remove">حذف</string>
+    <string name="item_already_added">این مورد قبلاً افزوده شده است.</string>
+    <string name="password_too_short" tools:ignore="PluralsCandidate">حداقل %d نویسه.</string>
+    <string name="mark_read">علامت‌گذاری به‌عنوان خوانده‌شده</string>
+    <string name="attach_document">فایل</string>
+    <string name="parent_directory">بالاتر</string>
+    <string name="file_placeholder">فایل</string>
+    <string name="internal_storage">حافظه داخلی</string>
+    <string name="no_activity_for_mime_type">برنامه‌ای برای باز کردن این فایل یافت نشد.</string>
+    <string name="no_activity_for_intent">برنامه‌ای یافت نشد.</string>
+    <string name="open_from">باز کردن از</string>
+    <string name="mime_android_apk">بسته اندروید</string>
+    <string name="mime_audio">فایل صوتی</string>
+    <string name="mime_certificate">گواهی دیجیتال</string>
+    <string name="mime_codes">کد منبع</string>
+    <string name="mime_compressed">بایگانی</string>
+    <string name="mime_contact">مخاطب</string>
+    <string name="mime_event">رویداد تقویم</string>
+    <string name="mime_font">قلم</string>
+    <string name="mime_image">فایل تصویری</string>
+    <string name="mime_pdf">سند PDF</string>
+    <string name="mime_presentation">ارائه</string>
+    <string name="mime_spreadsheet">صفحه گسترده</string>
+    <string name="mime_text">فایل متنی</string>
+    <string name="mime_video">فایل ویدیویی</string>
+    <string name="mime_word">سند متنی</string>
+    <string name="no_filename"><![CDATA[<No filename>]]></string>
+    <string name="send_as_files">ارسال به‌صورت فایل</string>
+    <string name="send_as_files_warning">انتقال فایل‌ها و تصاویر فشرده‌نشده می‌تواند مصرف داده قابل‌توجهی ایجاد کند که ممکن است منجر به هزینه‌های اضافی از سوی اپراتور موبایل شما شود. توصیه می‌کنیم فایل‌ها را فقط در شبکه‌های WiFi بارگذاری و دانلود کنید.</string>
+    <string name="prefs_theme">پوسته طراحی</string>
+    <string name="list_theme_light">روشن</string>
+    <string name="list_theme_dark">تیره</string>
+    <string name="prefs_header_appearance">ظاهر</string>
+    <string name="prefs_sum_passphrase">برای باز کردن قفل رمزگذاری محلی به یک عبارت عبور نیاز است</string>
+    <string name="prefs_title_masterkey_change_passphrase">تغییر عبارت عبور</string>
+    <string name="storage_total">فضای حافظه داخلی</string>
+    <string name="storage_threema">استفاده‌شده توسط %s</string>
+    <string name="storage_total_free">کل فضای آزاد</string>
+    <string name="storage_total_in_use">در حال استفاده</string>
+    <string name="one_year">۱ سال</string>
+    <string name="six_months">۶ ماه</string>
+    <string name="three_months">۳ ماه</string>
+    <string name="one_month">۱ ماه</string>
+    <string name="one_week">۱ هفته</string>
+    <string name="everything">همه چیز</string>
+    <string name="delete_media_files_time">حذف رسانه و فایل‌های قدیمی‌تر از:</string>
+    <string name="storage_explain">اگر فضای آزاد شما تمام شود، می‌توانید فایل‌های رسانه‌ای رمزگذاری‌شده قدیمی‌تر را حذف کنید تا فضا باز شود. بندانگشتی‌ها همچنان نگه داشته می‌شوند. توجه داشته باشید که این یک فرایند خودکار نیست. تا زمانی که یکی از دکمه‌های زیر را نزنید، چیزی حذف نخواهد شد.</string>
+    <string name="delete_data">اکنون داده‌ها را حذف کن</string>
+    <string name="delete_date_confirm_message">اگر ادامه دهید، فایل‌ها حذف می‌شوند و فقط بندانگشتی‌ها نگه داشته می‌شوند.</string>
+    <string name="storage_management">مدیریت حافظه</string>
+    <string name="media">رسانه</string>
+    <string name="prefs_storage_mgmt_title">پاک‌سازی رسانه، فایل‌ها و پیام‌ها</string>
+    <string name="num_messages">تعداد پیام‌ها</string>
+    <string name="delete_messages_explain">حذف پیام‌های قدیمی‌تر از:</string>
+    <string name="delete_message">اکنون پیام‌ها را حذف کن</string>
+    <string name="really_delete_messages">اگر ادامه دهید، پیام‌ها برای همیشه حذف خواهند شد. نمی‌توانید آن‌ها را بازیابی کنید.</string>
+    <string name="messages_delete_explain">همچنین می‌توانید پیام‌های قدیمی‌تر را کاملاً حذف کنید.</string>
+    <string name="backup_started">پشتیبان‌گیری داده آغاز شد</string>
+    <string name="invalid_data">داده نامعتبر است. نمی‌توان ارسال کرد.</string>
+    <string name="prefs_emoji_style">سبک ایموجی</string>
+    <string name="prefs_android_emojis">ایموجی‌های سیستم</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_default_emojis">ایموجی‌های ${app_name_short} (پیش‌فرض)</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="android_emojis_warning">توجه: ممکن است مجموعه نویسه‌های سیستم نتواند تمام ایموجی‌های پشتیبانی‌شده توسط ${app_name_short} را نمایش دهد.</string>
+    <string name="crop">برش</string>
+    <string name="scan_id_mismatch_title">عدم تطابق شناسه</string>
+    <string name="scan_id_mismatch_message">شناسه‌ای که اسکن کرده‌اید با مخاطبی که ذخیره کرده‌اید مطابقت ندارد.</string>
+    <string name="title_remove_picture">حذف تصویر</string>
+    <string name="blocked">مسدودشده</string>
+    <string name="name">نام</string>
+    <string name="privacy_policy">سیاست حریم خصوصی</string>
+    <string name="terms_of_service">شرایط خدمات</string>
+    <string name="eula">توافق‌نامه مجوز کاربر نهایی</string>
+    <string name="save_group_changes">آیا می‌خواهید تغییرات گروه را ذخیره کنید؟</string>
+    <string name="prefs_title_fontsize">اندازه قلم</string>
+    <string name="fontsize_normal">معمولی</string>
+    <string name="fontsize_large">بزرگ</string>
+    <string name="fontsize_xlarge">خیلی بزرگ</string>
+    <string name="no_app_for_location">هیچ برنامه نقشه‌ای روی این دستگاه یافت نشد</string>
+    <string name="prefs_sendlog">ارسال گزارش</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sendlog_summary">ارسال فایل گزارش به ${company_name} برای بررسی بیشتر در صورت بروز مشکل</string>
+    <string name="prefs_exportlog">صدور گزارش</string>
+    <string name="prefs_exportlog_summary">هم‌رسانی فایل گزارش با برنامه‌ای دیگر</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_storage_required">برای ذخیره یا ارسال رسانه، به ${app_name} اجازه دسترسی به حافظه را بدهید.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_location_required">برای ارسال موقعیت مکانی، به ${app_name} اجازه دسترسی به موقعیت خود را بدهید.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_contacts_required">برای ارسال مخاطبان، به ${app_name} اجازه خواندن مخاطبان را بدهید.</string>
+    <!-- "Thumbs up" should be translated by the name of the emoji 👍 -->
+    <string name="message_acknowledged">«شست بالا» ارسال شد</string>
+    <!-- "Thumbs down" should be translated by the name of the emoji 👎 -->
+    <string name="message_declined">«شست پایین» ارسال شد</string>
+    <string name="notifications_settings">تنظیمات اعلان</string>
+    <string name="notifications_default">تنظیمات پیش‌فرض</string>
+    <string name="notifications_until">تا %s</string>
+    <string name="notifications_mute">بی‌صدا</string>
+    <string name="notifications_choose_sound">انتخاب صدا</string>
+    <string name="confirm_your_pin">پین خود را تأیید کنید</string>
+    <string name="too_many_incorrect_attempts">تلاش‌های نادرست بیش از حد. %s ثانیه دیگر دوباره تلاش کنید.</string>
+    <string name="no_lockscreen_set">قفل صفحه سیستم تنظیم نشده است.</string>
+    <string name="on">روشن</string>
+    <string name="off">خاموش</string>
+    <string name="new_wizard_select_country">کشور خود را انتخاب کنید</string>
+    <string name="new_wizard_lets_get_started">بیایید شروع کنیم!</string>
+    <string name="new_wizard_setup_threema">اکنون راه‌اندازی کنید</string>
+    <!-- Label on call-to-action button in setup wizard when app is first opened, to allow the user to start setting up the app. ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_new_wizard_setup_threema">راه‌اندازی ${app_name}</string>
+    <string name="new_wizard_restore_id_backup">بازیابی شناسه صادرشده</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="new_wizard_welcome">به ${app_name} خوش آمدید!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_move_finger">انگشت خود را روی صفحه حرکت دهید تا یک شناسه ${app_name_short} جدید ایجاد شود.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_this_is_your_id">این شناسه ${app_name_short} شماست:</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_works_like_phone_number">شناسه ${app_name_short} شما درست مانند یک شماره تلفن عمل می‌کند.\nمخاطبان شما می‌توانند از طریق این شناسه به شما دسترسی پیدا کنند.</string>
+    <string name="new_wizard_choose_nickname">یک نام مستعار انتخاب کنید</string>
+    <string name="new_wizard_nickname_explain">مخاطبان شما نام مستعار شما را در اعلان‌هایشان خواهند دید</string>
+    <string name="new_wizard_hint_enter_nickname">یک نام مستعار وارد کنید</string>
+    <string name="new_wizard_help_your_friends_find_you">به مخاطبان خود کمک کنید شما را پیدا کنند!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_link_mobile">شماره موبایل و/یا ایمیل خود را به شناسه ${app_name_short} خود پیوند دهید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_link_mobile_only">شماره موبایل خود را به شناسه ${app_name_short} خود پیوند دهید.</string>
+    <string name="new_wizard_hint_mobile_number">شماره موبایل (اختیاری)</string>
+    <string name="new_wizard_hint_email">ایمیل (اختیاری)</string>
+    <string name="new_wizard_done_title">کارتان تمام شد!\nهمه چیز درست است؟</string>
+    <string name="new_wizard_linked_to">پیوندشده به</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_need_internet">برای ایجاد شناسه ${app_name_short} منحصربه‌فرد شما به یک اتصال اینترنت پایدار نیاز است. لطفاً دوباره تلاش کنید.</string>
+    <string name="new_wizard_more_information">اطلاعات بیشتر</string>
+    <string name="message_details_message_id_copied">شناسه پیام در بریده‌دان رونوشت شد</string>
+    <string name="contact_details_id_copied">شناسه در بریده‌دان رونوشت شد</string>
+    <string name="contact_details_nickname_copied">نام مستعار در بریده‌دان رونوشت شد</string>
+    <string name="generic_copied_to_clipboard_hint">در بریده‌دان رونوشت شد</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_use_id_as_nickname">آیا می‌خواهید از شناسه ${app_name_short} خود به‌عنوان نام مستعار استفاده کنید؟</string>
+    <string name="new_wizard_phone_email_invalid">شماره تلفن یا آدرس ایمیلی که وارد کرده‌اید معتبر نیست.\nلطفاً پیش از ادامه اصلاح کنید.</string>
+    <string name="new_wizard_phone_invalid">شماره تلفنی که وارد کرده‌اید معتبر نیست.\nلطفاً پیش از ادامه اصلاح کنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_fingerprint">با حرکت دادن انگشت خود، داده‌های تصادفی (به نام آنتروپی) ایجاد می‌کنید که برای تولید جفت‌کلید مرتبط با شناسه ${app_name_short} منحصربه‌فرد جدید شما استفاده می‌شود. جفت‌کلید شامل یک <b>کلید عمومی</b> است که میان مخاطبان شما توزیع می‌شود و یک <b>کلید خصوصی</b> که به‌طور امن روی گوشی شما ذخیره می‌شود. مخاطبان شما پیام‌ها را با کلید عمومی شما برای شما رمزگذاری می‌کنند. فقط دارنده کلید خصوصی و هیچ‌کس دیگری قادر به رمزگشایی این پیام‌ها نیست.</string>
+    <string name="new_wizard_info_id">شما همچنین یک جفت‌کلید ایجاد کردید. کلید عمومی به‌طور امن به سرورهای ما منتقل شده است. کلید خصوصی هرگز دستگاه شما را ترک نمی‌کند. این تضمین می‌کند که هیچ‌کس دیگری نمی‌تواند پیام‌های شما را بخواند.</string>
+    <string name="new_wizard_info_sync_contacts_dialog">همگام‌سازی مخاطبان می‌تواند به شما کمک کند مخاطبانتان را به‌طور خودکار پیدا کنید. اگر موافقت کنید، شماره‌های تلفن و آدرس‌های ایمیل دفترچه تلفن شما پیش از ارسال به سرور ما برای یافتن مخاطبان منطبق رمزگذاری خواهند شد. مطلقاً هیچ داده‌ای ذخیره یا هم‌رسانی نخواهد شد.\n\nآیا می‌خواهید همگام‌سازی مخاطبان را فعال کنید؟</string>
+    <!-- Instructions shown during the setup wizard. Only used for work builds (i.e., Threema Work or OnPrem). ${app_name_short} is a placeholders for the app's name, it must be kept as-is and should not be translated. -->
+    <string name="new_wizard_info_link">با ارائه شماره تلفن و آدرس ایمیل خود، ${app_name_short} می‌تواند به مخاطبان شما کمک کند در صورتی که شما را در دفترچه تلفن گوشی خود دارند، به‌طور خودکار شما را پیدا کنند. داده‌ها به‌صورت رمزگذاری‌شده یک‌طرفه (درهم‌سازی‌شده) روی سرور ما ذخیره خواهند شد. اگر می‌خواهید ${app_name} را کاملاً ناشناس استفاده کنید، می‌توانید به‌سادگی از این مرحله بگذرید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_link_phone_only">با ارائه شماره تلفن خود، ${app_name_short} می‌تواند به مخاطبان شما کمک کند در صورتی که شما را در دفترچه تلفن گوشی خود دارند، به‌طور خودکار شما را پیدا کنند. شماره به‌صورت رمزگذاری‌شده یک‌طرفه (درهم‌سازی‌شده) روی سرور ما ذخیره خواهد شد. اگر می‌خواهید ${app_name_short} را کاملاً ناشناس استفاده کنید، می‌توانید به‌سادگی از این مرحله بگذرید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_nickname">نام مستعار در اعلان‌های پوش روی برخی دستگاه‌ها یا به‌عنوان وسیله‌ای اضافی برای شناسایی شما به کاربرانی که هنوز شما را در دفترچه تلفن خود ندارند استفاده می‌شود. توصیه می‌کنیم فقط نام کوچک یا یک نام مستعار ارائه دهید. اگر نام مستعاری تنظیم نکنید، به‌طور پیش‌فرض از شناسه ${app_name_short} شما استفاده می‌کنیم.</string>
+    <string name="not_linked">پیوند داده‌نشده</string>
+    <string name="linked">پیوندشده</string>
+    <string name="pending_sms_verification_notice">شماره موبایل شما هنوز تأیید نشده است.</string>
+    <string name="no_sms_received">پیامکی دریافت نکردید؟</string>
+    <string name="really_cancel_verify">آیا واقعاً می‌خواهید تأیید شماره موبایل را لغو کنید؟</string>
+    <string name="verification_of">تأیید %s</string>
+    <string name="status_ballot_voting_changed">نظرسنجی «%1$s» یک رأی جدید دریافت کرد</string>
+    <string name="status_ballot_user_first_vote">«%1$s» برای «%2$s» رأی داد</string>
+    <string name="status_ballot_user_modified_vote">«%1$s» رأی خود را برای «%2$s» تغییر داد</string>
+    <string name="status_ballot_all_votes">آرای «%1$s» کامل شد</string>
+    <string name="restore">بازیابی</string>
+    <!-- Shown in prompt dialog during the setup wizard. Only used for work builds (i.e. Threema Work and OnPrem). ${app_name} and ${app_name_short} are placeholders for the app's name, they must be kept as-is and not translated. -->
+    <string name="new_wizard_anonymous_confirm">شما نه شماره موبایل و نه آدرس ایمیلی برای پیوند به شناسه ${app_name_short} خود وارد نکرده‌اید. در فهرست‌های مخاطبان ظاهر نخواهید شد. آیا واقعاً می‌خواهید ${app_name} را به‌صورت ناشناس استفاده کنید؟</string>
+    <!-- ${app_name} and ${app_name_short} are placeholders for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_anonymous_confirm_phone_only">شما شماره تلفنی برای پیوند به شناسه ${app_name_short} خود وارد نکرده‌اید. بنابراین به‌طور خودکار به فهرست‌های مخاطبان افزوده نخواهید شد. آیا واقعاً می‌خواهید ${app_name} را به‌صورت ناشناس استفاده کنید؟</string>
+    <string name="new_wizard_scan_id_backup">یا کد QR صدور شناسه خود را اسکن کنید</string>
+    <string name="error_saving_file">برخی فایل‌ها قابل ذخیره نبودند</string>
+    <string name="wait_one_minute">لطفاً پیش از درخواست تماس، حداقل ۱۰ دقیقه منتظر رسیدن پیامک بمانید.</string>
+    <string name="backup_id">شناسه صادرشده</string>
+    <string name="backup_data">پشتیبان‌گیری داده</string>
+    <string name="action_delete_group">حذف گروه</string>
+    <string name="action_leave_and_delete_group">ترک و حذف گروه</string>
+    <string name="action_dissolve_and_delete_group">انحلال و حذف گروه</string>
+    <string name="delete_my_group_message">آیا واقعاً می‌خواهید این گروه را به‌طور کامل حذف کنید؟ تمام پیام‌ها حذف خواهند شد و اعضای باقی‌مانده دیگر نمی‌توانند از گروه استفاده کنند.</string>
+    <string name="configure">پیکربندی</string>
+    <string name="disabled_by_policy">برخی تنظیمات توسط مدیر غیرفعال شده‌اند</string>
+    <string name="select_all">انتخاب همه</string>
+    <string name="deleting_messages">در حال حذف پیام‌ها</string>
+    <string name="media_gallery_files">فایل‌ها</string>
+    <string name="prefs_gif_autoplay">پخش خودکار تصاویر متحرک</string>
+    <string name="media_gallery_audio">پیام‌های صوتی</string>
+    <string name="action_clone_group">شبیه‌سازی گروه</string>
+    <string name="clone_group_message">این کار یک نسخه شبیه‌سازی‌شده از این گروه با شما به‌عنوان مدیر ایجاد می‌کند. ادامه می‌دهید؟</string>
+    <string name="prefs_proximity_sensor">استفاده از حسگر مجاورت</string>
+    <string name="prefs_proximity_sensor_explain">استفاده از گوشی تلفن برای پخش پیام صوتی در صورت پوشیده شدن حسگر مجاورت</string>
+    <string name="error_creating_group_network">گروه ایجاد نشد. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <string name="error_creating_group_internal">به دلیل خطای داخلی گروه ایجاد نشد. لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="error_cloning_group_network">گروه شبیه‌سازی نشد. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <string name="error_cloning_group_internal">به دلیل خطای داخلی گروه شبیه‌سازی نشد. لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="error_updating_group_network">تغییرات اعمال نشد. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <string name="error_updating_group_internal">به دلیل خطای داخلی تغییرات اعمال نشد. لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="error_leaving_group_network">گروه ترک نشد. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <string name="error_leaving_group_internal">به دلیل خطای داخلی گروه ترک نشد. لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="error_disbanding_group_network">گروه منحل نشد. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <string name="error_disbanding_group_internal">به دلیل خطای داخلی گروه منحل نشد. لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="error_removing_group_network">گروه حذف نشد. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <string name="error_removing_group_internal">به دلیل خطای داخلی گروه حذف نشد. لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="error_resyncing_group_network">گروه همگام‌سازی مجدد نشد. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <string name="error_resyncing_group_internal">به دلیل خطای داخلی گروه همگام‌سازی مجدد نشد. لطفاً بعداً دوباره تلاش کنید.</string>
+    <string name="no_media_found_generic">رسانه‌ای منطبق با انتخاب در این گفت‌وگو یافت نشد.</string>
+    <string name="max_images_reached">حداکثر %d مورد را می‌توان همزمان ویرایش کرد</string>
+    <string name="enter_description">لطفاً اشکال/مشکل را اینجا توضیح دهید.</string>
+    <string name="add_caption_hint">افزودن یک شرح اختیاری</string>
+    <string name="disable">غیرفعال‌سازی</string>
+    <string name="continue_anyway">به‌هرحال ادامه بده</string>
+    <string name="invalid_input">ورودی نامعتبر</string>
+    <string name="already_licensed">از قبل دارای مجوز</string>
+    <string name="hide_chat">گفت‌وگوهای خصوصی</string>
+    <string name="really_hide_chat_message">آیا می‌خواهید این گفت‌وگو را به‌عنوان خصوصی علامت‌گذاری کنید؟ از منو برای تغییر وضعیت نمایش گفت‌وگوهای خصوصی در فهرست پیام‌ها استفاده کنید.</string>
+    <string name="chat_hidden">گفت‌وگو به‌عنوان خصوصی علامت‌گذاری شد</string>
+    <string name="title_show_private_chats">نمایش گفت‌وگوهای خصوصی</string>
+    <string name="title_hide_private_chats">پنهان کردن گفت‌وگوهای خصوصی</string>
+    <string name="chat_visible">گفت‌وگو دیگر خصوصی نیست</string>
+    <string name="prefs_title_locking_mechanism">سازوکار قفل</string>
+    <string name="lock_option_none">هیچ</string>
+    <string name="lock_option_pin">پین</string>
+    <string name="lock_option_screenlock">قفل صفحه سیستم</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="hide_chat_message_explain">${app_name_short} به شما امکان می‌دهد از گفت‌وگوهای خاصی با یک پین محافظت کرده و آن‌ها را موقتاً از فهرست پیام‌های خود پنهان کنید. برای فعال کردن گفت‌وگوهای خصوصی، لطفاً در تنظیمات یک پین تنظیم کنید یا قفل صفحه سیستم را فعال کنید.</string>
+    <string name="set_lock">اکنون راه‌اندازی کنید</string>
+    <string name="prefs_title_access_protection">محافظت دسترسی</string>
+    <string name="private_chat_subject">خصوصی</string>
+    <string name="grace_thirty_seconds">۳۰ ثانیه</string>
+    <string name="grace_one_minute">۱ دقیقه</string>
+    <string name="grace_two_minutes">۲ دقیقه</string>
+    <string name="grace_five_minutes">۵ دقیقه</string>
+    <string name="grace_ten_minutes">۱۰ دقیقه</string>
+    <string name="grace_thirty_minutes">۳۰ دقیقه</string>
+    <string name="grace_never">هرگز (دستی)</string>
+    <string name="never">هرگز</string>
+    <string name="access_protection_private_chats_warning">با حذف محافظت دسترسی، تمام گفت‌وگوهای خصوصی شما دوباره قابل‌مشاهده خواهند شد.</string>
+    <string name="verification_started">تأیید آغاز شد</string>
+    <string name="cannot_open_file">نمی‌توان فایل را باز کرد</string>
+    <string name="prefs_title_image_attach_previews">انتخاب سریع رسانه</string>
+    <string name="prefs_sum_image_attach_previews">نمایش فهرستی از تصاویر اخیراً افزوده‌شده در پنجره بازشوی پیوست‌ها</string>
+    <string name="prefs_title_direct_share">هم‌رسانی مستقیم</string>
+    <string name="prefs_sum_direct_share">نمایش گفت‌وگوهای اخیر هنگام هم‌رسانی از سایر برنامه‌ها</string>
+    <string name="restore_disable_energy_saving">لطفاً دستگاه خود را به شارژر متصل کنید و تمام گزینه‌های صرفه‌جویی انرژی را غیرفعال کنید تا از وقفه دستگاه در فرایند پشتیبان‌گیری یا بازیابی جلوگیری شود.</string>
+    <string name="draft">پیش‌نویس</string>
+    <string name="prefs_bigger_single_emojis">ایموجی‌های تکی بزرگ‌تر</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard1_sync_work">در حال همگام‌سازی داده‌های ${app_name}…</string>
+    <string name="notification_hidden_text">محتوا پنهان شد</string>
+    <string name="really_reset_ringtones">واقعاً تنظیمات صدای اعلان به پیش‌فرض بازنشانی شود؟</string>
+    <string name="reset_ringtones_confirm">تنظیمات صدای اعلان بازنشانی شد.</string>
+    <string name="prefs_language_override">زبان</string>
+    <!-- ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
+    <string name="threema_channel_intro">کانال ${app_name_short} اخبار مربوط به همه چیز ${app_name_short} را در اختیار شما می‌گذارد. آیا می‌خواهید در کانال ${app_name_short} مشترک شوید و آن را به مخاطبان خود اضافه کنید؟ رایگان است و می‌توانید هر زمان اشتراک خود را لغو کنید.</string>
+    <string name="quote">نقل‌قول</string>
+    <string name="contacts_deleted">مخاطبان حذف شدند</string>
+    <string name="take_photo">گرفتن عکس</string>
+    <string name="select_from_gallery">انتخاب از گالری</string>
+    <string name="palette">پالت</string>
+    <string name="stickers">برچسب‌ها</string>
+    <string name="text">متن</string>
+    <string name="undo">واگرد</string>
+    <string name="android_backup_date">آخرین پشتیبان</string>
+    <string name="discard">دور انداختن</string>
+    <string name="android_backup_restart_threema">صبر کنید. برنامه چند ثانیه دیگر دوباره راه‌اندازی می‌شود.</string>
+    <string name="battery_optimizations_title">غیرفعال کردن بهینه‌سازی باتری</string>
+    <string name="battery_optimizations_explain">بهینه‌سازی باتری مانع از عملکرد درست %1$s هنگامی که گوشی شما به حالت خواب می‌رود می‌شود. لطفاً بهینه‌سازی باتری را برای %2$s غیرفعال کنید.</string>
+    <string name="battery_optimizations_disable_guide">در منوی کشویی «همه برنامه‌ها» را انتخاب کنید</string>
+    <string name="battery_optimizations_disable_guide_ctd">%s را در فهرست جست‌وجو کنید و بهینه‌سازی را غیرفعال کنید</string>
+    <string name="enter_text_hint">متن را وارد کنید</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_explain_text">اگر دستگاه خود را تغییر دهید یا گم کنید، در صورت نداشتن پشتیبان هیچ‌کس نمی‌تواند شناسه ${app_name_short} یا گفت‌وگوهای شما را بازیابی کند. لطفاً داده‌های خود را با استفاده از گزینه‌های مناسب پشتیبان‌گیری ذخیره کنید.</string>
+    <string name="data_backup_explain">پشتیبان‌های داده شامل موارد زیر هستند:\n\n&#9679; شناسه و جفت‌کلید شما\n&#9679; مخاطبان و سطوح اعتماد\n&#9679; عضویت‌های گروهی\n&#9679; گفت‌وگوها\n&#9679; رسانه و فایل‌ها (اختیاری)\n\nداده‌ها در یک فایل ZIP رمزگذاری‌شده ذخیره خواهند شد. توصیه می‌شود پس از تکمیل موفق پشتیبان‌گیری، فایل را از دستگاه دور کنید.</string>
+    <string name="draw">طراحی</string>
+    <string name="edit">ویرایش</string>
+    <string name="edit_message">ویرایش پیام</string>
+    <string name="edited">ویرایش‌شده</string>
+    <string name="confirm_edit_desc">تأیید ویرایش</string>
+    <string name="edit_history">تاریخچه ویرایش</string>
+    <string name="discard_changes">آیا می‌خواهید تغییرات را دور بیندازید؟</string>
+    <string name="prefs_title_network">شبکه</string>
+    <string name="prefs_title_ipv6_preferred">IPv6 برای پیام‌ها</string>
+    <string name="prefs_ipv6_preferred_off">استفاده فقط از اتصالات IPv4</string>
+    <string name="prefs_ipv6_preferred_on">ترجیح اتصالات IPv6 بر IPv4</string>
+    <string name="prefs_title_ipv6_webrtc_allowed">IPv6 برای تماس‌ها و وب</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_ipv6_webrtc_allowed_on">اجازه IPv6 برای تماس‌های ${app_name_short} و برنامه دسکتاپ / کلاینت وب.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_ipv6_webrtc_allowed_off">عدم اجازه IPv6 برای تماس‌های ${app_name_short} و برنامه دسکتاپ / کلاینت وب</string>
+    <string name="ipv6_requires_restart">برای اعمال این تنظیم، برنامه باید دوباره راه‌اندازی شود.</string>
+    <string name="ipv6_restart_now">اکنون دوباره راه‌اندازی کن</string>
+    <string name="on_cap">روشن</string>
+    <string name="off_cap">خاموش</string>
+    <string name="share_chat">هم‌رسانی گفت‌وگو</string>
+    <string name="flip">برگرداندن</string>
+    <string name="to_front">به جلو</string>
+    <string name="play">پخش</string>
+    <string name="pause">مکث</string>
+    <string name="retry">تلاش مجدد</string>
+    <string name="voice_message">پیام صوتی</string>
+    <string name="voice_message_record">ضبط پیام صوتی</string>
+    <string name="open_navdrawer">باز کردن کشوی ناوبری</string>
+    <string name="profile_picture">تصویر نمایه</string>
+    <string name="profile_picture_release">چه کسی می‌تواند تصویر نمایه شما را ببیند؟</string>
+    <string name="picrelease_nobody">هیچ‌کس</string>
+    <string name="picrelease_selected">مخاطبان منتخب</string>
+    <string name="picrelease_everyone">هر کسی که به او پیام می‌نویسید</string>
+    <string name="prefs_title_receive_profilepics">نمایش تصاویر نمایه</string>
+    <string name="prefs_sum_receive_profilepics_off">پنهان کردن تصاویر نمایه ارائه‌شده توسط مخاطبان شما</string>
+    <string name="prefs_sum_receive_profilepics_on">نمایش تصاویر نمایه ارائه‌شده توسط مخاطبان شما</string>
+    <string name="prefs_sum_receive_profilepics_recipients_list">مخاطبان منتخب در این فهرست هنگامی که به آن‌ها پیام می‌فرستید تصویر نمایه شما را دریافت خواهند کرد.</string>
+    <string name="menu_send_profilpic">افزودن به‌عنوان گیرنده تصویر نمایه</string>
+    <string name="menu_send_profilpic_off">حذف به‌عنوان گیرنده تصویر نمایه</string>
+    <string name="menu_send_profilpic_now">اکنون تصویر نمایه را ارسال کن</string>
+    <string name="sending_messages">در حال ارسال…</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_data_media_confirm">ذخیره فایل‌های رسانه‌ای بزرگ در یک پشتیبان ZIP محلی ممکن است از ظرفیت پردازنده و حافظه دستگاه شما فراتر رود و زمان بسیار زیادی طول بکشد. ${app_name} در حین اجرای پشتیبان‌گیری پیام ارسال یا دریافت نخواهد کرد. به‌هرحال ادامه می‌دهید؟</string>
+    <string name="backup_data_cancelled">پشتیبان‌گیری لغو شد</string>
+    <string name="message_sent">پیام ارسال شد</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_call">تماس ${app_name_short}</string>
+    <string name="threema_message_to">پیام به %s</string>
+    <string name="threema_call_with">تماس با %s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_voip">تماس‌های ${app_name_short}</string>
+    <string name="prefs_title_force_turn">همیشه تماس‌ها را بازپخش کن</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_force_turn_off">در صورت امکان یک اتصال مستقیم برقرار کن و فقط تماس‌ها به مخاطبان تأییدنشده را از طریق سرورهای ${company_name} بازپخش کن. ممکن است آدرس IP شما را افشا کند.</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_force_turn_on">اجبار به بازپخش تمام تماس‌ها از طریق سرورهای ${company_name}، که از آدرس IP شما محافظت می‌کند. ممکن است بر کیفیت تماس تأثیر بگذارد.</string>
+    <string name="permission_record_audio_required">برای برقراری تماس‌های رمزگذاری‌شده و ارسال پیام‌های صوتی، لطفاً اجازه دسترسی به میکروفون را بدهید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_voice_call_notifications">تماس‌های ${app_name_short}</string>
+    <string name="prefs_voice_call_sound">آهنگ زنگ</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_voice_call_sound">انتخاب آهنگ زنگ برای تماس‌های ورودی ${app_name_short}</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_voice_call_vibrate">لرزش هنگام تماس‌های ورودی ${app_name_short}</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_voip_enable">فعال کردن تماس‌های ${app_name_short}</string>
+    <string name="webclient_invalid_push_token_message">شروع دستی لازم است</string>
+    <string name="threema_work_contact">مخاطب Threema Work</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_phone_required">اجازه مدیریت تماس‌های تلفنی را هنگام استفاده از تماس ${app_name} بدهید</string>
+    <string name="strikethrough">خط‌خورده</string>
+    <string name="italic">کج</string>
+    <string name="bold">پررنگ</string>
+    <string name="shortcut_choice_title">ایجاد میان‌بر برای یک…</string>
+    <string name="notifications_disabled_title">اعلان‌ها غیرفعال هستند</string>
+    <string name="error_attaching_files">خطا در افزودن پیوست‌ها.</string>
+    <string name="prefs_fix_powermanager_problems">غیرفعال کردن محدودیت‌های توان</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_fix_powermanager_problems_desc">به ${app_name} اجازه دهید در پس‌زمینه اجرا شود تا حتی زمانی که فعال نیست بتواند پیام‌ها را دریافت کند.</string>
+    <string name="disable_powermanager_explain">در صفحه بعدی مطمئن شوید که «%s» از هرگونه محدودیت مدیریت توان گوشی شما محافظت یا استثنا شده است. وقتی کارتان تمام شد دکمه «بازگشت» را بزنید.</string>
+    <string name="disable_autostart_explain">در صفحه بعدی مطمئن شوید که «%s» در فهرست برنامه‌هایی که می‌توانند به‌طور خودکار اجرا شوند گنجانده شده است. وقتی کارتان تمام شد دکمه «بازگشت» را بزنید.</string>
+    <string name="notification_priority_default">پایین</string>
+    <string name="notification_priority_high">بالا</string>
+    <string name="notification_priority_max">حداکثر</string>
+    <string name="prefs_title_notification_priority">اولویت</string>
+    <string name="pin">سنجاق</string>
+    <string name="unpin">برداشتن سنجاق</string>
+    <string name="location_services_disabled">سرویس‌های موقعیت مکانی غیرفعال هستند. آیا می‌خواهید اکنون آن‌ها را فعال کنید؟</string>
+    <string name="send_location">ارسال موقعیت مکانی</string>
+    <string name="forward_location">هدایت موقعیت مکانی</string>
+    <string name="unknown_address">آدرس ناشناس</string>
+    <string name="your_location">موقعیت مکانی شما</string>
+    <string name="reply_later">بعداً با شما صحبت می‌کنم</string>
+    <string name="reply_on_my_way">در راه هستم</string>
+    <string name="reply_thank_you">متشکرم</string>
+    <string name="reply_youre_welcome">خواهش می‌کنم</string>
+    <string name="prefs_auto_download_title">دانلود خودکار رسانه</string>
+    <string name="prefs_auto_download_wifi">با WiFi</string>
+    <string name="prefs_auto_download_mobile">با داده موبایل</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rate_intro">به ${app_name} چه امتیازی می‌دهید؟</string>
+    <string name="rate_feedback_intro">لطفاً به ما بگویید برای بهبود چه کاری می‌توانیم انجام دهیم (اختیاری).</string>
+    <string name="rate_positive">ارسال نظر</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rate_title">امتیازدهی به ${app_name}</string>
+    <string name="rate_thank_you">از نظر شما متشکریم!</string>
+    <string name="disabled_by_policy_short">قابلیت توسط مدیر غیرفعال شده است</string>
+    <string name="rate_forward_to_play_store">آیا می‌خواهید در Google Play هم به ما امتیاز دهید؟</string>
+    <string name="rate_error">نتوانستیم نظر شما را به سرور ارسال کنیم. لطفاً پیش از تلاش مجدد مطمئن شوید که به اینترنت متصل هستید.</string>
+    <string name="off_unless_i_was_mentioned">روشن، مگر آنکه به من اشاره شده باشد</string>
+    <string name="dnd">مزاحم نشوید</string>
+    <string name="minus">منها</string>
+    <string name="plus">به‌علاوه</string>
+    <string name="switched_off">خاموش</string>
+    <string name="switched_on">روشن</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_tab_work_users">کاربران ${app_name}</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="no_matching_work_contacts">مخاطب ${app_name} تأییدشده توسط مدیری یافت نشد</string>
+    <string name="all">همه</string>
+    <string name="webclient_session_stop_all">بستن همه</string>
+    <string name="passphrase_service_name">سرویس عبارت عبور</string>
+    <string name="passphrase_service_description">اعلان هنگام باز شدن قفل عبارت عبور</string>
+    <string name="webclient_service_description">اعلان هنگامی که نشست وب/دسکتاپ فعال است</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="privacy_policy_explain">${app_name} از حریم خصوصی شما سختگیرانه‌تر از هر پیام‌رسان دیگری محافظت می‌کند. در %1$s ما بیشتر بدانید.</string>
+    <string name="prefs_title_incognito_keyboard">درخواست صفحه‌کلید ناشناس</string>
+    <string name="prefs_sum_incognito_keyboard">غیرفعال کردن جمع‌آوری داده برای پیشنهادهای شخصی‌سازی‌شده (در صورت پشتیبانی صفحه‌کلید)</string>
+    <string name="call_ongoing">تماس در حال انجام</string>
+    <string name="ballot_received_votes">تعداد آرای دریافت‌شده: %1$d/%2$d</string>
+    <string name="quote_not_found">پیام نقل‌قول‌شده یافت نشد</string>
+    <string name="ballot_secret">محرمانه</string>
+    <string name="password_too_short_generic">رمز عبور بسیار کوتاه است</string>
+    <string name="passwords_dont_match">رمزهای عبور مطابقت ندارند</string>
+    <!-- Error message shown when setting up a custom server for the Threema Safe feature. %s is a placeholder for the details of the error. -->
+    <string name="threema_safe_test_unsuccessful">آزمایش ناموفق بود: %s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="preparing_threema_safe">در حال آماده‌سازی ${app_name_short} Safe</string>
+    <string name="disable_powermanager_title">محدودیت‌های توان</string>
+    <string name="disable_autostart_title">اجرای خودکار</string>
+    <string name="unchanged">بدون تغییر</string>
+    <string name="safe_learn_more_button">بیشتر بدانید</string>
+    <string name="safe_enable_explain">هر آنچه برای گفت‌وگو نیاز دارید فقط روی دستگاه شما ذخیره می‌شود. شما حسابی نزد ما ندارید و اگر گوشی خود را گم کنید یا به‌طور تصادفی داده‌های خود را حذف کنید، نمی‌توانیم به شما کمک کنیم.\n\n${app_name_short} Safe پشتیبان‌های خودکاری از تمام داده‌های مهم، شامل کلیدها، فهرست مخاطبان و عضویت‌های گروهی شما (اما هیچ محتوای پیامی)، به‌صورت ناشناس روی سرور امن منتخب شما ایجاد می‌کند.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_disable_confirm">آیا می‌خواهید بدون فعال کردن ${app_name_short} Safe ادامه دهید؟ هنگام استفاده از ${app_name_short} Safe، در صورت از دست دادن دسترسی به دستگاه خود، می‌توانید شناسه ${app_name_short}، مخاطبان و گروه‌های خود را بازیابی کنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_password">لطفاً یک رمز عبور قوی انتخاب کنید. برای بازیابی پشتیبان ${app_name_short} Safe خود به این رمز عبور نیاز خواهید داشت.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_server">یک سرور ${app_name_short} Safe انتخاب کنید</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_server_explain">می‌توانید از سرور ${company_name} استفاده کنید یا به‌جای آن یک سرور پشتیبان شخص ثالث مشخص کنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="onprem_safe_configure_server_explain">پشتیبان ${app_name_short} Safe خود را روی سرور سازمان خود ذخیره کنید، یا یک سرور پشتیبان متفاوت مشخص کنید.</string>
+    <string name="safe_use_default_server">استفاده از سرور پیش‌فرض</string>
+    <string name="safe_test_server">آزمایش سرور</string>
+    <string name="safe_advanced_options">تنظیمات پیشرفته</string>
+    <string name="safe_enter_password">لطفاً رمز عبور ${app_name_short} Safe خود را وارد کنید</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_threema_id">شناسه ${app_name_short} شما</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_restore_enter_id">لطفاً شناسه ${app_name_short} را که می‌خواهید بازیابی کنید وارد کنید</string>
+    <string name="safe_search_id_title">لطفاً شماره موبایل یا آدرس ایمیل پیوندشده به شناسه ${app_name_short} خود را وارد کنید</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_id_lookup">در حال جست‌وجوی شناسه ${app_name_short}</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_no_id_found">شناسه ${app_name_short} یافت نشد</string>
+    <string name="safe_no_backup_found">پشتیبانی روی سرور یافت نشد. شناسه و رمز عبور را بررسی کنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_select_id">چندین شناسه ${app_name_short} یافت شد. لطفاً شناسه‌ای را که می‌خواهید استفاده کنید انتخاب کنید:</string>
+    <string name="safe_backup_now">اکنون پشتیبان‌گیری کن</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_enable_explain_short">${app_name_short} Safe را فعال کنید تا پشتیبان‌های امن و ناشناس خودکاری از تمام داده‌های مهم خود ایجاد کنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deleting">در حال حذف پشتیبان ${app_name_short} Safe</string>
+    <string name="safe_delete_error">خطا در حذف پشتیبان: %s</string>
+    <string name="safe_delete_success">پشتیبان با موفقیت روی سرور حذف شد</string>
+    <string name="safe_error_preparing">خطا در آماده‌سازی پشتیبان ${app_name_short} Safe</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_password_force">لطفاً برای ایمن‌سازی شناسه ${app_name_short} خود با ${app_name_short} Safe یک رمز عبور قوی تنظیم کنید. آنچه را اینجا وارد می‌کنید فراموش نکنید!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deactivate">خاموش کردن ${app_name_short} Safe</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deactivate_explain">اگر ${app_name_short} Safe را غیرفعال کنید، هر پشتیبان موجودی روی سرور حذف خواهد شد. ادامه می‌دهید؟</string>
+    <string name="add_group_members">افزودن اعضای بیشتر</string>
+    <string name="contact_add_confirm">آیا می‌خواهید مخاطب جدید «%1$s» را به فهرست مخاطبان خود اضافه کنید؟</string>
+    <string name="password_bad">رمز عبور ضعیف</string>
+    <string name="prefs_fix_device">رفع مشکلات پیکربندی دستگاه</string>
+    <string name="safe_successful">موفق</string>
+    <string name="safe_unsuccessful">ناموفق</string>
+    <string name="safe_upload_failed">بارگذاری ناموفق بود</string>
+    <string name="safe_upload_size_exceeded">از اندازه بارگذاری سرور فراتر رفت</string>
+    <string name="safe_connection_error">خطای اتصال</string>
+    <string name="safe_server_name">نام سرور</string>
+    <string name="safe_max_backup_size">حداکثر اندازه پشتیبان</string>
+    <string name="safe_retention">نگهداری پشتیبان</string>
+    <string name="safe_result">نتیجه پشتیبان‌گیری</string>
+    <string name="number_of_days">%d روز</string>
+    <string name="safe_size">اندازه پشتیبان</string>
+    <string name="backup_version_mismatch">نسخه این پشتیبان بالاتر از نسخه پشتیبانی‌شده است. لطفاً به آخرین نسخه این برنامه به‌روزرسانی کنید.</string>
+    <string name="safe_restore_failed">بازیابی ناموفق بود</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_failed_notification">پشتیبان ${app_name_short} Safe برای %d روز متوالی ناموفق بود. برای بررسی اینجا بزنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_restore">بازیابی ${app_name_short} Safe</string>
+    <string name="backup_restore_in_progress">پشتیبان‌گیری یا بازیابی در حال انجام است. برای اطلاعات وضعیت اعلان را بررسی کنید.</string>
+    <string name="restore_error_body">بازیابی با موفقیت کامل نشد</string>
+    <string name="forgot_your_id">شناسه خود را فراموش کرده‌اید؟</string>
+    <string name="restore_success_body">بازیابی با موفقیت کامل شد</string>
+    <string name="work_data_sync">همگام‌سازی داده</string>
+    <string name="private_contact">مخاطب خصوصی</string>
+    <string name="ringtone_selection_default">پیش‌فرض (%s)</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_data_sync_desc">همگام‌سازی ${app_name}</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="ballot_not_connected">لطفاً پیش از بستن یک نظرسنجی مطمئن شوید که ${app_name} آنلاین است.</string>
+    <string name="empty_chat_title">خالی کردن گفت‌وگو</string>
+    <string name="empty_chat_confirm">تمام پیام‌های این گفت‌وگو حذف خواهند شد. ادامه می‌دهید؟</string>
+    <string name="emptying_chat">در حال خالی کردن گفت‌وگو</string>
+    <string name="emptying_chat_deleting_messages">در حال حذف پیام‌ها…</string>
+    <string name="delete_chat_title">حذف گفت‌وگو</string>
+    <string name="delete_chat_confirm">تمام پیام‌های این گفت‌وگو حذف شده و گفت‌وگو نیز حذف خواهد شد. ادامه می‌دهید؟</string>
+    <string name="deleting_chat">در حال حذف گفت‌وگو</string>
+    <string name="set_private">علامت‌گذاری به‌عنوان «گفت‌وگوی خصوصی»</string>
+    <string name="unset_private">غیرفعال کردن «گفت‌وگوی خصوصی»</string>
+    <string name="delete_group_message">آیا می‌خواهید این گروه را ترک کرده و به‌طور کامل حذف کنید؟ تمام پیام‌ها حذف خواهند شد.</string>
+    <string name="delete_left_group_message">آیا واقعاً می‌خواهید این گروه را حذف کنید؟ تمام پیام‌ها حذف خواهند شد.</string>
+    <string name="chats">گفت‌وگوها</string>
+    <string name="notification_channel_alerts">هشدارها و خطاها</string>
+    <string name="notification_channel_notices">اعلامیه‌ها</string>
+    <string name="chat_updates">به‌روزرسانی‌های گفت‌وگو</string>
+    <string name="backup_or_restore_progress">پیشرفت پشتیبان‌گیری و بازیابی</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="tooltip_export_id">برای هم‌رسانی یا چاپ شناسه رمزگذاری‌شده ${app_name_short} خود اکنون اینجا بزنید</string>
+    <string name="downloading">در حال دانلود</string>
+    <string name="restore_data_cancelled">بازیابی لغو شد</string>
+    <string name="safe_change_password">تغییر رمز عبور</string>
+    <string name="safe_configure_choose_password_title">یک رمز عبور انتخاب کنید</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="password_bad_explain">رمز عبور انتخاب‌شده برای ${app_name_short} Safe امن نیست و مهاجمان به‌راحتی می‌توانند آن را حدس بزنند. لطفاً رمز دیگری انتخاب کنید. نکته: از رمز عبوری متشکل از چندین کلمه مجزا استفاده کنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_password_updated">رمز عبور ${app_name_short} Safe به‌روزرسانی شد.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_activated">${app_name_short} Safe اکنون فعال شد.</string>
+    <string name="push_token_cleared">توکن پوش پاک شد</string>
+    <string name="insert_date">درج تاریخ</string>
+    <string name="add_answer">افزودن پاسخ</string>
+    <string name="title_cannot_be_empty">عنوان نظرسنجی نمی‌تواند خالی باشد</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="voip_disabled">تماس‌های ${app_name_short} غیرفعال هستند</string>
+    <string name="hide_chat_enter_message_explain">این گفت‌وگو به‌عنوان گفت‌وگوی خصوصی علامت‌گذاری شده است. برای ورود به آن، لطفاً ابتدا محافظت دسترسی را راه‌اندازی کنید.</string>
+    <string name="unknown">ناشناس</string>
+    <string name="dont_show_again">دیگر نمایش نده</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_safe_upload_successful">پشتیبان ${app_name_short} Safe با موفقیت بارگذاری شد</string>
+    <string name="time_remaining">%s باقی‌مانده</string>
+    <string name="safe_configure_server_credentials_title">احراز هویت (اختیاری)</string>
+    <string name="username_hint">نام کاربری</string>
+    <string name="server_hint">سرور</string>
+    <!-- Shown in "About" to indicate that the DualLock (a.k.a. "Remote Secret") feature is currently activated -->
+    <string name="about_screen_remote_secrets_activated">فعال‌شده</string>
+    <string name="lock_option_biometric">زیست‌سنجی</string>
+    <string name="biometric_enter_authentication">برای باز کردن قفل، لطفاً احراز هویت کنید</string>
+    <string name="biometric_authentication_successful">احراز هویت با موفقیت انجام شد</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_safe_forced_explain">مدیر شما ${app_name_short} Safe را برای دستگاه شما فعال کرده است.</string>
+    <string name="pin_locked_cannot_send">برنامه قفل است. نمی‌توان ارسال کرد.</string>
+    <string name="prefs_summary_hide_screenshots_notice">به دلایل حریم خصوصی، هنگامی که «قفل برنامه» در تنظیمات امنیتی فعال است، همواره از بندانگشتی‌ها و عکس‌های صفحه جلوگیری می‌شود</string>
+    <string name="work_select_categories">انتخاب دسته‌ها</string>
+    <string name="my_profile">نمایه من</string>
+    <string name="message_too_long">پیام بسیار طولانی است. نمی‌توان ارسال کرد.</string>
+    <string name="url_warning_body">نام میزبان پیوندی که در شرف باز کردن آن هستید مشکوک است:\n\nنام میزبان نمایش‌داده‌شده: <b>%s</b>\nنام میزبان واقعی: <b>%s</b>\n\nاین می‌تواند تلاشی برای فریب شما به باز کردن سایتی باشد که خود را چیز دیگری جا می‌زند.\n\nآیا می‌خواهید به‌هرحال ادامه دهید؟</string>
+    <string name="url_warning_title">هشدار فیشینگ</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_camera_qr_required">برای اسکن کدهای QR، ${app_name} به دسترسی به دوربین نیاز دارد</string>
+    <string name="voice_action_title">کنش‌های صوتی</string>
+    <string name="voice_action_body">کنش صوتی در حال پردازش است</string>
+    <string name="permission_camera_photo_required">برای گرفتن عکس، لطفاً اجازه دسترسی به دوربین را بدهید</string>
+    <string name="global_search">جست‌وجوی گفت‌وگوها</string>
+    <string name="global_search_empty_view_text">برای جست‌وجو در پیام‌ها حداقل دو نویسه وارد کنید</string>
+    <string name="my_id">شناسه من</string>
+    <string name="profile_picture_and_nickname">تصویر نمایه و نام مستعار</string>
+    <string name="lp_select_this_place">انتخاب این مکان</string>
+    <string name="lp_or_select_nearby">یا یک مکان نزدیک انتخاب کنید</string>
+    <string name="lp_use_this_location">این موقعیت مکانی ارسال شود؟</string>
+    <string name="lp_search_place">شهر را وارد کنید</string>
+    <string name="data_backup_headline">برای ذخیره تمام داده‌های خود، شامل گفت‌وگوها و رسانه، یک پشتیبان داده ایجاد کنید.</string>
+    <string name="data_backup_save_path">مسیر پشتیبان</string>
+    <string name="change">تغییر</string>
+    <string name="data_backup_last_date">آخرین پشتیبان‌گیری موفق داده</string>
+    <string name="archived">بایگانی‌شده</string>
+    <string name="to_archive">بایگانی</string>
+    <string name="archived_chats">گفت‌وگوهای بایگانی‌شده</string>
+    <!-- Menu option in context menu when long-pressing a chat in the Chats tab, allows the user to move the selected chat to the archive -->
+    <string name="archive_chat">بایگانی گفت‌وگو</string>
+    <string name="unarchive">خروج از بایگانی</string>
+    <string name="no_archived_chats">گفت‌وگوی بایگانی‌شده‌ای وجود ندارد.\nبرای بایگانی یک گفت‌وگو، آن را در فهرست پیام‌ها به چپ بکشید</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="add_contact_enter_id_hint">لطفاً شناسه ${app_name_short} مخاطبی را که می‌خواهید اضافه کنید وارد کنید</string>
+    <string name="notification_channel_new_contact">مخاطبان جدید</string>
+    <string name="notification_channel_new_contact_desc">اعلان درباره مخاطبان جدید</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. %1$s is a placeholder for a person's name. -->
+    <string name="notification_contact_has_joined">%1$s به ${app_name_short} پیوست. برای ارسال پیام اینجا بزنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. %1$s is a placeholder for a number (of contacts). %2$s is a summary of people's names. -->
+    <string name="notification_contact_has_joined_multiple">%1$d مخاطب به ${app_name_short} پیوستند: %2$s. برای ارسال پیام به آن‌ها اینجا بزنید.</string>
+    <string name="system_default">پیش‌فرض سیستم</string>
+    <string name="open_in_maps_app">باز کردن در برنامه نقشه</string>
+    <string name="delete">حذف</string>
+    <string name="delete_from_this_device">حذف از این دستگاه</string>
+    <string name="delete_for_all">حذف برای همه</string>
+    <string name="message_was_deleted">این پیام حذف شد</string>
+    <string name="continue_recording">ادامه ضبط</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". %1$s is a placeholder for the version number. They must not be translated. -->
+    <string name="whatsnew_title">تازه‌های ${app_name} %1$s چیست؟</string>
+    <string name="whatsnew_headline"><![CDATA[
+        <p>You can now link your Android device to the new desktop app (beta) and test the multi-device feature.</p>
+        <p>For more details, navigate to “Menu > Threema 2.0 for Desktop (Beta)”.</p>
+        ]]>
+    </string>
+    <string name="tap_to_start">برای شروع %s اکنون اینجا بزنید.</string>
+    <string name="notification_title_restart">راه‌اندازی مجدد لازم است</string>
+    <string name="two_years">۲ سال</string>
+    <string name="backup_data_no_permission">نمی‌توان در این پوشه نوشت. لطفاً پوشه دیگری انتخاب کنید.</string>
+    <string name="prefs_sum_show_unread_badge">نمایش نشان‌ها در زبانه‌های ناوبری پایین</string>
+    <string name="prefs_title_show_unread_badge">نشان‌ها</string>
+    <string name="open_myid_popup">باز کردن پنجره بازشوی دسترسی سریع</string>
+    <string name="logo">لوگو / پیمایش به بالا</string>
+    <string name="quote_subj">نقل‌قول</string>
+    <string name="duration">مدت‌زمان</string>
+    <string name="seconds">ثانیه</string>
+    <string name="minutes">دقیقه</string>
+    <string name="and">و</string>
+    <string name="edit_type_content_description">مشاهده یا ویرایش %1$s %2$s</string>
+    <string name="group">گروه</string>
+    <string name="play_services_not_installed_unable_to_use_push">سرویس‌ها نصب نشده‌اند. نمی‌توان به پوش Google FCM یا HMS تغییر داد.</string>
+    <string name="unable_to_get_current_location">نمی‌توان موقعیت مکانی فعلی را تعیین کرد.</string>
+    <string name="lp_search_place_min_chars">لطفاً برای جست‌وجوی یک مکان حداقل سه نویسه وارد کنید.</string>
+    <string name="lp_search_place_no_matches">مکان منطبقی یافت نشد. لطفاً جست‌وجوی خود را تغییر دهید.</string>
+    <string name="wallpaper_default">کاغذدیواری پیش‌فرض</string>
+    <string name="wallpaper_gallery">انتخاب از گالری</string>
+    <string name="wallpaper_none">پس‌زمینه خالی</string>
+    <string name="wallpaper_threema">کاغذدیواری %s</string>
+    <string name="message_id">شناسه پیام</string>
+    <string name="mime_type">نوع MIME</string>
+    <string name="password_does_not_comply">رمز عبور با دستورالعمل‌های تعیین‌شده توسط مدیر مطابقت ندارد.</string>
+    <string name="audio_mute_due_to_focus_loss">صدا به‌طور موقت به دلیل از دست رفتن تمرکز بی‌صدا شد</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="restore_data_backup_explain">برای بازیابی یک پشتیبان داده، ابتدا شناسه ${app_name_short} خود را از صفحه «نمایه من» حذف کنید.\n\nهنگامی که برنامه دوباره راه‌اندازی می‌شود، «بازیابی از پشتیبان»، «سایر گزینه‌های بازیابی»، «پشتیبان‌گیری داده» را انتخاب کنید و سپس فایل پشتیبان داده‌ای را که می‌خواهید بازیابی کنید انتخاب کنید.</string>
+    <string name="audio_focus_loss_complete">تماس به دلیل از دست رفتن کامل تمرکز صوتی قطع شد.</string>
+    <string name="tap_for_picture_hold_for_video">برای عکس بزنید، برای ویدیو نگه دارید</string>
+    <string name="media_files">فایل‌ها</string>
+    <string name="auto_download_limit_explain">ویدیوها و فایل‌های بزرگ‌تر از %s همواره در صورت درخواست دانلود خواهند شد</string>
+    <string name="quoted_message_deleted">پیام نقل‌قول‌شده دیگر در دسترس نیست</string>
+    <string name="searching">در حال جست‌وجو…</string>
+    <string name="prefs_work_life_balance">مزاحم نشوید</string>
+    <string name="prefs_title_working_days">روزهای کاری</string>
+    <string name="prefs_working_days_sum">انتخاب روزهای کاری</string>
+    <string name="prefs_work_time_start">شروع ساعات کاری</string>
+    <string name="prefs_work_time_start_sum">تنظیم زمان شروع</string>
+    <string name="prefs_work_time_end">پایان ساعات کاری</string>
+    <string name="prefs_work_time_end_sum">تنظیم زمان پایان</string>
+    <string name="prefs_working_days_enable_title">سیاست خارج از ساعت کاری</string>
+    <string name="prefs_working_days_enable_sum">غیرفعال کردن اعلان‌ها و رد تماس‌ها خارج از ساعات کاری</string>
+    <string name="work_life_dnd_active">خارج از ساعت کاری فعال است</string>
+    <string name="warning">هشدار</string>
+    <string name="password_remember_warning">آنچه را اینجا وارد می‌کنید به خاطر بسپارید! از آنجا که %s هیچ رمز عبوری روی سرورها ذخیره نمی‌کند، اگر پین یا رمز عبور خود را فراموش کنید نمی‌توانیم به شما کمک کنیم.</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="send_to_support">ارسال به پشتیبانی ${company_name}</string>
+    <string name="menu_legal">حقوقی</string>
+    <string name="tooltip_work_hint">این مخاطب از Threema Work استفاده می‌کند.</string>
+    <string name="video_camera_on">دوربین ویدیو فعال شد</string>
+    <string name="video_camera_off">دوربین ویدیو غیرفعال شد</string>
+    <string name="enable_picture_in_picture">شروع حالت تصویر‌در‌تصویر</string>
+    <string name="call_with">تماس با %s</string>
+    <string name="picture_in_picture_disabled_in_setting">حالت تصویر‌در‌تصویر برای %s غیرفعال است. لطفاً آن را در تنظیمات سیستم فعال کنید.</string>
+    <string name="delete_everything">حذف همه چیز</string>
+    <string name="prefs_title_voip_video_enable">اجازه ویدیو</string>
+    <string name="video_calls">تماس‌های ویدیویی</string>
+    <string name="prefs_videocall_profile">کیفیت تصویر ترجیحی</string>
+    <string name="videocall_profile_auto">متعادل (توصیه‌شده)</string>
+    <string name="videocall_profile_low_bandwidth">مصرف داده پایین</string>
+    <string name="videocall_profile_max_quality">حداکثر کیفیت</string>
+    <string name="unable_to_play_video">نمی‌توان ویدیو را پخش کرد</string>
+    <string name="tooltip_voip_turn_on_camera">برای روشن کردن دوربین اینجا بزنید</string>
+    <string name="prefs_videocall_profile_explain">کیفیت واقعی تصویر به شبکه و تنظیمات شخصی که با او صحبت می‌کنید بستگی دارد</string>
+    <string name="permission_camera_videocall_required">برای تماس ویدیویی، لطفاً اجازه دسترسی به دوربین را بدهید</string>
+    <string name="tooltip_voip_enable_speakerphone">برای روشن کردن بلندگو اینجا بزنید</string>
+    <string name="ballot_open">نظرسنجی‌های باز</string>
+    <string name="ballot_window_hide">پنهان کردن نظرسنجی‌های باز</string>
+    <string name="ballot_window_show">نمایش نظرسنجی‌های باز</string>
+    <string name="single_ballot_really_delete">حذف این نظرسنجی</string>
+    <string name="single_ballot_really_delete_text">آیا واقعاً می‌خواهید این نظرسنجی را حذف کنید؟ نمی‌توانید آرا را بازیابی کنید.</string>
+    <string name="tooltip_voip_other_party_video_on">طرف مقابل یک تماس ویدیویی آغاز کرد. برای روشن کردن دوربین خود نیز اینجا بزنید.</string>
+    <string name="tooltip_voip_other_party_video_disabled">طرف مقابل از نسخه فعلی برنامه استفاده نمی‌کند یا تماس‌های ویدیویی را مجاز نمی‌داند.</string>
+    <string name="biometrics_not_enrolled">هیچ زیست‌سنجی‌ای در سیستم ثبت نشده است.</string>
+    <string name="biometrics_not_avilable">زیست‌سنجی روی این سیستم در دسترس نیست.</string>
+    <string name="biometrics_no_permission">مجوز دسترسی به داده‌ها یا سخت‌افزار زیست‌سنجی وجود ندارد.</string>
+    <string name="verification_settings_desc">نقطه‌ها نشانگری برای سطح تأیید یک مخاطب هستند.</string>
+    <string name="verification_levels_title">سطوح تأیید</string>
+    <string name="work_verification_levels_title">مخاطبان در سازمان شما</string>
+    <string name="external_verification_levels_title">سایر مخاطبان</string>
+    <string name="switch_flash">تغییر حالت فلاش</string>
+    <string name="message_not_found">پیام یافت نشد</string>
+    <string name="insert_datetime">درج تاریخ و زمان</string>
+    <string name="prefs_sum_disable_smart_replies">جلوگیری از پاسخ‌های هوشمند در اعلان‌های اندروید</string>
+    <string name="prefs_title_disable_smart_replies">غیرفعال کردن پاسخ‌های هوشمند</string>
+    <string name="url_warning_body_alt">نام میزبان پیوندی که در شرف باز کردن آن هستید مشکوک است.\n\nاین می‌تواند تلاشی برای فریب شما به باز کردن سایتی باشد که خود را چیز دیگری جا می‌زند.\n\nآیا می‌خواهید به‌هرحال ادامه دهید؟</string>
+    <string name="read_on">ادامه مطلب…</string>
+    <string name="forward_text">هدایت متن</string>
+    <string name="an_error_occurred_during_send">خطایی هنگام ارسال یک یا چند پیام رخ داد.</string>
+    <string name="state_processing">در حال پردازش</string>
+    <string name="selected_media">انتخاب شما</string>
+    <string name="attach_gif">گیف</string>
+    <string name="attach_gallery">گالری</string>
+    <string name="attach_picture">تصویر</string>
+    <string name="attach_video">ویدیو</string>
+    <string name="attach_location">موقعیت مکانی</string>
+    <string name="filter_by_album">فیلتر بر اساس آلبوم</string>
+    <string name="media_date_taken">تاریخ گرفتن: %s</string>
+    <string name="media_date_added">تاریخ افزودن: %s</string>
+    <string name="media_date_modified">تاریخ تغییر: %s</string>
+    <string name="media_date_unknown">تاریخ نامشخص</string>
+    <string name="max_selectable_media_exceeded">نمی‌توان بیش از %d مورد را همزمان ارسال کرد.</string>
+    <string name="error_unable_loading_media_thumb">خطا. بندانگشتی رسانه بارگیری نشد</string>
+    <string name="filter_list">فیلتر فهرست</string>
+    <string name="hint_filter_list">متن فیلتر را وارد کنید</string>
+    <string name="add">افزودن</string>
+    <string name="only_images_or_videos">فقط تصاویر یا ویدیوها قابل انتخاب هستند</string>
+    <string name="media_gallery_gifs">گیف‌ها</string>
+    <string name="no_media_found_global">رسانه‌ای روی این دستگاه یافت نشد</string>
+    <string name="original_file_no_longer_avilable">فایل اصلی دیگر در دسترس نیست. لطفاً پیام را دوباره ارسال کنید.</string>
+    <string name="importing_files">در حال وارد کردن فایل‌ها</string>
+    <string name="ballot_created_successfully">نظرسنجی با موفقیت ایجاد شد.</string>
+    <string name="file_size">اندازه فایل</string>
+    <string name="thirty_days_abbrev">۳۰ روز</string>
+    <string name="show_in_chat">نمایش در گفت‌وگو</string>
+    <string name="group_create_no_members">آیا مطمئن هستید که می‌خواهید یک گروه خالی ایجاد کنید؟</string>
+    <string name="notes">یادداشت‌ها</string>
+    <string name="blur_faces">محو کردن چهره‌ها</string>
+    <string name="brush">قلم‌مو</string>
+    <string name="pencil">مداد</string>
+    <string name="highlighter">هایلایتر</string>
+    <string name="no_faces_detected">چهره‌ای شناسایی نشد</string>
+    <string name="smiley">شکلک</string>
+    <string name="blur">محو</string>
+    <string name="face_blur_tooltip_title">تشخیص چهره</string>
+    <string name="face_blur_tooltip_text">چهره‌ها را در تصویر پیدا کنید و آن‌ها را محو یا با یک شکلک بپوشانید.</string>
+    <string name="listened_to">گوش داده‌شده</string>
+    <string name="transcoder_unsupported_audio_format">صدا به دلیل نبود پشتیبانی سیستم قابل ترانس‌کد نبود.</string>
+    <string name="transcoder_unknown_audio_error">خطای ناشناخته ترانس‌کد صدا رخ داد.</string>
+    <string name="video_size_explain">ویدیوهای بسیار بزرگ ممکن است صرف‌نظر از این تنظیم فشرده شوند.</string>
+    <string name="status_create_notes">*شما تنها عضو این گروه هستید*\nاز این گفت‌وگو به‌عنوان یک دفترچه امن برای متن، رسانه یا اسناد استفاده کنید.</string>
+    <string name="status_create_notes_off">*شما دیگر در این گفت‌وگو تنها نیستید*\nپیام‌های جدید به تمام اعضای گروه ارسال خواهند شد.</string>
+    <string name="note_group_howto">نکته: اگر هیچ عضو گروهی اضافه نکنید، پیام‌های این گروه محلی باقی می‌مانند. این برای ذخیره امن یادداشت‌ها، رسانه یا اسناد یا انتقال آن‌ها به دسکتاپ ایده‌آل است.</string>
+    <string name="mark_unread">علامت‌گذاری به‌عنوان خوانده‌نشده</string>
+    <string name="mark_read_short">علامت خوانده‌شده</string>
+    <string name="missing_app_licence">فروشگاه برنامه نتوانست خرید شما را تأیید کند. اگر از Google Play استفاده می‌کنید، لطفاً داده‌های برنامه Google Play Store را پاک کرده و دستگاه خود را دوباره راه‌اندازی کنید.</string>
+    <string name="set_backup_path">تنظیم مسیر پشتیبان</string>
+    <string name="set_backup_path_intro">در صفحه بعدی لطفاً پوشه‌ای را که پشتیبان‌های داده باید در آن ذخیره شوند انتخاب کنید.</string>
+    <string name="discard_changes_title">دور انداختن تغییرات</string>
+    <string name="accept">پذیرفتن</string>
+    <string name="tap_here_for_more">برای اطلاعات بیشتر اینجا بزنید</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="another_connection_instructions"><![CDATA[The server has detected two or more connections from different devices with the same ${app_name_short} ID.<br><br>It is not possible to use the same ${app_name_short} ID on several devices simultaneously. New messages are only transmitted to the device that last logged in to the server.<br><br>If you’re switching to a new device, please uninstall or disable %s on the old device and then reboot the new one.]]></string>
+    <string name="app_store_error_code">کد خطای فروشگاه برنامه: %d</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_restore_type"><![CDATA[What kind of backup do you want to restore? <br/><br/> <a href=%s>Learn more about backups in ${app_name_short}</a>]]></string>
+    <string name="new_to_threema">تازه‌وارد %s هستید؟</string>
+    <string name="back_to_threema">بازگشت به %s؟</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_safe_backup">پشتیبان ${app_name_short} Safe</string>
+    <string name="forgot_your_password"><![CDATA[<a href=%s>Help</a>]]></string>
+    <string name="download_failed">دانلود ناموفق بود. کد خطا: %d</string>
+    <string name="edit_answer">ویرایش پاسخ</string>
+    <string name="share_media">هم‌رسانی با برنامه‌ای دیگر…</string>
+    <string name="miui_battery_optimization">لطفاً برای انجام این کار «بهینه‌سازی باتری» را برای %s غیرفعال کنید. از آنجا که Xiaomi به برنامه‌ها اجازه نمی‌دهد این صفحه تنظیمات را مستقیماً فراخوانی کنند، باید این کار را به‌صورت دستی در تنظیمات گوشی خود انجام دهید. اگر برای غیرفعال کردن بهینه‌سازی باتری به کمک نیاز دارید، لطفاً با پشتیبانی Xiaomi تماس بگیرید.</string>
+    <string name="forward_captions">گنجاندن شرح‌ها</string>
+    <string name="label_continue">ادامه</string>
+    <string name="select_date">یک تاریخ انتخاب کنید</string>
+    <string name="select_time">یک زمان انتخاب کنید</string>
+    <string name="send_to">ارسال به %s</string>
+    <string name="receipts_override_choice_send">ارسال</string>
+    <string name="receipts_override_choice_dont_send">ارسال نکن</string>
+    <string name="receipts_override_choice_default">پیش‌فرض (%s)</string>
+    <string name="unable_to_determine_recording_length">ضبط خالی است یا نمی‌توان طول آن را تعیین کرد</string>
+    <string name="prefs_header_receipts">رسیدها</string>
+    <string name="prefs_title_reset_receipts">پاک کردن تنظیمات شخصی</string>
+    <string name="prefs_sum_reset_receipts">بازنشانی تنظیمات مخصوص مخاطب برای رسید خواندن و نشانگر در حال تایپ به پیش‌فرض</string>
+    <string name="reset_successful">با موفقیت به پیش‌فرض بازنشانی شد</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="qr_scanner_id_hint">کد QR یک مخاطب را اسکن کنید تا هویت او را تأیید کنید. برای نمایش کد، از مخاطب خود بخواهید روی تصویر نمایه در گوشه بالا سمت چپ صفحه اصلی ${app_name_short} بزند.</string>
+    <string name="enable_storage_access_for_media">برای دیدن تصاویر و ویدیوهای دستگاه خود دسترسی به حافظه را فعال کنید</string>
+    <string name="select_storage_access_for_media_is_granted">شما به تعداد منتخبی از عکس‌ها و ویدیوها دسترسی داده‌اید.</string>
+    <string name="take_me_there">من را به آنجا ببر…</string>
+    <string name="manage">مدیریت</string>
+    <string name="show_public_key">نمایش کلید عمومی</string>
+    <string name="public_key_for">کلید عمومی %s</string>
+    <string name="copied">رونوشت شد</string>
+    <string name="no_votes_yet">تاکنون هیچ رأیی داده نشده است.</string>
+    <string name="permission_contacts_sync_required">لطفاً برای امکان همگام‌سازی مخاطبان، اجازه دسترسی به آن‌ها را بدهید.</string>
+    <string name="not_voted_user_list">این شرکت‌کنندگان رأی ندادند: %s</string>
+    <string name="enable_unknown_sources">نمی‌توان نصب کرد. لطفاً مطمئن شوید «نصب برنامه‌های ناشناس» برای %s فعال است.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push">${app_name_short} Push</string>
+    <string name="threema_push_notification_text">برای دانستن بیشتر بزنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_notification_info_text_1">${app_name_short} Push در پس‌زمینه فعال است تا شما را از پیام‌ها و تماس‌های ورودی مطلع کند.</string>
+    <string name="threema_push_notification_info_text_2">برنامه‌ها نمی‌توانند بدون نمایش یک اعلان پایدار در پس‌زمینه اجرا شوند. با نمایش این اعلان، می‌توانیم تضمین کنیم که ${app_name_short} Push حتی زمانی که شما به‌طور فعال از برنامه استفاده نمی‌کنید فعال باقی می‌ماند.</string>
+    <string name="threema_push_notification_info_text_3">اگر همچنان با اعلان‌های با تأخیر یا گم‌شده مشکل دارید، لطفاً تنظیمات سیستم خود را تنظیم کنید تا اطمینان حاصل شود برنامه می‌تواند بدون هیچ محدودیتی در پس‌زمینه فعال باشد و تمام صرفه‌جوهای باتری غیرفعال هستند.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_service_description">اعلان پایدار که هنگام فعال بودن ${app_name_short} Push نمایش داده می‌شود</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_activated">${app_name_short} Push فعال شد.</string>
+    <string name="add_shortcut_error">خطا در افزودن میان‌بر به صفحه راه‌انداز</string>
+    <string name="web_link">پیوند</string>
+    <string name="link_copied">%s رونوشت شد</string>
+    <string name="invalid_onprem_id_title">نمی‌توان شناسه را اضافه کرد</string>
+    <string name="name_given">نام</string>
+    <string name="name_family">نام خانوادگی</string>
+    <string name="name_prefix">پیشوند نام</string>
+    <string name="name_middle">نام میانی</string>
+    <string name="name_suffix">پسوند نام</string>
+    <string name="full_name">نام کامل</string>
+    <string name="send_contact">ارسال مخاطب</string>
+    <string name="edit_send_contact_detail_icon">نوع جزئیات مخاطب</string>
+    <string name="phoneTypeCustom">سفارشی</string>
+    <string name="phoneTypeHome">خانه</string>
+    <string name="phoneTypeMobile">موبایل</string>
+    <string name="phoneTypeWork">کار</string>
+    <string name="phoneTypePager">پیجر</string>
+    <string name="phoneTypeOther">سایر</string>
+    <string name="phoneTypeCar">خودرو</string>
+    <string name="phoneTypeIsdn">ISDN</string>
+    <string name="phoneTypeOtherFax">فکس دیگر</string>
+    <string name="eventTypeCustom">سفارشی</string>
+    <string name="eventTypeBirthday">تولد</string>
+    <string name="eventTypeAnniversary">سالگرد</string>
+    <string name="eventTypeOther">سایر</string>
+    <string name="emailTypeHome">خانه</string>
+    <string name="emailTypeWork">کار</string>
+    <string name="emailTypeOther">سایر</string>
+    <string name="postalTypeCustom">سفارشی</string>
+    <string name="postalTypeHome">خانه</string>
+    <string name="postalTypeWork">کار</string>
+    <string name="postalTypeOther">سایر</string>
+    <string name="relationTypeCustom">سفارشی</string>
+    <string name="relationTypeChild">فرزند</string>
+    <string name="relationTypeFriend">دوست</string>
+    <string name="relationTypeParent">والد</string>
+    <string name="relationTypeSpouse">همسر</string>
+    <string name="contact_property_key">"کلید"</string>
+    <string name="header_nickname_entry">"نام مستعار"</string>
+    <string name="prefs_title_use_system_ringtone">استفاده از آهنگ زنگ سیستم</string>
+    <string name="organization_type">سازمان</string>
+    <string name="permission_bluetooth_connect_required">برای یافتن هدست‌های بلوتوث متصل، مجوز «دستگاه‌های نزدیک» را فعال کنید</string>
+    <string name="tooltip_multiple_recipients_title">گیرندگان متعدد</string>
+    <string name="tooltip_multiple_recipients_text">برای انتخاب چند گیرنده جهت ارسال پیام یکسان، نگه دارید.</string>
+    <string name="forward_security_mode">رازداری کامل پیشرو</string>
+    <string name="forward_security_mode_none">هیچ</string>
+    <string name="clear_forward_security">بازنشانی رازداری کامل پیشرو برای این مخاطب</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="clear_forward_security_warning">این کار را فقط زمانی انجام دهید که تیم پشتیبانی ${company_name} به شما دستور داده باشد.</string>
+    <string name="forward_security_cleared">نشست‌های رازداری کامل پیشرو با این مخاطب پاک شدند</string>
+    <string name="message_without_forward_security">پیامی بدون رازداری کامل پیشرو دریافت شد. تأیید کنید که فرستنده عمداً رازداری کامل پیشرو را غیرفعال کرده است.</string>
+    <string name="forward_security_disabled">رازداری کامل پیشرو برای این گفت‌وگو غیرفعال است.</string>
+    <string name="forward_security_established">پیام‌ها با این طرف گفت‌وگو اکنون با رازداری کامل پیشرو محافظت می‌شوند.</string>
+    <string name="forward_security_established_rx">پیام‌های دریافت‌شده در این گفت‌وگو اکنون با رازداری کامل پیشرو محافظت می‌شوند.</string>
+    <string name="forward_security_reset">نشست رازداری کامل پیشرو بازنشانی شد. این می‌تواند زمانی رخ دهد که طرف گفت‌وگو دستگاه خود را تغییر دهد یا برنامه را دوباره نصب کند.</string>
+    <string name="forward_security_reset_simple">نشست رازداری کامل پیشرو با این مخاطب بازنشانی شده است.</string>
+    <string name="forward_security_message_out_of_order">پیامی خارج از ترتیب دریافت شد و قابل رمزگشایی نبود.</string>
+    <string name="forward_security_notification_channel_name">هشدارهای رازداری کامل پیشرو</string>
+    <string name="forward_security_notification_rejected_title">ارسال پیام‌ها ناموفق بود</string>
+    <string name="forward_security_notification_rejected_text_contact">یک یا چند پیام به %1$s ارسال نشد.</string>
+    <string name="forward_security_notification_rejected_text_group">یک یا چند پیام به «%1$s» ارسال نشد.</string>
+    <string name="forward_security_notification_rejected_text_generic">یک یا چند پیام ارسال نشد.</string>
+    <string name="self_updater_installation_failed">دانلود به‌روزرسانی ناموفق بود. لطفاً به‌روزرسانی را به‌صورت دستی از <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> دانلود و نصب کنید.</string>
+    <string name="spam_first_contact">این گفت‌وگو از یک مخاطب ناشناس است</string>
+    <string name="spam_report">گزارش هرزنامه</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="spam_report_dialog_explain">اگر ادامه دهید، شناسه و نام مستعار این مخاطب همراه با شناسه شما به ${company_name} ارسال خواهد شد. هیچ محتوا یا داده شخصی ارسال نمی‌شود. مخاطب از این موضوع مطلع نخواهد شد.</string>
+    <string name="spam_report_dialog_block_checkbox">همچنین این مخاطب مسدود و گفت‌وگو حذف شود</string>
+    <string name="spam_report_dialog_title">گزارش %s</string>
+    <string name="spam_successfully_reported">این شناسه به‌عنوان ارسال‌کننده هرزنامه گزارش شد.</string>
+    <string name="spam_error_reporting">خطایی هنگام گزارش هرزنامه رخ داد: %s</string>
+    <string name="spam_report_short">گزارش</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard_incompatible_contact_sync_params">پارامترهای MDM ناسازگاری تنظیم شده‌اند. اگر محدودیت کاربری DISALLOW_MODIFY_ACCOUNTS تنظیم شده باشد، پارامتر MDM ${app_name_short} با نام th_contact_sync نمی‌تواند روی true تنظیم شود. لطفاً با مدیر دستگاه خود تماس بگیرید.</string>
+    <string name="messages_cannot_be_recovered">نمی‌توانید پیام‌ها را بازیابی کنید.</string>
+    <string name="groups_left_or_dissolved">گروه‌ها ترک یا منحل و سپس حذف خواهند شد.</string>
+    <string name="contact_deleted">مخاطب حذف شد</string>
+    <string name="last_added_contact">آخرین افزوده‌شده</string>
+    <string name="directory_explain_text">دایرکتوری شرکت را برای کارمندانی که هنوز در فهرست مخاطبان شما نیستند جست‌وجو کنید.</string>
+    <string name="cannot_display_location">این موقعیت مکانی قابل نمایش نیست.</string>
+    <string name="draw_reply">پاسخ طراحی</string>
+    <string name="drawing">در حال طراحی</string>
+    <string name="background_color">رنگ پس‌زمینه</string>
+    <string name="send_video_muted">حذف صدا از ویدیو</string>
+    <string name="send_without_audio">حذف صدا</string>
+    <string name="edit_filename">ویرایش نام فایل</string>
+    <string name="unable_to_restore_identity_because">نمی‌توان شناسه را بازیابی کرد. دلیل: %s</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="share_with_app">هم‌رسانی با ${app_name}</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="read_phone_state_dialog_message">برای جلوگیری از اینکه تماس‌های ${app_name_short} تماس‌های معمولی را قطع کنند، به مجوز تلفن نیاز است. اگر این مجوز داده نشود، یک تماس ورودی ${app_name_short} حتی در صورت وجود یک تماس معمولی در حال انجام زنگ خواهد خورد.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="read_phone_state_short_message">برای بررسی تماس‌های در حال انجام، به ${app_name} مجوز تلفن را بدهید.</string>
+    <string name="prefs_title_read_phone_state">اعطای مجوز تلفن</string>
+    <string name="prefs_title_hibernation">تنظیمات برنامه‌های استفاده‌نشده</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_hibernation_api_32">برای جلوگیری از اینکه ${app_name} پس از بی‌فعالیتی طولانی توسط سیستم متوقف شود، لطفاً تنظیم سیستمی «حذف مجوزها و آزادسازی فضا» را غیرفعال کنید.</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_hibernation_api">برای جلوگیری از اینکه ${app_name} پس از بی‌فعالیتی طولانی توسط سیستم متوقف شود، لطفاً تنظیم سیستمی «توقف فعالیت برنامه در صورت استفاده‌نشدن» را غیرفعال کنید.</string>
+    <string name="unable_to_fetch_configuration">نمی‌توان داده‌ها را از سرور پیکربندی دریافت کرد. بعداً دوباره تلاش کنید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rogue_device_warning"><![CDATA[A connection from a different device with the same ${app_name_short} ID has been detected. Have you recently used your ${app_name_short} ID on another device? <br><br> If you have, you can ignore this message. <br><br> If you haven\'t, your private key may be compromised. Please <a href="https://threema.com/faq/another_connection">follow our suggestions</a> to protect your device and data before creating a new ID.]]></string>
+    <string name="fetch2_failure">همگام‌سازی با سرور تأمین ناموفق بود.</string>
+    <string name="no_members_support_group_calls">هیچ عضو دیگری در این گروه قادر به پاسخگویی به تماس‌های گروهی نیست</string>
+    <string name="group_calls">تماس‌های گروهی</string>
+    <string name="prefs_title_group_calls_enable">فعال کردن تماس‌های گروهی</string>
+    <string name="group_no_members">این گروه عضو دیگری ندارد</string>
+    <string name="group_call">تماس گروهی</string>
+    <string name="checking_compatibility">در حال بررسی سازگاری…</string>
+    <string name="group_call_mic_permission_description">برای برقراری تماس‌های گروهی، باید مجوز میکروفون را بدهید تا دیگران بتوانند صدای شما را بشنوند.</string>
+    <string name="call_mic_permission_description">برای برقراری تماس‌ها، باید مجوز میکروفون را بدهید تا دیگران بتوانند صدای شما را بشنوند.</string>
+    <string name="group_call_camera_permission_rationale">برای اینکه سایر شرکت‌کنندگان تصویر شما را ببینند، باید به %s زیر «مجوزها» اجازه دسترسی به دوربین را بدهید.</string>
+    <string name="group_call_phone_permission_description">برای برقراری تماس‌های گروهی، به مجوز تلفن نیاز است تا تشخیص داده شود چه زمانی تماس دیگری تماس گروهی را قطع می‌کند.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="call_phone_permission_description">برای برقراری تماس‌های ${app_name_short}، به مجوز تلفن نیاز است تا تشخیص داده شود چه زمانی تماس دیگری تماس ${app_name_short} را قطع می‌کند.</string>
+    <string name="group_call_nearby_devices_permission_description">برای برقراری تماس‌های گروهی با هدست بلوتوث، باید مجوز «دستگاه‌های نزدیک» را بدهید تا هدست‌های بلوتوث تشخیص داده شوند.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="call_nearby_devices_permission_description">برای برقراری تماس‌های ${app_name_short} با هدست بلوتوث، باید مجوز «دستگاه‌های نزدیک» را بدهید تا هدست‌های بلوتوث تشخیص داده شوند.</string>
+    <string name="settings">تنظیمات</string>
+    <string name="leave">ترک</string>
+    <string name="fs_key_mismatch">عدم تطابق کلید</string>
+    <string name="tap_to_resend">برای ارسال مجدد بزنید</string>
+    <string name="group_calls_tooltip_title">تماس‌های گروهی</string>
+    <string name="group_calls_tooltip_text">برای دعوت همه اعضای گروه به پیوستن به یک تماس اینجا بزنید. تمام اعضای گروه یک اعلان دریافت می‌کنند و می‌توانند تصمیم بگیرند که آیا می‌خواهند به تماس بپیوندند یا خیر.</string>
+    <string name="prefs_title_calls">تماس‌های امن</string>
+    <string name="prefs_sum_group_calls_vibration">انتخاب اینکه هنگام آغاز یک تماس گروهی لرزش انجام شود یا خیر</string>
+    <string name="forward_security_mode_4dh">کامل</string>
+    <string name="forward_security_mode_2dh">یک‌طرفه</string>
+    <string name="forward_security_mode_all">کامل</string>
+    <string name="forward_security_mode_partial">جزئی</string>
+    <string name="group_call_inactivity_left">تماس گروهی به دلیل بی‌فعالیتی ترک شد</string>
+    <string name="missing_permission_external_storage">نمی‌توان فایل را رونوشت کرد. مراحل زیر را امتحان کنید:\n1. برنامه تنظیمات را باز کنید.\n2. به «برنامه‌ها» بروید و «دسترسی ویژه برنامه» را انتخاب کنید.\n3. روی «دسترسی به همه فایل‌ها» بزنید.\n4. روی سه نقطه در گوشه بالا سمت راست بزنید و «نمایش سیستم» را انتخاب کنید.\n5. روی «حافظه خارجی» بزنید و مطمئن شوید «اجازه دسترسی برای مدیریت همه فایل‌ها» اعطا شده است.\n6. دوباره بازیابی پشتیبان را امتحان کنید.</string>
+    <string name="forward_security_downgraded_status_message">رازداری کامل پیشرو در این گفت‌وگو غیرفعال شده است زیرا نسخه برنامه طرف گفت‌وگوی شما از آن پشتیبانی نمی‌کند یا از ${app_name_desktop} 2.0 for Desktop (beta) استفاده می‌شود.</string>
+    <string name="forward_security_illegal_session_status_message">نشست رازداری کامل پیشرو به دلیل نامعتبر بودن بازنشانی شد.</string>
+    <string name="crop_image_title">برش تصویر</string>
+    <string name="scroll_to_bottom">پیمایش به پایین</string>
+    <string name="scroll_to_top">پیمایش به بالا</string>
+    <string name="contact_sync_mdm_rationale">مدیر شما همگام‌سازی مخاطبان را برای دستگاه شما فعال کرده است. بنابراین به مجوز دسترسی به مخاطبان نیاز است.</string>
+    <string name="welcome_back">دوباره خوش آمدید!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="id_restored_successfully">شناسه ${app_name_short} شما با موفقیت بازیابی شد</string>
+    <string name="prefs_dynamic_colors">رنگ پویا</string>
+    <string name="prefs_dynamic_colors_sum">استفاده از رنگ‌های سیستم</string>
+    <string name="apply_changes">اعمال تغییرات</string>
+    <string name="prefs_threema_work_summary">آیا می‌دانستید که Threema یک راهکار ارتباطی حرفه‌ای برای کسب‌وکارها نیز ارائه می‌دهد؟ برای دانستن بیشتر درباره Threema Work اینجا بزنید.</string>
+    <string name="notification_channel_voice_message_player">پخش‌کننده پیام صوتی</string>
+    <string name="voice_message_from">پیام صوتی از %s</string>
+    <string name="vm_fg_service_not_allowed">خطای پخش پیام صوتی</string>
+    <string name="vm_fg_service_not_allowed_explain">اگر اعلان رسانه هنوز موجود است، روی دکمه پخش آن بزنید، در غیر این صورت لطفاً برنامه را باز کنید تا پخش را از گفت‌وگو آغاز کنید.</string>
+    <string name="use_threema_without_this_permission">استفاده از %s بدون این مجوز</string>
+    <string name="grant_permission">اعطای مجوز</string>
+    <string name="grant_permission_settings">اعطای مجوز در تنظیمات</string>
+    <string name="ignore_permission">دیگر نپرس</string>
+    <string name="permission_nearby_devices">دستگاه‌های نزدیک</string>
+    <string name="permission_bluetooth">بلوتوث</string>
+    <string name="permission_camera">دوربین</string>
+    <string name="permission_microphone">میکروفون</string>
+    <string name="permission_read_phone_state">تلفن</string>
+    <string name="permission_enable_in_settings_rationale">لطفاً مجوز را در تنظیمات فعال کنید. «مجوزها» را انتخاب کنید و سپس «%s» را اجازه دهید.</string>
+    <string name="group_name">نام گروه</string>
+    <string name="star_message">ستاره‌دار کردن پیام</string>
+    <string name="starred_message">پیام ستاره‌دار</string>
+    <string name="starred_messages">پیام‌های ستاره‌دار</string>
+    <string name="sorting">مرتب‌سازی</string>
+    <string name="sort_by">مرتب‌سازی بر اساس…</string>
+    <string name="newest_first">جدیدترین ابتدا</string>
+    <string name="oldest_first">قدیمی‌ترین ابتدا</string>
+    <string name="no_starred_messages">پیام ستاره‌داری یافت نشد. برای ستاره‌دار کردن یک پیام، روی آن نگه دارید و دکمه ستاره را انتخاب کنید.</string>
+    <string name="remove_all_stars">حذف همه ستاره‌ها</string>
+    <string name="remove_star">حذف ستاره</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="samsung_permission_problem_explain">${app_name} به دلیل نبود یک مجوز روی یک برنامه سیستمی نمی‌تواند به فایل‌های رسانه‌ای دسترسی پیدا کند. برای رفع آن، مطمئن شوید کلید کنار «حافظه خارجی» در صفحه‌ای که در پی می‌آید فعال است و %1$s را دوباره راه‌اندازی کنید.</string>
+    <string name="min_n_chars">حداقل %d نویسه</string>
+    <string name="prefs_title_grant_bluetooth_permission">اعطای مجوز بلوتوث</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_managed_password_confirm">یک رمز عبور مدیریت‌شده برای پشتیبان ${app_name_short} Safe شما تعریف شده است.\n\nآیا می‌خواهید از این رمز عبور استفاده کنید؟ در صورت تردید، لطفاً با مدیر خود تماس بگیرید.</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_managed_new_password_confirm">یک رمز عبور مدیریت‌شده جدید برای پشتیبان ${app_name_short} Safe شما تعریف شده است.\n\nآیا می‌خواهید رمز عبور فعلی را با این رمز جدید مدیریت‌شده جایگزین کنید؟ در صورت تردید، لطفاً با مدیر خود تماس بگیرید.</string>
+    <string name="real_not_now">اکنون نه</string>
+    <string name="add_contact_in">افزودن مخاطب در…</string>
+    <string name="really_remove_all_stars">آیا واقعاً می‌خواهید ستاره همه پیام‌ها را بردارید؟</string>
+    <string name="prefs_sum_storage_management">مدیریت حافظه و حذف پیام‌ها یا رسانه</string>
+    <string name="delete_automatically">حذف خودکار</string>
+    <string name="keep_messages">نگه داشتن پیام‌ها برای:</string>
+    <string name="clean_up_manually">پاک‌سازی دستی</string>
+    <string name="forever">برای همیشه</string>
+    <string name="autodelete_explain">اگر روی هر مقداری جز «برای همیشه» تنظیم شود، پیام‌های ورودی و خروجی پس از مدت‌زمان مشخص‌شده به‌طور غیرقابل‌بازیابی حذف خواهند شد. این شامل پیام‌های خوانده‌نشده و ارسال‌نشده می‌شود. اما پیام‌های گروه‌های یادداشت و پیام‌های ستاره‌دار حذف نخواهند شد. فرایند حذف به‌صورت دوره‌ای و نه لزوماً بلافاصله پس از فعال‌سازی انجام می‌شود.</string>
+    <string name="autodelete_confirm">پیام‌ها پس از %s به‌طور خودکار حذف خواهند شد. ادامه می‌دهید؟</string>
+    <string name="autodelete_activated">حذف خودکار فعال شد.</string>
+    <string name="autodelete_disabled">حذف خودکار غیرفعال شد.</string>
+    <string name="set_by_administrator">مقدار توسط مدیر تنظیم شده است و قابل تغییر نیست.</string>
+    <string name="action_dissolve_group">انحلال گروه</string>
+    <string name="really_dissolve_group">اگر فقط گروه را منحل کنید، دیگر هیچ‌کس نمی‌تواند پیام‌های جدیدی به گروه ارسال کند و گروه دیگر قابل مدیریت نخواهد بود. گروه منحل‌شده همچنان قابل شبیه‌سازی است.</string>
+    <string name="status_orphaned_group">*این گروه بی‌سرپرست است*\nسازنده گروه، گروه را ترک کرده و دیگر نمی‌توان آن را نگهداری کرد. یکی از اعضای باقی‌مانده می‌تواند گروه را (از طریق جزئیات گروه) شبیه‌سازی کند تا مدیر جدید شود.</string>
+    <string name="group_not_a_member_notice">شما دیگر بخشی از این گروه نیستید و نمی‌توانید از آن استفاده کنید.</string>
+    <string name="group_dissolved_notice">این گروه منحل شده است و دیگر قابل استفاده نیست.</string>
+    <string name="md_linked_devices">${app_name_desktop} 2.0 for Desktop (Beta)</string>
+    <string name="md_link_device">افزودن دستگاه</string>
+    <!-- ${app_name_desktop} is a placeholder for the desktop app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. ${app_name_desktop} is a placeholder for the app's name and must NOT be translated -->
+    <string name="md_linked_devices_empty">پیش از پیوند دادن یک دستگاه جدید، لطفاً آخرین نسخه بتای [${app_name_desktop} for Desktop] را دانلود و باز کنید.</string>
+    <string name="directory_request_failed">درخواست دایرکتوری ناموفق بود. دوباره تلاش کنید.</string>
+    <string name="add_shortcut_exists">میان‌بری برای این هدف از قبل وجود دارد.</string>
+    <string name="scan_qr_code">اسکن کد QR</string>
+    <!-- ${app_name_desktop} is a placeholder for the desktop app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="scan_qr_code_explain">کد QR نمایش‌داده‌شده در نسخه بتای ${app_name_desktop} for Desktop را روی دستگاهی که می‌خواهید پیوند دهید اسکن کنید.</string>
+    <string name="connecting">در حال اتصال…</string>
+    <string name="trust_new_device">اعتماد به دستگاه جدید</string>
+    <string name="trust_new_device_explain">همان تصاویری را که روی دستگاه جدید نمایش داده می‌شوند انتخاب کنید تا تأیید کنید به آن اعتماد دارید.</string>
+    <string name="trust_new_device_info">دستگاه جدید یک نسخه مستقل از نمایه %s شما را ذخیره خواهد کرد و پیام‌ها از طرف شما ارسال و دریافت خواهند شد.</string>
+    <string name="no_match_question">تطابقی نیست؟</string>
+    <string name="sending_data">در حال ارسال داده…</string>
+    <string name="continue_on_new_device">لطفاً روی دستگاه جدید ادامه دهید</string>
+    <string name="device_linked_successfully">دستگاه با موفقیت پیوند داده شد</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="device_linked_successfully_explain">${app_name} اکنون می‌تواند روی دستگاهی که هم‌اکنون پیوند دادید استفاده شود (حتی زمانی که این دستگاه خاموش است یا به اینترنت متصل نیست).</string>
+    <string name="resend_message_dialog_title">پیام گروهی دوباره ارسال شود؟</string>
+    <string name="resend_message_dialog_message">این پیام به همه اعضا ارسال نشد. پیام دوباره به %1$s ارسال شود؟</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_lost_credentials_help">اعتبارنامه‌های خود را فراموش کرده‌اید؟ لطفاً با مدیر ${app_name_short} خود تماس بگیرید.</string>
+    <string name="problemsolver_intro">برخی مشکلات پیکربندی سیستم احتمالاً مانع از عملکرد درست %s می‌شوند. لطفاً این مشکلات را با دنبال کردن دستورالعمل‌های زیر برطرف کنید.</string>
+    <string name="problemsolver_title">رفع مشکلات پیکربندی</string>
+    <string name="problemsolver_title_background">استفاده پس‌زمینه محدود شده است</string>
+    <string name="problemsolver_title_background_data">داده پس‌زمینه محدود شده است</string>
+    <string name="problemsolver_title_notifications">اعلان‌ها غیرفعال هستند</string>
+    <string name="problemsolver_title_fullscreen_notifications">اعلان‌های تمام‌صفحه مجاز نیستند</string>
+    <string name="problemsolver_title_debug_log_enabled">ثبت گزارش همچنان فعال است</string>
+    <string name="problemsolver_explain_fullscreen_notifications">برنامه مجاز به نمایش اعلان‌های تمام‌صفحه نیست. ممکن است هنگام قفل بودن دستگاه تماس‌های ورودی را از دست بدهید. برای رفع این مشکل، «اجازه اعلان‌های تمام‌صفحه» را فعال کنید.</string>
+    <string name="problemsolver_explain_notifications">اعلان‌ها برای این برنامه کاملاً غیرفعال هستند. از پیام‌ها یا تماس‌های ورودی مطلع نخواهید شد و ممکن است برنامه طبق انتظار کار نکند. برای رفع این مشکل، «همه اعلان‌ها» را فعال کنید.</string>
+    <string name="problemsolver_explain_background_data">برنامه نمی‌تواند هنگام قرار گرفتن در پس‌زمینه از داده موبایل استفاده کند. تا زمانی که برنامه را به‌طور فعال باز نکنید از پیام‌های ورودی مطلع نخواهید شد. برای رفع این مشکل، «داده پس‌زمینه» را فعال کنید.</string>
+    <string name="problemsolver_explain_background">استفاده پس‌زمینه برنامه محدود شده است. هیچ اعلانی دریافت نخواهید کرد و بسیاری از قابلیت‌ها طبق انتظار کار نخواهند کرد. برای رفع این مشکل، روی «مصرف باتری برنامه» بزنید و «نامحدود» را انتخاب کنید.</string>
+    <string name="problemsolver_explain_debug_log_enabled">مدتی پیش، ثبت گزارش رفع اشکال را فعال کرده‌اید. اگر دیگر نیازی به ثبت رویدادها و اطلاعات شبکه ندارید، غیرفعال کردن مجدد گزارش را در نظر بگیرید.</string>
+    <string name="problemsolver_explain_debug_log_force_enabled">${app_name} در حال حاضر رویدادها و اطلاعات شبکه را در یک فایل ثبت می‌کند زیرا شما فایل «%s» را ایجاد کرده‌اید. اگر دیگر نیازی به ثبت گزارش ندارید، حذف فایل را در نظر بگیرید.</string>
+    <string name="problemsolver_info_text">نام‌گذاری برخی از گزینه‌های تنظیمات سیستم ذکرشده در بالا ممکن است بسته به نسخه اندروید و سازنده دستگاه متفاوت باشد.</string>
+    <string name="problemsolver_title_app_battery_usgae_optimized">مصرف باتری برنامه روی «بهینه‌شده» تنظیم شده است</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="problemsolver_explain_app_battery_usgae_optimized">برنامه مجاز به حفظ یک اتصال دائمی به سرورها که برای کار ${app_name_short} Push لازم است نیست. هنگامی که برنامه در پس‌زمینه است از پیام‌های جدید مطلع نخواهید شد. برای رفع این مشکل، روی «مصرف باتری برنامه» بزنید و «نامحدود» را انتخاب کنید.</string>
+    <string name="problemsolver_to_settings">به تنظیمات</string>
+    <!-- Label on button to dismiss/hide a warning -->
+    <string name="problemsolver_dismiss">رد کردن</string>
+    <string name="prefs_advanced_options">گزینه‌های پیشرفته</string>
+    <string name="push_service">سرویس پوش</string>
+    <string name="edit_and_send">ویرایش و ارسال</string>
+    <string name="media_gallery_animated_webps">WebP‌های متحرک</string>
+    <string name="unsupported_image_type">نوع تصویر پشتیبانی‌نشده: %s</string>
+    <string name="application_setup_steps_failed">برای بررسی وضعیت مخاطبان شما به یک اتصال اینترنت فعال نیاز است. لطفاً مطمئن شوید که به اینترنت متصل هستید و دوباره تلاش کنید.</string>
+    <string name="add_contact_failed">افزودن مخاطب ناموفق بود</string>
+    <string name="edit_message_not_supported_for_contact">نمی‌توان پیام را ویرایش کرد زیرا نسخه برنامه گیرنده از این قابلیت پشتیبانی نمی‌کند.</string>
+    <string name="edit_message_not_supported_for_all_group_members">اعضای گروه زیر قادر به دیدن ویرایش‌های شما نخواهند بود: %1$s</string>
+    <string name="edit_message_not_supported_for_any_group_members">نمی‌توان پیام را ویرایش کرد زیرا هیچ عضو گروهی نسخه‌ای از برنامه که از این قابلیت پشتیبانی کند ندارد.</string>
+    <string name="prefs_notification_settings_summary">تغییر صدا و لرزش در پنجره تنظیمات سیستم</string>
+    <string name="new_messages">پیام‌های جدید</string>
+    <string name="new_group_messages">پیام‌های گروهی جدید</string>
+    <string name="individual_notification_settings">تنظیمات اعلان شخصی</string>
+    <string name="delete_message_not_supported_for_all_group_members">پیام برای اعضای گروه زیر حذف نخواهد شد: %1$s</string>
+    <string name="individual_notification_settings_warn">برای هر گفت‌وگو با تنظیمات اعلان شخصی، یک کانال اعلان ایجاد می‌شود، به این معنی که نام گفت‌وگو حتی اگر برنامه قفل باشد در تنظیمات دستگاه قابل‌مشاهده است. به‌هرحال ادامه می‌دهید؟</string>
+    <string name="incoming_calls">تماس‌های ورودی</string>
+    <string name="group_chats">گفت‌وگوهای گروهی</string>
+    <string name="edit_history_file_no_caption">بدون شرح</string>
+    <string name="prefs_title_error_reporting">گزارش خطا</string>
+    <string name="prefs_send_error_reports">ارسال گزارش‌های ناشناس</string>
+    <string name="error_reporting_option_never_send">هرگز</string>
+    <string name="error_reporting_option_always_send">همیشه</string>
+    <string name="error_reporting_option_always_ask">هر بار بپرس</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_never_send">هرگز گزارش‌های خطا به ${company_name} ارسال نشود</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_always_send">ارسال خودکار گزارش‌های خطا به ${company_name} هنگام شناسایی یک خطای حیاتی</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_always_ask">هر بار پرسیدن اینکه آیا گزارش خطایی به ${company_name} ارسال شود</string>
+    <string name="error_detected_dialog_title">ارسال گزارش ناشناس</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="crash_detected_dialog_text">به نظر می‌رسد ${app_name_short} اخیراً از کار افتاده است. آیا می‌خواهید یک گزارش خطای ناشناس ارسال کنید؟</string>
+    <string name="crash_detected_dialog_remember_choice">انتخاب من را به خاطر بسپار</string>
+    <string name="crash_detected_dialog_send_button">ارسال</string>
+    <!-- Shown in the advanced settings, shows the user their own Device's uniquely generated ID, which is used for sending error reports -->
+    <string name="prefs_error_reporting_id">شناسه دستگاه ناشناس</string>
+    <!-- The %s is a placeholder for an ID. It must be left as-is. -->
+    <string name="prefs_error_reporting_id_summary">این شناسه برای تخصیص گزارش‌های خطا استفاده می‌شود. ناشناس است و به شناسه Threema شما پیوند داده نشده است.\n%s</string>
+    <string name="md_device_currently_active">در حال حاضر فعال</string>
+    <string name="md_device_last_active_at">آخرین فعالیت: %s</string>
+    <plurals name="md_max_device_slots_reached_info">
+        <item quantity="one">فقط یک دستگاه را می‌توان همزمان پیوند داد.</item>
+        <item quantity="other">به حداکثر تعداد %d دستگاه پیوندشده رسیدید. برای افزودن یک دستگاه جدید، یک دستگاه پیوندشده را حذف کنید.</item>
+    </plurals>
+    <string name="md_device_invalid_label">دستگاه</string>
+    <string name="md_device_invalid_hint">اطلاعات قابل دریافت نبود</string>
+
+    <string name="device_linking_cancel_dialog_title">لغو پیوند</string>
+    <string name="device_linking_cancel_dialog_message">پیوند هنوز کامل نشده است. آیا می‌خواهید آن را لغو کنید؟</string>
+    <string name="device_linking_cancel_dialog_cancel">لغو پیوند</string>
+    <string name="device_linking_cancel_dialog_continue">ادامه</string>
+
+    <string name="md_drop_device_dialog_drop_button">حذف دستگاه</string>
+    <string name="md_drop_device_dialog_close_button">بستن</string>
+
+    <string name="md_drop_device_failed_dialog_title">حذف دستگاه پیوندشده ممکن است ناموفق بوده باشد</string>
+    <string name="md_drop_device_failed_dialog_message">لطفاً اتصال اینترنت را بررسی کنید و دوباره تلاش کنید.</string>
+    <string name="md_drop_device_failed_dialog_button_close">بستن</string>
+
+    <!-- Message shown in dialog when the user starts configuring a backup, but we detected that there might be a problem and thus offer a workaround option to choose from -->
+    <string name="backup_path_selection_message">هنگام انتخاب پوشه یک مشکل احتمالی شناسایی شد. اگر مشکل ادامه یافت، می‌توانید پشتیبان را به‌جای انتخاب یک پوشه سفارشی در پوشه «اسناد» ذخیره کنید.</string>
+    <!-- Button label on dialog when configuring a backup, shown on dialog that lets the user choose how they want to select the backup folder. This option lets them use the regular file picker. -->
+    <string name="backup_path_selection_default">انتخاب پوشه سفارشی</string>
+    <!-- Button label on dialog when configuring a backup, shown on dialog that lets the user choose how they want to select the backup folder. This option lets them bypass the file picker and use the default Documents folder instead -->
+    <string name="backup_path_selection_documents">استفاده از پوشه «اسناد»</string>
+
+    <!-- accessibility -->
+    <string name="cd_edited">پیام ویرایش شد</string>
+    <string name="cd_created_at">ایجاد شده در %s</string>
+    <string name="cd_edited_at">ویرایش شده در %s</string>
+    <string name="cd_index_in_edit_history">%d. ویرایش در تاریخچه</string>
+    <string name="cd_message_details_container">جزئیات پیام</string>
+    <string name="cd_enable_formatting">فعال کردن قالب‌بندی</string>
+    <string name="cd_message">پیام</string>
+    <string name="reactions_on_this_message">همه واکنش‌ها</string>
+    <string name="select_emoji_content_description">انتخاب ایموجی برای افزودن از انتخاب‌گر ایموجی</string>
+    <string name="group_emoji_reactions_partially_supported">برخی به دلیل نسخه قدیمی واکنش‌های شما را نخواهند دید.</string>
+    <string name="tab_emoji_reactions_overview_content_description">%1$s واکنش با %2$s</string>
+    <string name="reaction_cannot_be_displayed">این واکنش قابل نمایش نیست. ایموجی ناشناس.</string>
+    <string name="emoji_reactions_unavailable_title">واکنش‌های ایموجی در دسترس نیست</string>
+    <string name="emoji_reactions_unavailable_body">%1$s از نسخه‌ای از برنامه استفاده می‌کند که هنوز از این قابلیت پشتیبانی نمی‌کند.</string>
+    <string name="emoji_reactions_unavailable_group_body">نمی‌توانید با یک ایموجی به این پیام واکنش نشان دهید زیرا هیچ عضو گروهی نسخه‌ای از برنامه که از این قابلیت پشتیبانی کند ندارد.</string>
+    <string name="emoji_reactions_cannot_remove_title">حذف واکنش‌ها در دسترس نیست</string>
+    <string name="emoji_reactions_cannot_remove_body">%1$s از نسخه‌ای از برنامه استفاده می‌کند که هنوز از حذف واکنش‌های ایموجی یا ارسال بیش از یک واکنش ایموجی پشتیبانی نمی‌کند. همچنان می‌توانید 👍 را با 👎 یا برعکس جایگزین کنید.</string>
+    <string name="emoji_reactions_cannot_remove_group_body">هیچ‌یک از اعضای گروه از نسخه‌ای از برنامه که از حذف واکنش‌های ایموجی یا ارسال بیش از یک واکنش ایموجی پشتیبانی کند استفاده نمی‌کند. می‌توانید 👍 را با 👎 یا برعکس جایگزین کنید.</string>
+    <!-- Hint shown on message details screen, to let the user know how they can view a message's emoji reactions -->
+    <string name="emoji_reactions_message_details_hint">این پیام واکنش‌های ایموجی دارد. در گفت‌وگو، روی هر حباب ایموجی نگه دارید تا همه آن‌ها را ببینید.</string>
+    <!-- Title shown in popup above emoji reaction buttons on a message, to hint to the user that they can long-press to view the details -->
+    <string name="emoji_reactions_popup_hint_title">واکنش ایموجی</string>
+    <!-- Message shown in popup above emoji reaction buttons on a message, to hint to the user that they can long-press to view the details -->
+    <string name="emoji_reactions_popup_hint_text">این پیام واکنش‌های ایموجی دارد. در گفت‌وگو، روی هر حباب ایموجی نگه دارید تا همه آن‌ها را ببینید.</string>
+
+    <string name="accessibility_device_linking_pfs_warning_icon">اطلاعات</string>
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_pfs_warning_body">هنگامی که یک دستگاه را پیوند می‌دهید، رازداری کامل پیشرو برای همه مخاطبان غیرفعال خواهد شد.\n\nاین یک محدودیت نسخه بتای فعلی است. برای محدودیت‌های بیشتر، لطفاً به [این مدخل پرسش‌های متداول] مراجعه کنید.</string>
+    <string name="device_linking_pfs_warning_button_continue">پیوند دستگاه جدید</string>
+    <string name="device_linking_pfs_warning_button_cancel">لغو</string>
+
+    <!-- Title shown on a banner shown in the old Threema web sessions screen to point to the new multi device feature instead -->
+    <!-- ${app_name_desktop} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_web_link_to_multi_device_feature_banner_title">جدید: ${app_name_desktop} 2.0 for Desktop (Beta)</string>
+    <!-- Body shown on a banner shown in the old Threema web sessions screen to point to the new multi device feature instead -->
+    <string name="threema_web_link_to_multi_device_feature_banner_body">برای استفاده از نسل بعدی برنامه دسکتاپ با پشتیبانی چنددستگاهی اینجا بزنید.</string>
+    <!-- Screen reader text on a cross icon button to close a hint banner -->
+    <string name="accessibility_dismiss_hint">رد کردن نکته</string>
+
+    <string name="device_linking_error_generic_title">ارسال داده ناموفق بود</string>
+    <string name="device_linking_error_generic_body">لطفاً پیوند دادن دستگاه را دوباره امتحان کنید. اگر این مشکل ادامه یافت، لطفاً با پشتیبانی تماس بگیرید («منوی اصلی > راهنما»).</string>
+    <string name="device_linking_error_generic_network_title">اتصال اینترنت وجود ندارد</string>
+    <string name="device_linking_error_generic_network_body">لطفاً پیوند دادن دستگاه را دوباره امتحان کنید. اگر این مشکل ادامه یافت، لطفاً با پشتیبانی تماس بگیرید («منوی اصلی > راهنما»).</string>
+    <string name="device_linking_error_unknown_qr_code_title">کد QR ناشناس</string>
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_error_unknown_qr_code_body">به نظر نمی‌رسد این یک کد QR از ${app_name_desktop} 2.0 for Desktop (Beta) باشد. لطفاً آخرین نسخه بتای برنامه دسکتاپ را از [وب‌سایت ما] دانلود کنید و کد QR را که هنگام باز کردن برنامه نمایش داده می‌شود اسکن کنید.</string>
+    <string name="device_linking_error_web_qr_code_title">کد QR درست نیست</string>
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_error_web_qr_code_body">این کد QR متعلق به کلاینت وب ${app_name_short} است.\nلطفاً آخرین نسخه ${app_name_desktop} 2.0 for Desktop (Beta) را از [وب‌سایت ما] دانلود کنید و کد QR را که هنگام باز کردن برنامه نمایش داده می‌شود اسکن کنید.</string>
+    <string name="device_linking_error_old_rendezvous_version_title">نسخه ناسازگار</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="device_linking_error_old_rendezvous_version_body">لطفاً آخرین نسخه ${app_name} را روی هر دو دستگاه نصب کنید.</string>
+    <string name="device_linking_error_emoji_mismatch_title">تصاویر مطابقت ندارند؟</string>
+    <string name="device_linking_error_emoji_mismatch_body">به نظر می‌رسد در اتصال به دستگاه مشکلاتی وجود دارد. لطفاً برنامه را روی دستگاه جدید دوباره راه‌اندازی کنید و دوباره تلاش کنید.</string>
+    <string name="device_linking_error_unexpected_title">خطای غیرمنتظره</string>
+    <string name="device_linking_error_unexpected_body">لطفاً پیوند دادن دستگاه را دوباره امتحان کنید. اگر این مشکل ادامه یافت، لطفاً با پشتیبانی تماس بگیرید («منوی اصلی > راهنما»).</string>
+    <string name="device_linking_error_invalid_contact_title">مخاطب نامعتبر</string>
+    <!-- Error message when linking of a new device failed due to an invalid contact. %1$s will be replaced with the threema identity of the affected contact. -->
+    <string name="device_linking_error_invalid_contact_body">مخاطب با هویت %1$s به‌نادرستی روی این دستگاه ذخیره شده است و مانع از پیوند دادن دستگاه جدید می‌شود. لطفاً با پشتیبانی تماس بگیرید («منوی اصلی > راهنما»).</string>
+    <string name="device_linking_error_invalid_timestamp_title">تاریخ نامعتبر</string>
+    <string name="device_linking_error_invalid_timestamp_body">تاریخ نامعتبری مشاهده شد. لطفاً با پشتیبانی تماس بگیرید («منوی اصلی > راهنما»).</string>
+
+    <string name="work_directory_title">دایرکتوری شرکت</string>
+    <!-- Instruction text for the user directory search -->
+    <string name="work_directory_search">جست‌وجو در دایرکتوری</string>
+    <!-- Prompt to the user shown in the work directory search. ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_directory_empty_view_text">لطفاً برای شروع جست‌وجو در دایرکتوری کاربران ${app_name_short} شرکت خود، حداقل ۳ نویسه از یک نام وارد کنید.</string>
+
+    <!-- Message that is shown when the user wants to share an invalid file. -->
+    <string name="invalid_file_cannot_be_shared">این فایل نامعتبر است و قابل هم‌رسانی نیست</string>
+
+    <string name="availability_status_none">بدون وضعیت</string>
+    <!-- Status (only relevant for Work), e.g. as shown on their profile, indicating that the person is currently not available, i.e. out-of-office -->
+    <string name="availability_status_unavailable">در دسترس نیست</string>
+    <!-- Status (only relevant for Work), e.g. as shown on their profile, indicating that the person is currently busy-->
+    <string name="availability_status_busy">مشغول</string>
+
+    <!-- Error message (only relevant for OnPrem) if the preset server url is different from the one provided by the activation link. -->
+    <string name="error_preset_onprem_url_mismatch_intent">پیوند فعال‌سازی نامعتبر است. لطفاً با مدیر خود تماس بگیرید.</string>
+
+    <!-- Warning message displayed on screen where the user can export a debug log file to share with Support. ${company_name} is a placeholder for the company name and should be kept as-is, not translated. -->
+    <string name="export_logs_screen_warning">به دلایل حریم خصوصی، فایل گزارش را فقط با تیم پشتیبانی ${company_name} و فقط در صورتی که از شما خواسته شود هم‌رسانی کنید.</string>
+
+    <string name="work_intro_screen_work_title">ارتباطات بسیار امن برای کسب‌وکارها</string>
+    <string name="work_intro_screen_work_subtitle">Threema Work راهکار ارتباطی امن برای شرکت‌هاست – سرتاسری رمزگذاری‌شده، سازگار با GDPR و توسعه‌یافته در سوئیس.</string>
+    <string name="work_intro_screen_work_sign_in_button_label">اکنون وارد شوید</string>
+    <string name="work_intro_screen_work_learn_more_hint">هنوز از Threema Work استفاده نمی‌کنید؟</string>
+    <string name="work_intro_screen_work_learn_more_button_label">بیشتر بدانید</string>
+    <string name="work_intro_screen_work_use_private_hint">اگر می‌خواهید از Threema برای مقاصد شخصی استفاده کنید، برنامه Threema Private را توصیه می‌کنیم.</string>
+    <string name="work_intro_screen_work_download_private_button_label">اکنون دانلود کنید</string>
+
+    <string name="work_intro_screen_onprem_title">ارتباطات در بالاترین سطح امنیت</string>
+    <string name="work_intro_screen_onprem_subtitle">Threema OnPrem راهکار ارتباطی خودمیزبان برای سازمان‌ها، نهادهای دولتی و سازمان‌های نظامی است – برای حاکمیت کامل بر داده، انتقال رمزگذاری‌شده داده و الزامات بالای محیط‌های حساس به امنیت.</string>
+    <string name="work_intro_screen_onprem_sign_in_button_label">اکنون وارد شوید</string>
+    <string name="work_intro_screen_onprem_learn_more_hint">هنوز از Threema OnPrem استفاده نمی‌کنید؟</string>
+    <string name="work_intro_screen_onprem_learn_more_button_label">بیشتر بدانید</string>
+    <string name="work_intro_screen_onprem_use_private_hint">اگر می‌خواهید از Threema برای مقاصد شخصی استفاده کنید، برنامه Threema Private را توصیه می‌کنیم.</string>
+    <string name="work_intro_screen_onprem_download_private_button_label">اکنون دانلود کنید</string>
+
+    <!-- Description of the notification channel which is used when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_notification_channel_description">هنگامی که ${remote_secret} فعال است یک اعلان پایدار نمایش داده می‌شود.</string>
+    <!-- Text of the notification which is shown when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_notification_text">${remote_secret} فعال است. برای دانستن بیشتر بزنید.</string>
+    <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
+    <string name="remote_secrets_blocked_by_admin">دسترسی به این برنامه توسط مدیر شما مسدود شده است.\n\nبرای اطلاعات بیشتر لطفاً با مدیر خود تماس بگیرید.</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">بستن برنامه</string>
+    <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secrets_failed_to_fetch">توکن ${remote_secret} قابل دریافت نبود. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="fetching_remote_secret">در حال دریافت توکن ${remote_secret}</string>
+    <!-- Shown as the title of an info dialog when DualLock (a.k.a. "Remote Secret") has been activated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activated_notification_title">${remote_secret} فعال شد</string>
+    <!-- Shown as the content of an info dialog when DualLock (a.k.a. "Remote Secret") has been activated. The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="remote_secret_activated_dialog_content">اگر دستگاه خود را گم کنید، این قابلیت به مدیر شما امکان می‌دهد برنامه را قفل کند و تضمین می‌کند گفت‌وگوهای شما حتی اگر افراد غیرمجاز موفق به باز کردن قفل دستگاه شما شوند رمزگذاری‌شده باقی می‌مانند.\n[بیشتر بدانید]</string>
+    <!-- Shown as the title of an info dialog when DualLock (a.k.a. "Remote Secret") has been deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivated_notification_title">${remote_secret} غیرفعال شد</string>
+    <!-- Shown as the content of an info dialog when DualLock (a.k.a. "Remote Secret") has been deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="remote_secret_deactivated_dialog_content">مدیر شما ${remote_secret} را غیرفعال کرده است. اطلاعات بیشتر درباره ${remote_secret} را می‌توانید در این [مدخل پرسش‌های متداول] بیابید.</string>
+    <!-- Shown on loading indicator while the DualLock (a.k.a. "Remote Secret") feature is being activated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activating">در حال فعال‌سازی ${remote_secret}</string>
+    <!-- Error message shown fullscreen when activating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activating_failed">فعال‌سازی ${remote_secret} ناموفق بود. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+    <!-- Shown on loading indicator while the DualLock (a.k.a. "Remote Secret") feature is being deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivating">در حال غیرفعال‌سازی ${remote_secret}</string>
+    <!-- Error message shown fullscreen when deactivating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivating_failed">غیرفعال‌سازی ${remote_secret} ناموفق بود. لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.</string>
+
+    <string name="referral_banner_title">توصیه کنید و بهره‌مند شوید</string>
+    <string name="referral_banner_body">دوستان خود را به استفاده از Threema Work در شرکتشان دعوت کنید و پاداش معرفی دریافت کنید!</string>
+    <string name="referral_screen_title">توصیه کنید و بهره‌مند شوید</string>
+    <string name="referral_screen_subtitle">تا ۱۰٪ از مبلغ نخستین صورتحساب شرکت معرفی‌شده را دریافت کنید.</string>
+    <string name="referral_how_it_works_title">چگونه کار می‌کند</string>
+    <string name="referral_how_it_works_referral_title">معرفی</string>
+    <string name="referral_how_it_works_referral_body">یک دوست یا شرکت او را به پیوستن به Threema Work دعوت کنید. مهم است که شناسه Threema شما هنگام ثبت‌نام یا خرید مجوزها ارائه شود تا معرفی شما در نظر گرفته شود.</string>
+    <string name="referral_how_it_works_requirements_title">الزامات</string>
+    <string name="referral_how_it_works_requirements_body">شرکت معرفی‌شده نباید از قبل مشتری ما باشد و باید مجوز سفارش دهد</string>
+    <string name="referral_how_it_works_confirmation_title">تأیید</string>
+    <string name="referral_how_it_works_confirmation_body">برای اطمینان از اینکه معرفی شما به‌درستی تخصیص و تأیید می‌شود، پیش از انجام پرداخت با شما تماس خواهیم گرفت. به محض تکمیل فرایند تأیید به شما اطلاع خواهیم داد.</string>
+    <string name="referral_your_reward_title">پاداش شما</string>
+    <string name="referral_your_reward_subtitle">پاداش معرفی کسب کنید</string>
+    <string name="referral_your_reward_body">برای معرفی خود، ۱۰٪ از مبلغ نخستین صورتحساب شرکت معرفی‌شده (بدون احتساب مالیات/کارمزدها) را دریافت خواهید کرد. پاداش ۳۰ تا ۶۰ روز پس از دریافت پرداخت به شما منتقل خواهد شد.</string>
+    <string name="referral_share_invitation_link">هم‌رسانی پیوند دعوت</string>
+    <string name="referral_view_terms_and_conditions">مشاهده شرایط و ضوابط</string>
+    <string name="referral_invitation_message_content">سلام، فکر کردم این می‌تواند برای شما مفید باشد: Threema Work گزینه‌ای عالی برای ارتباطات امن کسب‌وکار است. این هم پیوند آزمایشی شما: %1$s</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_title">پایان تماس هنگام قطع بلوتوث</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_on">هنگامی که هدست بلوتوث در حین تماس قطع شود، تماس پایان می‌یابد.</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">هنگامی که هدست بلوتوث در حین تماس قطع شود، تماس ادامه می‌یابد. توجه: این ممکن است مانع از کار کردن دکمه قطع تماس روی هدست شود.</string>
+
+    <string name="failed_to_load_conversations">گفت‌وگوها بارگیری نشدند.</string>
+    <string name="contact_support">تماس با پشتیبانی</string>
+
+    <string name="edit_availability_status_modal_title">وضعیت در دسترس بودن</string>
+    <string name="edit_availability_status_modal_subtitle">این وضعیت برای همه افراد شرکت شما قابل‌مشاهده است.</string>
+    <string name="edit_availability_status_modal_optional_message_label">متن سفارشی (اختیاری)</string>
+    <string name="edit_availability_status_modal_optional_message_placeholder">در جلسه</string>
+    <string name="edit_availability_status_modal_optional_message_description">هنگامی که مشغول یا در دسترس نیست انتخاب شده باشد، یک پیام وضعیت سفارشی تنظیم کنید.</string>
+    <string name="edit_availability_status_modal_optional_message_too_long">متن بسیار طولانی است، لطفاً آن را کوتاه کنید</string>
+    <string name="edit_availability_status_did_change">وضعیت در دسترس بودن تغییر کرد</string>
+
+    <plurals name="contacts_counter_label">
+        <item quantity="one">%d مخاطب</item>
+        <item quantity="other">%d مخاطب</item>
+    </plurals>
+    <plurals name="really_delete_thread_message">
+        <item quantity="one">آیا واقعاً می‌خواهید %d گفت‌وگو را حذف کنید؟</item>
+        <item quantity="other">آیا واقعاً می‌خواهید %d گفت‌وگو را حذف کنید؟</item>
+    </plurals>
+    <plurals name="sending_message_failed">
+        <item quantity="one">%1$d پیام ارسال نشد</item>
+        <item quantity="other">%1$d پیام ارسال نشد</item>
+    </plurals>
+    <plurals name="selection_counter_label">
+        <item quantity="one">%d تصویر انتخاب شد</item>
+        <item quantity="other">%d تصویر انتخاب شد</item>
+    </plurals>
+    <plurals name="message_copied">
+        <item quantity="one">پیام رونوشت شد</item>
+        <item quantity="other">پیام‌ها رونوشت شدند</item>
+    </plurals>
+    <plurals name="new_messages">
+        <item quantity="one">%d پیام جدید</item>
+        <item quantity="other">%d پیام جدید</item>
+    </plurals>
+    <plurals name="unread_messages">
+        <item quantity="one">%d پیام خوانده‌نشده</item>
+        <item quantity="other">%d پیام خوانده‌نشده</item>
+    </plurals>
+    <plurals name="file_saved">
+        <item quantity="one">%d فایل با موفقیت ذخیره شد.</item>
+        <item quantity="other">%d فایل با موفقیت ذخیره شد.</item>
+    </plurals>
+    <plurals name="saving_media">
+        <item quantity="one">در حال ذخیره رسانه</item>
+        <item quantity="other">در حال ذخیره %d فایل رسانه‌ای</item>
+    </plurals>
+    <plurals name="ballot_really_delete">
+        <item quantity="one">حذف نظرسنجی</item>
+        <item quantity="other">حذف نظرسنجی‌ها</item>
+    </plurals>
+    <plurals name="ballot_really_delete_text">
+        <item quantity="one">آیا واقعاً می‌خواهید %1$d نظرسنجی را حذف کنید؟ نمی‌توانید آرا را بازیابی کنید.</item>
+        <item quantity="other">آیا واقعاً می‌خواهید %1$d نظرسنجی را حذف کنید؟ نمی‌توانید آرا را بازیابی کنید.</item>
+    </plurals>
+    <plurals name="media_files_deleted">
+        <item quantity="one">%d فایل رسانه‌ای حذف شد</item>
+        <item quantity="other">%d فایل رسانه‌ای حذف شد</item>
+    </plurals>
+    <plurals name="message_deleted">
+        <item quantity="one">%d پیام حذف شد</item>
+        <item quantity="other">%d پیام حذف شد</item>
+    </plurals>
+    <plurals name="notifications_for_x_hours">
+        <item quantity="one">برای %d ساعت</item>
+        <item quantity="other">برای %d ساعت</item>
+    </plurals>
+    <plurals name="really_delete_contacts_message">
+        <item quantity="one">آیا واقعاً می‌خواهید %1$d مخاطب و تمام گفت‌وگوهای مرتبط را حذف کنید؟</item>
+        <item quantity="other">آیا واقعاً می‌خواهید %1$d مخاطب و تمام گفت‌وگوهای مرتبط را حذف کنید؟</item>
+    </plurals>
+    <plurals name="some_contacts_not_deleted">
+        <item quantity="one">%d مخاطب حذف نشد زیرا هنوز بخشی از یک گروه است.</item>
+        <item quantity="other">%d مخاطب حذف نشدند زیرا هنوز بخشی از یک گروه هستند.</item>
+    </plurals>
+    <plurals name="message_archived">
+        <item quantity="one">%d گفت‌وگو بایگانی شد</item>
+        <item quantity="other">%d گفت‌وگو بایگانی شد</item>
+    </plurals>
+    <plurals name="new_messages_in_chats">
+        <item quantity="one">%1$d پیام جدید در %2$d گفت‌وگو</item>
+        <item quantity="other">%1$d پیام جدید در %2$d گفت‌وگو</item>
+    </plurals>
+    <plurals name="webclient_running_sessions">
+        <item quantity="one">%d نشست در حال اجرا</item>
+        <item quantity="other">%d نشست در حال اجرا</item>
+    </plurals>
+    <plurals name="chat_deleted">
+        <item quantity="one">%d گفت‌وگو حذف شد.</item>
+        <item quantity="other">%d گفت‌وگو حذف شد.</item>
+    </plurals>
+    <plurals name="num_archived_chats">
+        <item quantity="one">%d گفت‌وگوی بایگانی‌شده</item>
+        <item quantity="other">%d گفت‌وگوی بایگانی‌شده</item>
+    </plurals>
+    <plurals name="forward_security_messages_skipped">
+        <item quantity="one">از زمان آخرین پیام یک پیام از دست رفته است.</item>
+        <item quantity="other">از زمان آخرین پیام %d پیام از دست رفته است.</item>
+    </plurals>
+    <plurals name="delete_messages">
+        <item quantity="one">این پیام حذف شود؟</item>
+        <item quantity="other">%d پیام حذف شود؟</item>
+    </plurals>
+    <plurals name="number_of_group_members">
+        <item quantity="one">%d عضو گروه</item>
+        <item quantity="other">%d عضو گروه</item>
+    </plurals>
+    <string name="wizard_change_language">تغییر زبان</string>
+    <string name="activation_key_hint">کلید فعال‌سازی</string>
+    <string name="use_username_password">استفاده از نام کاربری و گذرواژه</string>
+    <string name="use_activation_key">استفاده از کلید فعال‌سازی</string>
+    <string name="invalid_activation_key">کلید فعال‌سازی نامعتبر است</string>
+</resources>
