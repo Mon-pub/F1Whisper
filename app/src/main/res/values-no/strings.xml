@@ -869,7 +869,7 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <string name="safe_learn_more_button">Lær mer</string>
     <string name="safe_enable_explain">Alt du trenger til å ha en samtale er bare lagret på din enhet. Du har ikke en konto med oss og dermed kan vi ikke hjelpe deg om du mister telefonen din eller sletter data ved en feil.\n\n${app_name_short} Safe lager automatiske sikkerhetskopifiler av de viktigste dataene, inkludert dine nøkler, kontaktlisten og dine guppemedlemskap (men ingen meldinger eller innhold). Dette er anonymt på en sikker server som du velger selv.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Vil du fortsette uten å aktivere ${app_name_short} Safe? Når du bruker ${app_name_short} Safe så kan du gjenopprette din ${app_name_short} ID, kontakter og grupper i tilfelle du mister tilgangen til din enhet.</string>
+    <string name="safe_disable_confirm">Vil du fortsette uten å aktivere ${app_name_short} Safe? Når du bruker ${app_name_short} Safe så kan du gjenopprette din ${app_name_short} ID og grupper i tilfelle du mister tilgangen til din enhet.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Vennligst velg et sterkt passord. Du kommer til å trenge passordet for å kunne gjenopprette din ${app_name_short} Safe sikkerhetskopi.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1450,6 +1450,13 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="media_gallery_animated_webps">Animerte WebP-er</string>
     <string name="unsupported_image_type">Ustøttet bildeformat: %s</string>
     <string name="application_setup_steps_failed">Det er krav om en aktiv internettforbindelse for å sjekke tilstanden til kontaktene dine. Sørg for at du er tilkoblet internett, og prøv igjen.</string>
+    <string name="change_server_dialog_title">Bytt server</string>
+    <string name="change_server_dialog_hint">Serverdomene</string>
+    <string name="change_server_warning_title">Bytte server?</string>
+    <string name="change_server_warning_message">Å bytte server vil sannsynligvis koble fra din nåværende identitet. Gjør dette kun hvis tilbyderen din har bekreftet det nye domenet. Hvis domenet er feil, vil appen slutte å fungere.</string>
+    <string name="use_different_key">Bruk en annen nøkkel</string>
+    <string name="activation_key_already_redeemed">Denne aktiveringsnøkkelen er allerede brukt. Vennligst skriv inn en annen nøkkel.</string>
+    <string name="safe_password_complexity_unmet">Passordet må være lengre enn 10 tegn og inneholde små bokstaver, store bokstaver, et siffer og et symbol</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

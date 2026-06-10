@@ -2690,15 +2690,7 @@ public class ComposeMessageFragment extends Fragment implements
                 this.identity = intent.getStringExtra(AppConstants.INTENT_DATA_CONTACT);
             }
 
-            if (this.identity == null) {
-                if (intent.getData() != null) {
-                    if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-                        this.identity = ContactUtil.getIdentityFromViewIntent(activity, intent);
-                    } else {
-                        LongToast.makeText(activity, R.string.permission_contacts_required, Toast.LENGTH_LONG).show();
-                    }
-                }
-            }
+            // Device address-book "open chat" (tap-to-chat) has been removed for privacy reasons.
 
             intent.removeExtra(AppConstants.INTENT_DATA_CONTACT);
             if (this.identity == null || this.identity.isEmpty() || this.identity.equals(this.userService.getIdentity())) {

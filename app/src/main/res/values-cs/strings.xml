@@ -934,7 +934,7 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="safe_learn_more_button">Zjistit více</string>
     <string name="safe_enable_explain">Vše, co se týká konverzací, je uloženo pouze ve vašem zařízení. Nemáte u nás účet a nemůžeme vám pomoci, pokud ztratíte svůj telefon nebo nechtěně odstraníte svá data.\n${app_name_short} Safe vytváří automatické zálohy všech důležitých dat včetně vašich šifrovacích klíčů, seznamu kontaktů a členství ve skupinách (ale bez obsahu zpráv) anonymně a na zabezpečeném serveru podle vašeho výběru.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Přejete si pokračovat bez povolení ${app_name_short} Safe? Při používání ${app_name_short} Safe můžete obnovit vaše ${app_name_short} ID, kontakty a skupiny v případě ztráty přístupu k zařízení.</string>
+    <string name="safe_disable_confirm">Přejete si pokračovat bez povolení ${app_name_short} Safe? Při používání ${app_name_short} Safe můžete obnovit vaše ${app_name_short} ID a skupiny v případě ztráty přístupu k zařízení.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Zvolte si prosím silné heslo. Toto heslo budete v budoucnu potřebovat k obnovení dat ze zálohy ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1904,4 +1904,12 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
         <item quantity="many">%d členů skupiny</item>
         <item quantity="other">%d členů skupiny</item>
     </plurals>
+    <!-- F1Whisper: on-prem server change dialog -->
+    <string name="change_server_dialog_title">Změnit server</string>
+    <string name="change_server_dialog_hint">Doména serveru</string>
+    <string name="change_server_warning_title">Změnit server?</string>
+    <string name="change_server_warning_message">Změna serveru pravděpodobně odpojí vaši aktuální identitu. Proveďte ji pouze tehdy, pokud váš poskytovatel potvrdil novou doménu. Pokud je doména nesprávná, aplikace přestane fungovat.</string>
+    <string name="use_different_key">Použít jiný klíč</string>
+    <string name="activation_key_already_redeemed">Tento aktivační klíč byl již použit. Zadejte prosím jiný klíč.</string>
+    <string name="safe_password_complexity_unmet">Heslo musí být delší než 10 znaků a obsahovat malé písmeno, velké písmeno, číslici a symbol</string>
 </resources>

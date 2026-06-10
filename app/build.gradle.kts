@@ -581,6 +581,13 @@ android {
             ?.let { keystore ->
                 create("f1whisper_release") {
                     apply(keystore)
+                    // Explicitly establish v2+v3 signing scheme. v1 (JAR) signing is excluded because
+                    // F1Whisper targets minSdk 24 (Android 7), which requires only v2+. Enabling v3
+                    // establishes a key-rotation lineage from the first release so future key migration
+                    // via KeyRotation is possible without breaking update eligibility on Android 9+.
+                    enableV1Signing = false
+                    enableV2Signing = true
+                    enableV3Signing = true
                 }
             }
             ?: run {

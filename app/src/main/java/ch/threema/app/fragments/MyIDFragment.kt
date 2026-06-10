@@ -314,13 +314,9 @@ class MyIDFragment : MainFragment(), DialogClickListener, TextEntryDialogClickLi
 
         if (userService.hasIdentity()) {
             myIdView.text = userService.getIdentity()
-            if (ConfigUtils.isOnPremBuild()) {
-                shareIdButton.isVisible = false
-            } else {
-                shareIdButton.setOnClickListener {
-                    logger.info("Share ID button clicked")
-                    ShareUtil.shareContact(requireContext(), null)
-                }
+            shareIdButton.setOnClickListener {
+                logger.info("Share ID button clicked")
+                ShareUtil.shareContact(requireContext(), null)
             }
             myIdQrButton.setOnClickListener {
                 logger.info("My ID clicked, showing QR code")

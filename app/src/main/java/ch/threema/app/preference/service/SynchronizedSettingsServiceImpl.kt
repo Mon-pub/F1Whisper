@@ -84,7 +84,9 @@ class SynchronizedSettingsServiceImpl(
         keyboardDataCollectionPolicySetting.preferenceKey to keyboardDataCollectionPolicySetting,
     )
 
-    override fun isSyncContacts(): Boolean = contactSyncPolicySetting.get()
+    // Device address-book contact sync has been removed for privacy reasons. The setting is kept
+    // for backup/multi-device compatibility but contact sync is permanently disabled.
+    override fun isSyncContacts(): Boolean = false
 
     override fun getContactSyncPolicySetting(): ContactSyncPolicySetting = contactSyncPolicySetting
 

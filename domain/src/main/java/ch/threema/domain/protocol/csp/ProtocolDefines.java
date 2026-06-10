@@ -10,6 +10,10 @@ public class ProtocolDefines {
 
     public static final int READ_TIMEOUT = 20;
     public static final int WRITE_TIMEOUT = 20;
+    // Post-auth (logged-in) socket read timeout. Must exceed ECHO_REQUEST_INTERVAL_CSP (60) +
+    // ECHO_RESPONSE_TIMEOUT (10) so a healthy idle link is never falsely timed out, but bounds a
+    // dead/half-open read instead of parking forever (the previous value was 0 = infinite).
+    public static final int POST_AUTH_READ_TIMEOUT = 90;
     public static final int BLOB_CONNECT_TIMEOUT = 30;
     public static final int BLOB_LOAD_TIMEOUT = 100;
     public static final int API_REQUEST_TIMEOUT = 20;

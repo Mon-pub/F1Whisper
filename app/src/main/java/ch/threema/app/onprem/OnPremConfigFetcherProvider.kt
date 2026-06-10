@@ -63,4 +63,14 @@ class OnPremConfigFetcherProvider(
         this.previousServerConfigParameters = serverConfigParameters
         return configFetcher
     }
+
+    /**
+     * Discards the cached [OnPremConfigFetcher] so that the next call to [getOnPremConfigFetcher]
+     * rebuilds it from the current preferences (e.g. after the OPPF URL has been changed). The
+     * rebuilt fetcher starts with an empty in-memory cache, which forces a fresh OPPF fetch.
+     */
+    fun reset() {
+        configFetcher = null
+        previousServerConfigParameters = null
+    }
 }

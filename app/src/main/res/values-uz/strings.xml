@@ -231,6 +231,14 @@
     <string name="threema_version_code">Versiya kodi</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Server konfiguratsiyasi</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Serverni oʻzgartirish</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Server domeni</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Server oʻzgartirilsinmi?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">Serverni oʻzgartirish, ehtimol, joriy identifikatoringizni uzib qoʻyadi. Buni faqat provayderingiz yangi domenni tasdiqlagan boʻlsa amalga oshiring. Agar domen notoʻgʻri boʻlsa, ilova ishlamay qoladi.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Internetga ulanish yoʻq, yaroqsiz ID eksport maʼlumotlari yoki notoʻgʻri parol</string>
     <string name="prefs_header_other">Boshqa</string>
     <string name="an_error_occurred">Xatolik yuz berdi</string>
@@ -962,7 +970,7 @@
     <string name="safe_learn_more_button">Batafsil</string>
     <string name="safe_enable_explain">Suhbatlashish uchun zarur boʻlgan barcha narsa faqat qurilmangizda saqlanadi. Sizda bizda hisob yoʻq va telefoningizni yoʻqotsangiz yoki maʼlumotlaringizni tasodifan oʻchirsangiz, sizga yordam bera olmaymiz.\n\n${app_name_short} Safe barcha muhim maʼlumotlarning, jumladan kalitlaringiz, kontaktlar roʻyxatingiz va guruh aʼzoliklaringizning (lekin xabar tarkibisiz) avtomatik zaxiralarini siz tanlagan xavfsiz serverda anonim tarzda yaratadi.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">${app_name_short} Safe ni yoqmasdan davom etmoqchimisiz? ${app_name_short} Safe dan foydalanganda qurilmangizga kirish imkonini yoʻqotsangiz, ${app_name_short} ID raqamingizni, kontaktlaringizni va guruhlaringizni tiklashingiz mumkin.</string>
+    <string name="safe_disable_confirm">${app_name_short} Safe ni yoqmasdan davom etmoqchimisiz? ${app_name_short} Safe dan foydalanganda qurilmangizga kirish imkonini yoʻqotsangiz, ${app_name_short} ID raqamingizni va guruhlaringizni tiklashingiz mumkin.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Iltimos, kuchli parol tanlang. ${app_name_short} Safe zaxirangizni tiklash uchun bu parol kerak boʻladi.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1902,4 +1910,7 @@
     <string name="use_username_password">Foydalanuvchi nomi va paroldan foydalanish</string>
     <string name="use_activation_key">Faollashtirish kalitidan foydalanish</string>
     <string name="invalid_activation_key">Faollashtirish kaliti yaroqsiz</string>
+    <string name="use_different_key">Boshqa kalitdan foydalanish</string>
+    <string name="activation_key_already_redeemed">Bu aktivatsiya kaliti allaqachon ishlatilgan. Iltimos, boshqa kalit kiriting.</string>
+    <string name="safe_password_complexity_unmet">Parol 10 belgidan uzunroq boʻlishi hamda kichik harf, bosh harf, raqam va belgini oʻz ichiga olishi kerak</string>
 </resources>

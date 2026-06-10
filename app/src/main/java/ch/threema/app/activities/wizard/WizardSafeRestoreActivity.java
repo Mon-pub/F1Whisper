@@ -26,7 +26,6 @@ import ch.threema.app.dialogs.GenericProgressDialog;
 import ch.threema.app.dialogs.PasswordEntryDialog;
 import ch.threema.app.dialogs.SimpleStringAlertDialog;
 import ch.threema.app.dialogs.WizardDialog;
-import ch.threema.app.dialogs.WizardSafeSearchPhoneDialog;
 import ch.threema.app.services.ActivityService;
 import ch.threema.app.threemasafe.ThreemaSafeAdvancedDialog;
 import ch.threema.app.threemasafe.ThreemaSafeMDMConfig;
@@ -57,7 +56,6 @@ import static ch.threema.app.utils.ActiveScreenLoggerKt.logScreenVisibility;
 
 public class WizardSafeRestoreActivity extends WizardBackgroundActivity implements
     PasswordEntryDialog.PasswordEntryDialogClickListener,
-    WizardSafeSearchPhoneDialog.WizardSafeSearchPhoneDialogCallback,
     WizardDialog.WizardDialogCallback,
     ThreemaSafeAdvancedDialog.WizardDialogCallback {
 
@@ -65,7 +63,6 @@ public class WizardSafeRestoreActivity extends WizardBackgroundActivity implemen
 
     private static final String DIALOG_TAG_PASSWORD = "tpw";
     private static final String DIALOG_TAG_PROGRESS = "tpr";
-    private static final String DIALOG_TAG_FORGOT_ID = "li";
     private static final String DIALOG_TAG_ADVANCED = "adv";
     private static final String DIALOG_TAG_WORK_SYNC = "workSync";
     private static final String DIALOG_TAG_PASSWORD_PRESET_CONFIRM = "safe_pw_preset";
@@ -109,7 +106,6 @@ public class WizardSafeRestoreActivity extends WizardBackgroundActivity implemen
                 this.identityEditText.setEnabled(false);
 
                 findViewById(R.id.safe_restore_subtitle).setVisibility(View.INVISIBLE);
-                findViewById(R.id.forgot_id).setVisibility(View.GONE);
 
                 if (safeMDMConfig.isSkipRestorePasswordEntryDialog()) {
                     restoreSafeBackup(safeMDMConfig.getPassword());
@@ -119,10 +115,6 @@ public class WizardSafeRestoreActivity extends WizardBackgroundActivity implemen
 
         this.identityEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         this.identityEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new InputFilter.LengthFilter(ProtocolDefines.IDENTITY_LEN)});
-
-        findViewById(R.id.forgot_id).setOnClickListener(v ->
-            WizardSafeSearchPhoneDialog.newInstance().show(getSupportFragmentManager(), DIALOG_TAG_FORGOT_ID)
-        );
 
         final @NonNull WizardButtonXml advancedOptionsButtonCompose = findViewById(R.id.advanced_options_compose);
         if (ConfigUtils.isWorkRestricted() && safeMDMConfig.isRestoreExpertSettingsDisabled()) {
@@ -371,15 +363,6 @@ public class WizardSafeRestoreActivity extends WizardBackgroundActivity implemen
         // safe backup restore
         if (!text.isEmpty()) {
             restoreSafeBackup(text);
-        }
-    }
-
-    @Override
-    public void onYes(String tag, String id) {
-        // return from id search
-        if (id != null && id.length() == ProtocolDefines.IDENTITY_LEN) {
-            this.identityEditText.setText("");
-            this.identityEditText.append(id);
         }
     }
 

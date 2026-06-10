@@ -158,9 +158,13 @@ sealed class BuildFlavor(
 
     /**
      * Return whether this build flavor always uses Threema Push.
+     *
+     * F1Whisper: the self-hosted OnPrem backend has no FCM/GMS push server, so OnPrem must always
+     * use the persistent "Threema Push" foreground socket on every device (GMS or not). This makes
+     * FCM inert at runtime without removing the Firebase code, so it stays easy to re-enable later.
      */
     val forceThreemaPush: Boolean
-        get() = this is Libre
+        get() = this is Libre || this is OnPrem
 
     /**
      * Return whether this build flavor is "libre", meaning that it contains

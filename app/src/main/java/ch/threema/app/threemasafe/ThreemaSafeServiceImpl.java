@@ -35,11 +35,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 import java.util.zip.Deflater;
 import java.util.zip.GZIPInputStream;
@@ -67,7 +65,6 @@ import ch.threema.app.services.ExcludedSyncIdentitiesService;
 import ch.threema.app.services.FileService;
 import ch.threema.app.services.GroupService;
 import ch.threema.app.services.ProfilePictureRecipientsService;
-import ch.threema.app.services.LocaleService;
 import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.services.UserService;
 import ch.threema.app.utils.BitmapUtil;
@@ -210,7 +207,6 @@ public class ThreemaSafeServiceImpl implements ThreemaSafeService {
     private final IdentityStore identityStore;
     @NonNull
     private final APIConnector apiConnector;
-    private final LocaleService localeService;
     private final ContactService contactService;
     private final GroupService groupService;
     private final DistributionListService distributionListService;
@@ -241,7 +237,6 @@ public class ThreemaSafeServiceImpl implements ThreemaSafeService {
         ContactService contactService,
         GroupService groupService,
         DistributionListService distributionListService,
-        LocaleService localeService,
         FileService fileService,
         @NonNull BlockedIdentitiesService blockedIdentitiesService,
         @NonNull ExcludedSyncIdentitiesService excludedSyncIdentitiesService,
@@ -266,7 +261,6 @@ public class ThreemaSafeServiceImpl implements ThreemaSafeService {
         this.distributionListService = distributionListService;
         this.identityStore = identityStore;
         this.apiConnector = apiConnector;
-        this.localeService = localeService;
         this.databaseService = databaseService;
         this.fileService = fileService;
         this.blockedIdentitiesService = blockedIdentitiesService;
@@ -1113,28 +1107,6 @@ public class ThreemaSafeServiceImpl implements ThreemaSafeService {
         if (version > PROTOCOL_VERSION) {
             throw new ThreemaException(context.getResources().getString(R.string.backup_version_mismatch));
         }
-    }
-
-    @Override
-    @Nullable
-    public ArrayList<String> searchID(String phone, String email) {
-        if (phone != null || email != null) {
-            Map<String, Object> phoneMap = new HashMap<>();
-            phoneMap.put(phone, null);
-
-            Map<String, Object> emailMap = new HashMap<>();
-            emailMap.put(email, null);
-
-            try {
-                Map<String, APIConnector.MatchIdentityResult> results = apiConnector.matchIdentities(emailMap, phoneMap, localeService.getCountryIsoCode(), true, identityStore, null);
-                if (!results.isEmpty()) {
-                    return new ArrayList<>(results.keySet());
-                }
-            } catch (Exception e) {
-                logger.error("Exception", e);
-            }
-        }
-        return null;
     }
 
     @Override

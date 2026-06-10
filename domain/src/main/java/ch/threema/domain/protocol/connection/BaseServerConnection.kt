@@ -344,6 +344,7 @@ internal abstract class BaseServerConnection(
 
     private fun joinIoProcessing() {
         logger.trace("Join io processing job")
+        // TODO: this runBlocking is called from the suspend prepareReconnect(); it blocks the calling coroutine's thread and should be a plain ioJob?.join() suspend call (pre-existing, out of scope of the network-reconnect fix).
         runBlocking { ioJob?.join() }
         logger.trace("Io processing joined")
     }

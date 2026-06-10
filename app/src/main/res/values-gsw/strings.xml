@@ -224,6 +224,14 @@
     <string name="threema_version_code">Versions-Code</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Server-Konfiguration</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Server ändere</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Server-Domäne</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Server ändere?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_message">Wenn Sie de Server ändered, wird Ihri aktuelli Identität wahrschiinlich trennt. Mached Sie das nur, wenn Ihre Aabieter die neui Domäne bestätigt hät. Wenn d’Domäne falsch isch, hört d’App uf z’funktioniere.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Kei Internetverbindig, ungültigi ID-Export-Zeichefolg oder falsches Passwort</string>
     <string name="prefs_header_other">Wiiteri</string>
     <string name="an_error_occurred">Es isch en Fehler ufträtte</string>
@@ -247,6 +255,9 @@
     <string name="enter_serial_title">${app_name} freischalte</string>
     <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
     <string name="serial_required_want_exit">De Lizänzschlüssel isch ungültig. Wänd Sie’s nomal versueche oder ${app_name} verlaa?</string>
+    <!-- Action label (e.g. TA001 'Use a different key' activation-key action). -->
+    <string name="use_different_key">En andere Schlüssel bruuche</string>
+    <string name="activation_key_already_redeemed">Dä Aktivierigschlüssel isch scho bruucht wore. Bitte gib en andere Schlüssel ii.</string>
     <!-- Message shown on progress dialog that shows while checking whether the user has a valid license -->
     <string name="checking_serial">Lizänz wird überprüeft</string>
     <!-- Message shown on progress dialog that shows while the credentials that the user entered are being checked for their validity -->
@@ -930,7 +941,7 @@
     <string name="safe_learn_more_button">Meh erfahre</string>
     <string name="safe_enable_explain">Alles, was Sie zum chatte bruched, isch nume uf Ihrem Grät gspeicheret. Es git keis zentrals Benutzerkonto, und falls Sie Ihres Handy verlüred oder us Versehe Ihri Date lösched, chönd mir die Date nüme wiederherstelle.\n\n${app_name_short} Safe erstellt regelmässig es verschlüsslets, anonyms Backup vo wichtige Date wie Schlüssel, Kontäkt und Gruppezueghörigkeite (aber nöd vo Nachrichteinhält) ufeme Server Ihrer Wahl.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Wänd Sie wiitermache, ohni ${app_name_short} Safe z’aktiviere? ${app_name_short} Safe erlaubt, Ihri ${app_name_short}-ID, Kontäkt und Gruppe wiederherzstelle, falls Sie Ihres Grät verlüüred.</string>
+    <string name="safe_disable_confirm">Wänd Sie wiitermache, ohni ${app_name_short} Safe z’aktiviere? ${app_name_short} Safe erlaubt, Ihri ${app_name_short}-ID und Gruppe wiederherzstelle, falls Sie Ihres Grät verlüüred.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Wähled Sie es sichers Passwort. Sie benötiged das Passwort, zum Ihres ${app_name_short} Safe-Backup wiederherzstelle.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1027,6 +1038,8 @@
     <string name="password_bad_explain">S’gwählte ${app_name_short} Safe-Passwort isch sehr unsicher und cha drum liecht vo Agriifer errate werde. Bitte wähled Sie es sichers Passwort. Tipp: Nutzed Sie es zämegsetzts Wort us mehrere Begriff.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">S’${app_name_short} Safe-Passwort isch aktualisiert worde.</string>
+    <!-- Safe-password complexity validation error. -->
+    <string name="safe_password_complexity_unmet">S’Passwort mues länger als 10 Zeiche sii und Chliibuechstabe, Grossbuechstabe, e Ziffere und es Symbol enthalte</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe isch aktiviert worde.</string>
     <string name="push_token_cleared">S’Push-Token isch entfernt worde</string>

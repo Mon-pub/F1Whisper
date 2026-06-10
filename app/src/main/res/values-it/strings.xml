@@ -238,6 +238,17 @@
     <string name="threema_version_code">Codice versione</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Configurazione del server</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Cambia server</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Dominio del server</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Cambiare server?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">Il cambio di server probabilmente disconnetterà la tua identità attuale. Esegui questa operazione solo se il tuo provider ha confermato il nuovo dominio. Se il dominio è errato, l\'app smetterà di funzionare.</string>
+    <!-- Action label (e.g. activation-key action) for using a different key -->
+    <string name="use_different_key">Usa una chiave diversa</string>
+    <string name="activation_key_already_redeemed">Questa chiave di attivazione è già stata utilizzata. Inserisci una chiave diversa.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Nessuna connessione a Internet, ID esportato non valido o password sbagliata</string>
     <string name="prefs_header_other">Altri</string>
     <string name="an_error_occurred">Si è verificato un errore</string>
@@ -950,7 +961,7 @@
     <string name="safe_learn_more_button">Scopri di più</string>
     <string name="safe_enable_explain">Tutto quello che ti serve per la chat viene archiviato solo nel tuo dispositivo. Non possiedi un nostro account e non potremo aiutarti in caso di smarrimento del telefono o cancellazione accidentale dei tuoi dati. \n\n${app_name_short} Safe crea automaticamente i backup di tutti i dati importanti (come le chiavi, la lista contatti e il tuo gruppo di iscrizione) in un server sicuro di tua scelta e in modo anonimo.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Vuoi continuare senza abilitare ${app_name_short} Safe? Quando usi ${app_name_short} Safe, puoi ripristinare il tuo ID ${app_name_short}, i tuoi contatti e i tuoi gruppi nel caso in cui perdessi l\'accesso al tuo dispositivo.</string>
+    <string name="safe_disable_confirm">Vuoi continuare senza abilitare ${app_name_short} Safe? Quando usi ${app_name_short} Safe, puoi ripristinare il tuo ID ${app_name_short} e i tuoi gruppi nel caso in cui perdessi l\'accesso al tuo dispositivo.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Scegli una password. Ti serve per ripristinare il backup ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1045,6 +1056,8 @@
     <string name="safe_configure_choose_password_title">Scegli una password</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="password_bad_explain">La password scelta per ${app_name_short} Safe non è sicura e può essere facilmente individuata dagli hacker. Scegline un\'altra. Suggerimento: usa una password con parole multiple.</string>
+    <!-- Safe-password complexity validation error. -->
+    <string name="safe_password_complexity_unmet">La password deve contenere più di 10 caratteri e includere lettere minuscole, maiuscole, una cifra e un simbolo</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">La password ${app_name_short} Safe è stata aggiornata.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->

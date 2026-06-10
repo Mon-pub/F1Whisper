@@ -80,13 +80,13 @@
     <string name="prefs_title_threema_push_switch">استخدام ${app_name_short} Push</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="prefs_sum_threema_push_on">استخدام ${app_name_short} Push للإشعار بالرسائل الجديدة</string>
-    <string name="prefs_sum_threema_push_off">التحقق من الرسائل الجديدة باستخدام خدمة الدفع للنظام</string>
+    <string name="prefs_sum_threema_push_off">التحقق من الرسائل الجديدة باستخدام خدمة التنبيه الفوري للنظام</string>
     <string name="prefs_logging">التسجيل</string>
     <string name="prefs_title_message_log_switch">التسجيل في ملف</string>
     <string name="prefs_title_sum_message_log_on">ستُسجَّل الأحداث ومعلومات الشبكة في الملف debug_log.txt</string>
     <string name="prefs_title_sum_message_log_off">لن تُسجَّل الأحداث</string>
-    <string name="prefs_reset_push">إعادة ضبط رمز الدفع</string>
-    <string name="prefs_sum_reset_push">إعادة تسجيل الجهاز لإشعارات الدفع عبر FCM/HMS</string>
+    <string name="prefs_reset_push">إعادة ضبط رمز الإشعارات الفورية</string>
+    <string name="prefs_sum_reset_push">إعادة تسجيل الجهاز للإشعارات الفورية عبر FCM/HMS</string>
     <string name="prefs_notification_preview">عرض معاينة الرسالة</string>
     <string name="prefs_sum_reset_ringtones">استعادة الإعدادات الافتراضية للنظام</string>
     <string name="prefs_title_reset_ringtones">إعادة ضبط إعدادات صوت الإشعار</string>
@@ -266,8 +266,8 @@
     <string name="not_now">ذكّرني لاحقاً</string>
     <string name="preparing_messages">جارٍ تحضير الرسائل</string>
     <string name="select_emoji">رموز تعبيرية</string>
-    <string name="push_reset_title">إعادة ضبط رمز الدفع</string>
-    <string name="push_reset_text">تمت إعادة ضبط رمز الدفع</string>
+    <string name="push_reset_title">إعادة ضبط رمز الإشعارات الفورية</string>
+    <string name="push_reset_text">تمت إعادة ضبط رمز الإشعارات الفورية</string>
     <string name="emoji_recent">الأخيرة</string>
     <string name="emoji_smileys">الوجوه التعبيرية والمشاعر</string>
     <string name="emoji_people">الأشخاص والجسد</string>
@@ -397,7 +397,7 @@
     <string name="add_acount_from_within_threema">إدارة معرّف ${app_name_short} الخاص بك من داخل ${app_name_short}.</string>
     <string name="share_image">مشاركة الصورة</string>
     <string name="view_in_gallery">عرض في المعرض</string>
-    <string name="token_register_failed">فشل تحديث رمز الدفع، يرجى المحاولة مرة أخرى لاحقاً.</string>
+    <string name="token_register_failed">فشل تحديث رمز الإشعارات الفورية، يرجى المحاولة مرة أخرى لاحقاً.</string>
     <string name="internet_connection_required">لا يوجد اتصال بالإنترنت.</string>
     <string name="prefs_sum_save_media">حفظ الصور ومقاطع الفيديو الواردة وكذلك صور الكاميرا الصادرة بصيغة غير مشفَّرة</string>
     <string name="prefs_save_media">الحفظ التلقائي في المعرض</string>
@@ -411,8 +411,8 @@
     <string name="title_tab_distribution_list">قوائم التوزيع</string>
     <string name="no_matching_distribution_lists">لا توجد قوائم توزيع مطابقة</string>
     <string name="is_typing">يكتب الآن…</string>
-    <string name="push_not_available_title">لم تُعثر على خدمة دفع</string>
-    <string name="push_not_available_text1">تعذَّر علينا العثور على خدمة دفع على جهازك لأن خدمات Google Play غير مثبَّتة أو قديمة.</string>
+    <string name="push_not_available_title">لم يُعثر على خدمة تنبيه فوري</string>
+    <string name="push_not_available_text1">تعذَّر علينا العثور على خدمة تنبيه فوري على جهازك لأن خدمات Google Play غير مثبَّتة أو قديمة.</string>
     <string name="push_not_available_text2">سيحاول %s فتح اتصال خلفي دائم بالخادم. قد لا يعمل هذا بشكل موثوق إذا تداخلت آليات تحسين البطارية في جهازك مع الاتصال الخلفي.</string>
     <string name="backup_in_progress">النسخ الاحتياطي قيد التنفيذ</string>
     <string name="backup_or_restore_success_body">اكتمل نسخ البيانات الاحتياطي بنجاح</string>
@@ -500,7 +500,7 @@
     <string name="wearable_reply">رد</string>
     <string name="wearable_reply_label">الرد على %s</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="push_disable_text">إذا تابعت، فسيتم استخدام ”${app_name_short} Push“ بدلاً من خدمة الدفع للنظام. يساعد هذا في تقليل بصمتك الرقمية لكنه يتطلب أن يكون هاتفك مهيَّأً بطريقة تسمح للتطبيق بالعمل في الخلفية. قد ترغب في التواصل مع دعم الشركة المصنِّعة لجهازك للمساعدة في الإعداد إذا تعذَّر العثور على الخيارات المقابلة في إعدادات الجهاز.</string>
+    <string name="push_disable_text">إذا تابعت، فسيتم استخدام ”${app_name_short} Push“ بدلاً من خدمة التنبيه الفوري للنظام. يساعد هذا في تقليل بصمتك الرقمية لكنه يتطلب أن يكون هاتفك مهيَّأً بطريقة تسمح للتطبيق بالعمل في الخلفية. قد ترغب في التواصل مع دعم الشركة المصنِّعة لجهازك للمساعدة في الإعداد إذا تعذَّر العثور على الخيارات المقابلة في إعدادات الجهاز.</string>
     <string name="debug_log_enabled_recently_warning">إذا كنت تواجه مشكلة محددة، فيرجى محاولة إعادة إنتاجها قبل إرسال ملف سجل التصحيح إلينا. سيساعدنا هذا في التحقيق في المشكلة بفعالية أكبر. شكراً لك.</string>
     <string name="ballot_intermediate_results_show">عرض النتائج المرحلية</string>
     <string name="converting_video">جارٍ معالجة الفيديو</string>
@@ -697,7 +697,7 @@
         مشفَّرة (مُجزَّأة) أحادية الاتجاه على خادمنا. يمكنك ببساطة تخطي هذه الخطوة إذا كنت ترغب في استخدام ${app_name_short}
         بشكل مجهول تماماً.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="new_wizard_info_nickname">يُستخدم الاسم المستعار في إشعارات الدفع على بعض الأجهزة أو كوسيلة
+    <string name="new_wizard_info_nickname">يُستخدم الاسم المستعار في الإشعارات الفورية على بعض الأجهزة أو كوسيلة
         إضافية للتعريف بك للمستخدمين الذين ليس لديك بعد في دفتر عناوينهم. نوصي
         بتقديم اسمك الأول أو اسم مستعار فقط. إذا لم تعيّن اسماً مستعاراً، فسنستخدم معرّف ${app_name_short} الخاص بك افتراضياً.</string>
     <string name="not_linked">غير مرتبط</string>
@@ -962,7 +962,7 @@
     <string name="safe_learn_more_button">معرفة المزيد</string>
     <string name="safe_enable_explain">كل ما تحتاجه للمراسلة مخزَّن على جهازك فقط. ليس لديك حساب لدينا ولا يمكننا مساعدتك إذا فقدت هاتفك أو حذفت بياناتك عن طريق الخطأ.\n\nينشئ ${app_name_short} Safe نسخاً احتياطية تلقائية لجميع البيانات المهمة، بما في ذلك مفاتيحك وقائمة جهات اتصالك وعضويات مجموعاتك (لكن دون محتوى الرسائل)، بشكل مجهول على خادم آمن من اختيارك.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">هل تريد المتابعة دون تفعيل ${app_name_short} Safe؟ عند استخدام ${app_name_short} Safe، يمكنك استعادة معرّف ${app_name_short} الخاص بك وجهات اتصالك ومجموعاتك في حال فقدان الوصول إلى جهازك.</string>
+    <string name="safe_disable_confirm">هل تريد المتابعة دون تفعيل ${app_name_short} Safe؟ عند استخدام ${app_name_short} Safe، يمكنك استعادة معرّف ${app_name_short} الخاص بك ومجموعاتك في حال فقدان الوصول إلى جهازك.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">يرجى اختيار كلمة مرور قوية. ستحتاج إلى كلمة المرور هذه لاستعادة نسخة ${app_name_short} Safe الاحتياطية.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1061,7 +1061,7 @@
     <string name="safe_password_updated">تم تحديث كلمة مرور ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe مُفعَّل الآن.</string>
-    <string name="push_token_cleared">تم مسح رمز الدفع</string>
+    <string name="push_token_cleared">تم مسح رمز الإشعارات الفورية</string>
     <string name="insert_date">إدراج التاريخ</string>
     <string name="add_answer">إضافة إجابة</string>
     <string name="title_cannot_be_empty">لا يمكن أن يكون عنوان الاستطلاع فارغاً</string>
@@ -1151,7 +1151,7 @@
     <string name="and">و</string>
     <string name="edit_type_content_description">عرض أو تعديل %1$s %2$s</string>
     <string name="group">مجموعة</string>
-    <string name="play_services_not_installed_unable_to_use_push">الخدمات غير مثبَّتة. تعذَّر التبديل إلى دفع Google FCM أو HMS.</string>
+    <string name="play_services_not_installed_unable_to_use_push">الخدمات غير مثبَّتة. تعذَّر التبديل إلى التنبيه الفوري عبر Google FCM أو HMS.</string>
     <string name="unable_to_get_current_location">تعذَّر تحديد الموقع الحالي.</string>
     <string name="lp_search_place_min_chars">يرجى إدخال ثلاثة أحرف على الأقل للبحث عن مكان.</string>
     <string name="lp_search_place_no_matches">لم يُعثر على أماكن مطابقة. يرجى تعديل استعلامك.</string>
@@ -1572,7 +1572,7 @@
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">تجاهل</string>
     <string name="prefs_advanced_options">خيارات متقدمة</string>
-    <string name="push_service">خدمة الدفع</string>
+    <string name="push_service">خدمة التنبيه الفوري</string>
     <string name="edit_and_send">تعديل وإرسال</string>
     <string name="media_gallery_animated_webps">صور WebP متحركة</string>
     <string name="unsupported_image_type">نوع صورة غير مدعوم: %s</string>
@@ -2002,4 +2002,11 @@
     <string name="use_username_password">استخدام اسم المستخدم وكلمة المرور</string>
     <string name="use_activation_key">استخدام مفتاح التفعيل</string>
     <string name="invalid_activation_key">مفتاح تفعيل غير صالح</string>
+    <string name="use_different_key">استخدام مفتاح مختلف</string>
+    <string name="activation_key_already_redeemed">لقد تم استخدام مفتاح التفعيل هذا بالفعل. الرجاء إدخال مفتاح مختلف.</string>
+    <string name="safe_password_complexity_unmet">يجب أن تتكون كلمة المرور من أكثر من 10 أحرف وأن تحتوي على حرف صغير وحرف كبير ورقم ورمز</string>
+    <string name="change_server_dialog_title">تغيير الخادم</string>
+    <string name="change_server_dialog_hint">نطاق الخادم</string>
+    <string name="change_server_warning_title">تغيير الخادم؟</string>
+    <string name="change_server_warning_message">من المرجح أن يؤدي تغيير الخادم إلى قطع اتصال هويتك الحالية. لا تقم بذلك إلا إذا أكد مزوّد الخدمة لديك النطاق الجديد. إذا كان النطاق غير صحيح، فسيتوقف التطبيق عن العمل.</string>
 </resources>

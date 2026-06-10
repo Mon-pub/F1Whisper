@@ -990,6 +990,7 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="password_bad_explain">選択した${app_name_short} Safeのパスワードは安全ではなく、攻撃者に簡単に推測されてしまいます。別のパスワードを選択してください。ヒント：複数の単語を組み合わせたパスワードを使用してください。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">${app_name_short} Safeのパスワードは更新されました</string>
+    <string name="safe_password_complexity_unmet">パスワードは10文字を超え、英小文字、英大文字、数字、記号を含める必要があります</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safeが有効化されました</string>
     <string name="push_token_cleared">プッシュ・トークンがクリアされました</string>
@@ -1600,4 +1601,15 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <plurals name="number_of_group_members">
         <item quantity="other">%d名のグループメンバー</item>
     </plurals>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">サーバーを変更</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">サーバードメイン</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">サーバーを変更しますか？</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. -->
+    <string name="change_server_warning_message">サーバーを変更すると、現在の識別子との接続が切断される可能性があります。プロバイダーが新しいドメインを確認した場合にのみ実行してください。ドメインが間違っていると、アプリが動作しなくなります。</string>
+    <!-- Action label (e.g. activation-key action) -->
+    <string name="use_different_key">別のキーを使用</string>
+    <string name="activation_key_already_redeemed">このアクティベーションキーはすでに使用されています。別のキーを入力してください。</string>
 </resources>

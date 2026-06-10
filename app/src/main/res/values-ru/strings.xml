@@ -224,6 +224,14 @@
     <string name="threema_version_code">Код версии</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Конфигурация сервера</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Сменить сервер</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Домен сервера</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Сменить сервер?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">Смена сервера, скорее всего, отключит вашу текущую учётную запись. Делайте это только в том случае, если ваш провайдер подтвердил новый домен. Если домен указан неверно, приложение перестанет работать.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Отсутствует подключение к интернету, неправильные данные экспорта ID или пароль</string>
     <string name="prefs_header_other">Другое</string>
     <string name="an_error_occurred">Произошла ошибка</string>
@@ -768,6 +776,8 @@
     <string name="reset_ringtones_confirm">Настройки звуковых уведомлений были сброшены.</string>
     <string name="prefs_language_override">Язык</string>
     <!-- ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
+    <string name="use_different_key">Использовать другой ключ</string>
+    <string name="activation_key_already_redeemed">Этот ключ активации уже был использован. Пожалуйста, введите другой ключ.</string>
     <string name="threema_channel_intro">Канал ${app_name_short} предоставляет вам новости обо всех событиях ${app_name_short}. Подписаться на канал ${app_name_short} и добавить его в список контактов? Это бесплатно и вы можете отписаться в любое время.</string>
     <string name="quote">Цитировать</string>
     <string name="contacts_deleted">Контакты были удалены</string>
@@ -922,6 +932,7 @@
     <string name="quote_not_found">Цитируемое сообщение не найдено</string>
     <string name="ballot_secret">секретным</string>
     <string name="password_too_short_generic">Слишком короткий пароль</string>
+    <string name="safe_password_complexity_unmet">Пароль должен быть длиннее 10 символов и содержать строчные и заглавные буквы, цифру и символ</string>
     <string name="passwords_dont_match">Пароли не совпадают</string>
     <!-- Error message shown when setting up a custom server for the Threema Safe feature. %s is a placeholder for the details of the error. -->
     <string name="threema_safe_test_unsuccessful">Тест не пройден: %s</string>
@@ -933,7 +944,7 @@
     <string name="safe_learn_more_button">Узнать больше</string>
     <string name="safe_enable_explain">Всё, что вам нужно для общения, хранится на вашем устройстве. У нас нет вашей учётной записи и мы не сможем помочь вам, если вы потеряете телефон или случайно удалите данные.\n\n${app_name_short} Safe создаёт автоматические резервные копии всех важных данных, в том числе ваших ключей, вашего списка контактов и групп (но не содержимого сообщений). Данные в анонимном виде хранятся на выбранном вами защищённом сервере.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Продолжить без включения ${app_name_short} Safe? При использовании ${app_name_short} Safe вы сможете восстановить ${app_name_short} ID, контакты и группы в случае потери доступа к устройству.</string>
+    <string name="safe_disable_confirm">Продолжить без включения ${app_name_short} Safe? При использовании ${app_name_short} Safe вы сможете восстановить ${app_name_short} ID и группы в случае потери доступа к устройству.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Выберите пароль. Этот пароль понадобится вам для восстановления данных из резервной копии ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1298,7 +1309,7 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="threema_push_service_description">Постоянное уведомление, отображаемое, когда функция ${app_name_short} Push активна</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="threema_push_activated">Функция ${app_name_short} Safe активирована.</string>
+    <string name="threema_push_activated">Функция ${app_name_short} Push активирована.</string>
     <string name="add_shortcut_error">Ошибка добавления ярлыка на экран средства запуска.</string>
     <string name="web_link">Ссылка</string>
     <string name="link_copied">%s: скопировано</string>

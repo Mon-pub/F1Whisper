@@ -931,7 +931,7 @@
     <string name="safe_learn_more_button">Научете повече</string>
     <string name="safe_enable_explain">Всичко от което се нуждаете, за да чатите, е запазено само на Вашето устройство. Вие нямате регистрация и ние не можем да Ви помогнем, ако си изгубите телефона или случайно си изтриете данните.\n\n${app_name_short} Safe създава автоматично резервно копие на всички важни данни, като ключове, контакти и групи (без съдържанието на съобщенията) анонимно на сигурен сървър, който Вие сам си избирате.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Искате ли да продължите без активен ${app_name_short} Safe? Когато използвате ${app_name_short} Safe, Вие можете да възстановите Вашия ${app_name_short} идентификатор, контактите и групите, ако загубите достъп до Вашето устройство</string>
+    <string name="safe_disable_confirm">Искате ли да продължите без активен ${app_name_short} Safe? Когато използвате ${app_name_short} Safe, Вие можете да възстановите Вашия ${app_name_short} идентификатор и групите, ако загубите достъп до Вашето устройство</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Моля, изберете силна парола. Ще се нуждаете от тази парола, за да възстановите Вашето ${app_name_short} Safe резервно копие.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1690,6 +1690,19 @@
     <string name="remote_secret_deactivating">Деактивиране ${remote_secret}</string>
     <!-- Error message shown fullscreen when deactivating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
     <string name="remote_secret_deactivating_failed">Деактивацията на ${remote_secret} е неуспешна. Моля, проверете интернет връзката Ви и опитайте отново.</string>
+    <!-- Title of the dialog for changing the on-prem server domain on the "About" screen. -->
+    <string name="change_server_dialog_title">Смяна на сървъра</string>
+    <!-- Input hint of the dialog for changing the on-prem server domain; the user enters the server domain (host). -->
+    <string name="change_server_dialog_hint">Домейн на сървъра</string>
+    <!-- Title of the warning dialog shown before applying a new on-prem server domain. -->
+    <string name="change_server_warning_title">Смяна на сървъра?</string>
+    <!-- Warning message shown before applying a new on-prem server domain. -->
+    <string name="change_server_warning_message">Смяната на сървъра вероятно ще прекъсне връзката на текущия Ви идентификатор. Направете го само ако доставчикът Ви е потвърдил новия домейн. Ако домейнът е грешен, приложението ще спре да работи.</string>
+    <!-- Action label for using a different activation key. -->
+    <string name="use_different_key">Използване на друг ключ</string>
+    <string name="activation_key_already_redeemed">Този активационен ключ вече е бил използван. Моля, въведете друг ключ.</string>
+    <!-- Safe-password complexity validation error. -->
+    <string name="safe_password_complexity_unmet">Паролата трябва да е по-дълга от 10 знака и да съдържа малки букви, главни букви, цифра и символ</string>
     <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
     <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
     <plurals name="contacts_counter_label">

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.text.format.DateUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import androidx.annotation.Nullable;
 import ch.threema.base.SessionScoped;
@@ -124,14 +123,6 @@ public interface ThreemaSafeService {
     void deleteBackup() throws ThreemaException;
 
     void restoreBackup(String identity, String password, ThreemaSafeServerInfo serverInfo) throws ThreemaException, IOException;
-
-    /**
-     * Search a Threema ID by phone number and/or email address.
-     *
-     * @return ArrayList of matching Threema IDs, null if none was found
-     */
-    @Nullable
-    ArrayList<String> searchID(String phone, String email);
 
     /**
      * Launch the password dialog to setup Threema Safe.

@@ -233,6 +233,14 @@
     <string name="threema_version_code">Код версії</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Конфігурація сервера</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Змінити сервер</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Домен сервера</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Змінити сервер?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">Зміна сервера, найімовірніше, відключить ваш поточний ідентифікатор. Робіть це лише в тому разі, якщо ваш провайдер підтвердив новий домен. Якщо домен указано неправильно, додаток перестане працювати.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Немає з\'єднання з Інтернетом, недійсні дані експортованого ID або неправильний пароль</string>
     <string name="prefs_header_other">Інше</string>
     <string name="an_error_occurred">Сталася помилка</string>
@@ -252,6 +260,9 @@
     <string name="enter_serial_body"><![CDATA[Введіть ліцензійний ключ. Ви можете <a href="https://shop.threema.ch/">придбати</a> ліцензію або <a href="https://shop.threema.ch/retrieve_keys">відновити</a> ключ, придбаний раніше.]]></string>
     <!-- ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
     <string name="work_enter_serial_body">Введіть облікові дані ${app_name_short}, надані вашою компанією.</string>
+    <!-- Action label (e.g. activation-key action) for entering a different key -->
+    <string name="use_different_key">Використати інший ключ</string>
+    <string name="activation_key_already_redeemed">Цей ключ активації вже було використано. Будь ласка, введіть інший ключ.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="enter_serial_title">Розблокувати ${app_name}</string>
     <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
@@ -965,7 +976,7 @@
     <string name="safe_learn_more_button">Докладніше</string>
     <string name="safe_enable_explain">Усе, що потрібно для спілкування, зберігається лише на вашому пристрої. Ми не створюємо облікові записи користувачів і не зможемо допомогти, якщо ви втратите пристрій або випадково видалите свої дані.\n\n${app_name_short} Safe автоматично й анонімно зберігає найважливіші дані, зокрема ваші ключі, список контактів та інформацію про участь у групах (але не самі повідомлення), у вигляді резервних копій на вибраному вами безпечному сервері.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Продовжити без ${app_name_short} Safe? За допомогою цієї функції ви зможете відновити ID ${app_name_short}, контакти та групи із ${app_name_short} Safe, якщо втратите доступ до свого пристрою.</string>
+    <string name="safe_disable_confirm">Продовжити без ${app_name_short} Safe? За допомогою цієї функції ви зможете відновити ID ${app_name_short} та групи із ${app_name_short} Safe, якщо втратите доступ до свого пристрою.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Установіть надійний пароль. Він знадобиться вам, щоб відновити резервну копію ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -978,6 +989,8 @@
     <string name="safe_test_server">Перевірити сервер</string>
     <string name="safe_advanced_options">Розширені налаштування</string>
     <string name="safe_enter_password">Введіть свій пароль ${app_name_short} Safe</string>
+    <!-- Safe-password complexity validation error -->
+    <string name="safe_password_complexity_unmet">Пароль має містити понад 10 символів, а також малу та велику літери, цифру й символ</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_threema_id">Ваш ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->

@@ -34,7 +34,15 @@ internal class CspConnectionImpl(
     override fun onCspAuthenticated() {
         socket.let {
             if (it is CspSocket) {
-                it.setSocketSoTimeout(0)
+                // Was 0 (infinite). An infinite SO_TIMEOUT means the blocking read in
+                // CspSocket.readNBytes parks forever on a dead/half-open network, so the
+                // connection never errors out and never reconnects. Use a bounded post-auth read
+                // timeout instead: on a dead link the read throws SocketTimeoutException, which
+                // propagates to BaseSocket's error handler -> closes the socket -> completes
+                // closedSignal -> un-parks the existing reconnect loop in BaseServerConnection.
+                // The timeout comfortably exceeds the echo interval (60s) + echo response timeout
+                // (10s) so a healthy idle link is never falsely timed out.
+                it.setSocketSoTimeout(ProtocolDefines.POST_AUTH_READ_TIMEOUT * 1000)
             }
         }
     }

@@ -160,13 +160,43 @@ public class WizardFragment1 extends WizardFragment implements ThreemaSafeAdvanc
         return text != null && text.length() >= minLength && text.length() <= MAX_PW_LENGTH;
     }
 
+    /**
+     * Stricter complexity policy enforced when creating a new ${app_name_short} Safe backup password
+     * on onprem builds: longer than 10 characters and containing lowercase, uppercase, a digit and a
+     * symbol. Restore is intentionally not affected so legacy backups (8-10 chars) still open.
+     */
+    public static boolean meetsComplexity(String text) {
+        if (text == null || text.length() <= 10) {
+            return false;
+        }
+        boolean hasLower = false, hasUpper = false, hasDigit = false, hasSymbol = false;
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (Character.isLowerCase(c)) {
+                hasLower = true;
+            } else if (Character.isUpperCase(c)) {
+                hasUpper = true;
+            } else if (Character.isDigit(c)) {
+                hasDigit = true;
+            } else {
+                hasSymbol = true;
+            }
+        }
+        return hasLower && hasUpper && hasDigit && hasSymbol;
+    }
+
     private boolean getPasswordOK(String password1Text, String password2Text) {
         var hasSafePasswordPattern = dependencies.getAppRestrictions().getSafePasswordPattern() != null;
         boolean lengthOk = getPasswordLengthOK(password1Text, hasSafePasswordPattern ? 1 : MIN_PW_LENGTH);
+        boolean enforceComplexity = ConfigUtils.isOnPremBuild() && !hasSafePasswordPattern;
+        boolean complexityOk = !enforceComplexity || meetsComplexity(password1Text);
         boolean passwordsMatch = password1Text != null && password1Text.equals(password2Text);
 
         if (!lengthOk && password1Text != null && !password1Text.isEmpty()) {
             this.password1layout.setError(getString(R.string.password_too_short_generic));
+            this.password2layout.setError(null);
+        } else if (lengthOk && !complexityOk && password1Text != null && !password1Text.isEmpty()) {
+            this.password1layout.setError(getString(R.string.safe_password_complexity_unmet));
             this.password2layout.setError(null);
         } else {
             this.password1layout.setError(null);
@@ -177,7 +207,7 @@ public class WizardFragment1 extends WizardFragment implements ThreemaSafeAdvanc
             }
         }
 
-        return (lengthOk && passwordsMatch);
+        return (lengthOk && complexityOk && passwordsMatch);
     }
 
     public interface OnSettingsChangedListener {

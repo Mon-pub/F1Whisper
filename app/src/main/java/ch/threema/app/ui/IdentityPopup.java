@@ -67,11 +67,7 @@ public class IdentityPopup extends DimmingPopupWindow {
 
         TextView identityLabelTextView = popupLayout.findViewById(R.id.identity_label);
         this.qrCodeView = popupLayout.findViewById(R.id.qr_image);
-        if (ConfigUtils.isOnPremBuild()) {
-            popupLayout.findViewById(R.id.share_button).setVisibility(View.GONE);
-        } else {
-            popupLayout.findViewById(R.id.share_button).setOnClickListener(v -> ShareUtil.shareContact(activityRef.get(), null));
-        }
+        popupLayout.findViewById(R.id.share_button).setOnClickListener(v -> ShareUtil.shareContact(activityRef.get(), null));
 
         identityLabelTextView.setText(userService.getIdentity());
         identityLabelTextView.setContentDescription(context.getString(R.string.my_id) + " " + userService.getIdentity());

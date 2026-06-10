@@ -922,7 +922,7 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="safe_learn_more_button">Zistiť viac</string>
     <string name="safe_enable_explain">Všetko, čo potrebujete ku komunikácii je uložené v tomto zariadení. U nás nemáte žiadny účet a v prípade, že stratíte váš telefón alebo omylom vymažete všetky údaje, nebudeme vám vedieť pomôcť.\n\nTrezor ${app_name_short} vykonáva automatické zálohovanie všetkých dôležitých údajov vrátane vašich šifrovacích kľúčov, zoznamu kontaktov a členstva v skupinách (bez obsahu správ) a to anonymne na zabezpečom serveri podľa vašeho výberu.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Naozaj chcete pokračovať bez aktivácie Trezoru ${app_name_short}? Ak budete používať Trezor ${app_name_short}, môžete obnoviť vaše ${app_name_short} ID, kontakty a skupiny v prípade, že stratíte prístup k vášmu zariadeniu.</string>
+    <string name="safe_disable_confirm">Naozaj chcete pokračovať bez aktivácie Trezoru ${app_name_short}? Ak budete používať Trezor ${app_name_short}, môžete obnoviť vaše ${app_name_short} ID a skupiny v prípade, že stratíte prístup k vášmu zariadeniu.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Zadajte prosím silné heslo. Toto heslo budete potrebovať pri obnovení zálohy Trezoru ${app_name_short}.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1020,6 +1020,7 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="safe_password_updated">Heslo pre Trezor ${app_name_short} bolo aktualizované.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">Trezor ${app_name_short} je aktivovaný.</string>
+    <string name="safe_password_complexity_unmet">Heslo musí byť dlhšie ako 10 znakov a obsahovať malé písmeno, veľké písmeno, číslicu a symbol</string>
     <string name="push_token_cleared">Push token bol vymazaný</string>
     <string name="insert_date">Vložiť dátum</string>
     <string name="add_answer">Pridať odpoveď</string>
@@ -1825,4 +1826,10 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
         <item quantity="many">%d členov skupiny</item>
         <item quantity="other">%d členov skupiny</item>
     </plurals>
+    <string name="change_server_dialog_title">Zmeniť server</string>
+    <string name="change_server_dialog_hint">Doména servera</string>
+    <string name="change_server_warning_title">Zmeniť server?</string>
+    <string name="change_server_warning_message">Zmena servera pravdepodobne odpojí vašu aktuálnu identitu. Urobte to len vtedy, ak váš poskytovateľ potvrdil novú doménu. Ak je doména nesprávna, aplikácia prestane fungovať.</string>
+    <string name="use_different_key">Použiť iný kľúč</string>
+    <string name="activation_key_already_redeemed">Tento aktivačný kľúč bol už použitý. Zadajte prosím iný kľúč.</string>
 </resources>

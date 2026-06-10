@@ -231,6 +231,14 @@
     <string name="threema_version_code">সংস্করণ কোড</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">সার্ভার কনফিগারেশন</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">সার্ভার পরিবর্তন করুন</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">সার্ভার ডোমেইন</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">সার্ভার পরিবর্তন করবেন?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">সার্ভার পরিবর্তন করলে আপনার বর্তমান পরিচয় সম্ভবত সংযোগ বিচ্ছিন্ন হয়ে যাবে। আপনার প্রদানকারী নতুন ডোমেইনটি নিশ্চিত করলে তবেই এটি করুন। ডোমেইনটি ভুল হলে অ্যাপটি কাজ করা বন্ধ করে দেবে।</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">ইন্টারনেটে সংযোগ নেই, অবৈধ ID রপ্তানি ডেটা বা ভুল পাসওয়ার্ড</string>
     <string name="prefs_header_other">অন্যান্য</string>
     <string name="an_error_occurred">একটি ত্রুটি ঘটেছে</string>
@@ -951,6 +959,11 @@
     <string name="ballot_secret">গোপন</string>
     <string name="password_too_short_generic">পাসওয়ার্ড খুব ছোট</string>
     <string name="passwords_dont_match">পাসওয়ার্ড মেলে না</string>
+    <!-- Action label (e.g. TA001 'Use a different key' activation-key action). -->
+    <string name="use_different_key">একটি ভিন্ন কী ব্যবহার করুন</string>
+    <string name="activation_key_already_redeemed">এই অ্যাক্টিভেশন কীটি ইতিমধ্যে ব্যবহার করা হয়েছে। অনুগ্রহ করে ভিন্ন একটি কী লিখুন।</string>
+    <!-- Safe-password complexity validation error. -->
+    <string name="safe_password_complexity_unmet">পাসওয়ার্ড অবশ্যই ১০ অক্ষরের বেশি হতে হবে এবং তাতে ছোট হাতের অক্ষর, বড় হাতের অক্ষর, একটি সংখ্যা ও একটি প্রতীক থাকতে হবে</string>
     <!-- Error message shown when setting up a custom server for the Threema Safe feature. %s is a placeholder for the details of the error. -->
     <string name="threema_safe_test_unsuccessful">পরীক্ষা ব্যর্থ হয়েছে: %s</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -961,7 +974,7 @@
     <string name="safe_learn_more_button">আরও জানুন</string>
     <string name="safe_enable_explain">চ্যাট করতে যা প্রয়োজন তা শুধুমাত্র আপনার ডিভাইসে সংরক্ষিত থাকে। আমাদের কাছে আপনার কোনো অ্যাকাউন্ট নেই এবং আপনি আপনার ফোন হারিয়ে ফেললে বা ভুলবশত আপনার ডেটা মুছে ফেললে আমরা আপনাকে সাহায্য করতে পারব না।\n\n${app_name_short} Safe আপনার পছন্দের একটি নিরাপদ সার্ভারে বেনামে সমস্ত গুরুত্বপূর্ণ ডেটার স্বয়ংক্রিয় ব্যাকআপ তৈরি করে, যার মধ্যে রয়েছে আপনার কী, আপনার পরিচিতি তালিকা ও আপনার গ্রুপ সদস্যপদ (কিন্তু কোনো বার্তার বিষয়বস্তু নয়)।</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">আপনি কি ${app_name_short} Safe সক্ষম না করে চালিয়ে যেতে চান? ${app_name_short} Safe ব্যবহার করলে, আপনি আপনার ডিভাইসে অ্যাক্সেস হারিয়ে ফেললে আপনার ${app_name_short} ID, পরিচিতি ও গ্রুপ পুনরুদ্ধার করতে পারবেন।</string>
+    <string name="safe_disable_confirm">আপনি কি ${app_name_short} Safe সক্ষম না করে চালিয়ে যেতে চান? ${app_name_short} Safe ব্যবহার করলে, আপনি আপনার ডিভাইসে অ্যাক্সেস হারিয়ে ফেললে আপনার ${app_name_short} ID ও গ্রুপ পুনরুদ্ধার করতে পারবেন।</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">দয়া করে একটি শক্তিশালী পাসওয়ার্ড বেছে নিন। আপনার ${app_name_short} Safe ব্যাকআপ পুনরুদ্ধার করতে আপনার এই পাসওয়ার্ড প্রয়োজন হবে।</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->

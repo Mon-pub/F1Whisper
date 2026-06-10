@@ -48,6 +48,11 @@ internal class CspSocket(
         logger.info("Connecting to {} ...", address)
         socket = socketFactory.makeSocket(address)
         socket.tcpNoDelay = true
+        // Enable OS-level TCP keep-alive so the kernel can eventually detect a dead peer on a
+        // half-open socket. Android does not expose TCP_KEEPIDLE, so the kernel default (~2h) makes
+        // this only a slow safety net; the fast half-open detector is the bounded post-auth
+        // SO_TIMEOUT set in CspConnectionImpl.onCspAuthenticated().
+        socket.keepAlive = true
 
         val timeout = when (address.address) {
             is Inet6Address -> ProtocolDefines.CONNECT_TIMEOUT_IPV6 * 1000

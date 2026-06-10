@@ -858,7 +858,7 @@
     <string name="unchanged">változatlan</string>
     <string name="safe_learn_more_button">További információ</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">A ${app_name_short} Safe aktiválása nélkül szeretne folytatni? A ${app_name_short} Safe lehetővé teszi a ${app_name_short} ID, a névjegyek és a csoportok visszaállítását, ha elveszíti a készülékét.</string>
+    <string name="safe_disable_confirm">A ${app_name_short} Safe aktiválása nélkül szeretne folytatni? A ${app_name_short} Safe lehetővé teszi a ${app_name_short} ID és a csoportok visszaállítását, ha elveszíti a készülékét.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Válasszon egy biztonságos jelszót. Erre a jelszóra szüksége lesz a ${app_name_short} Safe biztonsági mentés visszaállításához.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -947,6 +947,7 @@
     <string name="password_bad_explain">Az Ön által választott ${app_name_short} Safe jelszó nagyon gyenge, ezért a támadók könnyen kitalálhatják. Kérjük, válasszon biztonságos jelszót. Tipp: Használjon több kifejezésből álló összetett szót.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">A ${app_name_short} Safe jelszó frissítve lett.</string>
+    <string name="safe_password_complexity_unmet">A jelszónak 10 karakternél hosszabbnak kell lennie, és tartalmaznia kell kisbetűt, nagybetűt, számjegyet és szimbólumot.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">A ${app_name_short} Safe aktiválódott.</string>
     <string name="push_token_cleared">A push token eltávolításra került</string>
@@ -1315,4 +1316,10 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
         <item quantity="one">%d kép kiválasztva</item>
         <item quantity="other">%d kép kiválasztva</item>
     </plurals>
+    <string name="change_server_dialog_title">Szerver módosítása</string>
+    <string name="change_server_dialog_hint">Szerver domain</string>
+    <string name="change_server_warning_title">Módosítja a szervert?</string>
+    <string name="change_server_warning_message">A szerver módosítása valószínűleg le fogja választani a jelenlegi identitását. Csak akkor tegye ezt meg, ha a szolgáltatója megerősítette az új domaint. Ha a domain hibás, az alkalmazás működésképtelenné válik.</string>
+    <string name="use_different_key">Másik kulcs használata</string>
+    <string name="activation_key_already_redeemed">Ez az aktiválási kulcs már fel lett használva. Kérjük, adjon meg egy másik kulcsot.</string>
 </resources>

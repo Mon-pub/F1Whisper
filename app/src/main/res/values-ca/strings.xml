@@ -858,7 +858,7 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <string name="safe_learn_more_button">Saber-ne més</string>
     <string name="safe_enable_explain">Tot el que necessiteu per xatejar es guarda només en el vostre dispositiu. No teniu cap compte amb nosaltres i no podem ajudar-vos si perdeu el vostre telèfon o elimineu les dades accidentalment.\n\n${app_name_short} Safe crea còpies de seguretat automàtiques de totes les dades importants, incloent les vostres claus, la vostra llista de contactes i grups (però no el contingut dels missatges), anònimament en un servidor segur escollit per vós.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Voleu continuar sense activar ${app_name_short} Safe? Si utilitzeu ${app_name_short} Safe, podeu restaurar la vostra ID de ${app_name_short}, contactes i grups en cas que perdeu l\'accés al vostre dispositiu.</string>
+    <string name="safe_disable_confirm">Voleu continuar sense activar ${app_name_short} Safe? Si utilitzeu ${app_name_short} Safe, podeu restaurar la vostra ID de ${app_name_short} i els grups en cas que perdeu l\'accés al vostre dispositiu.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Escolliu una contrasenya segura. Necessitareu aquesta contrasenya per restaurar la vostra còpia de ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -949,6 +949,8 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <string name="password_bad_explain">La contrasenya escollida per a ${app_name_short} Safe no és segura i pot ser deduïda fàcilment per atacants. Escolliu-ne una altra. Pista: Utilitzeu una contrasenya composta de diverses paraules inconnexes.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">La contrasenya de ${app_name_short} Safe s\'ha actualitzat.</string>
+    <!-- Safe-password complexity validation error. -->
+    <string name="safe_password_complexity_unmet">La contrasenya ha de tenir més de 10 caràcters i contenir minúscules, majúscules, un dígit i un símbol</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe ara està activat.</string>
     <string name="push_token_cleared">S\'ha netejat el testimoni push</string>
@@ -1325,4 +1327,15 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
         <item quantity="one">%d imatge seleccionada</item>
         <item quantity="other">%d imatges seleccionades</item>
     </plurals>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Canviar el servidor</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Domini del servidor</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Voleu canviar el servidor?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. -->
+    <string name="change_server_warning_message">Canviar el servidor probablement desconnectarà la vostra identitat actual. Feu-ho només si el vostre proveïdor ha confirmat el nou domini. Si el domini és incorrecte, l\'aplicació deixarà de funcionar.</string>
+    <!-- Action label for the activation-key screen. -->
+    <string name="use_different_key">Utilitzar una clau diferent</string>
+    <string name="activation_key_already_redeemed">Aquesta clau d\'activació ja ha estat usada. Si us plau, introduïu una clau diferent.</string>
 </resources>

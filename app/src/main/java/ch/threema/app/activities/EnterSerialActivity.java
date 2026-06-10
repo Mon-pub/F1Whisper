@@ -13,18 +13,14 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.method.LinkMovementMethod;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Locale;
 
@@ -126,16 +122,6 @@ public class EnterSerialActivity extends ThreemaActivity {
         activationKeyLayout = findViewById(getResources().getIdentifier("activation_key_layout", "id", getPackageName()));
         unlockLayout = findViewById(getResources().getIdentifier("unlock_layout", "id", getPackageName()));
         passwordLayout = findViewById(getResources().getIdentifier("password_layout", "id", getPackageName()));
-
-        // Workaround to fix the prefix in the TextInputLayout not being aligned correctly when the phones font size changes
-        // Open Issue: https://github.com/material-components/material-components-android/issues/773
-        final @Nullable TextInputLayout serverContainer = findViewById(getResources().getIdentifier("server_container", "id", getPackageName()));
-        if (serverContainer != null) {
-            serverContainer.getPrefixTextView().setLayoutParams(
-                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT)
-            );
-            serverContainer.getPrefixTextView().setGravity(Gravity.CENTER);
-        }
 
         TextView enterKeyExplainText = findViewById(R.id.layout_top);
         enterKeyExplainText.setText(HtmlCompat.fromHtml(getString(R.string.flavored__enter_serial_body), HtmlCompat.FROM_HTML_MODE_COMPACT));
@@ -744,9 +730,21 @@ public class EnterSerialActivity extends ThreemaActivity {
 
     @NonNull
     private String getUrlToOppf(@NonNull String url) {
-        if (!url.startsWith("https://")) {
-            url = "https://" + url;
+        // Normalize user input so "<host>", "https://<host>" and "http://<host>/" all collapse to the
+        // same canonical https URL. Strip any leading scheme and surrounding whitespace, then drop
+        // trailing slashes, before we (re)apply the https scheme and expand to the provisioning path.
+        url = url.trim();
+        if (url.startsWith("https://")) {
+            url = url.substring("https://".length());
+        } else if (url.startsWith("http://")) {
+            url = url.substring("http://".length());
         }
+
+        while (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+
+        url = "https://" + url;
 
         if (!url.endsWith(".oppf")) {
             // Automatically expand hostnames to default provisioning URL

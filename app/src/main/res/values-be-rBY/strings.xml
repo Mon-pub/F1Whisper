@@ -938,7 +938,7 @@
     <string name="safe_learn_more_button">Даведацца больш</string>
     <string name="safe_enable_explain">Усё, што вам трэба для чата, захоўваецца на вашай прыладзе. У нас няма вашага ўліковага запісу, і мы не зможам дапамагчы вам, калі вы страціце тэлефон або выпадкова выдаліце даныя.\n\n ${app_name_short} Safe стварае аўтаматычныя рэзервовыя копіі ўсіх важных даных, у тым ліку вашых ключоў, вашага спісу кантактаў і суполак (але не кантэнту паведамленняў). Даныя ў ананімным выглядзе захоўваюцца на абраным вамі абароненым серверы.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Вы хочаце працягнуць без уключэння ${app_name_short} Safe? З ${app_name_short} Safe вы зможаце аднавіць свой ${app_name_short} ID, кантакты і суполкі, калі страціце доступ да прылады.</string>
+    <string name="safe_disable_confirm">Вы хочаце працягнуць без уключэння ${app_name_short} Safe? З ${app_name_short} Safe вы зможаце аднавіць свой ${app_name_short} ID і суполкі, калі страціце доступ да прылады.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Калі ласка, прыдумайце моцны пароль. Гэты пароль спатрэбіцца вам для аднаўлення рэзервовай копіі ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1912,4 +1912,11 @@
         <item quantity="many">%d удзельнікаў суполкі</item>
         <item quantity="other">%d удзельнікаў суполкі</item>
     </plurals>
+    <string name="change_server_dialog_title">Змяніць сервер</string>
+    <string name="change_server_dialog_hint">Дамен сервера</string>
+    <string name="change_server_warning_title">Змяніць сервер?</string>
+    <string name="change_server_warning_message">Змена сервера, хутчэй за ўсё, адлучыць ваш бягучы ідэнтыфікатар. Рабіце гэта толькі тады, калі ваш правайдар пацвердзіў новы дамен. Калі дамен няправільны, праграма перастане працаваць.</string>
+    <string name="use_different_key">Выкарыстаць іншы ключ</string>
+    <string name="activation_key_already_redeemed">Гэты ключ актывацыі ўжо быў выкарыстаны. Калі ласка, увядзіце іншы ключ.</string>
+    <string name="safe_password_complexity_unmet">Пароль павінен быць даўжэйшым за 10 сімвалаў і змяшчаць малыя і вялікія літары, лічбу і сімвал</string>
 </resources>

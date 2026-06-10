@@ -2,11 +2,9 @@ package ch.threema.app.utils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.icu.text.ListFormatter;
 import android.os.Build;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 
@@ -271,23 +269,12 @@ public class ContactUtil {
         ));
     }
 
+    /**
+     * Resolving a Threema identity from a device address-book VIEW intent has been removed for
+     * privacy reasons (no device contacts integration). Always returns {@code null}.
+     */
+    @Nullable
     public static String getIdentityFromViewIntent(Context context, Intent intent) {
-        if (Intent.ACTION_VIEW.equals(intent.getAction()) && context.getString(R.string.contacts_mime_type).equals(intent.getType())) {
-            try (Cursor cursor = context.getContentResolver().query(intent.getData(), null, null, null, null)) {
-                if (cursor != null) {
-                    if (cursor.moveToNext()) {
-                        int columnIndex = cursor.getColumnIndex(ContactsContract.Data.DATA1);
-                        if (columnIndex >= 0) {
-                            return cursor.getString(columnIndex);
-                        } else {
-                            logger.warn("Invalid column index; column '{}' does not exist.", ContactsContract.Data.DATA1);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                logger.error("Could not get identity from view intent.", e);
-            }
-        }
         return null;
     }
 

@@ -4,17 +4,13 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver;
@@ -45,7 +41,6 @@ import ch.threema.app.R;
 import ch.threema.app.ThreemaApplication;
 import ch.threema.app.actions.LocationMessageSendAction;
 import ch.threema.app.actions.SendAction;
-import ch.threema.app.activities.EditSendContactActivity;
 import ch.threema.app.activities.ImagePaintActivity;
 import ch.threema.app.activities.SendMediaActivity;
 import ch.threema.app.activities.ThreemaActivity;
@@ -86,10 +81,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
     private static final Logger logger = getThreemaLogger("MediaAttachActivity");
 
-    private static final int CONTACT_PICKER_INTENT = 33002;
     private static final int LOCATION_PICKER_INTENT = 33003;
 
-    private static final int PERMISSION_REQUEST_ATTACH_CONTACT = 2;
     private static final int PERMISSION_REQUEST_QR_READER = 3;
     private static final int PERMISSION_REQUEST_ATTACH_FROM_EXTERNAL_CAMERA = 6;
 
@@ -99,7 +92,7 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
     private ConstraintLayout sendPanel;
     private LinearLayout attachPanel;
-    private ControlPanelButton attachGalleryButton, attachLocationButton, attachQRButton, attachBallotButton, attachContactButton, attachDrawingButton, attachFileButton, sendButton, editButton, cancelButton, attachFromExternalCameraButton;
+    private ControlPanelButton attachGalleryButton, attachLocationButton, attachQRButton, attachBallotButton, attachDrawingButton, attachFileButton, sendButton, editButton, cancelButton, attachFromExternalCameraButton;
     private Button selectCounterButton;
     private ImageView moreArrowView;
     private HorizontalScrollView scrollView;
@@ -115,18 +108,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             if (result.getResultCode() == Activity.RESULT_OK && intent != null) {
                 prepareSendFileMessage(FileUtil.getUrisFromResult(intent, getContentResolver()));
             }
-        });
-
-    private final ActivityResultLauncher<Intent> editContactResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-        r -> {
-            if (r.getResultCode() == RESULT_OK) {
-                if (r.getData() != null && r.getData().getExtras() != null && r.getData().getExtras().get(EditSendContactActivity.RESULT_CONTACT_URI) instanceof Uri) {
-                    Uri modifiedVcardUri = (Uri) r.getData().getExtras().get(EditSendContactActivity.RESULT_CONTACT_URI);
-                    String caption = (String) r.getData().getExtras().get(EditSendContactActivity.RESULT_CONTACT_NAME);
-                    sendFileMessage(new ArrayList<>(Collections.singletonList(modifiedVcardUri)), new ArrayList<>(Collections.singletonList(caption)));
-                }
-            }
-            finish();
         });
 
     private final ActivityResultLauncher<Intent> drawingResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -225,8 +206,10 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         this.attachFileButton = attachPanel.findViewById(R.id.attach_file);
         this.attachQRButton = attachPanel.findViewById(R.id.attach_qr_code);
         this.attachBallotButton = attachPanel.findViewById(R.id.attach_poll);
-        this.attachContactButton = attachPanel.findViewById(R.id.attach_contact);
         this.attachDrawingButton = attachPanel.findViewById(R.id.attach_drawing);
+
+        // Attaching a device address-book contact has been removed for privacy reasons.
+        attachPanel.findViewById(R.id.attach_contact).setVisibility(View.GONE);
         this.attachFromExternalCameraButton = attachPanel.findViewById(R.id.attach_system_camera);
 
         // Send/edit/cancel buttons
@@ -269,7 +252,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         attachFileButton.setOnClickListener(this);
         attachQRButton.setOnClickListener(this);
         attachBallotButton.setOnClickListener(this);
-        attachContactButton.setOnClickListener(this);
         attachDrawingButton.setOnClickListener(this);
         sendButton.setOnClickListener(this);
         editButton.setOnClickListener(this);
@@ -363,7 +345,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             if (attachBallotButton.getVisibility() == View.VISIBLE) {
                 AnimationUtil.bubbleAnimate(attachBallotButton, animDelay += animDelayDiff);
             }
-            AnimationUtil.bubbleAnimate(attachContactButton, animDelay += animDelayDiff);
             AnimationUtil.bubbleAnimate(attachDrawingButton, animDelay += animDelayDiff);
             AnimationUtil.bubbleAnimate(attachQRButton, animDelay += animDelayDiff);
             AnimationUtil.bubbleAnimate(attachFromExternalCameraButton, animDelay + animDelayDiff);
@@ -385,10 +366,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         } else if (id == R.id.attach_qr_code) {
             if (ConfigUtils.requestCameraPermissions(this, null, PERMISSION_REQUEST_QR_READER)) {
                 attachQR(v);
-            }
-        } else if (id == R.id.attach_contact) {
-            if (ConfigUtils.requestContactPermissions(this, null, PERMISSION_REQUEST_ATTACH_CONTACT)) {
-                attachContact();
             }
         } else if (id == R.id.attach_drawing) {
             attachDrawing();
@@ -435,9 +412,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
         if (isPermissionGranted) {
             switch (requestCode) {
-                case PERMISSION_REQUEST_ATTACH_CONTACT:
-                    attachContact();
-                    break;
                 case PERMISSION_REQUEST_ATTACH_FILE:
                     attachFile();
                     break;
@@ -462,11 +436,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             }
         } else {
             switch (requestCode) {
-                case PERMISSION_REQUEST_ATTACH_CONTACT:
-                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
-                        super.showPermissionRationale(R.string.permission_contacts_required);
-                    }
-                    break;
                 case PERMISSION_REQUEST_QR_READER:
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                         super.showPermissionRationale(R.string.permission_camera_qr_required);
@@ -516,9 +485,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                     Location location = IntentDataUtil.getLocation(intent);
                     String poiName = intent.getStringExtra(INTENT_DATA_LOCATION_NAME);
                     sendLocationMessage(location, poiName);
-                    break;
-                case CONTACT_PICKER_INTENT:
-                    editContact(intent.getData());
                     break;
                 case ThreemaActivity.ACTIVITY_ID_CREATE_BALLOT:
                     finish();
@@ -638,15 +604,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         startActivityForResult(intent, LOCATION_PICKER_INTENT);
     }
 
-    private void attachContact() {
-        try {
-            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-            startActivityForResult(intent, CONTACT_PICKER_INTENT);
-        } catch (ActivityNotFoundException e) {
-            SingleToast.getInstance().showShortText(getString(R.string.no_activity_for_mime_type));
-        }
-    }
-
     private void attachQR(@NonNull View view) {
         var intent = QRScannerActivity.createIntent(this);
         view.postDelayed(
@@ -694,52 +651,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                         finish();
                     }
                 })).start();
-    }
-
-    private void editContact(Uri contactUri) {
-        if (!validateSendingPermission()) {
-            return;
-        }
-
-        Cursor cursor = this.getContentResolver().query(contactUri, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst() && cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY) >= 0) {
-            @SuppressLint("Range") String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
-            cursor.close();
-
-            controlPanel.setVisibility(View.GONE);
-
-            isEditingContact = true;
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-            Uri vcardUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey);
-
-            Intent editContactIntent = EditSendContactActivity.createIntent(this, vcardUri);
-
-            editContactResultLauncher.launch(editContactIntent);
-        } else {
-            Toast.makeText(this, R.string.contact_not_found, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Send file messages of any type
-     */
-    private void sendFileMessage(final ArrayList<Uri> uriList, final ArrayList<String> captions) {
-        if (!validateSendingPermission()) {
-            return;
-        }
-
-        List<MediaItem> mediaItems = new ArrayList<>(uriList.size());
-        for (int i = 0; i < uriList.size(); i++) {
-            MediaItem mediaItem = new MediaItem(uriList.get(i), MediaItem.TYPE_FILE);
-            if (captions != null) {
-                mediaItem.setCaption(captions.get(i));
-            }
-            mediaItem.setOriginalUri(mediaItem.getUri());
-            mediaItems.add(mediaItem);
-        }
-        dependencies.getMessageService().sendMediaAsync(mediaItems, Collections.singletonList(messageReceiver));
-        finish();
     }
 
     private boolean validateSendingPermission() {

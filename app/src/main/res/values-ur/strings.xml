@@ -80,13 +80,13 @@
     <string name="prefs_title_threema_push_switch">${app_name_short} Push استعمال کریں</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="prefs_sum_threema_push_on">نئے پیغامات کی اطلاع کے لیے ${app_name_short} Push استعمال کریں</string>
-    <string name="prefs_sum_threema_push_off">سسٹم پش سروس کے ذریعے نئے پیغامات چیک کریں</string>
+    <string name="prefs_sum_threema_push_off">سسٹم کی فوری اطلاع سروس کے ذریعے نئے پیغامات چیک کریں</string>
     <string name="prefs_logging">لاگنگ</string>
     <string name="prefs_title_message_log_switch">فائل میں لاگ کریں</string>
     <string name="prefs_title_sum_message_log_on">واقعات اور نیٹ ورک معلومات فائل debug_log.txt میں لاگ کی جائیں گی</string>
     <string name="prefs_title_sum_message_log_off">واقعات لاگ نہیں کیے جائیں گے</string>
-    <string name="prefs_reset_push">پش ٹوکن ری سیٹ کریں</string>
-    <string name="prefs_sum_reset_push">FCM/HMS کے ساتھ پش اطلاعات کے لیے آلہ دوبارہ رجسٹر کریں</string>
+    <string name="prefs_reset_push">اطلاعی ٹوکن ری سیٹ کریں</string>
+    <string name="prefs_sum_reset_push">FCM/HMS کے ساتھ فوری اطلاعات کے لیے آلہ دوبارہ رجسٹر کریں</string>
     <string name="prefs_notification_preview">پیغام کا پیش منظر دکھائیں</string>
     <string name="prefs_sum_reset_ringtones">سسٹم ڈیفالٹس بحال کریں</string>
     <string name="prefs_title_reset_ringtones">اطلاع کی آواز کی ترتیبات ری سیٹ کریں</string>
@@ -259,8 +259,8 @@
     <string name="not_now">بعد میں یاد دلائیں</string>
     <string name="preparing_messages">پیغامات تیار کیے جا رہے ہیں</string>
     <string name="select_emoji">ایموجیز</string>
-    <string name="push_reset_title">پش ٹوکن ری سیٹ</string>
-    <string name="push_reset_text">پش ٹوکن ری سیٹ ہو گیا ہے</string>
+    <string name="push_reset_title">اطلاعی ٹوکن ری سیٹ</string>
+    <string name="push_reset_text">اطلاعی ٹوکن ری سیٹ ہو گیا ہے</string>
     <string name="emoji_recent">حالیہ</string>
     <string name="emoji_smileys">اسمائلیز اور جذبات</string>
     <string name="emoji_people">لوگ اور جسم</string>
@@ -385,7 +385,7 @@
     <string name="add_acount_from_within_threema">${app_name_short} کے اندر سے اپنا ${app_name_short} ID منظم کریں۔</string>
     <string name="share_image">تصویر کا اشتراک کریں</string>
     <string name="view_in_gallery">گیلری میں دیکھیں</string>
-    <string name="token_register_failed">پش ٹوکن اپ ڈیٹ کرنے میں ناکام، براہ کرم بعد میں دوبارہ کوشش کریں۔</string>
+    <string name="token_register_failed">اطلاعی ٹوکن اپ ڈیٹ کرنے میں ناکام، براہ کرم بعد میں دوبارہ کوشش کریں۔</string>
     <string name="internet_connection_required">کوئی انٹرنیٹ کنکشن نہیں۔</string>
     <string name="prefs_sum_save_media">آنے والی تصاویر اور ویڈیوز کے ساتھ ساتھ باہر جانے والی کیمرہ تصاویر کو غیر خفیہ شکل میں محفوظ کریں</string>
     <string name="prefs_save_media">گیلری میں خودکار محفوظ کریں</string>
@@ -398,8 +398,8 @@
     <string name="title_tab_distribution_list">تقسیمی فہرستیں</string>
     <string name="no_matching_distribution_lists">کوئی مماثل تقسیمی فہرست نہیں</string>
     <string name="is_typing">ٹائپ کر رہا ہے…</string>
-    <string name="push_not_available_title">کوئی پش سروس نہیں ملی</string>
-    <string name="push_not_available_text1">ہم آپ کے آلے پر کوئی پش سروس نہیں ڈھونڈ سکے کیونکہ Google Play Services انسٹال نہیں ہیں یا پرانے ہیں۔</string>
+    <string name="push_not_available_title">کوئی فوری اطلاع سروس نہیں ملی</string>
+    <string name="push_not_available_text1">ہم آپ کے آلے پر کوئی فوری اطلاع سروس نہیں ڈھونڈ سکے کیونکہ Google Play Services انسٹال نہیں ہیں یا پرانے ہیں۔</string>
     <string name="push_not_available_text2">%s سرور سے ایک مستقل بیک گراؤنڈ کنکشن کھولنے کی کوشش کرے گا۔ اگر آپ کے آلے کے بیٹری اصلاحی طریقہ کار بیک گراؤنڈ کنکشن میں مداخلت کرتے ہیں تو یہ قابل اعتماد طریقے سے کام نہیں کر سکتا۔</string>
     <string name="backup_in_progress">بیک اپ جاری ہے</string>
     <string name="backup_or_restore_success_body">ڈیٹا بیک اپ کامیابی سے مکمل ہوا</string>
@@ -484,7 +484,7 @@
     <string name="wearable_reply">جواب دیں</string>
     <string name="wearable_reply_label">%s کو جواب دیں</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="push_disable_text">اگر آپ جاری رکھتے ہیں، تو سسٹم کی پش سروس کے بجائے “${app_name_short} Push” استعمال کیا جائے گا۔ یہ آپ کے ڈیجیٹل نقشِ قدم کو کم کرنے میں مدد دیتا ہے لیکن اس کے لیے ضروری ہے کہ آپ کا فون اس طرح ترتیب دیا گیا ہو کہ ایپ کو بیک گراؤنڈ میں چلنے کی اجازت ہو۔ اگر متعلقہ اختیارات آلے کی ترتیبات میں نہ ملیں تو ترتیب میں مدد کے لیے آپ اپنے آلے کے مینوفیکچرر کی سپورٹ سے رابطہ کرنا چاہیں گے۔</string>
+    <string name="push_disable_text">اگر آپ جاری رکھتے ہیں، تو سسٹم کی فوری اطلاع سروس کے بجائے “${app_name_short} Push” استعمال کیا جائے گا۔ یہ آپ کے ڈیجیٹل نقشِ قدم کو کم کرنے میں مدد دیتا ہے لیکن اس کے لیے ضروری ہے کہ آپ کا فون اس طرح ترتیب دیا گیا ہو کہ ایپ کو بیک گراؤنڈ میں چلنے کی اجازت ہو۔ اگر متعلقہ اختیارات آلے کی ترتیبات میں نہ ملیں تو ترتیب میں مدد کے لیے آپ اپنے آلے کے مینوفیکچرر کی سپورٹ سے رابطہ کرنا چاہیں گے۔</string>
     <string name="debug_log_enabled_recently_warning">اگر آپ کو کوئی مخصوص مسئلہ درپیش ہے، تو براہ کرم ہمیں ڈیبگ لاگ فائل بھیجنے سے پہلے اسے دوبارہ پیدا کرنے کی کوشش کریں۔ اس سے ہمیں مسئلہ زیادہ مؤثر طریقے سے تحقیق کرنے میں مدد ملے گی۔ شکریہ۔</string>
     <string name="ballot_intermediate_results_show">درمیانی نتائج دکھائیں</string>
     <string name="converting_video">ویڈیو پر کارروائی ہو رہی ہے</string>
@@ -667,7 +667,7 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="new_wizard_info_link_phone_only">اپنا فون نمبر فراہم کر کے، ${app_name_short} آپ کے رابطوں کو آپ کو خود بخود ڈھونڈنے میں مدد دے سکتا ہے اگر ان کے فون کی ایڈریس بک میں آپ موجود ہوں۔ نمبر ہمارے سرور پر یک طرفہ خفیہ شدہ (ہیش شدہ) شکل میں ذخیرہ کیا جائے گا۔ اگر آپ ${app_name_short} کو مکمل طور پر گمنام طریقے سے استعمال کرنا چاہتے ہیں تو آپ یہ مرحلہ آسانی سے چھوڑ سکتے ہیں۔</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="new_wizard_info_nickname">عرفی نام کچھ آلات پر پش اطلاعات میں استعمال ہوتا ہے یا ان صارفین کے سامنے آپ کی شناخت کے اضافی ذریعے کے طور پر جو ابھی تک آپ کو اپنی ایڈریس بک میں نہیں رکھتے۔ ہم تجویز کرتے ہیں کہ صرف اپنا پہلا نام یا ایک فرضی نام فراہم کریں۔ اگر آپ عرفی نام سیٹ نہیں کرتے، تو ہم بطور ڈیفالٹ آپ کا ${app_name_short} ID استعمال کریں گے۔</string>
+    <string name="new_wizard_info_nickname">عرفی نام کچھ آلات پر فوری اطلاعات میں استعمال ہوتا ہے یا ان صارفین کے سامنے آپ کی شناخت کے اضافی ذریعے کے طور پر جو ابھی تک آپ کو اپنی ایڈریس بک میں نہیں رکھتے۔ ہم تجویز کرتے ہیں کہ صرف اپنا پہلا نام یا ایک فرضی نام فراہم کریں۔ اگر آپ عرفی نام سیٹ نہیں کرتے، تو ہم بطور ڈیفالٹ آپ کا ${app_name_short} ID استعمال کریں گے۔</string>
     <string name="not_linked">منسلک نہیں ہے</string>
     <string name="linked">منسلک ہے</string>
     <string name="pending_sms_verification_notice">آپ کے موبائل نمبر کی ابھی تصدیق نہیں ہوئی۔</string>
@@ -930,7 +930,7 @@
     <string name="safe_learn_more_button">مزید جانیں</string>
     <string name="safe_enable_explain">چیٹ کرنے کے لیے درکار ہر چیز صرف آپ کے آلے پر محفوظ ہوتی ہے۔ آپ کا ہمارے پاس کوئی اکاؤنٹ نہیں ہے اور اگر آپ اپنا فون کھو دیں یا غلطی سے اپنا ڈیٹا حذف کر دیں تو ہم آپ کی مدد نہیں کر سکتے۔\n\n${app_name_short} Safe تمام اہم ڈیٹا، بشمول آپ کی کلیدیں، آپ کی رابطہ فہرست اور آپ کی گروپ رکنیتوں (لیکن کوئی پیغام مواد نہیں) کے خود کار بیک اپ، آپ کی پسند کے ایک محفوظ سرور پر گمنام طریقے سے بناتا ہے۔</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">کیا آپ ${app_name_short} Safe فعال کیے بغیر جاری رکھنا چاہتے ہیں؟ ${app_name_short} Safe استعمال کرتے وقت، اگر آپ اپنے آلے تک رسائی کھو دیں تو آپ اپنا ${app_name_short} ID، رابطے اور گروپس بحال کر سکتے ہیں۔</string>
+    <string name="safe_disable_confirm">کیا آپ ${app_name_short} Safe فعال کیے بغیر جاری رکھنا چاہتے ہیں؟ ${app_name_short} Safe استعمال کرتے وقت، اگر آپ اپنے آلے تک رسائی کھو دیں تو آپ اپنا ${app_name_short} ID اور گروپس بحال کر سکتے ہیں۔</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">براہ کرم ایک مضبوط پاس ورڈ منتخب کریں۔ آپ کو اپنے ${app_name_short} Safe بیک اپ کو بحال کرنے کے لیے اس پاس ورڈ کی ضرورت ہوگی۔</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1029,7 +1029,7 @@
     <string name="safe_password_updated">${app_name_short} Safe پاس ورڈ اپ ڈیٹ ہو گیا ہے۔</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe اب فعال ہو گیا ہے۔</string>
-    <string name="push_token_cleared">پش ٹوکن صاف ہو گیا ہے</string>
+    <string name="push_token_cleared">اطلاعی ٹوکن صاف ہو گیا ہے</string>
     <string name="insert_date">تاریخ داخل کریں</string>
     <string name="add_answer">جواب شامل کریں</string>
     <string name="title_cannot_be_empty">پول کا عنوان خالی نہیں ہو سکتا</string>
@@ -1118,7 +1118,7 @@
     <string name="and">اور</string>
     <string name="edit_type_content_description">%1$s %2$s دیکھیں یا ترمیم کریں</string>
     <string name="group">گروپ</string>
-    <string name="play_services_not_installed_unable_to_use_push">خدمات انسٹال نہیں ہیں۔ Google FCM یا HMS پش پر تبدیل نہیں ہو سکتا۔</string>
+    <string name="play_services_not_installed_unable_to_use_push">خدمات انسٹال نہیں ہیں۔ Google FCM یا HMS فوری اطلاع پر تبدیل نہیں ہو سکتا۔</string>
     <string name="unable_to_get_current_location">موجودہ مقام کا تعین نہیں کیا جا سکا۔</string>
     <string name="lp_search_place_min_chars">کسی مقام کی تلاش کے لیے براہ کرم کم از کم تین حروف درج کریں۔</string>
     <string name="lp_search_place_no_matches">کوئی مماثل مقام نہیں ملا۔ براہ کرم اپنی درخواست میں ترمیم کریں۔</string>
@@ -1539,7 +1539,7 @@
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">برخاست کریں</string>
     <string name="prefs_advanced_options">اعلیٰ اختیارات</string>
-    <string name="push_service">پش سروس</string>
+    <string name="push_service">فوری اطلاع سروس</string>
     <string name="edit_and_send">ترمیم کریں اور بھیجیں</string>
     <string name="media_gallery_animated_webps">متحرک WebPs</string>
     <string name="unsupported_image_type">غیر معاون تصویری قسم: %s</string>
@@ -1869,4 +1869,11 @@
     <string name="use_username_password">صارف نام اور پاس ورڈ استعمال کریں</string>
     <string name="use_activation_key">ایکٹیویشن کلید استعمال کریں</string>
     <string name="invalid_activation_key">غلط ایکٹیویشن کلید</string>
+    <string name="use_different_key">مختلف کلید استعمال کریں</string>
+    <string name="activation_key_already_redeemed">یہ ایکٹیویشن کلید پہلے ہی استعمال ہو چکی ہے۔ براہ کرم ایک مختلف کلید درج کریں۔</string>
+    <string name="safe_password_complexity_unmet">پاس ورڈ 10 حروف سے طویل ہونا چاہیے اور اس میں چھوٹے حروف، بڑے حروف، ایک ہندسہ اور ایک علامت شامل ہونی چاہیے</string>
+    <string name="change_server_dialog_title">سرور تبدیل کریں</string>
+    <string name="change_server_dialog_hint">سرور ڈومین</string>
+    <string name="change_server_warning_title">سرور تبدیل کریں؟</string>
+    <string name="change_server_warning_message">سرور تبدیل کرنے سے غالباً آپ کی موجودہ شناخت منقطع ہو جائے گی۔ ایسا صرف اسی صورت میں کریں جب آپ کے فراہم کنندہ نے نئے ڈومین کی تصدیق کر دی ہو۔ اگر ڈومین غلط ہوا تو ایپ کام کرنا بند کر دے گی۔</string>
 </resources>

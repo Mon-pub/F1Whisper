@@ -913,7 +913,6 @@ public class ServiceManager {
                 this.getContactService(),
                 this.getGroupService(),
                 this.getDistributionListService(),
-                this.getLocaleService(),
                 this.getFileService(),
                 this.getBlockedIdentitiesService(),
                 this.getExcludedSyncIdentitiesService(),

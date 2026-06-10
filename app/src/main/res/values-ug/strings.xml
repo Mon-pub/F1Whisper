@@ -962,7 +962,7 @@
     <string name="safe_learn_more_button">تېخىمۇ كۆپ بىلىش</string>
     <string name="safe_enable_explain">پاراڭلىشىش ئۈچۈن لازىملىق ھەممە نەرسە پەقەت ئۈسكۈنىڭىزدىلا ساقلىنىدۇ. بىزدە ھېساباتىڭىز يوق، شۇڭا تېلېفونىڭىزنى يوقىتىپ قويسىڭىز ياكى سانلىق مەلۇماتلىرىڭىزنى تاسادىپىي ئۆچۈرۈۋەتسىڭىز سىزگە ياردەم بېرەلمەيمىز.\n\n${app_name_short} Safe بارلىق مۇھىم سانلىق مەلۇماتلارنىڭ، جۈملىدىن ئاچقۇچلىرىڭىز، ئالاقەداش تىزىملىكىڭىز ۋە گۇرۇپپا ئەزالىقلىرىڭىزنىڭ (لېكىن ئۇچۇر مەزمۇنى ئەمەس) ئاپتوماتىك زاپاسلىرىنى، سىز تاللىغان بىخەتەر مۇلازىمېتىردا ئاتسىز قۇرىدۇ.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">${app_name_short} Safe نى قوزغاتماي داۋاملاشتۇرامسىز؟ ${app_name_short} Safe نى ئىشلەتكەندە، ئۈسكۈنىڭىزگە كىرەلمەي قالسىڭىز، ${app_name_short} ID، ئالاقەداشلار ۋە گۇرۇپپىلىرىڭىزنى ئەسلىگە كەلتۈرەلەيسىز.</string>
+    <string name="safe_disable_confirm">${app_name_short} Safe نى قوزغاتماي داۋاملاشتۇرامسىز؟ ${app_name_short} Safe نى ئىشلەتكەندە، ئۈسكۈنىڭىزگە كىرەلمەي قالسىڭىز، ${app_name_short} ID ۋە گۇرۇپپىلىرىڭىزنى ئەسلىگە كەلتۈرەلەيسىز.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">كۈچلۈك ئىم تاللاڭ. ${app_name_short} Safe زاپاسىڭىزنى ئەسلىگە كەلتۈرۈش ئۈچۈن بۇ ئىم كېرەك بولىدۇ.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1902,4 +1902,15 @@
     <string name="use_username_password">ئىشلەتكۈچى ئىسمى ۋە ئىمنى ئىشلىتىش</string>
     <string name="use_activation_key">ئاكتىپلاش ئاچقۇچىنى ئىشلىتىش</string>
     <string name="invalid_activation_key">ئىناۋەتسىز ئاكتىپلاش ئاچقۇچى</string>
+    <string name="use_different_key">باشقا ئاچقۇچ ئىشلىتىش</string>
+    <string name="activation_key_already_redeemed">بۇ ئاچقۇچ ئىشلىتىلگەن. باشقا ئاچقۇچ كىرگۈزۈڭ.</string>
+    <string name="safe_password_complexity_unmet">ئىم چوقۇم 10 ھەرپتىن ئۇزۇن بولۇشى ھەمدە كىچىك ھەرپ، چوڭ ھەرپ، سان ۋە بەلگە ئۆز ئىچىگە ئېلىشى كېرەك</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">مۇلازىمېتىرنى ئۆزگەرتىش</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">مۇلازىمېتىر دائىرە ئاتى</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">مۇلازىمېتىر ئۆزگەرتىلسۇنمۇ؟</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. -->
+    <string name="change_server_warning_message">مۇلازىمېتىرنى ئۆزگەرتسىڭىز نۆۋەتتىكى كىملىكىڭىزنىڭ ئالاقىسى ئۈزۈلۈشى مۇمكىن. بۇنى پەقەت تەمىنلىگۈچىڭىز يېڭى دائىرە ئاتىنى جەزملەشتۈرگەن ئەھۋالدىلا قىلىڭ. ئەگەر دائىرە ئاتى خاتا بولسا، دېتال ئىشلىمەي قالىدۇ.</string>
 </resources>

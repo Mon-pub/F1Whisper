@@ -224,6 +224,14 @@
     <string name="threema_version_code">Code de version</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Configuration du serveur</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Changer de serveur</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Domaine du serveur</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Changer de serveur ?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. -->
+    <string name="change_server_warning_message">Changer de serveur déconnectera probablement votre identité actuelle. Ne le faites que si votre fournisseur a confirmé le nouveau domaine. Si le domaine est incorrect, l\'application cessera de fonctionner.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Aucune connexion à Internet, données d\'exportation de l\'ID invalides ou mot de passe incorrect</string>
     <string name="prefs_header_other">Autre</string>
     <string name="an_error_occurred">Une erreur s\'est produite</string>
@@ -935,7 +943,7 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="safe_learn_more_button">En savoir plus</string>
     <string name="safe_enable_explain">Tout ce qu\'il vous faut pour discuter n\'est stocké que sur votre appareil. Vous n\'avez pas de compte enregistré chez nous et nous ne pouvons pas vous aider si vous perdez votre téléphone ou si vous supprimez vos données par mégarde.\n\n${app_name_short} Safe crée des sauvegardes automatiques de toutes les données importantes, y compris vos clés, votre liste de contacts et vos abonnements de groupes (mais aucun contenu de messages), et ce de manière anonyme sur un serveur sécurisé de votre choix.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Souhaitez-vous continuer sans activer ${app_name_short} Safe ? Lorsque vous utilisez ${app_name_short} Safe, vous pouvez restaurer votre identifiant ${app_name_short}, vos contacts et vos groupes si vous perdez l’accès à votre appareil.</string>
+    <string name="safe_disable_confirm">Souhaitez-vous continuer sans activer ${app_name_short} Safe ? Lorsque vous utilisez ${app_name_short} Safe, vous pouvez restaurer votre identifiant ${app_name_short} et vos groupes si vous perdez l’accès à votre appareil.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Veuillez choisir un mot de passe. Celui-ci sera nécessaire pour restaurer votre sauvegarde ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1032,6 +1040,7 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="password_bad_explain">Le mot de passe sélectionné pour ${app_name_short} Safe n\'est pas sécurisé et peut facilement être deviné par les pirates. Veuillez en choisir un autre. Astuce : utilisez un mot de passe composé de plusieurs mots individuels.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">Le mot de passe ${app_name_short} Safe a été mis à jour.</string>
+    <string name="safe_password_complexity_unmet">Le mot de passe doit comporter plus de 10 caractères et contenir des minuscules, des majuscules, un chiffre et un symbole</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe est maintenant activé.</string>
     <string name="push_token_cleared">Le jeton push a été effacé</string>
@@ -1855,4 +1864,6 @@ Veuillez saisir une question pour votre enquête.</string>
         <item quantity="one">%d membre de groupe</item>
         <item quantity="other">%d membres de groupes</item>
     </plurals>
+    <string name="use_different_key">Utiliser une autre clé</string>
+    <string name="activation_key_already_redeemed">Cette clé d\'activation a déjà été utilisée. Veuillez saisir une clé différente.</string>
 </resources>

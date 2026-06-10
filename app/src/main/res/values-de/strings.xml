@@ -963,7 +963,7 @@
     <string name="safe_learn_more_button">Mehr erfahren</string>
     <string name="safe_enable_explain">Bei uns haben Sie kein zentrales Benutzerkonto. Ihre Daten befinden sich nur bei Ihnen auf diesem Gerät und sind so bestmöglich vor Fremdzugriff geschützt.\n\n${app_name_short} Safe erstellt regelmässig ein verschlüsseltes, anonymes Backup Ihrer <b>Schlüssel, Kontakte, Gruppen und Einstellungen</b> (aber keine Nachrichteninhalte) auf einem Server Ihrer Wahl. Ihre ID und das gewählte Passwort genügen, um diese Daten auf einem anderen Gerät wiederherzustellen.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Wollen Sie fortfahren, ohne ${app_name_short} Safe zu aktivieren? ${app_name_short} Safe erlaubt, Ihre ${app_name_short}-ID, Kontakte und Gruppen wiederherzustellen, falls Sie Ihr Gerät verlieren.</string>
+    <string name="safe_disable_confirm">Wollen Sie fortfahren, ohne ${app_name_short} Safe zu aktivieren? ${app_name_short} Safe erlaubt, Ihre ${app_name_short}-ID und Gruppen wiederherzustellen, falls Sie Ihr Gerät verlieren.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Wählen Sie ein sicheres Passwort. Sie benötigen dieses Passwort, um Ihr ${app_name_short} Safe-Backup wiederherzustellen.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1883,4 +1883,17 @@
         <item quantity="one">%d Gruppenmitglied</item>
         <item quantity="other">%d Gruppenmitglieder</item>
     </plurals>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Server ändern</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Server-Domain</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Server ändern?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">Das Ändern des Servers wird Ihre aktuelle Identität voraussichtlich trennen. Tun Sie dies nur, wenn Ihr Anbieter die neue Domain bestätigt hat. Wenn die Domain falsch ist, funktioniert die App nicht mehr.</string>
+    <!-- Action label for using a different activation key -->
+    <string name="use_different_key">Anderen Schlüssel verwenden</string>
+    <string name="activation_key_already_redeemed">Dieser Aktivierungsschlüssel wurde bereits verwendet. Bitte geben Sie einen anderen Schlüssel ein.</string>
+    <!-- Safe-password complexity validation error -->
+    <string name="safe_password_complexity_unmet">Das Passwort muss länger als 10 Zeichen sein und Klein- und Großbuchstaben, eine Ziffer und ein Sonderzeichen enthalten</string>
 </resources>

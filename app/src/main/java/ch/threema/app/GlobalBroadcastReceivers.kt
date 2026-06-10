@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.core.content.getSystemService
 import ch.threema.app.backuprestore.csv.BackupService
+import ch.threema.app.connection.ConnectionNetworkCallback
 import ch.threema.app.receivers.ConnectivityChangeReceiver
 import ch.threema.app.restrictions.AppRestrictionService
 import ch.threema.app.services.LifetimeService
@@ -27,12 +28,33 @@ object GlobalBroadcastReceivers {
     private val lifetimeService: LifetimeService?
         get() = ThreemaApplication.getServiceManager()?.lifetimeService
 
+    // Strongly hold the network callback for the process lifetime. A GC'd NetworkCallback is
+    // silently unregistered by the framework, so it must not be a local.
+    private var connectionNetworkCallback: ConnectionNetworkCallback? = null
+
     @JvmStatic
     fun registerBroadcastReceivers(context: Context) {
         registerConnectivityChangeReceiver(context)
+        registerConnectionNetworkCallback(context)
         registerDeviceIdleModeChangedReceiver(context)
         registerNotificationChannelGroupBlockStateChangedReceiver(context)
         registerAppRestrictionsChangeReceiver(context)
+    }
+
+    private fun registerConnectionNetworkCallback(context: Context) {
+        // Trigger a reconnect of the persistent server connection when the default network changes.
+        // The legacy CONNECTIVITY_ACTION receiver above never reconnects a live-but-dead socket;
+        // this callback closes that gap (additive, complementary). Both lifetime and connection are
+        // resolved lazily at reconnect time so a null ServiceManager is handled by the gates inside
+        // the callback rather than failing here. This MUST NOT capture the ServiceManager eagerly:
+        // registerBroadcastReceivers() runs synchronously in onCreate() before the async
+        // ServiceManager setup has run, so getServiceManager() is still null at this point and an
+        // eager null-guard here would silently disable the feature on every cold start.
+        connectionNetworkCallback = ConnectionNetworkCallback(
+            context = context.applicationContext,
+            lifetimeServiceProvider = { lifetimeService },
+            connectionProvider = { ThreemaApplication.getServiceManager()?.connection },
+        ).also { it.register() }
     }
 
     private fun registerConnectivityChangeReceiver(context: Context) {

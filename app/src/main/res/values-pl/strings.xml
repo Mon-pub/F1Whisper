@@ -938,7 +938,7 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="safe_learn_more_button">Więcej informacji</string>
     <string name="safe_enable_explain">Wszystko, czego potrzebujesz do rozmowy, przechowywane jest wyłącznie na Twoim urządzeniu. Nie musisz tworzyć u nas żadnego konta i nie możemy Ci pomóc, jeśli zgubisz swój telefon lub przypadkowo usuniesz dane.\n\n${app_name_short} Safe tworzy automatyczne kopie zapasowe wszystkich istotnych danych – w tym kluczy, listy kontaktów i członkostwa w grupach (lecz bez treści wiadomości),  anonimowo na bezpiecznym, wybranym przez Ciebie serwerze.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Czy na pewno chcesz wyłączyć usługę ${app_name_short} Safe? Korzystając z ${app_name_short} Safe możesz odzyskać dostęp do swojego ${app_name_short} ID, kontaktów i grup, nawet w przypadku utracenia dostępu do urządzenia.</string>
+    <string name="safe_disable_confirm">Czy na pewno chcesz wyłączyć usługę ${app_name_short} Safe? Korzystając z ${app_name_short} Safe możesz odzyskać dostęp do swojego ${app_name_short} ID i grup, nawet w przypadku utracenia dostępu do urządzenia.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Wybierz hasło. Będzie Ci ono potrzebne do przywrócenia kopii zapasowej ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1893,4 +1893,17 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
         <item quantity="many">%d członków grupy</item>
         <item quantity="other">%d członków grupy</item>
     </plurals>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Zmień serwer</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Domena serwera</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Zmienić serwer?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_message">Zmiana serwera prawdopodobnie spowoduje rozłączenie Twojej obecnej tożsamości. Zrób to tylko wtedy, gdy Twój dostawca potwierdził nową domenę. Jeśli domena jest nieprawidłowa, aplikacja przestanie działać.</string>
+    <!-- Action label for using a different activation key -->
+    <string name="use_different_key">Użyj innego klucza</string>
+    <string name="activation_key_already_redeemed">Ten klucz aktywacyjny został już użyty. Proszę wpisać inny klucz.</string>
+    <!-- Safe-password complexity validation error -->
+    <string name="safe_password_complexity_unmet">Hasło musi mieć więcej niż 10 znaków oraz zawierać małą literę, wielką literę, cyfrę i symbol</string>
 </resources>

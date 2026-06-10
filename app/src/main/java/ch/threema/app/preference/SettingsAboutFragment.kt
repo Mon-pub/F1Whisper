@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Build
+import android.text.InputType
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -14,8 +15,11 @@ import ch.threema.app.BuildFlavor
 import ch.threema.app.R
 import ch.threema.app.activities.DownloadApkActivity
 import ch.threema.app.dev.hasDevFeatures
+import ch.threema.app.dialogs.GenericAlertDialog
 import ch.threema.app.dialogs.GenericProgressDialog
 import ch.threema.app.dialogs.SimpleStringAlertDialog
+import ch.threema.app.dialogs.TextEntryDialog
+import ch.threema.app.onprem.OnPremConfigFetcherProvider
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.restrictions.AppRestrictions
 import ch.threema.app.services.license.LicenseService
@@ -39,7 +43,10 @@ import org.koin.android.ext.android.inject
 private val logger = getThreemaLogger("SettingsAboutFragment")
 
 @Suppress("unused")
-class SettingsAboutFragment : ThreemaPreferenceFragment() {
+class SettingsAboutFragment :
+    ThreemaPreferenceFragment(),
+    TextEntryDialog.TextEntryDialogClickListener,
+    GenericAlertDialog.DialogClickListener {
     init {
         logScreenVisibility(logger)
     }
@@ -51,6 +58,7 @@ class SettingsAboutFragment : ThreemaPreferenceFragment() {
     private val masterKeyManager: MasterKeyManager by inject()
     private val dispatcherProvider: DispatcherProvider by inject()
     private val appRestrictions: AppRestrictions by inject()
+    private val onPremConfigFetcherProvider: OnPremConfigFetcherProvider by inject()
 
     override fun initializePreferences() {
         initLicensePref()
@@ -205,6 +213,7 @@ class SettingsAboutFragment : ThreemaPreferenceFragment() {
             .let { serverConfigPreference ->
                 if (shouldShowServer) {
                     serverConfigPreference.summary = getServerInfo()
+                    serverConfigPreference.onClick(::onServerConfigClicked)
                 }
                 serverConfigPreference.isVisible = shouldShowServer
             }
@@ -227,6 +236,85 @@ class SettingsAboutFragment : ThreemaPreferenceFragment() {
             ?.toUri()
             ?.authority
             ?: "?"
+
+    private fun onServerConfigClicked() {
+        val currentHost = preferenceService.getOppfUrl()
+            ?.toUri()
+            ?.authority
+            ?: ""
+        val dialog = TextEntryDialog.newInstance(
+            /* title = */
+            R.string.change_server_dialog_title,
+            /* message = */
+            R.string.change_server_dialog_hint,
+            /* positive = */
+            R.string.next,
+            /* negative = */
+            R.string.cancel,
+            /* text = */
+            currentHost,
+            /* inputType = */
+            InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI,
+            /* inputFilterType = */
+            TextEntryDialog.INPUT_FILTER_TYPE_NONE,
+        )
+        dialog.setTargetFragment(this, 0)
+        dialog.show(parentFragmentManager, DIALOG_TAG_CHANGE_SERVER_INPUT)
+    }
+
+    override fun onYes(tag: String, text: String) {
+        if (tag != DIALOG_TAG_CHANGE_SERVER_INPUT) {
+            return
+        }
+        val host = text.trim()
+        if (host.isEmpty()) {
+            return
+        }
+        val newOppfUrl = getUrlToOppf(host)
+        val warningDialog = GenericAlertDialog.newInstance(
+            R.string.change_server_warning_title,
+            R.string.change_server_warning_message,
+            R.string.ok,
+            R.string.cancel,
+        )
+        warningDialog.setData(newOppfUrl)
+        warningDialog.setTargetFragment(this, 0)
+        warningDialog.show(parentFragmentManager, DIALOG_TAG_CHANGE_SERVER_WARNING)
+    }
+
+    override fun onYes(tag: String?, data: Any?) {
+        if (tag != DIALOG_TAG_CHANGE_SERVER_WARNING) {
+            return
+        }
+        val newOppfUrl = data as? String ?: return
+        applyNewServer(newOppfUrl)
+    }
+
+    private fun applyNewServer(newOppfUrl: String) {
+        preferenceService.setOppfUrl(newOppfUrl)
+        // Discard the cached OPPF fetcher so the next fetch uses the new URL and re-fetches the config.
+        onPremConfigFetcherProvider.reset()
+        getPrefOrNull<Preference>(R.string.preferences__oppf_url)?.summary = getServerInfo()
+    }
+
+    /**
+     * Normalizes user input so "<host>", "https://<host>" and "http://<host>/" all collapse to the
+     * same canonical https OPPF URL, mirroring the wizard's normalization in EnterSerialActivity.
+     */
+    private fun getUrlToOppf(input: String): String {
+        var url = input.trim()
+        if (url.startsWith("https://")) {
+            url = url.removePrefix("https://")
+        } else if (url.startsWith("http://")) {
+            url = url.removePrefix("http://")
+        }
+        url = url.trimEnd('/')
+        url = "https://$url"
+        if (!url.endsWith(".oppf")) {
+            url += "/prov/config.oppf"
+        }
+        return url
+    }
 
     private fun getVersionNameWithBuildNumber() = buildString {
         appendVersionName()
@@ -312,5 +400,7 @@ class SettingsAboutFragment : ThreemaPreferenceFragment() {
 
     companion object {
         private const val DIALOG_TAG_CHECK_UPDATE = "checkup"
+        private const val DIALOG_TAG_CHANGE_SERVER_INPUT = "changeServerInput"
+        private const val DIALOG_TAG_CHANGE_SERVER_WARNING = "changeServerWarning"
     }
 }

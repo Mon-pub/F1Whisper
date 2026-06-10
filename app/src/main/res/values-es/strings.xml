@@ -940,7 +940,7 @@ almacenado.</string>
     <string name="safe_learn_more_button">Descubra más</string>
     <string name="safe_enable_explain">Lo que necesitas para el chat se almacena solo en tu dispositivo. No tienes cuenta con nosotros y no podemos ayudarte si pierdes el teléfono o eliminas tus datos por accidente.\n\n${app_name_short} Safe crea copias de seguridad automáticas de todos los datos importantes, incluidas tus claves, tu lista de contactos y tus suscripciones a grupos (no el contenido de los mensajes), de forma anónima en un servidor seguro que elijas.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">¿Deseas continuar sin habilitar ${app_name_short} Safe? Al usar ${app_name_short} Safe, puedes restaurar tu ID de ${app_name_short}, tus contactos y tus grupos en caso de que pierdas el acceso a tu dispositivo.</string>
+    <string name="safe_disable_confirm">¿Deseas continuar sin habilitar ${app_name_short} Safe? Al usar ${app_name_short} Safe, puedes restaurar tu ID de ${app_name_short} y tus grupos en caso de que pierdas el acceso a tu dispositivo.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Elige una contraseña. Necesitarás una contraseña para restablecer tu copia de seguridad de ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1860,4 +1860,11 @@ almacenado.</string>
         <item quantity="one">%d miembro del grupo</item>
         <item quantity="other">%d miembros del grupo</item>
     </plurals>
+    <string name="change_server_dialog_title">Cambiar servidor</string>
+    <string name="change_server_dialog_hint">Dominio del servidor</string>
+    <string name="change_server_warning_title">¿Cambiar servidor?</string>
+    <string name="change_server_warning_message">Cambiar el servidor probablemente desconectará tu identidad actual. Hazlo solo si tu proveedor ha confirmado el nuevo dominio. Si el dominio es incorrecto, la aplicación dejará de funcionar.</string>
+    <string name="use_different_key">Usar otra clave</string>
+    <string name="activation_key_already_redeemed">Esta clave de activación ya ha sido usada. Por favor, introduce una clave diferente.</string>
+    <string name="safe_password_complexity_unmet">La contraseña debe tener más de 10 caracteres y contener minúsculas, mayúsculas, un dígito y un símbolo</string>
 </resources>

@@ -238,9 +238,7 @@
                     app:layout_constraintBottom_toTopOf="@+id/unlock_state"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/server_logo"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:prefixText="https://"
-                    app:prefixTextAppearance="@style/WizardHintTextAppearance">
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ch.threema.app.ui.ThreemaTextInputEditText
                         android:id="@+id/server"
@@ -250,8 +248,10 @@
                         android:hint="@string/safe_enter_server_address_explain"
                         android:imeOptions="actionDone"
                         android:inputType="textWebEditText"
+                        android:layoutDirection="ltr"
                         android:minHeight="48dp"
-                        android:singleLine="true" />
+                        android:singleLine="true"
+                        android:textDirection="ltr" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 

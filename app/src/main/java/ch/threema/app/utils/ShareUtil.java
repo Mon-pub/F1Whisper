@@ -37,7 +37,11 @@ public class ShareUtil {
             : context.getString(R.string.title_mythreemaid);
         String identity = contact != null ? contact.getIdentity() : userService.getIdentity();
 
-        String text = contactName + ": https://" + BuildConfig.contactActionUrl + "/" + identity;
+        // On the onprem build, share just the bare 8-char Threema ID (no URL prefix) to avoid the
+        // Android 12+ "open supported links" verification issue with the contact action URL.
+        String text = ConfigUtils.isOnPremBuild()
+            ? identity
+            : contactName + ": https://" + BuildConfig.contactActionUrl + "/" + identity;
         try {
             shareText(context, text, "text/plain");
         } catch (ActivityNotFoundException e) {

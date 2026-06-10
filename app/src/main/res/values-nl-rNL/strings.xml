@@ -222,6 +222,14 @@
     <string name="threema_version_code">Versiecode</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Serverconfiguratie</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Server wijzigen</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Serverdomein</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Server wijzigen?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_message">Door de server te wijzigen, wordt uw huidige identiteit waarschijnlijk losgekoppeld. Doe dit alleen als uw provider het nieuwe domein heeft bevestigd. Als het domein onjuist is, werkt de app niet meer.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Geen internetverbinding, ongeldige ID-exportgegevens of een onjuist wachtwoord</string>
     <string name="prefs_header_other">Overig</string>
     <string name="an_error_occurred">Er is een fout opgetreden</string>
@@ -246,6 +254,8 @@
     <string name="enter_serial_title">${app_name} vrijgeven</string>
     <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
     <string name="serial_required_want_exit">De licentiesleutel is ongeldig. Probeer het opnieuw of sluit ${app_name} af.</string>
+    <string name="use_different_key">Een andere sleutel gebruiken</string>
+    <string name="activation_key_already_redeemed">Deze activeringscode is al gebruikt. Voer een andere sleutel in.</string>
     <!-- Message shown on progress dialog that shows while checking whether the user has a valid license -->
     <string name="checking_serial">Licentie controleren</string>
     <!-- Message shown on progress dialog that shows while the credentials that the user entered are being checked for their validity -->
@@ -933,7 +943,7 @@ Voer een vraag in voor uw poll.</string>
     <string name="safe_enable_explain">Alles wat u nodig hebt om te chatten wordt alleen op uw apparaat opgeslagen. U hebt geen account bij ons en we kunnen u niet helpen als u uw telefoon verliest of per ongeluk uw gegevens verwijdert.\n\n${app_name_short} Safe maakt automatisch back-ups aan van alle belangrijke gegevens zoals uw sleutelcodes, uw lijst contactpersonen en uw groepslidmaatschappen (maar niet de inhoud van de berichten), anoniem op een beveiligde server naar keuze.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_disable_confirm">Wilt u doorgaan zonder ${app_name_short} Safe in te schakelen? 
-Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, contactpersonen en groepen herstellen in het geval dat u toegang tot uw apparaat verliest.</string>
+Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en groepen herstellen in het geval dat u toegang tot uw apparaat verliest.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Kies een wachtwoord. U hebt dit wachtwoord nodig om uw back-upbestanden van ${app_name_short} Safe te herstellen.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -946,6 +956,7 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, conta
     <string name="safe_test_server">Server testen</string>
     <string name="safe_advanced_options">Expertinstellingen</string>
     <string name="safe_enter_password">Voer uw ${app_name_short} Safe-wachtwoord in</string>
+    <string name="safe_password_complexity_unmet">Het wachtwoord moet langer zijn dan 10 tekens en kleine letters, hoofdletters, een cijfer en een symbool bevatten</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_threema_id">Uw ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->

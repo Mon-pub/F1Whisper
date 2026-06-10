@@ -224,6 +224,14 @@
     <string name="threema_version_code">संस्करण कोड</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">सर्वर कॉन्फ़िगरेशन</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">सर्वर बदलें</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">सर्वर डोमेन</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">सर्वर बदलें?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">सर्वर बदलने से संभवतः आपकी वर्तमान पहचान का कनेक्शन टूट जाएगा। ऐसा केवल तभी करें जब आपके प्रदाता ने नए डोमेन की पुष्टि की हो। यदि डोमेन गलत है, तो ऐप काम करना बंद कर देगा।</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">इंटरनेट से कोई कनेक्शन नहीं, अमान्य ID निर्यात डेटा या गलत पासवर्ड</string>
     <string name="prefs_header_other">अन्य</string>
     <string name="an_error_occurred">एक त्रुटि हुई</string>
@@ -930,7 +938,7 @@
     <string name="safe_learn_more_button">अधिक जानें</string>
     <string name="safe_enable_explain">चैट करने के लिए आपको जो कुछ चाहिए वह केवल आपके डिवाइस पर संग्रहीत है। आपका हमारे पास कोई खाता नहीं है और यदि आप अपना फ़ोन खो देते हैं या गलती से अपना डेटा हटा देते हैं तो हम आपकी मदद नहीं कर सकते।\n\n${app_name_short} Safe आपके चुने हुए किसी सुरक्षित सर्वर पर आपकी कुंजियों, आपकी संपर्क सूची और आपकी समूह सदस्यताओं सहित सभी महत्वपूर्ण डेटा (लेकिन कोई संदेश सामग्री नहीं) के स्वचालित बैकअप गुमनाम रूप से बनाता है।</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">क्या आप ${app_name_short} Safe सक्षम किए बिना जारी रखना चाहते हैं? ${app_name_short} Safe का उपयोग करते समय, यदि आप अपने डिवाइस तक पहुँच खो देते हैं तो आप अपनी ${app_name_short} ID, संपर्क और समूह पुनर्स्थापित कर सकते हैं।</string>
+    <string name="safe_disable_confirm">क्या आप ${app_name_short} Safe सक्षम किए बिना जारी रखना चाहते हैं? ${app_name_short} Safe का उपयोग करते समय, यदि आप अपने डिवाइस तक पहुँच खो देते हैं तो आप अपनी ${app_name_short} ID और समूह पुनर्स्थापित कर सकते हैं।</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">कृपया एक मज़बूत पासवर्ड चुनें। अपना ${app_name_short} Safe बैकअप पुनर्स्थापित करने के लिए आपको इस पासवर्ड की आवश्यकता होगी।</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1914,4 +1922,7 @@
     <string name="use_username_password">उपयोगकर्ता नाम और पासवर्ड का उपयोग करें</string>
     <string name="use_activation_key">सक्रियण कुंजी का उपयोग करें</string>
     <string name="invalid_activation_key">अमान्य सक्रियण कुंजी</string>
+    <string name="use_different_key">कोई अन्य कुंजी का उपयोग करें</string>
+    <string name="activation_key_already_redeemed">यह एक्टिवेशन कुंजी पहले ही उपयोग की जा चुकी है। कृपया कोई अन्य कुंजी दर्ज करें।</string>
+    <string name="safe_password_complexity_unmet">पासवर्ड 10 अक्षरों से लंबा होना चाहिए और इसमें लोअरकेस, अपरकेस, एक अंक तथा एक प्रतीक होना चाहिए</string>
 </resources>

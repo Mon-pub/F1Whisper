@@ -77,16 +77,16 @@
     <string name="prefs_inapp_vibrate_off">Mesaj alırken titretme</string>
     <string name="workarounds">Geçici Çözümler</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="prefs_title_threema_push_switch">${app_name_short} Dürtme kullan</string>
+    <string name="prefs_title_threema_push_switch">${app_name_short} Push\'u kullan</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="prefs_sum_threema_push_on">Yeni mesajlardan haberdar olmak için ${app_name_short} Dürtme kullan</string>
-    <string name="prefs_sum_threema_push_off">Sistem Dürtme hizmetini kullanarak yeni mesajları kontrol et</string>
+    <string name="prefs_sum_threema_push_on">Yeni mesajlardan haberdar olmak için ${app_name_short} Push\'u kullan</string>
+    <string name="prefs_sum_threema_push_off">Sistem push hizmetini kullanarak yeni mesajları kontrol et</string>
     <string name="prefs_logging">Günlük tutma</string>
     <string name="prefs_title_message_log_switch">Hata ayıklama günlüğü</string>
     <string name="prefs_title_sum_message_log_on">Olaylar ve ağ bilgileri debug_log.txt dosyasına kayıt edilecek</string>
     <string name="prefs_title_sum_message_log_off">Olaylar günlüğe kaydedilmeyecek</string>
-    <string name="prefs_reset_push">Dürtme jetonu sıfırla</string>
-    <string name="prefs_sum_reset_push">FCM/HMS ile Dürtme bildirimleri için cihazı yeniden kaydet</string>
+    <string name="prefs_reset_push">Push jetonunu sıfırla</string>
+    <string name="prefs_sum_reset_push">FCM/HMS ile push bildirimleri için cihazı yeniden kaydet</string>
     <string name="prefs_notification_preview">Mesajın ön izlemesini göster</string>
     <string name="prefs_sum_reset_ringtones">Varsayılan sistem ayarlarını geri yükle</string>
     <string name="prefs_title_reset_ringtones">Bildirim tonu ayarlarını sıfırla</string>
@@ -933,7 +933,7 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="safe_learn_more_button">Daha fazla bilgi edinin</string>
     <string name="safe_enable_explain">Sohbet etmek için ihtiyacınız olan her şey yalnızca cihazınızda saklanır.  Bizde bir hesabınız yok ve telefonunuzu kaybederseniz veya yanlışlıkla verilerinizi silerseniz size yardımcı olamayız.\n\n${app_name_short} Safe, anahtarlarınız, kişi listeniz ve grup üyelikleriniz (mesaj içeriği yok) dahil olmak üzere tüm önemli verilerin, seçtiğiniz güvenli bir sunucuda anonim olarak otomatik yedeklerini oluşturur.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">${app_name_short} Safe\'i etkinleştirmeden devam etmek istiyor musunuz? ${app_name_short} Safe\'i kullanırken, cihazınıza erişiminizi kaybetmeniz durumunda ${app_name_short} kimliğinizi, kişilerinizi ve gruplarınızı geri yükleyebilirsiniz.</string>
+    <string name="safe_disable_confirm">${app_name_short} Safe\'i etkinleştirmeden devam etmek istiyor musunuz? ${app_name_short} Safe\'i kullanırken, cihazınıza erişiminizi kaybetmeniz durumunda ${app_name_short} kimliğinizi ve gruplarınızı geri yükleyebilirsiniz.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Lütfen güçlü bir şifre belirleyin. ${app_name_short} Safe yedeğinizi geri yüklemek için bu parolaya ihtiyacınız olacak.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1030,6 +1030,7 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="password_bad_explain">${app_name_short} Safe için seçilen şifre güvenli değil ve saldırganlar tarafından kolaylıkla tahmin edilebilir. Lütfen başka bir şifre belirleyiniz. İpucu: Birden çok kelimeden oluşan bir parola kullanın.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">${app_name_short} Safe şifresi güncellendi.</string>
+    <string name="safe_password_complexity_unmet">Şifre 10 karakterden uzun olmalı ve küçük harf, büyük harf, bir rakam ve bir sembol içermelidir</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe şimdi etkinleştirildi.</string>
     <string name="push_token_cleared">Push token temizlendi</string>
@@ -1852,4 +1853,14 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
         <item quantity="one">%d grup üyesi</item>
         <item quantity="other">%d grup üyesi</item>
     </plurals>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Sunucuyu değiştir</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Sunucu alan adı</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Sunucu değiştirilsin mi?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. -->
+    <string name="change_server_warning_message">Sunucuyu değiştirmek büyük olasılıkla mevcut kimliğinizin bağlantısını keser. Bunu yalnızca sağlayıcınız yeni alan adını onayladıysa yapın. Alan adı yanlışsa uygulama çalışmayı durdurur.</string>
+    <string name="use_different_key">Farklı bir anahtar kullan</string>
+    <string name="activation_key_already_redeemed">Bu aktivasyon anahtarı zaten kullanıldı. Lütfen farklı bir anahtar girin.</string>
 </resources>

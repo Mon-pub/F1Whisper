@@ -38,23 +38,11 @@
                 android:gravity="center_horizontal"
                 android:text="@string/safe_restore_enter_id" />
 
-            <TextView
-                android:id="@+id/forgot_id"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/grid_unit_x3"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="end"
-                android:text="@string/forgot_your_id"
-                android:textColor="@color/md_theme_dark_primary"
-                android:textSize="14sp" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/safe_id_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/grid_unit_x0_5"
+                android:layout_marginTop="@dimen/grid_unit_x3"
                 app:hintAnimationEnabled="false"
                 app:hintEnabled="false">
 

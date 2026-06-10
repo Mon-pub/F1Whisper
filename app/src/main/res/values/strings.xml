@@ -232,6 +232,14 @@
     <string name="threema_version_code">Version Code</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Server Configuration</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Change server</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Server domain</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Change server?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">Changing the server will likely disconnect your current identity. Only do this if your provider has confirmed the new domain. If the domain is wrong, the app will stop working.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">No connection to the internet, invalid ID export data or incorrect password</string>
     <string name="prefs_header_other">Other</string>
     <string name="an_error_occurred">An error occurred</string>
@@ -802,6 +810,8 @@
     <string name="use_username_password">Use username &amp; password</string>
     <string name="use_activation_key">Use activation key</string>
     <string name="invalid_activation_key">Invalid activation key</string>
+    <string name="use_different_key">Use a different key</string>
+    <string name="activation_key_already_redeemed">This activation key has already been used. Please enter a different key.</string>
     <!-- ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
     <string name="threema_channel_intro">${app_name_short} Channel provides you with news about all things ${app_name_short}. Would you like to subscribe to ${app_name_short} Channel and add it to your contacts? It’s free and you can unsubscribe at any time.</string>
     <string name="quote">Quote</string>
@@ -957,6 +967,7 @@
     <string name="quote_not_found">Quoted message not found</string>
     <string name="ballot_secret">secret</string>
     <string name="password_too_short_generic">Password too short</string>
+    <string name="safe_password_complexity_unmet">Password must be longer than 10 characters and contain lowercase, uppercase, a digit and a symbol</string>
     <string name="passwords_dont_match">Passwords don’t match</string>
     <!-- Error message shown when setting up a custom server for the Threema Safe feature. %s is a placeholder for the details of the error. -->
     <string name="threema_safe_test_unsuccessful">Test unsuccessful: %s</string>
@@ -968,7 +979,7 @@
     <string name="safe_learn_more_button">Learn more</string>
     <string name="safe_enable_explain">All you need to chat is stored only on your device. You don’t have an account with us and we cannot help you out if you lose your phone or accidentally delete your data.\n\n${app_name_short} Safe creates automatic backups of all the important data, including your keys, your contact list and your group memberships (but no message content), anonymously on a secure server of your choice.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Do you want to continue without enabling ${app_name_short} Safe? When using ${app_name_short} Safe, you can restore your ${app_name_short} ID, contacts and groups in case you lose access to your device.</string>
+    <string name="safe_disable_confirm">Do you want to continue without enabling ${app_name_short} Safe? When using ${app_name_short} Safe, you can restore your ${app_name_short} ID and groups in case you lose access to your device.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Please choose a strong password. You will need this password to restore your ${app_name_short} Safe backup.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -985,14 +996,7 @@
     <string name="safe_threema_id">Your ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Please enter the ${app_name_short} ID you would like to recover</string>
-    <string name="safe_search_id_title">Please enter the mobile number or the email address linked to your ${app_name_short}-ID</string>
-    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Looking up ${app_name_short} ID</string>
-    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">No ${app_name_short} ID found</string>
     <string name="safe_no_backup_found">No backup found on the server. Check ID and password.</string>
-    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Multiple ${app_name_short} IDs found. Please select the ID to use:</string>
     <string name="safe_backup_now">Backup Now</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Enable ${app_name_short} Safe to create automatic secure and anonymous backups of all your important data.</string>
@@ -1030,7 +1034,6 @@
     <string name="safe_restore">Restore ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Backup or restore in progress. Check notification for status information.</string>
     <string name="restore_error_body">Restore did not complete successfully</string>
-    <string name="forgot_your_id">Forgot your ID?</string>
     <string name="restore_success_body">Restore successfully completed</string>
     <string name="work_data_sync">Data sync</string>
     <string name="private_contact">Private Contact</string>

@@ -16,6 +16,7 @@ import java.time.Instant;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import ch.threema.app.R;
+import ch.threema.app.activities.EnterSerialActivity;
 import ch.threema.app.di.DependencyContainer;
 import ch.threema.app.dialogs.GenericAlertDialog;
 import ch.threema.app.dialogs.GenericProgressDialog;
@@ -41,7 +42,10 @@ public class WizardFingerPrintActivity extends WizardBackgroundActivity
     public static final int PROGRESS_MAX = 100;
     private static final String DIALOG_TAG_CREATE_ID = "ci";
     private static final String DIALOG_TAG_CREATE_ERROR = "ni";
+    private static final String DIALOG_TAG_CREATE_ERROR_TA001 = "ni_ta001";
     private static final String DIALOG_TAG_FINGERPRINT_INFO = "fi";
+    /** Prefix returned by APIConnector when the server rejects the activation key as already used. */
+    private static final String TA001_PREFIX = "TA001:";
     private ProgressBar swipeProgress;
     private ImageView fingerView;
 
@@ -136,18 +140,36 @@ public class WizardFingerPrintActivity extends WizardBackgroundActivity
                     overridePendingTransition(R.anim.abc_fade_in, R.anim.abc_fade_out);
                     finish();
                 } else {
-                    try {
-                        dependencies.getUserService().removeIdentity();
-                    } catch (Exception e) {
-                        logger.error("Exception", e);
+                    // Only attempt cleanup if an identity was actually stored (creation may have
+                    // failed before the identity was written, e.g. on a TA001 server rejection).
+                    if (dependencies.getUserService().hasIdentity()) {
+                        try {
+                            dependencies.getUserService().removeIdentity();
+                        } catch (Exception e) {
+                            logger.error("Exception removing identity after failed create", e);
+                        }
                     }
-                    GenericAlertDialog dialog = GenericAlertDialog.newInstance(
-                        R.string.error,
-                        errorString,
-                        R.string.try_again,
-                        R.string.cancel);
-                    dialog.setData(bytes);
-                    getSupportFragmentManager().beginTransaction().add(dialog, DIALOG_TAG_CREATE_ERROR).commitAllowingStateLoss();
+
+                    if (errorString.startsWith(TA001_PREFIX)) {
+                        // The server rejected the key as already redeemed. Show a clear,
+                        // dedicated message. Do NOT offer "Try again" -- retrying with the
+                        // same key will always fail and produce a toast loop.
+                        GenericAlertDialog dialog = GenericAlertDialog.newInstance(
+                            getString(R.string.error),
+                            (CharSequence) getString(R.string.activation_key_already_redeemed),
+                            R.string.use_different_key,
+                            R.string.cancel);
+                        getSupportFragmentManager().beginTransaction().add(dialog, DIALOG_TAG_CREATE_ERROR_TA001).commitAllowingStateLoss();
+                    } else {
+                        GenericAlertDialog dialog = GenericAlertDialog.newInstance(
+                            getString(R.string.error),
+                            errorString,
+                            R.string.try_again,
+                            R.string.cancel,
+                            R.string.use_different_key);
+                        dialog.setData(bytes);
+                        getSupportFragmentManager().beginTransaction().add(dialog, DIALOG_TAG_CREATE_ERROR).commitAllowingStateLoss();
+                    }
                 }
             }
         }.execute();
@@ -156,10 +178,39 @@ public class WizardFingerPrintActivity extends WizardBackgroundActivity
     @Override
     public void onYes(@Nullable String tag, @Nullable Object data) {
         if (tag != null && tag.equals(DIALOG_TAG_CREATE_ERROR)) {
-            // check again for a valid license and try to create identity
+            // Normal error: check license again and retry identity creation.
             StoreLicenseCheck.checkLicense(this, dependencies.getUserService());
             createIdentity((byte[]) data);
+        } else if (tag != null && tag.equals(DIALOG_TAG_CREATE_ERROR_TA001)) {
+            // TA001 dialog: positive button is "Use a different key" -- clear stored
+            // credentials and route the user back to the activation key entry screen.
+            clearLicenseAndGoToSerial();
         }
+    }
+
+    @Override
+    public void onNeutral(@Nullable String tag, @Nullable Object data) {
+        if (tag != null && tag.equals(DIALOG_TAG_CREATE_ERROR)) {
+            // The stored activation key was already redeemed (e.g. server "TA001: already
+            // redeemed key"). Clear the license credentials so the user can enter a fresh key
+            // without reinstalling. This is the symmetric inverse of EnterSerialActivity.check(),
+            // which writes exactly these four preferences. We deliberately do NOT touch any
+            // already-created identity; we only drop the license state and route back to the
+            // initial activation screen.
+            clearLicenseAndGoToSerial();
+        }
+    }
+
+    /** Clear stored license credentials and navigate back to the activation key entry screen. */
+    private void clearLicenseAndGoToSerial() {
+        var preferenceService = dependencies.getPreferenceService();
+        preferenceService.setLicenseUsername(null);
+        preferenceService.setLicensePassword(null);
+        preferenceService.setOppfUrl(null);
+        preferenceService.setLicensedStatus(false);
+
+        startActivity(EnterSerialActivity.createIntent(this));
+        finish();
     }
 
     @Override

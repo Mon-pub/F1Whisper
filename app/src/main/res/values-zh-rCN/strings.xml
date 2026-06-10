@@ -958,7 +958,7 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="safe_learn_more_button">了解更多</string>
     <string name="safe_enable_explain">您会话关连的所有数据只存储在您的设备上。因为我们没有保存您的帐户，所以如果您丢失了手机或意外删除了数据，我们将无法为您提供帮助。\n\n${app_name_short} Safe 在您选择的安全服务器上，以匿名方式创建所有重要数据的自动备份，包括您的密钥，联系人列表和群组成员身份（但不包含消息内容）。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">您真的要在不启用 ${app_name_short} Safe 的情况下继续吗？当使用 ${app_name_short} Safe 时，您可以恢复您的 ${app_name_short} ID、联系人和群组，以防您失去设备的访问权。</string>
+    <string name="safe_disable_confirm">您真的要在不启用 ${app_name_short} Safe 的情况下继续吗？当使用 ${app_name_short} Safe 时，您可以恢复您的 ${app_name_short} ID 和群组，以防您失去设备的访问权。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">请选择一个强密码。您将需要此密码来恢复 ${app_name_short} Safe 备份。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1053,6 +1053,7 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="safe_configure_choose_password_title">选择密码</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="password_bad_explain">${app_name_short} Safe 所选的密码不安全，容易被攻击者猜中，请选择其他密码。提示：使用由多个单词组成的密码。</string>
+    <string name="safe_password_complexity_unmet">密码长度必须超过 10 个字符，并且包含小写字母、大写字母、数字和符号。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">${app_name_short} Safe 密码已更新。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1854,4 +1855,10 @@ ${app_name_short} 支持的所有表情符号。</string>
     <plurals name="number_of_group_members">
         <item quantity="other">%d个群组成员</item>
     </plurals>
+    <string name="change_server_dialog_title">更改服务器</string>
+    <string name="change_server_dialog_hint">服务器域名</string>
+    <string name="change_server_warning_title">更改服务器？</string>
+    <string name="change_server_warning_message">更改服务器很可能会断开您当前身份的连接。请仅在您的提供商已确认新域名的情况下执行此操作。如果域名错误，应用将无法正常工作。</string>
+    <string name="use_different_key">使用其他密钥</string>
+    <string name="activation_key_already_redeemed">此激活密钥已被使用。请输入其他密钥。</string>
 </resources>

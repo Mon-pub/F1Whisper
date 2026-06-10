@@ -930,7 +930,7 @@
     <string name="safe_learn_more_button">بیشتر بدانید</string>
     <string name="safe_enable_explain">هر آنچه برای گفت‌وگو نیاز دارید فقط روی دستگاه شما ذخیره می‌شود. شما حسابی نزد ما ندارید و اگر گوشی خود را گم کنید یا به‌طور تصادفی داده‌های خود را حذف کنید، نمی‌توانیم به شما کمک کنیم.\n\n${app_name_short} Safe پشتیبان‌های خودکاری از تمام داده‌های مهم، شامل کلیدها، فهرست مخاطبان و عضویت‌های گروهی شما (اما هیچ محتوای پیامی)، به‌صورت ناشناس روی سرور امن منتخب شما ایجاد می‌کند.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">آیا می‌خواهید بدون فعال کردن ${app_name_short} Safe ادامه دهید؟ هنگام استفاده از ${app_name_short} Safe، در صورت از دست دادن دسترسی به دستگاه خود، می‌توانید شناسه ${app_name_short}، مخاطبان و گروه‌های خود را بازیابی کنید.</string>
+    <string name="safe_disable_confirm">آیا می‌خواهید بدون فعال کردن ${app_name_short} Safe ادامه دهید؟ هنگام استفاده از ${app_name_short} Safe، در صورت از دست دادن دسترسی به دستگاه خود، می‌توانید شناسه ${app_name_short} و گروه‌های خود را بازیابی کنید.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">لطفاً یک رمز عبور قوی انتخاب کنید. برای بازیابی پشتیبان ${app_name_short} Safe خود به این رمز عبور نیاز خواهید داشت.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1870,4 +1870,11 @@
     <string name="use_username_password">استفاده از نام کاربری و گذرواژه</string>
     <string name="use_activation_key">استفاده از کلید فعال‌سازی</string>
     <string name="invalid_activation_key">کلید فعال‌سازی نامعتبر است</string>
+    <string name="use_different_key">استفاده از کلید دیگر</string>
+    <string name="activation_key_already_redeemed">این کلید فعال‌سازی قبلاً استفاده شده است. لطفاً یک کلید دیگر وارد کنید.</string>
+    <string name="change_server_dialog_title">تغییر سرور</string>
+    <string name="change_server_dialog_hint">دامنه سرور</string>
+    <string name="change_server_warning_title">سرور تغییر کند؟</string>
+    <string name="change_server_warning_message">تغییر سرور احتمالاً اتصال شناسه فعلی شما را قطع خواهد کرد. این کار را فقط زمانی انجام دهید که ارائه‌دهنده‌تان دامنه جدید را تأیید کرده باشد. اگر دامنه نادرست باشد، برنامه از کار خواهد افتاد.</string>
+    <string name="safe_password_complexity_unmet">گذرواژه باید بیش از ۱۰ نویسه داشته باشد و شامل حروف کوچک، حروف بزرگ، یک رقم و یک نماد باشد</string>
 </resources>
