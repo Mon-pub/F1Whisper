@@ -1,0 +1,119 @@
+<resources>
+    <string name="voip_title">مكالمة Threema</string>
+    <string name="voip_hangup">إنهاء المكالمة</string>
+    <string name="voip_toggle_mic">تبديل الميكروفون</string>
+    <string name="voip_toggle_speaker">تبديل مكبر الصوت</string>
+    <string name="voip_switch_cam">تبديل الكاميرا</string>
+    <string name="voip_switch_cam_front">تم التبديل إلى الكاميرا الأمامية</string>
+    <string name="voip_switch_cam_rear">تم التبديل إلى الكاميرا الخلفية</string>
+    <string name="voip_toggle_video">تبديل وضع الفيديو</string>
+    <string name="voip_call_confirm">هل تريد الاتصال بـ %1$s؟</string>
+    <string name="voip_error_call">حدث خطأ أثناء مكالمة Threema</string>
+    <string name="voip_error_init_call">حدث خطأ أثناء تهيئة المكالمة</string>
+    <string name="voip_notification_title">مكالمة Threema واردة</string>
+    <string name="voip_notification_text">‏%1$s يتصل بك</string>
+    <!-- Shown when starting a call, before the peer device is ringing -->
+    <string name="voip_status_initializing">جارٍ التهيئة</string>
+    <!-- Shown when the callee has accepted the call and the connection is being established -->
+    <string name="voip_status_connecting">جارٍ الاتصال</string>
+    <!-- Shown when a call is being disconnected -->
+    <string name="voip_status_disconnecting">جارٍ قطع الاتصال</string>
+    <!-- Shown when the device of the callee is ringing -->
+    <string name="voip_status_ringing">جارٍ الرنين</string>
+    <string name="voip_mic_enable">تفعيل الميكروفون</string>
+    <string name="voip_mic_disable">تعطيل الميكروفون</string>
+    <string name="voip_checking_compatibility">يجري التحقق مما إذا كان بإمكان جهة الاتصال هذه استقبال مكالمات Threema</string>
+    <string name="voip_incompatible">لا يمكن لجهة الاتصال هذه استقبال مكالمات Threema بعد.</string>
+    <string name="voip_call_status_unavailable">مستقبِل المكالمة غير متاح</string>
+    <string name="voip_call_status_rejected">رُفضت المكالمة</string>
+    <string name="voip_call_status_busy">مستقبِل المكالمة مشغول</string>
+    <string name="voip_call_status_busy_short">مشغول</string>
+    <string name="voip_call_status_disabled">مكالمات Threema معطَّلة من قِبل المستقبِل</string>
+    <string name="voip_call_status_missed">مكالمة فائتة</string>
+    <string name="voip_call_finished_outbox">مكالمة صادرة</string>
+    <string name="voip_call_finished_inbox">مكالمة واردة</string>
+    <string name="voip_call_status_aborted">أُجهضت المكالمة</string>
+    <string name="voip_return_call">إعادة الاتصال</string>
+    <string name="voip_accept">قبول</string>
+    <string name="voip_reject">رفض</string>
+    <string name="voip_speakerphone">مكبر الصوت</string>
+    <string name="voip_wired_headset">سماعة الرأس</string>
+    <string name="voip_earpiece">الهاتف</string>
+    <string name="voip_bluetooth">بلوتوث</string>
+    <string name="voip_none">غير متاح</string>
+    <string name="voip_call_finished">انتهت مكالمة Threema</string>
+    <string name="voip_another_call">تعذَّر الاتصال. توجد مكالمة Threema أخرى نشطة حالياً.</string>
+    <string name="voip_prefs_title_aec">إلغاء الصدى</string>
+    <string name="voip_prefs_aec_sw">إلغاء الصدى بالبرمجيات</string>
+    <string name="voip_prefs_aec_hw">إلغاء الصدى بالعتاد</string>
+    <string name="voip_prefs_title_video_codec">برامج ترميز الفيديو</string>
+    <string name="voip_prefs_video_aec_hw">مسرَّع بالعتاد</string>
+    <string name="voip_prefs_video_codec_no_vp8">تعطيل VP8</string>
+    <string name="voip_prefs_video_codec_no_h264hip">تعطيل H264-HiP</string>
+    <string name="voip_prefs_video_codec_sw">برامج ترميز برمجية</string>
+    <string name="voip_connection_failed">تعذَّر إنشاء الاتصال</string>
+    <string name="voip_call_disconnected">انقطعت المكالمة</string>
+    <string name="prefs_voip_reject_incoming_calls_title">رفض مكالمات الهاتف</string>
+    <string name="prefs_voip_reject_incoming_calls_summary">رفض مكالمات الهاتف الواردة أثناء وجود مكالمة Threema نشطة.</string>
+    <string name="voip_contact_not_found">لم يُعثر على جهة اتصال Threema لهذا الرقم.</string>
+    <string name="voip_another_pstn_call">تعذَّر بدء المكالمة. ما زالت مكالمة هاتفية عادية نشطة.</string>
+    <string name="voip_call_status_off_hours">مكالمة خارج ساعات العمل</string>
+    <string name="voip_peer_video_disabled">عطَّل الطرف الآخر مكالمات الفيديو.</string>
+
+    <string name="voip_error_processing_call_anser">حدث خطأ أثناء معالجة الرد على المكالمة</string>
+    <string name="voip_error_peer_connection">خطأ في اتصال الند</string>
+    <string name="voip_error_determine_common_video_quality_profile">تعذَّر تحديد ملف تعريف مشترك لجودة الفيديو</string>
+
+    <string name="voip_audio_focus_lost">فقد تركيز الصوت</string>
+
+    <string name="voip_could_not_initialize">تعذَّر تهيئة المكالمة</string>
+
+    <!-- WebRTC debugger -->
+    <string name="voip_prefs_webrtc_debug">تشخيص WebRTC</string>
+    <string name="voip_prefs_webrtc_debug_summary">ابدأ هذه الأداة لتشخيص مشكلات إعداد اتصال المكالمة الصوتية</string>
+    <string name="voip_webrtc_debug">تشخيص WebRTC</string>
+    <string name="voip_webrtc_debug_intro">اضغط على زر «بدء» لبدء الاختبار.</string>
+    <string name="voip_webrtc_debug_start">بدء</string>
+    <string name="voip_webrtc_debug_done">تمَّ. إذا واجهت مشكلات في إنشاء اتصال المكالمة، فيرجى إرسال هذا الناتج إلى دعم Threema.</string>
+    <string name="voip_webrtc_debug_copied">تمَّ النسخ إلى الحافظة.</string>
+    <string name="voip_webrtc_debug_copy_clipboard">نسخ إلى الحافظة</string>
+
+    <!-- Group Calls -->
+    <string name="voip_gc_notification_call_started">بدأ %1$s مكالمة جماعية في %2$s</string>
+    <string name="voip_gc_notification_call_started_generic">بدأ %1$s مكالمة جماعية</string>
+    <string name="voip_gc_notification_call_started_generic_outbox">بدأت مكالمة جماعية</string>
+    <string name="voip_gc_join_call">انضمام</string>
+    <string name="voip_gc_ongoing_call">مكالمة جماعية جارية</string>
+    <string name="voip_gc_waiting_for_participants">في انتظار المشاركين</string>
+    <string name="voip_gc_participant_avatar_description">صورة الملف الشخصي للمشارِك</string>
+    <string name="voip_gc_participant_mute_status_description">حالة كتم صوت المشارِك</string>
+    <string name="voip_gc_participant_screen_share_status_description">المشارِك يشارك شاشته</string>
+    <string name="voip_gc_notification_new_call_public">بدأت مكالمة جماعية جديدة</string>
+    <string name="voip_gc_open_call">فتح</string>
+    <string name="voip_gc_call_started">بدأت المكالمة الجماعية</string>
+    <string name="voip_gc_call_ended">انتهت المكالمة الجماعية</string>
+    <string name="voip_gc_in_call">في مكالمة جماعية</string>
+    <string name="voip_gc_sfu_not_available">الخادم غير متاح، حاول مرة أخرى لاحقاً</string>
+    <string name="voip_gc_call_error">توقفت المكالمة بسبب خطأ</string>
+    <string name="voip_gc_call_start_error">تعذَّر بدء المكالمة الجماعية</string>
+    <string name="voip_gc_call_already_ended">انتهت المكالمة الجماعية بالفعل</string>
+    <string name="voip_gc_screen_sharing_not_supported">مشاركة الشاشة مقتصرة حالياً على أجهزة سطح المكتب.</string>
+    <string name="voip_gc_call_full_generic">تم الوصول إلى الحد الأقصى: لا يمكن لمزيد من المشاركين الانضمام إلى هذه المكالمة الجماعية.</string>
+    <string name="voip_gc_call_full_n">تم الوصول إلى الحد الأقصى وهو %1$d مشاركين، لا يمكنك الانضمام إلى هذه المكالمة الجماعية.</string>
+    <plurals name="n_participants_in_call">
+        <item quantity="zero">لا يوجد مشاركون</item>
+        <item quantity="one">مشارِك واحد</item>
+        <item quantity="two">مشارِكان</item>
+        <item quantity="few">%d مشاركين</item>
+        <item quantity="many">%d مشارِكاً</item>
+        <item quantity="other">%d مشارِك</item>
+    </plurals>
+    <plurals name="n_members_dont_support_group_calls">
+        <item quantity="zero">ملاحظة: لا يوجد أعضاء لا يمكنهم المشاركة في المكالمات الجماعية.</item>
+        <item quantity="one">ملاحظة: لا يمكن لعضو واحد المشاركة في المكالمات الجماعية.</item>
+        <item quantity="two">ملاحظة: لا يمكن لعضوين المشاركة في المكالمات الجماعية.</item>
+        <item quantity="few">ملاحظة: لا يمكن لـ %d أعضاء المشاركة في المكالمات الجماعية.</item>
+        <item quantity="many">ملاحظة: لا يمكن لـ %d عضواً المشاركة في المكالمات الجماعية.</item>
+        <item quantity="other">ملاحظة: لا يمكن لـ %d عضو المشاركة في المكالمات الجماعية.</item>
+    </plurals>
+</resources>

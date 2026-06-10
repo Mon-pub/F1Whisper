@@ -25,7 +25,7 @@
         android:id="@+id/floating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/grid_unit_x2"
+        android:layout_marginEnd="@dimen/grid_unit_x2"
         android:layout_marginBottom="@dimen/grid_unit_x2"
         android:clickable="true"
         android:text="@string/send"

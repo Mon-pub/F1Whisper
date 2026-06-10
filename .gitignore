@@ -22,3 +22,10 @@ reproduce/
 **/.DS_Store
 .kotlin
 /app/lint-report.xml
+
+# Signing secrets (F1Whisper release pipeline) - NEVER commit
+*.jks
+*.keystore
+/.secrets/
+keystore.properties
+keystore/

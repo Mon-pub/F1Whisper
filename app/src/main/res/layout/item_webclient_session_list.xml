@@ -13,9 +13,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/listitem_message_margin_left_right"
+        android:layout_marginStart="@dimen/listitem_message_margin_left_right"
         android:layout_marginTop="16dp"
-        android:layout_marginRight="@dimen/listitem_message_margin_left_right"
+        android:layout_marginEnd="@dimen/listitem_message_margin_left_right"
         android:layout_marginBottom="0dp">
 
         <FrameLayout
@@ -55,7 +55,7 @@
             android:id="@+id/connection_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_wifi_tethering_black_24dp" />
@@ -65,10 +65,10 @@
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_toLeftOf="@+id/connection_status"
-            android:layout_toRightOf="@+id/icon_container"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_toStartOf="@+id/connection_status"
+            android:layout_toEndOf="@+id/icon_container"
             android:lineSpacingExtra="-2dp"
             android:orientation="vertical">
 

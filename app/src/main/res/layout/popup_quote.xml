@@ -36,8 +36,8 @@
                     android:id="@+id/quote_bar"
                     android:layout_width="4dp"
                     android:layout_height="match_parent"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:background="?attr/colorPrimary" />
 
                 <LinearLayout
@@ -64,10 +64,10 @@
                             android:id="@+id/quote_type_image"
                             android:layout_width="14dp"
                             android:layout_height="14dp"
-                            android:layout_gravity="left|top"
-                            android:layout_marginLeft="-2dp"
+                            android:layout_gravity="start|top"
+                            android:layout_marginStart="-2dp"
                             android:layout_marginTop="3dp"
-                            android:layout_marginRight="4dp"
+                            android:layout_marginEnd="4dp"
                             android:visibility="gone"
                             app:tint="?attr/colorOnSurface" />
 
@@ -90,8 +90,8 @@
                     android:id="@+id/quote_thumbnail"
                     android:layout_width="@dimen/avatar_size_small"
                     android:layout_height="@dimen/avatar_size_small"
-                    android:layout_gravity="right|center_vertical"
-                    android:layout_marginLeft="8dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginStart="8dp"
                     android:importantForAccessibility="no"
                     android:scaleType="centerCrop"
                     android:visibility="gone" />
@@ -100,9 +100,9 @@
                     android:id="@+id/quote_panel_close_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right|center_vertical"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:background="?android:selectableItemBackground"
                     android:contentDescription="@string/close"
                     app:srcCompat="@drawable/ic_close"

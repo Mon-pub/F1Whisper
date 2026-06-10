@@ -15,8 +15,8 @@
         android:layout_marginTop="32dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/wizard_contents_padding_horizontal"
-        android:paddingRight="@dimen/wizard_contents_padding_horizontal">
+        android:paddingStart="@dimen/wizard_contents_padding_horizontal"
+        android:paddingEnd="@dimen/wizard_contents_padding_horizontal">
 
         <TextView
             android:id="@+id/wizard_privacy_policy_explain"
@@ -36,8 +36,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_marginLeft="@dimen/wizard_contents_padding_horizontal"
-        android:layout_marginRight="@dimen/wizard_contents_padding_horizontal"
+        android:layout_marginStart="@dimen/wizard_contents_padding_horizontal"
+        android:layout_marginEnd="@dimen/wizard_contents_padding_horizontal"
         android:layout_marginBottom="@dimen/wizard_contents_padding"
         android:gravity="center_horizontal"
         android:orientation="vertical">

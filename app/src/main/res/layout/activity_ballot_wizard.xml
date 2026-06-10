@@ -34,15 +34,15 @@
             <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/strip">
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/strip">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/copy_ballot"
                     style="@style/Threema.MaterialButton.Borderless.Wizard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="left|center_vertical"
+                    android:layout_gravity="start|center_vertical"
                     android:maxWidth="250dp"
                     android:text="@string/ballot_copy"
                     android:textColor="?attr/colorPrimary"
@@ -56,7 +56,7 @@
                     style="@style/Threema.MaterialButton.Borderless.Wizard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="left|center_vertical"
+                    android:layout_gravity="start|center_vertical"
                     android:maxWidth="250dp"
                     android:text="@string/back"
                     android:textColor="?attr/colorPrimary"
@@ -82,7 +82,7 @@
                 style="@style/Threema.MaterialButton.Borderless.Wizard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:maxWidth="250dp"
                 android:text="@string/next"
                 android:textColor="?attr/colorPrimary"

@@ -1,0 +1,1904 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="title_section2">পরিচিতি</string>
+    <!-- Label on first tab on app's main screen, selecting it leads to the list of chats -->
+    <string name="title_section1">চ্যাট</string>
+    <string name="title_compose_message">চ্যাট শুরু করুন</string>
+    <string name="title_choose_recipient">প্রাপক নির্বাচন করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_mythreemaid">আমার ${app_name_short} ID</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_threemaid">${app_name_short} ID</string>
+    <string name="title_adduser">নতুন পরিচিতি যোগ করুন</string>
+    <string name="title_enter_id">ID লিখুন</string>
+    <string name="title_invite_friend">একজন বন্ধুকে আমন্ত্রণ জানান</string>
+    <string name="invite_via">এর মাধ্যমে একজন বন্ধুকে আমন্ত্রণ জানান…</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_email_body">হ্যালো,\n\nআমি %1$s ব্যবহার করি, যা ব্যবহারকারীদের গোপনীয়তা সুরক্ষিত রাখে এমন একটি নিরাপদ ইনস্ট্যান্ট মেসেঞ্জার।\n\nআমার ${app_name_short} ID: https://threema.id/%2$s\n\nচলুন %1$s-এর মাধ্যমে যোগাযোগ করি!\n\nশুভেচ্ছান্তে,\n</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_sms_body">হাই! চলুন নিরাপদ ও গোপনীয়তা-সম্মত উপায়ে যোগাযোগ করতে %1$s ব্যবহার করি! আমার ${app_name_short} ID: https://threema.id/%2$s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invite_email_subject">${app_name_short}. আমাদের গোপনীয়তা সুরক্ষিত রাখে এমন নিরাপদ মেসেঞ্জার</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="enter_id_hint">${app_name_short} ID লিখুন</string>
+    <string name="account_links">সংযুক্ত অ্যাকাউন্ট</string>
+    <string name="title_set_availability_status">প্রাপ্যতা অবস্থা</string>
+    <string name="menu_settings">সেটিংস</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="menu_about">${app_name} সম্পর্কে</string>
+    <string name="menu_add_contact">নতুন পরিচিতি</string>
+    <string name="menu_done">সম্পন্ন</string>
+    <string name="compose_message_and_enter">টাইপ করতে এখানে চাপুন</string>
+    <string name="title_job_title">পদবি</string>
+    <string name="title_department">বিভাগ</string>
+    <string name="send">পাঠান</string>
+    <string name="prefs_privacy">গোপনীয়তা</string>
+    <string name="prefs_notifications">শব্দ &amp; বিজ্ঞপ্তি</string>
+    <string name="prefs_chatdisplay">চ্যাট</string>
+    <string name="prefs_security">নিরাপত্তা</string>
+    <string name="prefs_sum_privacy">গোপনীয়তা-সম্পর্কিত সেটিংস</string>
+    <string name="prefs_sum_notifications">শব্দ ও কম্পন সেটিংস সেট করুন</string>
+    <string name="prefs_sum_chatdisplay">চ্যাট সেটিংস</string>
+    <string name="prefs_masterkey">স্থানীয়ভাবে সংরক্ষিত ডেটার এনক্রিপশন</string>
+    <string name="prefs_header_contacts">পরিচিতি</string>
+    <string name="prefs_header_chat">চ্যাট</string>
+    <string name="prefs_header_reset">রিসেট</string>
+    <string name="prefs_header_keyboard">কীবোর্ড</string>
+    <string name="prefs_sum_sync_contacts_on">%s ব্যবহারকারীকে আপনার ডিভাইসের ঠিকানা বইয়ের সাথে সিঙ্কে রাখুন</string>
+    <string name="prefs_sum_sync_contacts_off">%s ব্যবহারকারীকে আপনার ডিভাইসের ঠিকানা বইয়ের সাথে সিঙ্ক করবেন না</string>
+    <string name="prefs_title_sync_contacts">পরিচিতি সিঙ্ক করুন</string>
+    <string name="prefs_sum_block_unknown_off">যে কেউ আপনাকে বার্তা পাঠাতে পারে। প্রথম বার্তা এলে নতুন পরিচিতি স্বয়ংক্রিয়ভাবে যোগ হবে।</string>
+    <string name="prefs_sum_block_unknown_on">শুধুমাত্র আপনার পরিচিতি তালিকার লোকেরা আপনাকে বার্তা পাঠাতে পারবে।</string>
+    <string name="prefs_title_block_unknown">অজানা ব্লক করুন</string>
+    <string name="prefs_title_read_receipts">পঠিত রসিদ পাঠান</string>
+    <string name="prefs_title_typing_indicator">টাইপিং নির্দেশক পাঠান</string>
+    <string name="prefs_media_title">মিডিয়া &amp; স্টোরেজ</string>
+    <string name="prefs_sum_media_title">মিডিয়া এবং স্টোরেজ সেটিংস</string>
+    <string name="prefs_image_size">ছবির মাত্রা</string>
+    <string name="prefs_notification_sound">বিজ্ঞপ্তির শব্দ</string>
+    <string name="prefs_sum_notification_sound">সিস্টেম ডিফল্ট</string>
+    <string name="prefs_vibrate">কম্পন</string>
+    <string name="prefs_sum_vibrate">আগত বার্তায় কম্পন</string>
+    <!-- Label on checkbox in notification settings screen, to let the user enable/disable the use of the device's color LED for notifications. Only relevant on Android 7 -->
+    <string name="prefs_notification_light">বিজ্ঞপ্তির আলো</string>
+    <!-- Summary on checkbox in notification settings screen, to let the user enable/disable the use of the device's color LED for notifications. Only relevant on Android 7 -->
+    <string name="prefs_sum_notification_light">আগত বার্তার জন্য রঙিন LED ব্যবহার করুন (যদি উপলব্ধ থাকে)</string>
+    <string name="prefs_title_wallpaper_switch">ওয়ালপেপার</string>
+    <string name="prefs_title_enter">পাঠাতে এন্টার</string>
+    <string name="prefs_sum_enter_on">এন্টার কী সাথে সাথে বার্তা পাঠায়</string>
+    <string name="prefs_sum_enter_off">এন্টার কী একটি নতুন লাইন যোগ করে</string>
+    <string name="prefs_system_notifications">একক চ্যাট</string>
+    <string name="prefs_inapp">অ্যাপের ভিতরে</string>
+    <string name="prefs_inapp_sounds">অ্যাপের ভিতরে শব্দ</string>
+    <string name="prefs_inapp_sounds_on">বার্তা পাঠানো/গ্রহণের সময় শব্দ বাজান</string>
+    <string name="prefs_inapp_sounds_off">অ্যাপের ভিতরে কোনো শব্দ বাজাবেন না</string>
+    <string name="prefs_inapp_vibrate">অ্যাপের ভিতরে কম্পন</string>
+    <string name="prefs_inapp_vibrate_on">বার্তা গ্রহণের সময় কম্পন করুন</string>
+    <string name="prefs_inapp_vibrate_off">বার্তা গ্রহণের সময় কম্পন করবেন না</string>
+    <string name="workarounds">সমাধানপন্থা</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_threema_push_switch">${app_name_short} Push ব্যবহার করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_threema_push_on">নতুন বার্তা সম্পর্কে জানতে ${app_name_short} Push ব্যবহার করুন</string>
+    <string name="prefs_sum_threema_push_off">সিস্টেম পুশ পরিষেবা ব্যবহার করে নতুন বার্তা পরীক্ষা করুন</string>
+    <string name="prefs_logging">লগিং</string>
+    <string name="prefs_title_message_log_switch">ফাইলে লগ করুন</string>
+    <string name="prefs_title_sum_message_log_on">ঘটনা ও নেটওয়ার্ক তথ্য debug_log.txt ফাইলে লগ করা হবে</string>
+    <string name="prefs_title_sum_message_log_off">ঘটনা লগ করা হবে না</string>
+    <string name="prefs_reset_push">পুশ টোকেন রিসেট করুন</string>
+    <string name="prefs_sum_reset_push">FCM/HMS সহ পুশ বিজ্ঞপ্তির জন্য ডিভাইসটি পুনরায় নিবন্ধন করুন</string>
+    <string name="prefs_notification_preview">বার্তার পূর্বরূপ দেখান</string>
+    <string name="prefs_sum_reset_ringtones">সিস্টেম ডিফল্ট পুনরুদ্ধার করুন</string>
+    <string name="prefs_title_reset_ringtones">বিজ্ঞপ্তির শব্দ সেটিংস রিসেট করুন</string>
+    <string name="image_size_small">ছোট (640x640)</string>
+    <string name="image_size_medium">মাঝারি (1024x1024)</string>
+    <string name="image_size_large">বড় (1600x1600)</string>
+    <string name="image_size_xlarge">অতি-বড় (2592x2592)</string>
+    <string name="image_size_original">আসল আকার</string>
+    <string name="next">পরবর্তী</string>
+    <string name="finish">সম্পন্ন করুন</string>
+    <string name="please_wait">দয়া করে অপেক্ষা করুন…</string>
+    <!-- Text shown when a task which shows a loading spinner takes longer than expected (e.g. creating a group) -->
+    <string name="please_wait_timeout">এটি প্রত্যাশার চেয়ে বেশি সময় নিচ্ছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard_first_create_id">আপনার ${app_name_short} ID তৈরি করা হচ্ছে…</string>
+    <string name="wizard1_sync_contacts">পরিচিতি সিঙ্ক করা হচ্ছে…</string>
+    <string name="wizard2_email_hint">আপনার ইমেল ঠিকানা লিখুন</string>
+    <string name="wizard2_email_linking">আপনার ID-তে ইমেল সংযুক্ত করা হচ্ছে</string>
+    <string name="wizard2_phone_hint">আপনার মোবাইল নম্বর লিখুন</string>
+    <string name="wizard2_phone_number_confirm_title">নম্বর নিশ্চিত করুন</string>
+    <string name="wizard2_phone_number_confirm">আমরা এই নম্বরে একটি SMS পাঠাতে চলেছি:\n\n%1$s\n\nএই নম্বরটি কি সঠিক?</string>
+    <string name="wizard2_phone_linking">আপনার ID-তে ফোন নম্বর সংযুক্ত করা হচ্ছে</string>
+    <string name="wizard3_nickname_hint">আপনার ডাকনাম লিখুন</string>
+    <string name="set_nickname_title">ডাকনাম সেট করুন</string>
+    <string name="ok">ঠিক আছে</string>
+    <string name="cancel">বাতিল</string>
+    <string name="save">সংরক্ষণ করুন</string>
+    <string name="copy_message_action">অনুলিপি করুন</string>
+    <string name="delete_contact_action">পরিচিতি মুছুন</string>
+    <string name="delete_multiple_contact_action">পরিচিতিগুলো মুছুন</string>
+    <string name="scan_id">ID স্ক্যান করুন</string>
+    <string name="id_scanned">ID স্ক্যান করা হয়েছে</string>
+    <string name="id_mismatch">আপনি যে পাবলিক কী স্ক্যান করেছেন তা এই ID-এর জন্য সার্ভারে সংরক্ষিত কীয়ের সাথে মেলে না।
+        এর অর্থ কেউ স্ক্যান করা কোডটি কারসাজি করেছে এবং কীটিকে বিশ্বাস করা উচিত নয়।</string>
+    <string name="scan_successful">ID সফলভাবে স্ক্যান করা হয়েছে এবং পরিচিতিটি এখন যাচাইকৃত।</string>
+    <string name="scan_duplicate">এই ID ইতিমধ্যে স্ক্যান ও যাচাই করা হয়েছে।</string>
+    <string name="linked_email">ইমেল</string>
+    <!-- Pattern for displaying the user's email address on the My Profile screen. %1$s is a placeholder for the email address, %2$s is a placeholder for the verification state (e.g. "pending") -->
+    <string name="linked_email_pattern">%1$s (%2$s)</string>
+    <string name="linked_mobile">মোবাইল নম্বর</string>
+    <!-- Pattern for displaying the user's mobile phone number on the My Profile screen. %1$s is a placeholder for the phone number, %2$s is a placeholder for the verification state (e.g. "pending") -->
+    <string name="linked_mobile_pattern">%1$s (%2$s)</string>
+    <string name="public_nickname">ডাকনাম</string>
+    <string name="share_via">এর মাধ্যমে শেয়ার করুন…</string>
+    <string name="share_subject">%s কথোপকথন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="mobile_already_linked">আপনার ${app_name_short} ID ইতিমধ্যে এই মোবাইল নম্বরের সাথে সংযুক্ত</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="email_already_linked">আপনার ${app_name_short} ID ইতিমধ্যে এই ইমেল ঠিকানার সাথে সংযুক্ত</string>
+    <string name="whoaaa">দ্রষ্টব্য</string>
+    <string name="really_delete_message_title">বার্তা মুছুন</string>
+    <string name="really_delete_thread">চ্যাট মুছুন</string>
+    <string name="really_delete_multiple_threads">চ্যাট মুছুন</string>
+    <string name="really_delete_contact">আপনি কি সত্যিই এই পরিচিতি এবং সংশ্লিষ্ট সমস্ত বার্তা মুছতে চান?</string>
+    <string name="image_placeholder">ছবি</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="invalid_threema_id">অবৈধ ${app_name_short} ID</string>
+    <string name="close">বন্ধ করুন</string>
+    <string name="creating_contact">নতুন পরিচিতি যোগ করা হচ্ছে</string>
+    <string name="creating_contact_successful">পরিচিতি সফলভাবে যোগ করা হয়েছে</string>
+    <string name="invalid_threema_qr_code">অবৈধ QR কোড</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="threema_contact">${app_name_short} পরিচিতি</string>
+    <string name="first_name">নামের প্রথম অংশ</string>
+    <string name="last_name">নামের শেষ অংশ</string>
+    <string name="os_licenses">লাইসেন্স</string>
+    <string name="verify_title">মোবাইল নম্বর যাচাই করা হচ্ছে</string>
+    <string name="verify_success_text">আপনার মোবাইল নম্বর সফলভাবে যাচাই করা হয়েছে।</string>
+    <string name="verify_failed">ব্যর্থ হয়েছে</string>
+    <string name="verify_failed_summary">আপনার মোবাইল নম্বর যাচাই করা ব্যর্থ হয়েছে। আবার চেষ্টা করার আগে দয়া করে নিশ্চিত করুন যে আপনি
+        সঠিক নম্বর লিখেছেন এবং আপনার মোবাইল নেটওয়ার্কের সাথে সংযুক্ত আছেন।</string>
+    <string name="verify_failed_not_linked">আপনার মোবাইল নম্বর যাচাই করা ব্যর্থ হয়েছে। যাচাইকরণ প্রক্রিয়া বাতিল করা হয়েছে।</string>
+    <string name="backup_title">ID রপ্তানি করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_sum">আপনার ${app_name_short} ID রপ্তানি করুন</string>
+    <string name="backup_and_delete">ব্যাকআপ ও মুছুন</string>
+    <string name="delete_id_title">ID মুছুন</string>
+    <string name="delete_id_message">আপনি যদি এই ID-এর একটি ব্যাকআপ তৈরি না করে থাকেন বা এর একটি অনুলিপি রপ্তানি করে সংরক্ষণ না করে থাকেন, তাহলে আপনি আর কখনও এই ID দিয়ে
+        বার্তা পাঠাতে বা গ্রহণ করতে পারবেন না।\n\nআপনি যদি এই ID আর ব্যবহার করতে না চান, তাহলে এটি মুছে ফেলার আগে একটি প্রত্যাহার পাসওয়ার্ড সেট করে myid.threema.ch/revoke-এ ID প্রত্যাহার করার পরামর্শ দেওয়া হচ্ছে।</string>
+    <string name="delete_id_message2">শেষ সতর্কতা: আপনি কি সত্যিই এই ডিভাইসে আপনার ID মুছতে চান?</string>
+    <string name="delete_id_sum">এই ডিভাইসে আপনার ${app_name_short}-ID এবং সমস্ত ডেটা স্থায়ীভাবে মুছুন</string>
+    <string name="delete_all_data_prompt">সমস্ত অ্যাপ ডেটা মুছবেন?</string>
+    <string name="backup_password_summary">আপনার ID রপ্তানি একটি পাসওয়ার্ড দিয়ে এনক্রিপ্ট করা হবে। অক্ষর, সংখ্যা ও প্রতীকের সমন্বয় ব্যবহার করুন। আপনি এখানে যা লেখেন তা ভুলবেন না!</string>
+    <string name="backup_password_again_summary">পাসওয়ার্ড আবার লিখুন</string>
+    <string name="password_hint">পাসওয়ার্ড</string>
+    <string name="generating_backup_data">ব্যাকআপ ডেটা তৈরি করা হচ্ছে</string>
+    <string name="backup_id_title">আপনার ID রপ্তানি</string>
+    <string name="backup_id_summary">উপরে প্রদর্শিত টেক্সট স্ট্রিং বা QR কোড, আপনার নির্বাচিত পাসওয়ার্ডের সাথে,
+        অন্য একটি ডিভাইসে আপনার ID পুনরুদ্ধার করতে ব্যবহার করা যেতে পারে। আপনার এটি একটি উপযুক্ত স্থানে অনুলিপি করা উচিত, ইমেলের মাধ্যমে
+        শেয়ার করা উচিত বা অন্য একটি ডিভাইস ব্যবহার করে QR কোডটি স্ক্যান করা উচিত।</string>
+    <string name="support">সহায়তা</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_share_content">নিম্নলিখিত টেক্সট স্ট্রিংটি নির্বাচিত পাসওয়ার্ডের সাথে আপনার ${app_name_short} ID পুনরুদ্ধার করতে ব্যবহার করা যেতে পারে।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_share_subject">এর জন্য ${app_name_short} ID রপ্তানি</string>
+    <string name="add_attachment">নতুন সংযুক্তি</string>
+    <string name="invalid_passphrase">অবৈধ পাসফ্রেজ</string>
+    <string name="master_key_locked">মাস্টার কী লক করা আছে</string>
+    <string name="master_key_locked_notify_description">আপনার পাসফ্রেজ লিখতে এখানে চাপুন</string>
+    <string name="prefs_masterkey_passphrase">কোনো পাসফ্রেজ সেট করা নেই</string>
+    <string name="prefs_title_masterkey_passphrase">পাসফ্রেজ</string>
+    <string name="setting_masterkey_passphrase">মাস্টার কী পাসফ্রেজ সেট করা হচ্ছে</string>
+    <string name="masterkey_passphrase_title">মাস্টার কী পাসফ্রেজ</string>
+    <string name="masterkey_passphrase_summary">আপনার মাস্টার কী রক্ষা করতে একটি পাসফ্রেজ সেট করুন। মনে রাখবেন প্রতিবার অ্যাপ পুনরায় শুরু হলে আপনাকে এটি লিখতে হবে।</string>
+    <string name="masterkey_passphrase_again_summary">পাসফ্রেজ আবার লিখুন</string>
+    <string name="masterkey_passphrase_hint">পাসফ্রেজ</string>
+    <string name="master_key_locked_want_exit">মাস্টার কী এখনও লক করা আছে। আপনি কি আবার চেষ্টা করতে চান?</string>
+    <string name="click_here_to_change_passphrase">পাসফ্রেজ পরিবর্তন করতে এখানে চাপুন</string>
+    <string name="attach_camera">সিস্টেম ক্যামেরা</string>
+    <string name="menu_restore">ব্যাকআপ থেকে পুনরুদ্ধার করুন</string>
+    <string name="restore_id_hint">পুনরুদ্ধার করতে ID রপ্তানির টেক্সট স্ট্রিং লিখুন বা পেস্ট করুন</string>
+    <string name="location_placeholder">অবস্থান</string>
+    <string name="video_placeholder">ভিডিও</string>
+    <string name="audio_placeholder">অডিও</string>
+    <string name="restoring_backup">ব্যাকআপ পুনরুদ্ধার করা হচ্ছে</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="server_message_title">${company_name} সার্ভার থেকে বার্তা</string>
+    <string name="error">ত্রুটি</string>
+    <!-- Empty state text for Contacts tab, shown when there are no contacts and Contact Synchronization is disabled -->
+    <string name="no_contacts"><![CDATA[আপনার এখনও কোনো পরিচিতি নেই। সিঙ্ক্রোনাইজেশন চালু করুন (সেটিংস > গোপনীয়তা), অথবা ম্যানুয়ালি পরিচিতি যোগ করুন।]]></string>
+    <!-- Empty state text for Contacts tab, shown when there are no contacts and Contact Synchronization is enabled -->
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="no_contacts_sync_on"><![CDATA[আপনার এখনও কোনো পরিচিতি নেই। সিঙ্ক্রোনাইজেশন চালু আছে, কিন্তু মনে হচ্ছে আপনার ঠিকানা বইয়ের কোনো পরিচিতি ${app_name_short}-এ নেই (তাদের আমন্ত্রণ জানান!)।]]></string>
+    <string name="masterkey_title">পাসফ্রেজ লিখুন</string>
+    <string name="masterkey_body">আপনার মাস্টার কী একটি পাসফ্রেজ দ্বারা সুরক্ষিত। কীটি আনলক করতে আপনার পাসফ্রেজ লিখুন।</string>
+    <string name="masterkey_unlocking">মাস্টার কী আনলক করা হচ্ছে</string>
+    <string name="verify_phonecall_text">একটি কল অনুরোধ করুন</string>
+    <string name="prepare_call_message">আপনি এগিয়ে গেলে, আমরা সাথে সাথে আপনাকে কল করার চেষ্টা করব। আপনার যাচাইকরণ কোডটি
+        আপনাকে দুবার পড়ে শোনানো হবে। মনে রাখবেন আমরা শুধুমাত্র একবার চেষ্টা করব, তাই অগ্রসর হওয়ার আগে দয়া করে নিশ্চিত করুন যে আপনি
+        প্রস্তুত।</string>
+    <string name="enter_code_hint">কোড লিখুন</string>
+    <string name="enter_code_sum">দয়া করে যাচাইকরণ SMS-এর কোড বা ফোন কলে উল্লিখিত কোডটি লিখুন।</string>
+    <string name="no_matching_contacts">কোনো পরিচিতি পাওয়া যায়নি।</string>
+    <string name="code_invalid">আপনি যে কোডটি লিখেছেন তা বৈধ নয়।</string>
+    <string name="try_again">আবার চেষ্টা করুন</string>
+    <string name="decoding_message">বার্তা ডিক্রিপ্ট করা হচ্ছে</string>
+    <string name="expired_barcode">এই কোডের মেয়াদ শেষ হয়েছে। দয়া করে এটি সরাসরি অন্য ব্যবহারকারীর অ্যাপ থেকে আবার স্ক্যান করুন।</string>
+    <string name="pending">মুলতুবি</string>
+    <string name="unlinking_email">ইমেল সংযোগ বিচ্ছিন্ন করা হচ্ছে</string>
+    <string name="unlink">সংযোগ বিচ্ছিন্ন করুন</string>
+    <string name="threema_version">সংস্করণ</string>
+    <string name="threema_version_code">সংস্করণ কোড</string>
+    <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
+    <string name="about_server_config_title">সার্ভার কনফিগারেশন</string>
+    <string name="wrong_backupid_or_password_or_no_internet_connection">ইন্টারনেটে সংযোগ নেই, অবৈধ ID রপ্তানি ডেটা বা ভুল পাসওয়ার্ড</string>
+    <string name="prefs_header_other">অন্যান্য</string>
+    <string name="an_error_occurred">একটি ত্রুটি ঘটেছে</string>
+    <string name="an_error_occurred_more">একটি ত্রুটি ঘটেছে: “%1$s”</string>
+    <string name="acknowledge">সম্মত</string>
+    <string name="decline">অসম্মত</string>
+    <string name="forward_message">বার্তা ফরওয়ার্ড করুন</string>
+    <string name="connection_error">সংযোগ ত্রুটি, দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="me_myself_and_i">আমি</string>
+    <string name="really_forward">“%1$s”-এ ফরওয়ার্ড করবেন?</string>
+    <string name="really_send">“%1$s”-এ পাঠাবেন?</string>
+    <string name="ringtone_none">নীরব</string>
+    <string name="no_camera_installed">কোনো ব্যবহারযোগ্য ক্যামেরা উপলব্ধ নেই</string>
+    <string name="save_message_action">সংরক্ষণ করুন</string>
+    <string name="masterkey_is_unlocked">মাস্টার কী আনলক করা আছে</string>
+    <string name="file_too_large">ফাইলটি সর্বোচ্চ %1$d MB-এর চেয়ে বড়</string>
+    <string name="enter_serial_body"><![CDATA[দয়া করে আপনার শপ লাইসেন্স কী লিখুন। আপনি একটি লাইসেন্স <a href="https://shop.threema.ch/">ক্রয়</a> করতে পারেন অথবা আগে থেকে একটি লাইসেন্স কিনে থাকলে আপনার কী <a href="https://shop.threema.ch/retrieve_keys">পুনরুদ্ধার</a> করতে পারেন।]]></string>
+    <!-- ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_enter_serial_body">দয়া করে আপনার কোম্পানি কর্তৃক প্রদত্ত ${app_name_short} শংসাপত্র লিখুন।</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="enter_serial_title">${app_name} আনলক করুন</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="serial_required_want_exit">লাইসেন্স কীটি অবৈধ। আপনি কি আবার চেষ্টা করতে চান নাকি ${app_name} থেকে বের হতে চান?</string>
+    <!-- Message shown on progress dialog that shows while checking whether the user has a valid license -->
+    <string name="checking_serial">লাইসেন্স পরীক্ষা করা হচ্ছে</string>
+    <!-- Message shown on progress dialog that shows while the credentials that the user entered are being checked for their validity -->
+    <string name="work_checking_credentials">শংসাপত্র পরীক্ষা করা হচ্ছে</string>
+    <string name="update_available">আপডেট উপলব্ধ</string>
+    <!-- Message shown in Update dialog to inform the user that a new version of the app is available -->
+    <string name="update_available_message">একটি নতুন সংস্করণ উপলব্ধ। আপনি কি এখন এটি ডাউনলোড করতে চান?</string>
+    <string name="no_update_available">কোনো আপডেট উপলব্ধ নেই</string>
+    <string name="download">ডাউনলোড করুন</string>
+    <string name="not_now">পরে মনে করিয়ে দিন</string>
+    <string name="preparing_messages">বার্তা প্রস্তুত করা হচ্ছে</string>
+    <string name="select_emoji">ইমোজি</string>
+    <string name="push_reset_title">পুশ টোকেন রিসেট</string>
+    <string name="push_reset_text">পুশ টোকেন রিসেট করা হয়েছে</string>
+    <string name="emoji_recent">সাম্প্রতিক</string>
+    <string name="emoji_smileys">স্মাইলি &amp; আবেগ</string>
+    <string name="emoji_people">মানুষ &amp; শরীর</string>
+    <string name="emoji_nature">প্রাণী &amp; প্রকৃতি</string>
+    <string name="emoji_food">খাবার &amp; পানীয়</string>
+    <string name="emoji_travel">ভ্রমণ &amp; স্থান</string>
+    <string name="emoji_activity">কার্যকলাপ</string>
+    <string name="emoji_objects">বস্তু</string>
+    <string name="emoji_symbols">প্রতীক</string>
+    <string name="emoji_flags">পতাকা</string>
+    <string name="emoji_search">ইমোজি অনুসন্ধান করুন</string>
+    <string name="emoji_search_no_result">কোনো অনুসন্ধান ফলাফল নেই</string>
+    <string name="title_lock">লক</string>
+    <string name="new_messages_locked">নতুন বার্তা উপলব্ধ</string>
+    <string name="new_messages_locked_description">নতুন বার্তা দেখতে স্পর্শ করুন।</string>
+    <string name="new_unprocessed_messages">নতুন বার্তা উপলব্ধ</string>
+    <string name="new_unprocessed_messages_description">নতুন আগত বার্তা আনতে ও দেখতে স্পর্শ করুন।</string>
+    <string name="prefs_title_masterkey_notification_newmsg">নতুন বার্তার বিজ্ঞপ্তি</string>
+    <string name="prefs_masterkey_notification_newmsg_off">মাস্টার কী লক করা থাকলে নতুন বার্তা কোনো বিজ্ঞপ্তি
+        তৈরি করে না</string>
+    <string name="prefs_masterkey_notification_newmsg_on">মাস্টার কী লক করা থাকলে নতুন বার্তা একটি সাধারণ বিজ্ঞপ্তি
+        তৈরি করে</string>
+    <string name="chat_history_attached">কথোপকথন লগ সংযুক্ত করা হয়েছে।</string>
+    <string name="backup_data_title">ডেটা ব্যাকআপ</string>
+    <string name="backup_data_password_msg">আপনার ডেটা আপনার অভ্যন্তরীণ USB স্টোরেজে একটি ZIP ফাইলে সংরক্ষণ করা হবে এবং
+        যেকোনো Android ডিভাইসে পুনরুদ্ধার করা যেতে পারে। আপনার ডেটা ব্যাকআপ রক্ষা করতে দয়া করে একটি পাসওয়ার্ড লিখুন।</string>
+    <string name="restore_data_password_msg">এই ব্যাকআপ তৈরি করতে আপনি যে পাসওয়ার্ড ব্যবহার করেছিলেন তা লিখুন।</string>
+    <string name="backup_data_media">বড় মিডিয়া ফাইল অন্তর্ভুক্ত করুন (ভিডিও, নথি, আসল ছবি)</string>
+    <string name="backup_data_new">ডেটা ব্যাকআপ তৈরি করুন</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="pinentry_enter_pin">চালিয়ে যেতে আপনার ${app_name} PIN লিখুন</string>
+    <string name="pinentry_wrong_pin">PIN ভুল</string>
+    <string name="prefs_sum_security_pin">UI-তে প্রবেশ লক করুন</string>
+    <string name="prefs_title_pin_switch">অ্যাপ লক</string>
+    <string name="prefs_title_pin_code">একটি PIN সেট করুন</string>
+    <string name="prefs_pin_grace">লক হওয়ার সময়</string>
+    <string name="prefs_sum_pin_grace">স্ক্রিন লক সক্রিয় হওয়া পর্যন্ত সময়</string>
+    <string name="click_here_to_change_pin">PIN সেট করা হয়েছে। পরিবর্তন করতে এখানে চাপুন</string>
+    <string name="set_pin_menu_title">নতুন PIN সেট করুন</string>
+    <string name="set_pin_summary_intro">একটি সংখ্যাসূচক PIN (শুধুমাত্র সংখ্যা) সেট করে আপনার গোপনীয়তা রক্ষা করুন। এই PIN একটি অবকাশের সময়ের পরে অ্যাপের UI-তে প্রবেশ লক করতে বা ব্যক্তিগত চ্যাট রক্ষা করতে ব্যবহার করা যেতে পারে</string>
+    <string name="set_pin_again_summary">PIN আবার লিখুন</string>
+    <string name="set_pin_hint">PIN</string>
+    <string name="title_addgroup">নতুন গ্রুপ</string>
+    <string name="updating_system">সিস্টেম আপডেট করা হচ্ছে</string>
+    <string name="title_select_contacts">সদস্য নির্বাচন করুন</string>
+    <string name="pin_invalid_not_set">PIN অবৈধ। সেট করা হয়নি।</string>
+    <string name="prefs_group_notifications">গ্রুপ চ্যাট</string>
+    <string name="group_select_at_least_two">চালিয়ে যেতে অন্তত একজন সদস্য নির্বাচন করতে হবে</string>
+    <string name="group_select_max">আপনি %1$d জনের বেশি গ্রুপ সদস্য নির্বাচন করতে পারবেন না</string>
+    <string name="search">অনুসন্ধান</string>
+    <string name="hint_search_keyword">অনুসন্ধান কীওয়ার্ড</string>
+    <string name="add_group_owner">গ্রুপ নির্মাতা</string>
+    <string name="title_tab_users">পরিচিতি</string>
+    <string name="title_tab_groups">গ্রুপ</string>
+    <string name="no_matching_groups">কোনো গ্রুপ পাওয়া যায়নি</string>
+    <string name="action_leave_group">গ্রুপ ত্যাগ করুন</string>
+    <string name="group_edit_title">গ্রুপ সম্পাদনা করুন</string>
+    <string name="really_leave_group_message">আপনি কি সত্যিই এই গ্রুপ ত্যাগ করতে চান?</string>
+    <string name="search_no_matches">কোনো মিল পাওয়া যায়নি</string>
+    <string name="search_no_more_matches">আর কোনো মিল নেই</string>
+    <string name="backup_share">ব্যাকআপ শেয়ার করুন</string>
+    <string name="my_backups_title">ব্যাকআপ</string>
+    <string name="backup_delete_confirm">ব্যাকআপ ফাইল মুছে ফেলা হয়েছে</string>
+    <string name="message_log_title">বার্তার বিবরণ</string>
+    <string name="state_read">পঠিত</string>
+    <string name="state_delivered">সরবরাহ করা হয়েছে</string>
+    <string name="state_sending">পাঠানো হচ্ছে</string>
+    <string name="state_pending">মুলতুবি</string>
+    <string name="state_failed">ব্যর্থ</string>
+    <string name="state_sent">পাঠানো হয়েছে</string>
+    <string name="state_dialog_created">তৈরি হয়েছে</string>
+    <string name="state_dialog_posted">পাঠানো হয়েছে</string>
+    <string name="state_dialog_modified">আপডেট করা হয়েছে</string>
+    <string name="state_dialog_edited">সম্পাদিত</string>
+    <string name="state_dialog_deleted">মুছে ফেলা হয়েছে</string>
+    <string name="title_tab_recent">সাম্প্রতিক</string>
+    <string name="no_recent_conversations">কোনো চ্যাট পাওয়া যায়নি</string>
+    <string name="creating_group">গ্রুপ তৈরি করা হচ্ছে</string>
+    <string name="updating_group">গ্রুপ আপডেট করা হচ্ছে</string>
+    <string name="leaving_group">গ্রুপ ত্যাগ করা হচ্ছে</string>
+    <string name="disbanding_group">গ্রুপ বিলুপ্ত করা হচ্ছে</string>
+    <string name="removing_group">গ্রুপ মুছে ফেলা হচ্ছে</string>
+    <string name="resyncing_group">গ্রুপ পুনরায় সিঙ্ক করা হচ্ছে</string>
+    <string name="status_create_group">গ্রুপ তৈরি হয়েছে।</string>
+    <string name="status_rename_group">গ্রুপের নাম পরিবর্তন করে “%1$s” করা হয়েছে</string>
+    <string name="status_group_new_photo">গ্রুপের ছবি আপডেট করা হয়েছে।</string>
+    <string name="status_group_new_member">“%1$s” গ্রুপে যোগ করা হয়েছে।</string>
+    <string name="status_group_member_left">“%1$s” গ্রুপ ত্যাগ করেছেন।</string>
+    <string name="status_group_member_kicked">“%1$s” গ্রুপ থেকে সরানো হয়েছে।</string>
+    <string name="can_not_send_no_group_members">আপনি একটি খালি গ্রুপে বার্তা পাঠাতে পারবেন না</string>
+    <string name="you_are_not_a_member_of_this_group">আপনি এই গ্রুপের সদস্য নন</string>
+    <string name="title_public_nickname">ডাকনাম</string>
+    <string name="title_availability_status">অবস্থা</string>
+    <string name="prefs_sum_excluded_sync_identities">এখানে তালিকাভুক্ত ID-গুলো পরিচিতি সিঙ্ক্রোনাইজ করার সময় উপেক্ষা করা হবে</string>
+    <string name="prefs_title_excluded_sync_identities">বর্জন তালিকা</string>
+    <string name="synchronize_contact">ঠিকানা বই সিঙ্ক</string>
+    <string name="exclude_contact">স্বয়ংক্রিয় সিঙ্ক থেকে বাদ দিন</string>
+    <string name="prefs_header_lists">তালিকা</string>
+    <string name="prefs_title_blocked_contacts">ব্লক করা পরিচিতি</string>
+    <string name="prefs_sum_blocked_contacts">এখানে তালিকাভুক্ত ID থেকে আসা বার্তা উপেক্ষা করা হবে।</string>
+    <string name="verified">যাচাইকৃত</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="want_to_add_to_exclude_list">এই পরিচিতিটি আপনার ফোনের ঠিকানা বইয়ের একটি রেকর্ডের সাথে সংযুক্ত। আপনি যদি
+        এটি ${app_name_short}-এ মুছে ফেলেন তবে পরিচিতি সিঙ্কের পরে এটি আবার দেখা যাবে।\nআপনি কি এটিকে সিঙ্ক্রোনাইজেশন থেকে বাদ দিতে চান?</string>
+    <string name="no">না</string>
+    <string name="yes">হ্যাঁ</string>
+    <string name="deleting_contact">পরিচিতি মুছে ফেলা হচ্ছে</string>
+    <string name="prefs_contact_soring">সাজানো</string>
+    <string name="prefs_contact_format">পরিচিতির নাম দেখুন</string>
+    <string name="prefs_contact_list_title">পরিচিতি তালিকা</string>
+    <string name="prefs_default_contact_picture_colored">ডিফল্ট পরিচিতি ছবি</string>
+    <string name="prefs_show_inactive_contacts">নিষ্ক্রিয় ID দেখান</string>
+    <string name="prefs_sum_default_contact_picture_colored_on">পরিচিতির ছবি না থাকলে বহু-রঙের প্লেসহোল্ডার
+        প্রদর্শন করুন</string>
+    <string name="prefs_sum_default_contact_picture_colored_off">পরিচিতির ছবি না থাকলে ধূসর প্লেসহোল্ডার ব্যবহার করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_show_inactive_contacts_on">আপনার পরিচিতি তালিকায় সমস্ত ${app_name_short} ID দেখান</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_show_inactive_contacts_off">নিষ্ক্রিয়/প্রত্যাহার করা ${app_name_short} ID লুকান</string>
+    <string name="contact_sorting_first_name">প্রথম-নাম - শেষ-নাম</string>
+    <string name="contact_sorting_last_name">শেষ-নাম - প্রথম-নাম</string>
+    <string name="contact_format_first_name_last_name">প্রথম-নাম শেষ-নাম</string>
+    <string name="contact_format_last_name_first_name">শেষ-নাম প্রথম-নাম</string>
+    <string name="block_contact">পরিচিতি ব্লক করুন</string>
+    <string name="unblock_contact">পরিচিতি আনব্লক করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="add_acount_from_within_threema">${app_name_short}-এর ভিতর থেকে আপনার ${app_name_short} ID পরিচালনা করুন।</string>
+    <string name="share_image">ছবি শেয়ার করুন</string>
+    <string name="view_in_gallery">গ্যালারিতে দেখুন</string>
+    <string name="token_register_failed">পুশ টোকেন আপডেট করতে ব্যর্থ হয়েছে, দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="internet_connection_required">কোনো ইন্টারনেট সংযোগ নেই।</string>
+    <string name="prefs_sum_save_media">আগত ছবি ও ভিডিও এবং বহির্গামী ক্যামেরা ছবি এনক্রিপ্ট না করা অবস্থায় সংরক্ষণ করুন</string>
+    <string name="prefs_save_media">গ্যালারিতে স্বয়ংক্রিয় সংরক্ষণ</string>
+    <string name="title_add_distribution_list">নতুন বিতরণ তালিকা</string>
+    <string name="title_edit_distribution_list">বিতরণ তালিকা সম্পাদনা করুন</string>
+    <string name="really_delete_distribution_list">বিতরণ তালিকা মুছুন</string>
+    <string name="really_delete_distribution_list_message">আপনি কি সত্যিই এই তালিকা সরাতে এবং এর
+        বার্তা মুছতে চান?</string>
+    <string name="enter_distribution_list_name">এই তালিকার জন্য একটি নাম বেছে নিন</string>
+    <string name="distribution_list">বিতরণ তালিকা</string>
+    <string name="title_tab_distribution_list">বিতরণ তালিকা</string>
+    <string name="no_matching_distribution_lists">কোনো মিলযুক্ত বিতরণ তালিকা নেই</string>
+    <string name="is_typing">টাইপ করছেন…</string>
+    <string name="push_not_available_title">কোনো পুশ পরিষেবা পাওয়া যায়নি</string>
+    <string name="push_not_available_text1">আমরা আপনার ডিভাইসে কোনো পুশ পরিষেবা খুঁজে পাইনি কারণ Google Play Services ইনস্টল করা নেই বা পুরনো।</string>
+    <string name="push_not_available_text2">%s সার্ভারে একটি স্থায়ী পটভূমি সংযোগ খোলার চেষ্টা করবে। আপনার ডিভাইসের ব্যাটারি অপ্টিমাইজেশন প্রক্রিয়া পটভূমি সংযোগে হস্তক্ষেপ করলে এটি নির্ভরযোগ্যভাবে কাজ নাও করতে পারে।</string>
+    <string name="backup_in_progress">ব্যাকআপ চলছে</string>
+    <string name="backup_or_restore_success_body">ডেটা ব্যাকআপ সফলভাবে সম্পন্ন হয়েছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_or_restore_error">${app_name_short} ব্যাকআপ</string>
+    <string name="backup_or_restore_error_body">ব্যাকআপ সফলভাবে সম্পন্ন হয়নি</string>
+    <string name="could_not_download_message">বার্তা ডাউনলোড করা যায়নি</string>
+    <string name="info">তথ্য</string>
+    <string name="resync_group">গ্রুপ পুনরায় সিঙ্ক করুন</string>
+    <string name="edit_name">নাম ও ছবি সম্পাদনা করুন</string>
+    <string name="edit_name_only">নাম সম্পাদনা করুন</string>
+    <string name="group_was_synchronized">গ্রুপ সিঙ্ক করা হয়েছে।</string>
+    <string name="verification_level2_work_explain">অভ্যন্তরীণ পরিচিতি, আপনার সংস্থা দ্বারা পূর্বনির্ধারিত।</string>
+    <string name="verification_level3_work_explain">অভ্যন্তরীণ পরিচিতি যার পরিচয় ও পাবলিক কী আপনি তাদের QR কোড স্ক্যান করে ব্যক্তিগতভাবে যাচাই করেছেন।</string>
+    <string name="verification_level3_explain">পরিচিতি যার পরিচয় ও পাবলিক কী আপনি তাদের QR কোড স্ক্যান করে ব্যক্তিগতভাবে যাচাই করেছেন।</string>
+    <string name="verification_level2_explain">পরিচিতি যার ফোন নম্বর এবং/অথবা ইমেল ঠিকানা আপনার ঠিকানা বইয়ে রয়েছে।</string>
+    <string name="verification_level1_explain">অজানা পরিচিতি; হয় এই পরিচিতি তাদের ID-তে কোনো ফোন নম্বর বা ইমেল ঠিকানা সংযুক্ত করেনি, অথবা আপনার ঠিকানা বইয়ে এই পরিচিতির বিবরণ নেই।</string>
+    <string name="state_dialog_received">গ্রহণ করা হয়েছে</string>
+    <string name="prefs_title_hide_screenshots">কোনো থাম্বনেল ও স্ক্রিনশট নয়</string>
+    <string name="prefs_summary_hide_screenshots">অ্যাপ সুইচারে থাম্বনেল দেখাবেন না এবং নির্দিষ্ট স্ক্রিনের
+        স্ক্রিনশট নিষ্ক্রিয় করুন</string>
+    <string name="media_gallery">মিডিয়া গ্যালারি</string>
+    <string name="media_file_not_found">মিডিয়া ফাইল খোলা যায়নি। এটি মুছে ফেলা হয়েছিল বা সার্ভার থেকে ডাউনলোড করা হয়নি।</string>
+    <string name="media_gallery_pictures">ছবি</string>
+    <string name="media_gallery_videos">ভিডিও</string>
+    <string name="group_membership_title">এই গ্রুপগুলোর সদস্য</string>
+    <string name="group_description">গ্রুপের বিবরণ</string>
+    <string name="change_group_description">গ্রুপের বিবরণ পরিবর্তন করুন</string>
+    <string name="add_group_description">একটি গ্রুপ বিবরণ যোগ করুন</string>
+    <string name="read_more">আরও পড়ুন</string>
+    <string name="read_less">কম পড়ুন</string>
+    <string name="changed_group_desc_date">সর্বশেষ পরিবর্তন: </string>
+    <string name="num_items_sected">%s নির্বাচিত</string>
+    <string name="really_delete_media">আপনি কি সত্যিই %d টি মিডিয়া বার্তা মুছতে চান?</string>
+    <string name="check_updates">আপডেট পরীক্ষা করুন</string>
+    <!-- ${app_name} and ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
+    <string name="masterkey_lock_explain">${app_name} পাসফ্রেজটি মেমরিতে রাখে। যদি আপনাকে প্রায়শই পাসফ্রেজ পুনরায় লিখতে হয়, তাহলে নিশ্চিত করুন যে ${app_name_short}-কে অকালে বন্ধ করতে পারে এমন টাস্ক কিলার ও ব্যাটারি সেভার অ্যাপ নিষ্ক্রিয় আছে।</string>
+    <string name="identity_already_exists">এই ID ইতিমধ্যে আপনার পরিচিতি তালিকায় রয়েছে</string>
+    <string name="share_contact">পরিচিতি শেয়ার করুন</string>
+    <string name="add_shortcut">শর্টকাট যোগ করুন</string>
+    <string name="group_not_found">এমন কোনো গ্রুপ পাওয়া যায়নি।</string>
+    <string name="contact_not_found">এমন কোনো পরিচিতি নেই</string>
+    <string name="contact_now_blocked">পরিচিতি ব্লক করা হয়েছে</string>
+    <string name="contact_now_unblocked">পরিচিতি আনব্লক করা হয়েছে</string>
+    <string name="share_conversation_body">ফাইলটি আনজিপ করতে AES সমর্থন সহ একটি আধুনিক ZIP টুল প্রয়োজন, যেমন
+        http://www.7-zip.org বা https://itunes.apple.com/us/app/the-unarchiver/id425424353</string>
+    <string name="enter_zip_password_body">চ্যাটটি একটি এনক্রিপ্ট করা zip ফাইল হিসেবে পাঠানো হবে। দয়া করে একটি পাসওয়ার্ড বেছে নিন:</string>
+    <string name="ballot_create">একটি জরিপ তৈরি করুন</string>
+    <string name="ballot_choice_add">পছন্দ যোগ করুন</string>
+    <string name="ballot_state_closed">বন্ধ</string>
+    <string name="ballot_vote">ভোট দিন</string>
+    <string name="ballot_placeholder">জরিপ</string>
+    <string name="ballot_close">এই জরিপ বন্ধ করুন</string>
+    <string name="ballot_really_close">সত্যিই এই জরিপ বন্ধ করবেন?</string>
+    <string name="ballot_multiple_choice">একাধিক পছন্দ</string>
+    <string name="ballot_result_intermediate">অন্তর্বর্তী ফলাফল</string>
+    <string name="ballot_error_more_than_x_choices">অন্তত দুটি পছন্দ নির্ধারণ করতে হবে</string>
+    <string name="ballot_message_closed">ফলাফল উপলব্ধ</string>
+    <string name="ballot_vote_posted_successfully">ভোট সফলভাবে পোস্ট করা হয়েছে</string>
+    <string name="ballot_vote_posted_failed">ভোট পোস্ট করা ব্যর্থ হয়েছে</string>
+    <string name="attach_ballot">জরিপ</string>
+    <string name="ballot_overview">সমস্ত জরিপ</string>
+    <string name="ballot_copy">জরিপ অনুলিপি করুন</string>
+    <string name="ballot_remove">জরিপ সরান</string>
+    <string name="ballot_not_exist">জরিপ বিদ্যমান নেই</string>
+    <string name="ballot_tap_to_vote">ভোট দিতে চাপুন</string>
+    <string name="ballot_tap_to_view_results">জরিপ বন্ধ। ফলাফল দেখতে চাপুন</string>
+    <string name="ballot_subject_hint">এই জরিপের শিরোনাম লিখুন</string>
+    <string name="ballot_no_ballots_yet">এখনও কোনো জরিপ নেই।</string>
+    <string name="print">প্রিন্ট করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="ballot_wizard0_explain">${app_name_short}-এর মাধ্যমে সরাসরি দ্রুত একটি অনলাইন জরিপ তৈরি করুন। একটি ইভেন্ট নির্ধারণ করুন,
+        একটি সমীক্ষা তৈরি করুন বা আপনার পরিচিতিদের যা খুশি জিজ্ঞাসা করুন।</string>
+    <string name="ballot_add_choices">উত্তর যোগ করুন</string>
+    <string name="blocked_cannot_send">আপনি ব্লক করা পরিচিতিকে বার্তা পাঠাতে পারবেন না</string>
+    <string name="invalid_some_cannot_send">কিছু প্রাপককে নির্বাচন করা যাবে না।</string>
+    <string name="invalid_all_cannot_send">এই প্রাপকদের নির্বাচন করা যাবে না।</string>
+    <string name="really_block_contact">এই পরিচিতির ভবিষ্যৎ বার্তা বাতিল করা হবে। চালিয়ে যাবেন?</string>
+    <string name="ballot_result_final">চূড়ান্ত ফলাফল</string>
+    <string name="invalid_cannot_send">আপনি অবৈধ পরিচিতিকে বার্তা পাঠাতে পারবেন না</string>
+    <string name="ballot_answer_count_error">দয়া করে একটি জরিপের জন্য অন্তত দুটি উত্তর লিখুন।</string>
+    <string name="contact_state_inactive">নিষ্ক্রিয়</string>
+    <string name="contact_state_invalid">অবৈধ</string>
+    <string name="back">পিছনে</string>
+    <string name="wearable_reply">উত্তর দিন</string>
+    <string name="wearable_reply_label">%s-কে উত্তর দিন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="push_disable_text">আপনি চালিয়ে গেলে, সিস্টেমের পুশ পরিষেবার পরিবর্তে “${app_name_short} Push” ব্যবহার করা হবে। এটি আপনার ডিজিটাল পদচিহ্ন কমাতে সাহায্য করে কিন্তু এর জন্য আপনার ফোনকে এমনভাবে কনফিগার করতে হবে যাতে অ্যাপটি পটভূমিতে চলতে পারে। ডিভাইস সেটিংসে সংশ্লিষ্ট বিকল্পগুলো খুঁজে না পেলে কনফিগারেশনে সহায়তার জন্য আপনি আপনার ডিভাইস প্রস্তুতকারকের সাপোর্টের সাথে যোগাযোগ করতে পারেন।</string>
+    <string name="debug_log_enabled_recently_warning">আপনার যদি কোনো নির্দিষ্ট সমস্যা থাকে, তাহলে ডিবাগ লগ ফাইল আমাদের পাঠানোর আগে দয়া করে এটি পুনরুৎপাদনের চেষ্টা করুন। এটি আমাদের সমস্যাটি আরও কার্যকরভাবে তদন্ত করতে সাহায্য করবে। ধন্যবাদ।</string>
+    <string name="ballot_intermediate_results_show">অন্তর্বর্তী ফলাফল দেখান</string>
+    <string name="converting_video">ভিডিও প্রক্রিয়াকরণ করা হচ্ছে</string>
+    <string name="video_size_small">উচ্চ (কম ডেটা)</string>
+    <string name="video_size_large">নিম্ন (বেশি ডেটা)</string>
+    <string name="video_size_original">কোনোটি নয় (বিপুল পরিমাণ ডেটা)</string>
+    <string name="prefs_video_size">ভিডিও সংকোচন</string>
+    <string name="menu_video_size_small">ছোট আকার</string>
+    <string name="menu_video_size_medium">মাঝারি আকার</string>
+    <string name="menu_video_size_large">আসল আকার</string>
+    <string name="show_contact">পরিচিতি দেখান</string>
+    <string name="chat_with">%1$s-এর সাথে চ্যাট করুন</string>
+    <string name="kick_user_from_group">গ্রুপ থেকে %1$s-কে বের করুন</string>
+    <string name="show_as_qrcode">QR কোড হিসেবে দেখান</string>
+    <string name="qr_code">QR কোড</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="really_leave_id_export">আপনি যদি এখনও না করে থাকেন, তাহলে আপনার ID রপ্তানির টেক্সট স্ট্রিং বা সংশ্লিষ্ট QR কোড একটি নিরাপদ স্থানে সংরক্ষণ করুন বা প্রিন্ট করুন। ব্যাকআপ ছাড়া আপনার ${app_name_short} ID পুনরুদ্ধার করা যাবে না।</string>
+    <string name="revocation_key_title">ID প্রত্যাহার</string>
+    <string name="revocation_key_not_set">কোনো প্রত্যাহার পাসওয়ার্ড সেট করা নেই</string>
+    <string name="revocation_key_set_at">পাসওয়ার্ড সেট করা হয়েছে %1$s</string>
+    <string name="prefs_sum_remove_wallpapers">সমস্ত স্বতন্ত্র ওয়ালপেপার মুছুন</string>
+    <string name="prefs_title_remove_wallpapers">সমস্ত ওয়ালপেপার সরান</string>
+    <string name="really_remove_wallpapers">আপনি কি সত্যিই সমস্ত ওয়ালপেপার সরাতে চান?</string>
+    <string name="wallpapers_removed">ওয়ালপেপার সরানো হয়েছে</string>
+    <string name="invalid_backup">অবৈধ ব্যাকআপ ডেটা। পুনরুদ্ধার করা যাবে না।</string>
+    <string name="invalid_zip_restore_failed">পুনরুদ্ধার ব্যর্থ হয়েছে। অবৈধ ব্যাকআপ ফাইল: %1$s</string>
+    <string name="revocation_explain">আপনি এখানে যে পাসওয়ার্ড লিখবেন তা আপনাকে আপনার ID হারিয়ে গেলে বা চুরি হয়ে গেলে
+        https://myid.threema.ch/revoke-এ প্রত্যাহার করার সুযোগ দেয়</string>
+    <!-- Empty state text shown on home screen widget when there are no unread messages -->
+    <string name="no_unread_messages">কোনো অপঠিত বার্তা নেই</string>
+    <string name="send_media">মিডিয়া পাঠান</string>
+    <string name="rotate">ঘোরান</string>
+    <string name="remove">সরান</string>
+    <string name="item_already_added">এই আইটেমটি ইতিমধ্যে যোগ করা হয়েছে।</string>
+    <string name="password_too_short" tools:ignore="PluralsCandidate">ন্যূনতম %d অক্ষর।</string>
+    <string name="mark_read">পঠিত হিসেবে চিহ্নিত করুন</string>
+    <string name="attach_document">ফাইল</string>
+    <string name="parent_directory">প্যারেন্ট</string>
+    <string name="file_placeholder">ফাইল</string>
+    <string name="internal_storage">অভ্যন্তরীণ স্টোরেজ</string>
+    <string name="no_activity_for_mime_type">এই ফাইলটি খোলার জন্য কোনো অ্যাপ পাওয়া যায়নি।</string>
+    <string name="no_activity_for_intent">কোনো অ্যাপ পাওয়া যায়নি।</string>
+    <string name="open_from">এখান থেকে খুলুন</string>
+    <string name="mime_android_apk">Android প্যাকেজ</string>
+    <string name="mime_audio">অডিও ফাইল</string>
+    <string name="mime_certificate">ডিজিটাল শংসাপত্র</string>
+    <string name="mime_codes">সোর্স কোড</string>
+    <string name="mime_compressed">আর্কাইভ</string>
+    <string name="mime_contact">পরিচিতি</string>
+    <string name="mime_event">ক্যালেন্ডার ইভেন্ট</string>
+    <string name="mime_font">ফন্ট</string>
+    <string name="mime_image">ছবি ফাইল</string>
+    <string name="mime_pdf">PDF নথি</string>
+    <string name="mime_presentation">উপস্থাপনা</string>
+    <string name="mime_spreadsheet">স্প্রেডশিট</string>
+    <string name="mime_text">টেক্সট ফাইল</string>
+    <string name="mime_video">ভিডিও ফাইল</string>
+    <string name="mime_word">টেক্সট নথি</string>
+    <string name="no_filename"><![CDATA[<No filename>]]></string>
+    <string name="send_as_files">ফাইল হিসেবে পাঠান</string>
+    <string name="send_as_files_warning">সংকোচন ছাড়া ফাইল ও ছবি স্থানান্তর করলে উল্লেখযোগ্য ডেটা ব্যবহার হতে পারে
+        যা আপনার মোবাইল প্রদানকারীর দ্বারা অতিরিক্ত চার্জের কারণ হতে পারে। আমরা শুধুমাত্র WiFi
+        নেটওয়ার্কে ফাইল আপলোড ও ডাউনলোড করার পরামর্শ দিই।</string>
+    <string name="prefs_theme">ডিজাইন থিম</string>
+    <string name="list_theme_light">হালকা</string>
+    <string name="list_theme_dark">গাঢ়</string>
+    <string name="prefs_header_appearance">চেহারা</string>
+    <string name="prefs_sum_passphrase">স্থানীয় এনক্রিপশন আনলক করতে একটি পাসফ্রেজ প্রয়োজন</string>
+    <string name="prefs_title_masterkey_change_passphrase">পাসফ্রেজ পরিবর্তন করুন</string>
+    <string name="storage_total">অভ্যন্তরীণ স্টোরেজে স্থান</string>
+    <string name="storage_threema">%s দ্বারা ব্যবহৃত</string>
+    <string name="storage_total_free">মোট ফাঁকা স্থান</string>
+    <string name="storage_total_in_use">ব্যবহৃত</string>
+    <string name="one_year">১ বছর</string>
+    <string name="six_months">৬ মাস</string>
+    <string name="three_months">৩ মাস</string>
+    <string name="one_month">১ মাস</string>
+    <string name="one_week">১ সপ্তাহ</string>
+    <string name="everything">সবকিছু</string>
+    <string name="delete_media_files_time">এর চেয়ে পুরনো মিডিয়া ও ফাইল মুছুন:</string>
+    <string name="storage_explain">আপনার ফাঁকা স্থান ফুরিয়ে গেলে, আপনি জায়গা তৈরি করতে পুরনো এনক্রিপ্ট করা মিডিয়া ফাইল মুছতে পারেন।
+        থাম্বনেল তবুও রাখা হবে। মনে রাখবেন এটি একটি স্বয়ংক্রিয় প্রক্রিয়া নয়। আপনি নিচের একটি বোতামে চাপ না দিলে কিছুই মুছে ফেলা হবে না।</string>
+    <string name="delete_data">এখন ডেটা মুছুন</string>
+    <string name="delete_date_confirm_message">আপনি চালিয়ে গেলে, ফাইলগুলো মুছে ফেলা হবে এবং শুধুমাত্র থাম্বনেল
+        রাখা হবে।</string>
+    <string name="storage_management">স্টোরেজ ব্যবস্থাপনা</string>
+    <string name="media">মিডিয়া</string>
+    <string name="prefs_storage_mgmt_title">মিডিয়া, ফাইল ও বার্তা পরিষ্কার করুন</string>
+    <string name="num_messages">বার্তার সংখ্যা</string>
+    <string name="delete_messages_explain">এর চেয়ে পুরনো বার্তা মুছুন:</string>
+    <string name="delete_message">এখন বার্তা মুছুন</string>
+    <string name="really_delete_messages">আপনি চালিয়ে গেলে, বার্তাগুলো স্থায়ীভাবে মুছে ফেলা হবে। আপনি সেগুলো
+        পুনরুদ্ধার করতে পারবেন না।</string>
+    <string name="messages_delete_explain">আপনি পুরনো বার্তাগুলোও সম্পূর্ণভাবে সরাতে পারেন।</string>
+    <string name="backup_started">ডেটা ব্যাকআপ শুরু হয়েছে</string>
+    <string name="invalid_data">অবৈধ ডেটা। পাঠানো যাবে না।</string>
+    <string name="prefs_emoji_style">ইমোজি শৈলী</string>
+    <string name="prefs_android_emojis">সিস্টেম ইমোজি</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_default_emojis">${app_name_short} ইমোজি (ডিফল্ট)</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="android_emojis_warning">দ্রষ্টব্য: সিস্টেমের ক্যারেক্টার সেট ${app_name_short} দ্বারা সমর্থিত সমস্ত ইমোজি প্রদর্শন করতে নাও পারে।</string>
+    <string name="crop">ক্রপ করুন</string>
+    <string name="scan_id_mismatch_title">ID অমিল</string>
+    <string name="scan_id_mismatch_message">আপনি যে ID স্ক্যান করেছেন তা আপনার সংরক্ষিত পরিচিতির সাথে
+        মেলে না।</string>
+    <string name="title_remove_picture">ছবি সরান</string>
+    <string name="blocked">ব্লক করা হয়েছে</string>
+    <string name="name">নাম</string>
+    <string name="privacy_policy">গোপনীয়তা নীতি</string>
+    <string name="terms_of_service">পরিষেবার শর্তাবলী</string>
+    <string name="eula">শেষ-ব্যবহারকারী লাইসেন্স চুক্তি</string>
+    <string name="save_group_changes">আপনি কি গ্রুপের পরিবর্তন সংরক্ষণ করতে চান?</string>
+    <string name="prefs_title_fontsize">ফন্টের আকার</string>
+    <string name="fontsize_normal">সাধারণ</string>
+    <string name="fontsize_large">বড়</string>
+    <string name="fontsize_xlarge">অতিরিক্ত বড়</string>
+    <string name="no_app_for_location">এই ডিভাইসে কোনো মানচিত্র অ্যাপ্লিকেশন পাওয়া যায়নি</string>
+    <string name="prefs_sendlog">লগ পাঠান</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sendlog_summary">সমস্যা হলে আরও বিশ্লেষণের জন্য ${company_name}-কে লগফাইল পাঠান</string>
+    <string name="prefs_exportlog">লগ রপ্তানি করুন</string>
+    <string name="prefs_exportlog_summary">অন্য একটি অ্যাপের সাথে লগফাইল শেয়ার করুন</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_storage_required">মিডিয়া সংরক্ষণ বা পাঠাতে, ${app_name}-কে স্টোরেজ অ্যাক্সেসের অনুমতি দিন।</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_location_required">একটি অবস্থান পাঠাতে, ${app_name}-কে আপনার অবস্থান অ্যাক্সেসের অনুমতি দিন।</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_contacts_required">পরিচিতি পাঠাতে, ${app_name}-কে পরিচিতি পড়ার অনুমতি দিন।</string>
+    <!-- "Thumbs up" should be translated by the name of the emoji 👍 -->
+    <string name="message_acknowledged">“থাম্বস আপ” পাঠানো হয়েছে</string>
+    <!-- "Thumbs down" should be translated by the name of the emoji 👎 -->
+    <string name="message_declined">“থাম্বস ডাউন” পাঠানো হয়েছে</string>
+    <string name="notifications_settings">বিজ্ঞপ্তি সেটিংস</string>
+    <string name="notifications_default">ডিফল্ট সেটিংস</string>
+    <string name="notifications_until">%s পর্যন্ত</string>
+    <string name="notifications_mute">নিঃশব্দ</string>
+    <string name="notifications_choose_sound">শব্দ বেছে নিন</string>
+    <string name="confirm_your_pin">আপনার PIN নিশ্চিত করুন</string>
+    <string name="too_many_incorrect_attempts">অনেকবার ভুল চেষ্টা হয়েছে। %s সেকেন্ড পরে আবার চেষ্টা করুন।</string>
+    <string name="no_lockscreen_set">কোনো সিস্টেম স্ক্রিন লক সেট করা নেই।</string>
+    <string name="on">চালু</string>
+    <string name="off">বন্ধ</string>
+    <string name="new_wizard_select_country">আপনার দেশ নির্বাচন করুন</string>
+    <string name="new_wizard_lets_get_started">চলুন শুরু করা যাক!</string>
+    <string name="new_wizard_setup_threema">এখন সেট আপ করুন</string>
+    <!-- Label on call-to-action button in setup wizard when app is first opened, to allow the user to start setting up the app. ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_new_wizard_setup_threema">${app_name} সেট আপ করুন</string>
+    <string name="new_wizard_restore_id_backup">রপ্তানি করা ID পুনরুদ্ধার করুন</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="new_wizard_welcome">${app_name}-এ স্বাগতম!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_move_finger">একটি নতুন ${app_name_short} ID তৈরি করতে স্ক্রিনে আপনার আঙুল নাড়ান।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_this_is_your_id">এটি আপনার ${app_name_short} ID:</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_works_like_phone_number">আপনার ${app_name_short} ID একটি ফোন নম্বরের মতোই কাজ করে।\nআপনার পরিচিতিরা এই ID-এর মাধ্যমে আপনার কাছে পৌঁছাতে পারে।</string>
+    <string name="new_wizard_choose_nickname">একটি ডাকনাম বেছে নিন</string>
+    <string name="new_wizard_nickname_explain">আপনার পরিচিতিরা তাদের বিজ্ঞপ্তিতে আপনার ডাকনাম দেখতে পাবে</string>
+    <string name="new_wizard_hint_enter_nickname">একটি ডাকনাম লিখুন</string>
+    <string name="new_wizard_help_your_friends_find_you">আপনার পরিচিতিদের আপনাকে খুঁজে পেতে সাহায্য করুন!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_link_mobile">আপনার মোবাইল নম্বর এবং/অথবা আপনার ইমেল আপনার ${app_name_short} ID-তে সংযুক্ত করুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_link_mobile_only">আপনার মোবাইল নম্বর আপনার ${app_name_short} ID-তে সংযুক্ত করুন।</string>
+    <string name="new_wizard_hint_mobile_number">মোবাইল নম্বর (ঐচ্ছিক)</string>
+    <string name="new_wizard_hint_email">ইমেল (ঐচ্ছিক)</string>
+    <string name="new_wizard_done_title">আপনি সম্পন্ন করেছেন!\nসবকিছু কি সঠিক?</string>
+    <string name="new_wizard_linked_to">এর সাথে সংযুক্ত</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_need_internet">আপনার অনন্য ${app_name_short} ID তৈরি করতে একটি স্থিতিশীল ইন্টারনেট সংযোগ প্রয়োজন। দয়া করে আবার চেষ্টা করুন।</string>
+    <string name="new_wizard_more_information">আরও তথ্য</string>
+    <string name="message_details_message_id_copied">বার্তা ID ক্লিপবোর্ডে অনুলিপি করা হয়েছে</string>
+    <string name="contact_details_id_copied">ID ক্লিপবোর্ডে অনুলিপি করা হয়েছে</string>
+    <string name="contact_details_nickname_copied">ডাকনাম ক্লিপবোর্ডে অনুলিপি করা হয়েছে</string>
+    <string name="generic_copied_to_clipboard_hint">ক্লিপবোর্ডে অনুলিপি করা হয়েছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_use_id_as_nickname">আপনি কি আপনার ${app_name_short} ID-কে আপনার ডাকনাম হিসেবে ব্যবহার করতে চান?</string>
+    <string name="new_wizard_phone_email_invalid">আপনি যে ফোন নম্বর বা ইমেল ঠিকানা লিখেছেন তা বৈধ নয়।\nঅগ্রসর হওয়ার আগে দয়া করে সংশোধন করুন।</string>
+    <string name="new_wizard_phone_invalid">আপনি যে ফোন নম্বর লিখেছেন তা বৈধ নয়।\nঅগ্রসর হওয়ার আগে দয়া করে সংশোধন করুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_fingerprint">আপনার আঙুল নাড়িয়ে, আপনি র‍্যান্ডম ডেটা (যাকে এনট্রপি বলা হয়) তৈরি করেন যা
+        আপনার নতুন অনন্য ${app_name_short} ID-এর সাথে সংশ্লিষ্ট কীপেয়ার তৈরি করতে ব্যবহৃত হয়। কীপেয়ারটিতে একটি <b>পাবলিক কী</b> থাকে যা
+        আপনার পরিচিতিদের কাছে বিতরণ করা হয় এবং একটি <b>প্রাইভেট কী</b> যা আপনার ফোনে নিরাপদে সংরক্ষিত থাকে। আপনার পরিচিতিরা আপনার কাছে বার্তা এনক্রিপ্ট করবে
+        আপনার পাবলিক কী দিয়ে। শুধুমাত্র প্রাইভেট কীয়ের মালিক এবং অন্য কেউ নয় এই বার্তাগুলো ডিক্রিপ্ট করতে সক্ষম।</string>
+    <string name="new_wizard_info_id">আপনি একটি কী পেয়ারও তৈরি করেছেন। পাবলিক কী আমাদের সার্ভারে নিরাপদে
+        প্রেরণ করা হয়েছে। প্রাইভেট কী কখনও আপনার ডিভাইস ছাড়ে না। এটি নিশ্চিত করে যে অন্য কেউ আপনার বার্তা পড়তে পারবে না।</string>
+    <string name="new_wizard_info_sync_contacts_dialog">পরিচিতি সিঙ্ক আপনাকে স্বয়ংক্রিয়ভাবে আপনার পরিচিতিদের খুঁজে পেতে সাহায্য করতে পারে। আপনি সম্মত হলে, আপনার ফোন বইয়ের ফোন নম্বর ও ইমেল ঠিকানা মিলযুক্ত পরিচিতি খোঁজার জন্য আমাদের সার্ভারে পাঠানোর আগে এনক্রিপ্ট করা হবে। সম্পূর্ণভাবে কোনো ডেটা সংরক্ষণ বা শেয়ার করা হবে না।\n\nআপনি কি পরিচিতি সিঙ্ক সক্ষম করতে চান?</string>
+    <!-- Instructions shown during the setup wizard. Only used for work builds (i.e., Threema Work or OnPrem). ${app_name_short} is a placeholders for the app's name, it must be kept as-is and should not be translated. -->
+    <string name="new_wizard_info_link">আপনার ফোন নম্বর ও ইমেল ঠিকানা প্রদান করে, ${app_name_short} আপনার পরিচিতিদের তাদের ফোনের ঠিকানা বইয়ে আপনি থাকলে স্বয়ংক্রিয়ভাবে আপনাকে খুঁজে পেতে সাহায্য করতে পারে। ডেটা আমাদের সার্ভারে একমুখী এনক্রিপ্ট করা (হ্যাশ করা) আকারে সংরক্ষণ করা হবে। আপনি যদি ${app_name}-কে সম্পূর্ণ বেনামে ব্যবহার করতে চান তাহলে আপনি এই ধাপটি সহজেই এড়িয়ে যেতে পারেন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_link_phone_only">আপনার ফোন নম্বর প্রদান করে, ${app_name_short} আপনার পরিচিতিদের তাদের ফোনের ঠিকানা বইয়ে আপনি থাকলে
+        স্বয়ংক্রিয়ভাবে আপনাকে খুঁজে পেতে সাহায্য করতে পারে। নম্বরটি আমাদের সার্ভারে একমুখী এনক্রিপ্ট করা (হ্যাশ করা) আকারে
+        সংরক্ষণ করা হবে। আপনি যদি ${app_name_short}-কে সম্পূর্ণ বেনামে ব্যবহার করতে চান তাহলে আপনি এই ধাপটি সহজেই এড়িয়ে যেতে পারেন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_info_nickname">ডাকনামটি কিছু ডিভাইসে পুশ বিজ্ঞপ্তিতে বা যারা এখনও আপনাকে তাদের ঠিকানা বইয়ে রাখেনি এমন
+        ব্যবহারকারীদের কাছে আপনাকে শনাক্ত করার একটি অতিরিক্ত উপায় হিসেবে ব্যবহৃত হয়। আমরা শুধুমাত্র আপনার প্রথম নাম বা একটি ছদ্মনাম
+        প্রদানের পরামর্শ দিই। আপনি ডাকনাম সেট না করলে, আমরা ডিফল্টভাবে আপনার ${app_name_short} ID ব্যবহার করব।</string>
+    <string name="not_linked">সংযুক্ত নয়</string>
+    <string name="linked">সংযুক্ত</string>
+    <string name="pending_sms_verification_notice">আপনার মোবাইল নম্বর এখনও যাচাই করা হয়নি।</string>
+    <string name="no_sms_received">কোনো SMS পাননি?</string>
+    <string name="really_cancel_verify">আপনি কি সত্যিই মোবাইল নম্বর যাচাইকরণ বাতিল করতে চান?</string>
+    <string name="verification_of">%s-এর যাচাইকরণ</string>
+    <string name="status_ballot_voting_changed">জরিপ “%1$s” একটি নতুন ভোট পেয়েছে</string>
+    <string name="status_ballot_user_first_vote">“%1$s” “%2$s”-এর জন্য একটি ভোট দিয়েছেন</string>
+    <string name="status_ballot_user_modified_vote">“%1$s” “%2$s”-এর জন্য ভোট পরিবর্তন করেছেন</string>
+    <string name="status_ballot_all_votes">“%1$s”-এর জন্য ভোট সম্পূর্ণ</string>
+    <string name="restore">পুনরুদ্ধার করুন</string>
+    <!-- Shown in prompt dialog during the setup wizard. Only used for work builds (i.e. Threema Work and OnPrem). ${app_name} and ${app_name_short} are placeholders for the app's name, they must be kept as-is and not translated. -->
+    <string name="new_wizard_anonymous_confirm">আপনি আপনার ${app_name_short} ID-তে সংযুক্ত করার জন্য কোনো মোবাইল নম্বর বা ইমেল ঠিকানা লেখেননি। আপনি পরিচিতি তালিকায় দেখা যাবেন না। আপনি কি সত্যিই ${app_name}-কে বেনামে ব্যবহার করতে চান?</string>
+    <!-- ${app_name} and ${app_name_short} are placeholders for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="new_wizard_anonymous_confirm_phone_only">আপনি আপনার ${app_name_short} ID-তে সংযুক্ত করার জন্য কোনো ফোন নম্বর লেখেননি। তাই আপনি স্বয়ংক্রিয়ভাবে পরিচিতি তালিকায় যোগ হবেন না। আপনি কি সত্যিই ${app_name}-কে বেনামে ব্যবহার করতে চান?</string>
+    <string name="new_wizard_scan_id_backup">অথবা আপনার ID রপ্তানির QR কোড স্ক্যান করুন</string>
+    <string name="error_saving_file">কিছু ফাইল সংরক্ষণ করা যায়নি</string>
+    <string name="wait_one_minute">কল অনুরোধ করার আগে SMS আসার জন্য দয়া করে অন্তত ১০ মিনিট অপেক্ষা করুন।</string>
+    <string name="backup_id">রপ্তানি করা ID</string>
+    <string name="backup_data">ডেটা ব্যাকআপ</string>
+    <string name="action_delete_group">গ্রুপ মুছুন</string>
+    <string name="action_leave_and_delete_group">গ্রুপ ত্যাগ ও মুছুন</string>
+    <string name="action_dissolve_and_delete_group">গ্রুপ বিলুপ্ত ও মুছুন</string>
+    <string name="delete_my_group_message">আপনি কি সত্যিই এই গ্রুপটি সম্পূর্ণভাবে মুছতে চান? সমস্ত বার্তা সরানো হবে এবং অবশিষ্ট সদস্যরা আর গ্রুপটি ব্যবহার করতে পারবে না।</string>
+    <string name="configure">কনফিগার করুন</string>
+    <string name="disabled_by_policy">প্রশাসক দ্বারা কিছু সেটিংস নিষ্ক্রিয় করা হয়েছে</string>
+    <string name="select_all">সব নির্বাচন করুন</string>
+    <string name="deleting_messages">বার্তা মুছে ফেলা হচ্ছে</string>
+    <string name="media_gallery_files">ফাইল</string>
+    <string name="prefs_gif_autoplay">অ্যানিমেটেড ছবি স্বয়ংক্রিয়ভাবে চালান</string>
+    <string name="media_gallery_audio">ভয়েস বার্তা</string>
+    <string name="action_clone_group">গ্রুপ ক্লোন করুন</string>
+    <string name="clone_group_message">এটি আপনাকে প্রশাসক হিসেবে এই গ্রুপের একটি ক্লোন তৈরি করবে। চালিয়ে যাবেন?</string>
+    <string name="prefs_proximity_sensor">প্রক্সিমিটি সেন্সর ব্যবহার করুন</string>
+    <string name="prefs_proximity_sensor_explain">প্রক্সিমিটি সেন্সর ঢাকা থাকলে ভয়েস বার্তা চালানোর জন্য ইয়ারপিস ব্যবহার করুন</string>
+    <string name="error_creating_group_network">গ্রুপ তৈরি হয়নি। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="error_creating_group_internal">একটি অভ্যন্তরীণ ত্রুটির কারণে গ্রুপ তৈরি হয়নি। দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="error_cloning_group_network">গ্রুপ ক্লোন করা হয়নি। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="error_cloning_group_internal">একটি অভ্যন্তরীণ ত্রুটির কারণে গ্রুপ ক্লোন করা হয়নি। দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="error_updating_group_network">পরিবর্তনগুলো প্রয়োগ করা যায়নি। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="error_updating_group_internal">একটি অভ্যন্তরীণ ত্রুটির কারণে পরিবর্তনগুলো প্রয়োগ করা যায়নি। দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="error_leaving_group_network">গ্রুপ ত্যাগ করা হয়নি। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="error_leaving_group_internal">একটি অভ্যন্তরীণ ত্রুটির কারণে গ্রুপ ত্যাগ করা হয়নি। দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="error_disbanding_group_network">গ্রুপ বিলুপ্ত করা হয়নি। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="error_disbanding_group_internal">একটি অভ্যন্তরীণ ত্রুটির কারণে গ্রুপ বিলুপ্ত করা হয়নি। দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="error_removing_group_network">গ্রুপ মুছে ফেলা হয়নি। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="error_removing_group_internal">একটি অভ্যন্তরীণ ত্রুটির কারণে গ্রুপ মুছে ফেলা হয়নি। দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="error_resyncing_group_network">গ্রুপ পুনরায় সিঙ্ক করা হয়নি। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="error_resyncing_group_internal">একটি অভ্যন্তরীণ ত্রুটির কারণে গ্রুপ পুনরায় সিঙ্ক করা হয়নি। দয়া করে পরে আবার চেষ্টা করুন।</string>
+    <string name="no_media_found_generic">নির্বাচনের সাথে মিলযুক্ত কোনো মিডিয়া এই চ্যাটে পাওয়া যায়নি।</string>
+    <string name="max_images_reached">সর্বোচ্চ %d টি আইটেম একসাথে সম্পাদনা করা যায়</string>
+    <string name="enter_description">দয়া করে এখানে বাগ/সমস্যা বর্ণনা করুন।</string>
+    <string name="add_caption_hint">একটি ঐচ্ছিক ক্যাপশন যোগ করুন</string>
+    <string name="disable">নিষ্ক্রিয় করুন</string>
+    <string name="continue_anyway">তবুও চালিয়ে যান</string>
+    <string name="invalid_input">অবৈধ ইনপুট</string>
+    <string name="already_licensed">ইতিমধ্যে লাইসেন্সকৃত</string>
+    <string name="hide_chat">ব্যক্তিগত চ্যাট</string>
+    <string name="really_hide_chat_message">আপনি কি এই চ্যাটটি ব্যক্তিগত হিসেবে চিহ্নিত করতে চান? বার্তা তালিকায় ব্যক্তিগত চ্যাটের দৃশ্যমানতা টগল করতে মেনু ব্যবহার করুন।</string>
+    <string name="chat_hidden">চ্যাট ব্যক্তিগত হিসেবে চিহ্নিত করা হয়েছে</string>
+    <string name="title_show_private_chats">ব্যক্তিগত চ্যাট দেখান</string>
+    <string name="title_hide_private_chats">ব্যক্তিগত চ্যাট লুকান</string>
+    <string name="chat_visible">চ্যাট আর ব্যক্তিগত নয়</string>
+    <string name="prefs_title_locking_mechanism">লকিং পদ্ধতি</string>
+    <string name="lock_option_none">কোনোটি নয়</string>
+    <string name="lock_option_pin">PIN</string>
+    <string name="lock_option_screenlock">সিস্টেম স্ক্রিন লক</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="hide_chat_message_explain">${app_name_short} আপনাকে একটি PIN দিয়ে নির্দিষ্ট চ্যাট রক্ষা করতে এবং সাময়িকভাবে আপনার বার্তা তালিকা থেকে লুকাতে দেয়। ব্যক্তিগত চ্যাট সক্ষম করতে, দয়া করে সেটিংসে একটি PIN সেট করুন বা সিস্টেম স্ক্রিন লক সক্ষম করুন।</string>
+    <string name="set_lock">এখন সেট আপ করুন</string>
+    <string name="prefs_title_access_protection">প্রবেশ সুরক্ষা</string>
+    <string name="private_chat_subject">ব্যক্তিগত</string>
+    <string name="grace_thirty_seconds">৩০ সেকেন্ড</string>
+    <string name="grace_one_minute">১ মিনিট</string>
+    <string name="grace_two_minutes">২ মিনিট</string>
+    <string name="grace_five_minutes">৫ মিনিট</string>
+    <string name="grace_ten_minutes">১০ মিনিট</string>
+    <string name="grace_thirty_minutes">৩০ মিনিট</string>
+    <string name="grace_never">কখনও না (ম্যানুয়াল)</string>
+    <string name="never">কখনও না</string>
+    <string name="access_protection_private_chats_warning">প্রবেশ সুরক্ষা সরিয়ে দিলে আপনার সমস্ত ব্যক্তিগত চ্যাট আবার দৃশ্যমান হবে।</string>
+    <string name="verification_started">যাচাইকরণ শুরু হয়েছে</string>
+    <string name="cannot_open_file">ফাইল খোলা যায়নি</string>
+    <string name="prefs_title_image_attach_previews">মিডিয়া দ্রুত নির্বাচন</string>
+    <string name="prefs_sum_image_attach_previews">সংযুক্তি পপআপে সম্প্রতি যোগ করা ছবির একটি তালিকা প্রদর্শন করুন</string>
+    <string name="prefs_title_direct_share">সরাসরি শেয়ার</string>
+    <string name="prefs_sum_direct_share">অন্য অ্যাপ থেকে শেয়ার করার সময় সাম্প্রতিক চ্যাট প্রদর্শন করুন</string>
+    <string name="restore_disable_energy_saving">আপনার ডিভাইসকে ব্যাকআপ বা পুনরুদ্ধার প্রক্রিয়া বাধাগ্রস্ত করা থেকে রোধ করতে দয়া করে আপনার ডিভাইসটি চার্জারের সাথে সংযুক্ত করুন এবং সমস্ত শক্তি সাশ্রয় বিকল্প নিষ্ক্রিয় করুন।</string>
+    <string name="draft">খসড়া</string>
+    <string name="prefs_bigger_single_emojis">বড় একক ইমোজি</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard1_sync_work">${app_name} ডেটা সিঙ্ক করা হচ্ছে…</string>
+    <string name="notification_hidden_text">বিষয়বস্তু লুকানো</string>
+    <string name="really_reset_ringtones">সত্যিই বিজ্ঞপ্তির শব্দ সেটিংস ডিফল্টে রিসেট করবেন?</string>
+    <string name="reset_ringtones_confirm">বিজ্ঞপ্তির শব্দ সেটিংস রিসেট করা হয়েছে।</string>
+    <string name="prefs_language_override">ভাষা</string>
+    <!-- ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
+    <string name="threema_channel_intro">${app_name_short} Channel আপনাকে ${app_name_short}-এর সবকিছু সম্পর্কে খবর সরবরাহ করে। আপনি কি ${app_name_short} Channel-এ সাবস্ক্রাইব করে এটি আপনার পরিচিতিতে যোগ করতে চান? এটি বিনামূল্যে এবং আপনি যেকোনো সময় আনসাবস্ক্রাইব করতে পারেন।</string>
+    <string name="quote">উদ্ধৃতি</string>
+    <string name="contacts_deleted">পরিচিতি মুছে ফেলা হয়েছে</string>
+    <string name="take_photo">ছবি তুলুন</string>
+    <string name="select_from_gallery">গ্যালারি থেকে নির্বাচন করুন</string>
+    <string name="palette">প্যালেট</string>
+    <string name="stickers">স্টিকার</string>
+    <string name="text">টেক্সট</string>
+    <string name="undo">পূর্বাবস্থায় ফিরুন</string>
+    <string name="android_backup_date">সর্বশেষ ব্যাকআপ</string>
+    <string name="discard">বাতিল করুন</string>
+    <string name="android_backup_restart_threema">অপেক্ষা করুন। অ্যাপটি কয়েক সেকেন্ডের মধ্যে পুনরায় শুরু হবে।</string>
+    <string name="battery_optimizations_title">ব্যাটারি অপ্টিমাইজেশন নিষ্ক্রিয় করুন</string>
+    <string name="battery_optimizations_explain">আপনার ফোন স্লিপ মোডে গেলে ব্যাটারি অপ্টিমাইজেশন %1$s-কে সঠিকভাবে কাজ করা থেকে রোধ করে। দয়া করে %2$s-এর জন্য ব্যাটারি অপ্টিমাইজেশন নিষ্ক্রিয় করুন।</string>
+    <string name="battery_optimizations_disable_guide">ড্রপ ডাউন মেনুতে “সমস্ত অ্যাপ” নির্বাচন করুন</string>
+    <string name="battery_optimizations_disable_guide_ctd">তালিকায় %s খুঁজুন এবং অপ্টিমাইজেশন নিষ্ক্রিয় করুন</string>
+    <string name="enter_text_hint">টেক্সট লিখুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_explain_text">আপনি যদি আপনার ডিভাইস পরিবর্তন বা হারিয়ে ফেলেন, তাহলে আপনার ব্যাকআপ না থাকলে কেউ আপনার ${app_name_short} ID বা আপনার চ্যাট পুনরুদ্ধার করতে পারবে না। দয়া করে উপযুক্ত ব্যাকআপ বিকল্প ব্যবহার করে আপনার ডেটা সংরক্ষণ করুন।</string>
+    <string name="data_backup_explain">ডেটা ব্যাকআপে রয়েছে:\n\n&#9679; আপনার ID এবং আপনার কী পেয়ার\n&#9679; পরিচিতি ও বিশ্বাসের স্তর\n&#9679; গ্রুপ সদস্যপদ\n&#9679; চ্যাট\n&#9679; মিডিয়া ও ফাইল (ঐচ্ছিক)\n\nডেটা একটি এনক্রিপ্ট করা ZIP ফাইলে সংরক্ষণ করা হবে। ব্যাকআপ সফলভাবে সম্পন্ন হওয়ার পরে ফাইলটি ডিভাইস থেকে সরিয়ে নেওয়ার পরামর্শ দেওয়া হচ্ছে।</string>
+    <string name="draw">আঁকুন</string>
+    <string name="edit">সম্পাদনা করুন</string>
+    <string name="edit_message">বার্তা সম্পাদনা করুন</string>
+    <string name="edited">সম্পাদিত</string>
+    <string name="confirm_edit_desc">সম্পাদনা নিশ্চিত করুন</string>
+    <string name="edit_history">সম্পাদনা ইতিহাস</string>
+    <string name="discard_changes">আপনি কি পরিবর্তনগুলো বাতিল করতে চান?</string>
+    <string name="prefs_title_network">নেটওয়ার্ক</string>
+    <string name="prefs_title_ipv6_preferred">বার্তার জন্য IPv6</string>
+    <string name="prefs_ipv6_preferred_off">শুধুমাত্র IPv4 সংযোগ ব্যবহার করুন</string>
+    <string name="prefs_ipv6_preferred_on">IPv4-এর চেয়ে IPv6 সংযোগ পছন্দ করুন</string>
+    <string name="prefs_title_ipv6_webrtc_allowed">কল ও ওয়েবের জন্য IPv6</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_ipv6_webrtc_allowed_on">${app_name_short} কল এবং ডেস্কটপ অ্যাপ / ওয়েব ক্লায়েন্টের জন্য IPv6 অনুমতি দিন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_ipv6_webrtc_allowed_off">${app_name_short} কল এবং ডেস্কটপ অ্যাপ / ওয়েব ক্লায়েন্টের জন্য IPv6 অনুমতি দেবেন না</string>
+    <string name="ipv6_requires_restart">এই সেটিংটি প্রয়োগ করতে, অ্যাপটি পুনরায় শুরু করতে হবে।</string>
+    <string name="ipv6_restart_now">এখন পুনরায় শুরু করুন</string>
+    <string name="on_cap">চালু</string>
+    <string name="off_cap">বন্ধ</string>
+    <string name="share_chat">চ্যাট শেয়ার করুন</string>
+    <string name="flip">উল্টান</string>
+    <string name="to_front">সামনে আনুন</string>
+    <string name="play">চালান</string>
+    <string name="pause">বিরতি দিন</string>
+    <string name="retry">আবার চেষ্টা করুন</string>
+    <string name="voice_message">ভয়েস বার্তা</string>
+    <string name="voice_message_record">ভয়েস বার্তা রেকর্ড করুন</string>
+    <string name="open_navdrawer">নেভিগেশন ড্রয়ার খুলুন</string>
+    <string name="profile_picture">প্রোফাইল ছবি</string>
+    <string name="profile_picture_release">কে আপনার প্রোফাইল ছবি দেখতে পারবে?</string>
+    <string name="picrelease_nobody">কেউ না</string>
+    <string name="picrelease_selected">নির্বাচিত পরিচিতি</string>
+    <string name="picrelease_everyone">আপনি যাদের লেখেন সবাই</string>
+    <string name="prefs_title_receive_profilepics">প্রোফাইল ছবি দেখান</string>
+    <string name="prefs_sum_receive_profilepics_off">আপনার পরিচিতিদের দেওয়া প্রোফাইল ছবি লুকান</string>
+    <string name="prefs_sum_receive_profilepics_on">আপনার পরিচিতিদের দেওয়া প্রোফাইল ছবি দেখান</string>
+    <string name="prefs_sum_receive_profilepics_recipients_list">এই তালিকায় নির্বাচিত পরিচিতিরা আপনি তাদের বার্তা পাঠালে আপনার প্রোফাইল ছবি পাবে।</string>
+    <string name="menu_send_profilpic">প্রোফাইল ছবি প্রাপক হিসেবে যোগ করুন</string>
+    <string name="menu_send_profilpic_off">প্রোফাইল ছবি প্রাপক হিসেবে সরান</string>
+    <string name="menu_send_profilpic_now">এখন প্রোফাইল ছবি পাঠান</string>
+    <string name="sending_messages">পাঠানো হচ্ছে…</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_data_media_confirm">একটি স্থানীয় ZIP ব্যাকআপে বড় মিডিয়া ফাইল সংরক্ষণ করলে আপনার ডিভাইসের CPU ও মেমরির ক্ষমতা অতিক্রম করতে পারে এবং অনেক বেশি সময় নিতে পারে। ব্যাকআপ চলাকালীন ${app_name} বার্তা পাঠাবে বা গ্রহণ করবে না। তবুও চালিয়ে যাবেন?</string>
+    <string name="backup_data_cancelled">ব্যাকআপ বাতিল করা হয়েছে</string>
+    <string name="message_sent">বার্তা পাঠানো হয়েছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_call">${app_name_short} কল</string>
+    <string name="threema_message_to">%s-কে বার্তা</string>
+    <string name="threema_call_with">%s-কে কল করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_voip">${app_name_short} কল</string>
+    <string name="prefs_title_force_turn">সর্বদা কল রিলে করুন</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_force_turn_off">সম্ভব হলে একটি সরাসরি সংযোগ স্থাপন করুন এবং শুধুমাত্র অযাচাইকৃত পরিচিতিদের কল ${company_name} সার্ভারের মাধ্যমে রিলে করুন। আপনার IP ঠিকানা প্রকাশ করতে পারে।</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_force_turn_on">আপনার IP ঠিকানা রক্ষা করে সমস্ত কল ${company_name} সার্ভারের মাধ্যমে রিলে করতে বাধ্য করুন। কলের মান প্রভাবিত করতে পারে।</string>
+    <string name="permission_record_audio_required">এনক্রিপ্ট করা কল করতে এবং ভয়েস বার্তা পাঠাতে, দয়া করে মাইক্রোফোনে অ্যাক্সেসের অনুমতি দিন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_voice_call_notifications">${app_name_short} কল</string>
+    <string name="prefs_voice_call_sound">রিংটোন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_voice_call_sound">আগত ${app_name_short} কলের জন্য রিংটোন নির্বাচন করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_sum_voice_call_vibrate">আগত ${app_name_short} কলে কম্পন করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_title_voip_enable">${app_name_short} কল সক্ষম করুন</string>
+    <string name="webclient_invalid_push_token_message">ম্যানুয়াল শুরু প্রয়োজন</string>
+    <string name="threema_work_contact">Threema Work পরিচিতি</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_phone_required">${app_name} কল ব্যবহার করার সময় ফোন কল পরিচালনার অনুমতি দিন</string>
+    <string name="strikethrough">কাটা দাগ</string>
+    <string name="italic">তির্যক</string>
+    <string name="bold">গাঢ়</string>
+    <string name="shortcut_choice_title">এর জন্য একটি শর্টকাট তৈরি করুন…</string>
+    <string name="notifications_disabled_title">বিজ্ঞপ্তি নিষ্ক্রিয়</string>
+    <string name="error_attaching_files">সংযুক্তি যোগ করতে ত্রুটি।</string>
+    <string name="prefs_fix_powermanager_problems">শক্তি সীমাবদ্ধতা নিষ্ক্রিয় করুন</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_fix_powermanager_problems_desc">${app_name}-কে পটভূমিতে চলতে দিন যাতে এটি সক্রিয় না থাকলেও বার্তা গ্রহণ করতে পারে।</string>
+    <string name="disable_powermanager_explain">নিম্নলিখিত স্ক্রিনে, নিশ্চিত করুন “%s” আপনার ফোনের যেকোনো শক্তি ব্যবস্থাপনা সীমাবদ্ধতা থেকে সুরক্ষিত বা বাদ দেওয়া আছে। সম্পন্ন হলে “পিছনে” বোতামে চাপুন।</string>
+    <string name="disable_autostart_explain">নিম্নলিখিত স্ক্রিনে, নিশ্চিত করুন “%s” অটোস্টার্ট করতে পারে এমন অ্যাপের তালিকায় অন্তর্ভুক্ত আছে। সম্পন্ন হলে “পিছনে” বোতামে চাপুন।</string>
+    <string name="notification_priority_default">নিম্ন</string>
+    <string name="notification_priority_high">উচ্চ</string>
+    <string name="notification_priority_max">সর্বোচ্চ</string>
+    <string name="prefs_title_notification_priority">অগ্রাধিকার</string>
+    <string name="pin">পিন করুন</string>
+    <string name="unpin">আনপিন করুন</string>
+    <string name="location_services_disabled">অবস্থান পরিষেবা নিষ্ক্রিয়। আপনি কি এখন সেগুলো সক্ষম করতে চান?</string>
+    <string name="send_location">অবস্থান পাঠান</string>
+    <string name="forward_location">অবস্থান ফরওয়ার্ড করুন</string>
+    <string name="unknown_address">অজানা ঠিকানা</string>
+    <string name="your_location">আপনার অবস্থান</string>
+    <string name="reply_later">পরে কথা হবে</string>
+    <string name="reply_on_my_way">আমি আসছি</string>
+    <string name="reply_thank_you">ধন্যবাদ</string>
+    <string name="reply_youre_welcome">আপনাকে স্বাগতম</string>
+    <string name="prefs_auto_download_title">স্বয়ংক্রিয়ভাবে মিডিয়া ডাউনলোড করুন</string>
+    <string name="prefs_auto_download_wifi">WiFi-তে</string>
+    <string name="prefs_auto_download_mobile">মোবাইল ডেটায়</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rate_intro">আপনি ${app_name}-কে কীভাবে মূল্যায়ন করেন?</string>
+    <string name="rate_feedback_intro">উন্নতির জন্য আমরা কী করতে পারি তা দয়া করে আমাদের জানান (ঐচ্ছিক)।</string>
+    <string name="rate_positive">পর্যালোচনা পাঠান</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rate_title">${app_name}-কে রেট করুন</string>
+    <string name="rate_thank_you">আপনার পর্যালোচনার জন্য ধন্যবাদ!</string>
+    <string name="disabled_by_policy_short">প্রশাসক দ্বারা বৈশিষ্ট্য নিষ্ক্রিয় করা হয়েছে</string>
+    <string name="rate_forward_to_play_store">আপনি কি Google Play-তেও আমাদের রেট করতে চান?</string>
+    <string name="rate_error">সার্ভারে আপনার পর্যালোচনা পাঠানো যায়নি। আবার চেষ্টা করার আগে দয়া করে নিশ্চিত করুন যে আপনি ইন্টারনেটের সাথে সংযুক্ত আছেন।</string>
+    <string name="off_unless_i_was_mentioned">চালু, যদি না আমাকে উল্লেখ করা হয়</string>
+    <string name="dnd">বিরক্ত করবেন না</string>
+    <string name="minus">বিয়োগ</string>
+    <string name="plus">যোগ</string>
+    <string name="switched_off">বন্ধ</string>
+    <string name="switched_on">চালু</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="title_tab_work_users">${app_name} ব্যবহারকারী</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="no_matching_work_contacts">কোনো প্রশাসক-যাচাইকৃত ${app_name} পরিচিতি পাওয়া যায়নি</string>
+    <string name="all">সব</string>
+    <string name="webclient_session_stop_all">সব বন্ধ করুন</string>
+    <string name="passphrase_service_name">পাসফ্রেজ পরিষেবা</string>
+    <string name="passphrase_service_description">পাসফ্রেজ আনলক হলে বিজ্ঞপ্তি</string>
+    <string name="webclient_service_description">ওয়েব/ডেস্কটপ সেশন সক্রিয় থাকলে বিজ্ঞপ্তি</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="privacy_policy_explain">${app_name} অন্য যেকোনো মেসেঞ্জারের চেয়ে আরও কঠোরভাবে আপনার গোপনীয়তা রক্ষা করে। আমাদের %1$s-তে আরও জানুন।</string>
+    <string name="prefs_title_incognito_keyboard">ইনকগনিটো কীবোর্ড অনুরোধ করুন</string>
+    <string name="prefs_sum_incognito_keyboard">ব্যক্তিগতকৃত পরামর্শের জন্য ডেটা সংগ্রহ নিষ্ক্রিয় করুন (যদি কীবোর্ড দ্বারা সমর্থিত হয়)</string>
+    <string name="call_ongoing">চলমান কল</string>
+    <string name="ballot_received_votes">প্রাপ্ত ভোটের সংখ্যা: %1$d/%2$d</string>
+    <string name="quote_not_found">উদ্ধৃত বার্তা পাওয়া যায়নি</string>
+    <string name="ballot_secret">গোপন</string>
+    <string name="password_too_short_generic">পাসওয়ার্ড খুব ছোট</string>
+    <string name="passwords_dont_match">পাসওয়ার্ড মেলে না</string>
+    <!-- Error message shown when setting up a custom server for the Threema Safe feature. %s is a placeholder for the details of the error. -->
+    <string name="threema_safe_test_unsuccessful">পরীক্ষা ব্যর্থ হয়েছে: %s</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="preparing_threema_safe">${app_name_short} Safe প্রস্তুত করা হচ্ছে</string>
+    <string name="disable_powermanager_title">শক্তি সীমাবদ্ধতা</string>
+    <string name="disable_autostart_title">অটোস্টার্ট</string>
+    <string name="unchanged">অপরিবর্তিত</string>
+    <string name="safe_learn_more_button">আরও জানুন</string>
+    <string name="safe_enable_explain">চ্যাট করতে যা প্রয়োজন তা শুধুমাত্র আপনার ডিভাইসে সংরক্ষিত থাকে। আমাদের কাছে আপনার কোনো অ্যাকাউন্ট নেই এবং আপনি আপনার ফোন হারিয়ে ফেললে বা ভুলবশত আপনার ডেটা মুছে ফেললে আমরা আপনাকে সাহায্য করতে পারব না।\n\n${app_name_short} Safe আপনার পছন্দের একটি নিরাপদ সার্ভারে বেনামে সমস্ত গুরুত্বপূর্ণ ডেটার স্বয়ংক্রিয় ব্যাকআপ তৈরি করে, যার মধ্যে রয়েছে আপনার কী, আপনার পরিচিতি তালিকা ও আপনার গ্রুপ সদস্যপদ (কিন্তু কোনো বার্তার বিষয়বস্তু নয়)।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_disable_confirm">আপনি কি ${app_name_short} Safe সক্ষম না করে চালিয়ে যেতে চান? ${app_name_short} Safe ব্যবহার করলে, আপনি আপনার ডিভাইসে অ্যাক্সেস হারিয়ে ফেললে আপনার ${app_name_short} ID, পরিচিতি ও গ্রুপ পুনরুদ্ধার করতে পারবেন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_password">দয়া করে একটি শক্তিশালী পাসওয়ার্ড বেছে নিন। আপনার ${app_name_short} Safe ব্যাকআপ পুনরুদ্ধার করতে আপনার এই পাসওয়ার্ড প্রয়োজন হবে।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_server">একটি ${app_name_short} Safe সার্ভার বেছে নিন</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_server_explain">আপনি ${company_name}-এর সার্ভার ব্যবহার করতে পারেন বা পরিবর্তে ব্যবহারের জন্য একটি তৃতীয় পক্ষের ব্যাকআপ সার্ভার নির্দিষ্ট করতে পারেন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="onprem_safe_configure_server_explain">আপনার ${app_name_short} Safe ব্যাকআপ আপনার সংস্থার সার্ভারে সংরক্ষণ করুন, অথবা একটি ভিন্ন ব্যাকআপ সার্ভার নির্দিষ্ট করুন।</string>
+    <string name="safe_use_default_server">ডিফল্ট সার্ভার ব্যবহার করুন</string>
+    <string name="safe_test_server">সার্ভার পরীক্ষা করুন</string>
+    <string name="safe_advanced_options">বিশেষজ্ঞ সেটিংস</string>
+    <string name="safe_enter_password">দয়া করে আপনার ${app_name_short} Safe পাসওয়ার্ড লিখুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_threema_id">আপনার ${app_name_short} ID</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_restore_enter_id">দয়া করে আপনি যে ${app_name_short} ID পুনরুদ্ধার করতে চান তা লিখুন</string>
+    <string name="safe_search_id_title">দয়া করে আপনার ${app_name_short}-ID-এর সাথে সংযুক্ত মোবাইল নম্বর বা ইমেল ঠিকানা লিখুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_id_lookup">${app_name_short} ID খোঁজা হচ্ছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_no_id_found">কোনো ${app_name_short} ID পাওয়া যায়নি</string>
+    <string name="safe_no_backup_found">সার্ভারে কোনো ব্যাকআপ পাওয়া যায়নি। ID ও পাসওয়ার্ড পরীক্ষা করুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_select_id">একাধিক ${app_name_short} ID পাওয়া গেছে। দয়া করে ব্যবহারের জন্য ID নির্বাচন করুন:</string>
+    <string name="safe_backup_now">এখন ব্যাকআপ করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_enable_explain_short">আপনার সমস্ত গুরুত্বপূর্ণ ডেটার স্বয়ংক্রিয় নিরাপদ ও বেনামি ব্যাকআপ তৈরি করতে ${app_name_short} Safe সক্ষম করুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deleting">${app_name_short} Safe ব্যাকআপ মুছে ফেলা হচ্ছে</string>
+    <string name="safe_delete_error">ব্যাকআপ মুছতে ত্রুটি: %s</string>
+    <string name="safe_delete_success">সার্ভারে ব্যাকআপ সফলভাবে মুছে ফেলা হয়েছে</string>
+    <string name="safe_error_preparing">${app_name_short} Safe ব্যাকআপ প্রস্তুত করতে ত্রুটি</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_configure_choose_password_force">দয়া করে ${app_name_short} Safe দিয়ে আপনার ${app_name_short} ID সুরক্ষিত করতে একটি শক্তিশালী পাসওয়ার্ড সেট করুন। আপনি এখানে যা লেখেন তা ভুলবেন না!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deactivate">${app_name_short} Safe বন্ধ করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_deactivate_explain">আপনি ${app_name_short} Safe নিষ্ক্রিয় করলে, যেকোনো বিদ্যমান ব্যাকআপ সার্ভারে মুছে ফেলা হবে। চালিয়ে যাবেন?</string>
+    <string name="add_group_members">আরও সদস্য যোগ করুন</string>
+    <string name="contact_add_confirm">আপনি কি নতুন পরিচিতি “%1$s”-কে আপনার পরিচিতি তালিকায় যোগ করতে চান?</string>
+    <string name="password_bad">দুর্বল পাসওয়ার্ড</string>
+    <string name="prefs_fix_device">ডিভাইস কনফিগারেশন সমস্যা সমাধান করুন</string>
+    <string name="safe_successful">সফল</string>
+    <string name="safe_unsuccessful">ব্যর্থ</string>
+    <string name="safe_upload_failed">আপলোড ব্যর্থ হয়েছে</string>
+    <string name="safe_upload_size_exceeded">সার্ভারের আপলোড আকার অতিক্রম করেছে</string>
+    <string name="safe_connection_error">সংযোগ ত্রুটি</string>
+    <string name="safe_server_name">সার্ভারের নাম</string>
+    <string name="safe_max_backup_size">সর্বোচ্চ ব্যাকআপ আকার</string>
+    <string name="safe_retention">ব্যাকআপ ধারণ</string>
+    <string name="safe_result">ব্যাকআপ ফলাফল</string>
+    <string name="number_of_days">%d দিন</string>
+    <string name="safe_size">ব্যাকআপ আকার</string>
+    <string name="backup_version_mismatch">এই ব্যাকআপের সংস্করণ সমর্থিত সংস্করণের চেয়ে উচ্চতর। দয়া করে এই অ্যাপের সর্বশেষ সংস্করণে আপডেট করুন।</string>
+    <string name="safe_restore_failed">পুনরুদ্ধার ব্যর্থ হয়েছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_failed_notification">${app_name_short} Safe ব্যাকআপ %d দিন ধরে ব্যর্থ হয়েছে। পরীক্ষা করতে এখানে চাপুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_restore">${app_name_short} Safe পুনরুদ্ধার করুন</string>
+    <string name="backup_restore_in_progress">ব্যাকআপ বা পুনরুদ্ধার চলছে। অবস্থা তথ্যের জন্য বিজ্ঞপ্তি পরীক্ষা করুন।</string>
+    <string name="restore_error_body">পুনরুদ্ধার সফলভাবে সম্পন্ন হয়নি</string>
+    <string name="forgot_your_id">আপনার ID ভুলে গেছেন?</string>
+    <string name="restore_success_body">পুনরুদ্ধার সফলভাবে সম্পন্ন হয়েছে</string>
+    <string name="work_data_sync">ডেটা সিঙ্ক</string>
+    <string name="private_contact">ব্যক্তিগত পরিচিতি</string>
+    <string name="ringtone_selection_default">ডিফল্ট (%s)</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_data_sync_desc">${app_name} সিঙ্ক্রোনাইজেশন</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="ballot_not_connected">একটি জরিপ বন্ধ করার আগে দয়া করে নিশ্চিত করুন যে ${app_name} অনলাইন আছে।</string>
+    <string name="empty_chat_title">খালি চ্যাট</string>
+    <string name="empty_chat_confirm">এই চ্যাটের সমস্ত বার্তা মুছে ফেলা হবে। চালিয়ে যাবেন?</string>
+    <string name="emptying_chat">চ্যাট খালি করা হচ্ছে</string>
+    <string name="emptying_chat_deleting_messages">বার্তা মুছে ফেলা হচ্ছে…</string>
+    <string name="delete_chat_title">চ্যাট মুছুন</string>
+    <string name="delete_chat_confirm">এই চ্যাটের সমস্ত বার্তা মুছে ফেলা হবে এবং চ্যাটটি সরানো হবে। চালিয়ে যাবেন?</string>
+    <string name="deleting_chat">চ্যাট মুছে ফেলা হচ্ছে</string>
+    <string name="set_private">“ব্যক্তিগত চ্যাট” হিসেবে চিহ্নিত করুন</string>
+    <string name="unset_private">“ব্যক্তিগত চ্যাট” নিষ্ক্রিয় করুন</string>
+    <string name="delete_group_message">আপনি কি এই গ্রুপটি ত্যাগ করে সম্পূর্ণভাবে মুছতে চান? সমস্ত বার্তা সরানো হবে।</string>
+    <string name="delete_left_group_message">আপনি কি সত্যিই এই গ্রুপটি মুছতে চান? সমস্ত বার্তা সরানো হবে।</string>
+    <string name="chats">চ্যাট</string>
+    <string name="notification_channel_alerts">সতর্কতা ও ত্রুটি</string>
+    <string name="notification_channel_notices">বিজ্ঞপ্তি</string>
+    <string name="chat_updates">চ্যাট আপডেট</string>
+    <string name="backup_or_restore_progress">ব্যাকআপ ও পুনরুদ্ধার অগ্রগতি</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="tooltip_export_id">এখন আপনার এনক্রিপ্ট করা ${app_name_short} ID শেয়ার বা প্রিন্ট করতে এখানে চাপুন</string>
+    <string name="downloading">ডাউনলোড করা হচ্ছে</string>
+    <string name="restore_data_cancelled">পুনরুদ্ধার বাতিল করা হয়েছে</string>
+    <string name="safe_change_password">পাসওয়ার্ড পরিবর্তন করুন</string>
+    <string name="safe_configure_choose_password_title">একটি পাসওয়ার্ড বেছে নিন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="password_bad_explain">${app_name_short} Safe-এর জন্য নির্বাচিত পাসওয়ার্ড নিরাপদ নয় এবং আক্রমণকারীরা সহজেই অনুমান করতে পারে। দয়া করে অন্য একটি বেছে নিন। ইঙ্গিত: একাধিক পৃথক শব্দ দিয়ে গঠিত একটি পাসওয়ার্ড ব্যবহার করুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_password_updated">${app_name_short} Safe পাসওয়ার্ড আপডেট করা হয়েছে।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_activated">${app_name_short} Safe এখন সক্রিয় করা হয়েছে।</string>
+    <string name="push_token_cleared">পুশ টোকেন পরিষ্কার করা হয়েছে</string>
+    <string name="insert_date">তারিখ সন্নিবেশ করুন</string>
+    <string name="add_answer">উত্তর যোগ করুন</string>
+    <string name="title_cannot_be_empty">জরিপের শিরোনাম খালি রাখা যাবে না</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="voip_disabled">${app_name_short} কল নিষ্ক্রিয় করা আছে</string>
+    <string name="hide_chat_enter_message_explain">এই চ্যাটটি একটি ব্যক্তিগত চ্যাট হিসেবে চিহ্নিত। এটিতে প্রবেশ করতে, দয়া করে প্রথমে প্রবেশ সুরক্ষা সেট আপ করুন।</string>
+    <string name="unknown">অজানা</string>
+    <string name="dont_show_again">আর দেখাবেন না</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_safe_upload_successful">${app_name_short} Safe ব্যাকআপ সফলভাবে আপলোড করা হয়েছে</string>
+    <string name="time_remaining">%s বাকি</string>
+    <string name="safe_configure_server_credentials_title">প্রমাণীকরণ (ঐচ্ছিক)</string>
+    <string name="username_hint">ব্যবহারকারীর নাম</string>
+    <string name="server_hint">সার্ভার</string>
+    <!-- Shown in "About" to indicate that the DualLock (a.k.a. "Remote Secret") feature is currently activated -->
+    <string name="about_screen_remote_secrets_activated">সক্রিয় করা হয়েছে</string>
+    <string name="lock_option_biometric">বায়োমেট্রিক</string>
+    <string name="biometric_enter_authentication">আনলক করতে, দয়া করে প্রমাণীকরণ করুন</string>
+    <string name="biometric_authentication_successful">সফলভাবে প্রমাণীকৃত</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_safe_forced_explain">আপনার প্রশাসক আপনার ডিভাইসের জন্য ${app_name_short} Safe সক্ষম করেছেন।</string>
+    <string name="pin_locked_cannot_send">অ্যাপটি লক করা আছে। পাঠানো যাবে না।</string>
+    <string name="prefs_summary_hide_screenshots_notice">গোপনীয়তার কারণে, নিরাপত্তা সেটিংসে "অ্যাপ লক" সক্ষম থাকলে থাম্বনেল ও স্ক্রিনশট সর্বদা প্রতিরোধ করা হয়</string>
+    <string name="work_select_categories">বিভাগ নির্বাচন করুন</string>
+    <string name="my_profile">আমার প্রোফাইল</string>
+    <string name="message_too_long">বার্তা খুব দীর্ঘ। পাঠানো যাবে না।</string>
+    <string name="url_warning_body">আপনি যে লিংকটি খুলতে চলেছেন তার হোস্টনামটি সন্দেহজনক:\n\nপ্রদর্শিত হোস্টনাম: <b>%s</b>\nপ্রকৃত হোস্টনাম: <b>%s</b>\n\nএটি আপনাকে অন্য কিছু হওয়ার ভান করা একটি সাইট খুলতে প্রতারিত করার চেষ্টা হতে পারে।\n\nআপনি কি তবুও চালিয়ে যেতে চান?</string>
+    <string name="url_warning_title">ফিশিং সতর্কতা</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="permission_camera_qr_required">QR কোড স্ক্যান করতে, ${app_name}-এর ক্যামেরায় অ্যাক্সেস প্রয়োজন</string>
+    <string name="voice_action_title">ভয়েস অ্যাকশন</string>
+    <string name="voice_action_body">ভয়েস অ্যাকশন প্রক্রিয়া করা হচ্ছে</string>
+    <string name="permission_camera_photo_required">একটি ছবি তুলতে, দয়া করে ক্যামেরায় অ্যাক্সেসের অনুমতি দিন</string>
+    <string name="global_search">চ্যাট অনুসন্ধান করুন</string>
+    <string name="global_search_empty_view_text">বার্তায় অনুসন্ধান করতে অন্তত দুটি অক্ষর লিখুন</string>
+    <string name="my_id">আমার ID</string>
+    <string name="profile_picture_and_nickname">প্রোফাইল ছবি ও ডাকনাম</string>
+    <string name="lp_select_this_place">এই স্থানটি নির্বাচন করুন</string>
+    <string name="lp_or_select_nearby">অথবা কাছাকাছি একটি স্থান বেছে নিন</string>
+    <string name="lp_use_this_location">এই অবস্থানটি পাঠাবেন?</string>
+    <string name="lp_search_place">শহর লিখুন</string>
+    <string name="data_backup_headline">চ্যাট ও মিডিয়া সহ আপনার সমস্ত ডেটা সংরক্ষণ করতে একটি ডেটা ব্যাকআপ তৈরি করুন।</string>
+    <string name="data_backup_save_path">ব্যাকআপ পথ</string>
+    <string name="change">পরিবর্তন করুন</string>
+    <string name="data_backup_last_date">সর্বশেষ সফল ডেটা ব্যাকআপ</string>
+    <string name="archived">আর্কাইভ করা</string>
+    <string name="to_archive">আর্কাইভ করুন</string>
+    <string name="archived_chats">আর্কাইভ করা চ্যাট</string>
+    <!-- Menu option in context menu when long-pressing a chat in the Chats tab, allows the user to move the selected chat to the archive -->
+    <string name="archive_chat">চ্যাট আর্কাইভ করুন</string>
+    <string name="unarchive">আর্কাইভ থেকে সরান</string>
+    <string name="no_archived_chats">কোনো আর্কাইভ করা চ্যাট নেই।\nএকটি চ্যাট আর্কাইভ করতে, বার্তা তালিকায় এটি বাম দিকে সোয়াইপ করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="add_contact_enter_id_hint">দয়া করে আপনি যে পরিচিতি যোগ করতে চান তার ${app_name_short} ID লিখুন</string>
+    <string name="notification_channel_new_contact">নতুন পরিচিতি</string>
+    <string name="notification_channel_new_contact_desc">নতুন পরিচিতি সম্পর্কে বিজ্ঞপ্তি</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. %1$s is a placeholder for a person's name. -->
+    <string name="notification_contact_has_joined">%1$s ${app_name_short}-এ যোগ দিয়েছেন। একটি বার্তা পাঠাতে এখানে চাপুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. %1$s is a placeholder for a number (of contacts). %2$s is a summary of people's names. -->
+    <string name="notification_contact_has_joined_multiple">%1$d জন পরিচিতি ${app_name_short}-এ যোগ দিয়েছেন: %2$s। তাদের একটি বার্তা পাঠাতে এখানে চাপুন।</string>
+    <string name="system_default">সিস্টেম ডিফল্ট</string>
+    <string name="open_in_maps_app">Maps অ্যাপে খুলুন</string>
+    <string name="delete">মুছুন</string>
+    <string name="delete_from_this_device">এই ডিভাইস থেকে মুছুন</string>
+    <string name="delete_for_all">সবার জন্য মুছুন</string>
+    <string name="message_was_deleted">এই বার্তাটি মুছে ফেলা হয়েছে</string>
+    <string name="continue_recording">রেকর্ডিং চালিয়ে যান</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". %1$s is a placeholder for the version number. They must not be translated. -->
+    <string name="whatsnew_title">${app_name} %1$s-এ নতুন কী?</string>
+    <string name="whatsnew_headline"><![CDATA[
+        <p>You can now link your Android device to the new desktop app (beta) and test the multi-device feature.</p>
+        <p>For more details, navigate to “Menu > Threema 2.0 for Desktop (Beta)”.</p>
+        ]]>
+    </string>
+    <string name="tap_to_start">এখন %s শুরু করতে এখানে চাপুন।</string>
+    <string name="notification_title_restart">পুনরায় শুরু করা প্রয়োজন</string>
+    <string name="two_years">২ বছর</string>
+    <string name="backup_data_no_permission">এই ডিরেক্টরিতে লেখা যাচ্ছে না। দয়া করে অন্য একটি বেছে নিন।</string>
+    <string name="prefs_sum_show_unread_badge">নিচের নেভিগেশন ট্যাবে ব্যাজ দেখান</string>
+    <string name="prefs_title_show_unread_badge">ব্যাজ</string>
+    <string name="open_myid_popup">দ্রুত অ্যাক্সেস পপআপ উইন্ডো খুলুন</string>
+    <string name="logo">লোগো / উপরে স্ক্রোল করুন</string>
+    <string name="quote_subj">উদ্ধৃতি</string>
+    <string name="duration">সময়কাল</string>
+    <string name="seconds">সেকেন্ড</string>
+    <string name="minutes">মিনিট</string>
+    <string name="and">এবং</string>
+    <string name="edit_type_content_description">%1$s %2$s দেখুন বা সম্পাদনা করুন</string>
+    <string name="group">গ্রুপ</string>
+    <string name="play_services_not_installed_unable_to_use_push">পরিষেবা ইনস্টল করা নেই। Google FCM বা HMS পুশে স্যুইচ করা যাবে না।</string>
+    <string name="unable_to_get_current_location">বর্তমান অবস্থান নির্ধারণ করা যাচ্ছে না।</string>
+    <string name="lp_search_place_min_chars">একটি স্থান অনুসন্ধান করতে দয়া করে অন্তত তিনটি অক্ষর লিখুন।</string>
+    <string name="lp_search_place_no_matches">কোনো মিলযুক্ত স্থান পাওয়া যায়নি। দয়া করে আপনার অনুসন্ধান পরিবর্তন করুন।</string>
+    <string name="wallpaper_default">ডিফল্ট ওয়ালপেপার</string>
+    <string name="wallpaper_gallery">গ্যালারি থেকে নির্বাচন করুন</string>
+    <string name="wallpaper_none">খালি পটভূমি</string>
+    <string name="wallpaper_threema">%s ওয়ালপেপার</string>
+    <string name="message_id">বার্তা ID</string>
+    <string name="mime_type">MIME টাইপ</string>
+    <string name="password_does_not_comply">পাসওয়ার্ডটি প্রশাসক কর্তৃক নির্ধারিত নির্দেশিকা মেনে চলে না।</string>
+    <string name="audio_mute_due_to_focus_loss">ফোকাস হারানোর কারণে অডিও সাময়িকভাবে নিঃশব্দ করা হয়েছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="restore_data_backup_explain">একটি ডেটা ব্যাকআপ পুনরুদ্ধার করতে, প্রথমে “আমার প্রোফাইল” স্ক্রিন থেকে আপনার ${app_name_short} ID মুছুন।\n\nঅ্যাপ পুনরায় শুরু হলে, “ব্যাকআপ থেকে পুনরুদ্ধার করুন”, “অন্যান্য পুনরুদ্ধার বিকল্প”, “ডেটা ব্যাকআপ” বেছে নিন এবং তারপর আপনি যে ডেটা ব্যাকআপ ফাইলটি পুনরুদ্ধার করতে চান তা নির্বাচন করুন।</string>
+    <string name="audio_focus_loss_complete">সম্পূর্ণ অডিও ফোকাস হারানোর কারণে কল সংযোগ বিচ্ছিন্ন হয়েছে।</string>
+    <string name="tap_for_picture_hold_for_video">ছবির জন্য চাপুন, ভিডিওর জন্য ধরে রাখুন</string>
+    <string name="media_files">ফাইল</string>
+    <string name="auto_download_limit_explain">%s-এর চেয়ে বড় ভিডিও ও ফাইল সর্বদা চাহিদা অনুযায়ী ডাউনলোড করা হবে</string>
+    <string name="quoted_message_deleted">উদ্ধৃত বার্তা আর উপলব্ধ নেই</string>
+    <string name="searching">অনুসন্ধান করা হচ্ছে…</string>
+    <string name="prefs_work_life_balance">বিরক্ত করবেন না</string>
+    <string name="prefs_title_working_days">কর্মদিবস</string>
+    <string name="prefs_working_days_sum">কর্মদিবস নির্বাচন করুন</string>
+    <string name="prefs_work_time_start">কর্মঘণ্টার শুরু</string>
+    <string name="prefs_work_time_start_sum">শুরুর সময় সেট করুন</string>
+    <string name="prefs_work_time_end">কর্মঘণ্টার শেষ</string>
+    <string name="prefs_work_time_end_sum">শেষের সময় সেট করুন</string>
+    <string name="prefs_working_days_enable_title">কর্মঘণ্টার বাইরের নীতি</string>
+    <string name="prefs_working_days_enable_sum">কর্মঘণ্টার বাইরে বিজ্ঞপ্তি নিষ্ক্রিয় করুন এবং কল প্রত্যাখ্যান করুন</string>
+    <string name="work_life_dnd_active">কর্মঘণ্টার বাইরে সক্রিয়</string>
+    <string name="warning">সতর্কতা</string>
+    <string name="password_remember_warning">আপনি এখানে যা লেখেন তা মনে রাখুন! যেহেতু %s সার্ভারে কোনো পাসওয়ার্ড সংরক্ষণ করে না, আপনি আপনার PIN বা পাসওয়ার্ড ভুলে গেলে আমরা আপনাকে সাহায্য করতে পারব না।</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="send_to_support">${company_name} সাপোর্টে পাঠান</string>
+    <string name="menu_legal">আইনি</string>
+    <string name="tooltip_work_hint">এই পরিচিতি Threema Work ব্যবহার করেন।</string>
+    <string name="video_camera_on">ভিডিও ক্যামেরা সক্ষম</string>
+    <string name="video_camera_off">ভিডিও ক্যামেরা নিষ্ক্রিয়</string>
+    <string name="enable_picture_in_picture">পিকচার-ইন-পিকচার মোড শুরু করুন</string>
+    <string name="call_with">%s-কে কল করুন</string>
+    <string name="picture_in_picture_disabled_in_setting">%s-এর জন্য পিকচার ইন পিকচার মোড নিষ্ক্রিয়। দয়া করে সিস্টেম সেটিংসে এটি সক্ষম করুন।</string>
+    <string name="delete_everything">সবকিছু মুছুন</string>
+    <string name="prefs_title_voip_video_enable">ভিডিও অনুমতি দিন</string>
+    <string name="video_calls">ভিডিও কল</string>
+    <string name="prefs_videocall_profile">পছন্দের ছবির মান</string>
+    <string name="videocall_profile_auto">সুষম (প্রস্তাবিত)</string>
+    <string name="videocall_profile_low_bandwidth">কম ডেটা খরচ</string>
+    <string name="videocall_profile_max_quality">সর্বোচ্চ মান</string>
+    <string name="unable_to_play_video">ভিডিও চালানো যাচ্ছে না</string>
+    <string name="tooltip_voip_turn_on_camera">ক্যামেরা চালু করতে এখানে চাপুন</string>
+    <string name="prefs_videocall_profile_explain">প্রকৃত ছবির মান নেটওয়ার্ক ও আপনি যার সাথে কথা বলছেন তার সেটিংসের উপর নির্ভর করে</string>
+    <string name="permission_camera_videocall_required">ভিডিও কলিংয়ের জন্য, দয়া করে ক্যামেরায় অ্যাক্সেসের অনুমতি দিন</string>
+    <string name="tooltip_voip_enable_speakerphone">স্পিকারফোন চালু করতে এখানে চাপুন</string>
+    <string name="ballot_open">খোলা জরিপ</string>
+    <string name="ballot_window_hide">খোলা জরিপ লুকান</string>
+    <string name="ballot_window_show">খোলা জরিপ দেখান</string>
+    <string name="single_ballot_really_delete">এই জরিপ সরান</string>
+    <string name="single_ballot_really_delete_text">আপনি কি সত্যিই এই জরিপ মুছতে চান? আপনি ভোটগুলো পুনরুদ্ধার করতে পারবেন না।</string>
+    <string name="tooltip_voip_other_party_video_on">অপর পক্ষ একটি ভিডিও কল শুরু করেছেন। আপনার ক্যামেরাও চালু করতে এখানে চাপুন।</string>
+    <string name="tooltip_voip_other_party_video_disabled">অপর পক্ষ একটি বর্তমান অ্যাপ সংস্করণ ব্যবহার করেন না বা ভিডিও কলের অনুমতি দেন না।</string>
+    <string name="biometrics_not_enrolled">সিস্টেমে কোনো বায়োমেট্রিক নথিভুক্ত নেই।</string>
+    <string name="biometrics_not_avilable">এই সিস্টেমে বায়োমেট্রিক উপলব্ধ নেই।</string>
+    <string name="biometrics_no_permission">বায়োমেট্রিক ডেটা বা হার্ডওয়্যার অ্যাক্সেসের অনুমতি অনুপস্থিত।</string>
+    <string name="verification_settings_desc">বিন্দুগুলো একটি পরিচিতির যাচাইকরণ স্তরের একটি নির্দেশক।</string>
+    <string name="verification_levels_title">যাচাইকরণ স্তর</string>
+    <string name="work_verification_levels_title">আপনার সংস্থার পরিচিতি</string>
+    <string name="external_verification_levels_title">অন্যান্য পরিচিতি</string>
+    <string name="switch_flash">ফ্ল্যাশ মোড টগল করুন</string>
+    <string name="message_not_found">বার্তা পাওয়া যায়নি</string>
+    <string name="insert_datetime">তারিখ ও সময় সন্নিবেশ করুন</string>
+    <string name="prefs_sum_disable_smart_replies">Android বিজ্ঞপ্তিতে স্মার্ট রিপ্লাই প্রতিরোধ করুন</string>
+    <string name="prefs_title_disable_smart_replies">স্মার্ট রিপ্লাই নিষ্ক্রিয় করুন</string>
+    <string name="url_warning_body_alt">আপনি যে লিংকটি খুলতে চলেছেন তার হোস্টনামটি সন্দেহজনক।\n\nএটি আপনাকে অন্য কিছু হওয়ার ভান করা একটি সাইট খুলতে প্রতারিত করার চেষ্টা হতে পারে।\n\nআপনি কি তবুও চালিয়ে যেতে চান?</string>
+    <string name="read_on">পড়তে থাকুন…</string>
+    <string name="forward_text">টেক্সট ফরওয়ার্ড করুন</string>
+    <string name="an_error_occurred_during_send">এক বা একাধিক বার্তা পাঠাতে একটি ত্রুটি ঘটেছে।</string>
+    <string name="state_processing">প্রক্রিয়াকরণ</string>
+    <string name="selected_media">আপনার নির্বাচন</string>
+    <string name="attach_gif">Gif</string>
+    <string name="attach_gallery">গ্যালারি</string>
+    <string name="attach_picture">ছবি</string>
+    <string name="attach_video">ভিডিও</string>
+    <string name="attach_location">অবস্থান</string>
+    <string name="filter_by_album">অ্যালবাম অনুযায়ী ফিল্টার করুন</string>
+    <string name="media_date_taken">তোলার তারিখ: %s</string>
+    <string name="media_date_added">যোগ করার তারিখ: %s</string>
+    <string name="media_date_modified">পরিবর্তনের তারিখ: %s</string>
+    <string name="media_date_unknown">তারিখ অজানা</string>
+    <string name="max_selectable_media_exceeded">একসাথে %d টির বেশি বস্তু পাঠানো যাবে না।</string>
+    <string name="error_unable_loading_media_thumb">ত্রুটি। মিডিয়া থাম্বনেল লোড করা যায়নি</string>
+    <string name="filter_list">তালিকা ফিল্টার করুন</string>
+    <string name="hint_filter_list">ফিল্টার টেক্সট লিখুন</string>
+    <string name="add">যোগ করুন</string>
+    <string name="only_images_or_videos">শুধুমাত্র ছবি বা ভিডিও নির্বাচন করা যাবে</string>
+    <string name="media_gallery_gifs">GIF</string>
+    <string name="no_media_found_global">এই ডিভাইসে কোনো মিডিয়া পাওয়া যায়নি</string>
+    <string name="original_file_no_longer_avilable">আসল ফাইলটি আর অ্যাক্সেসযোগ্য নয়। দয়া করে বার্তাটি পুনরায় পাঠান।</string>
+    <string name="importing_files">ফাইল আমদানি করা হচ্ছে</string>
+    <string name="ballot_created_successfully">জরিপটি সফলভাবে তৈরি করা হয়েছে।</string>
+    <string name="file_size">ফাইল আকার</string>
+    <string name="thirty_days_abbrev">৩০দি</string>
+    <string name="show_in_chat">চ্যাটে দেখান</string>
+    <string name="group_create_no_members">আপনি কি নিশ্চিত যে আপনি একটি খালি গ্রুপ তৈরি করতে চান?</string>
+    <string name="notes">নোট</string>
+    <string name="blur_faces">মুখ ঝাপসা করুন</string>
+    <string name="brush">ব্রাশ</string>
+    <string name="pencil">পেন্সিল</string>
+    <string name="highlighter">হাইলাইটার</string>
+    <string name="no_faces_detected">কোনো মুখ শনাক্ত করা যায়নি</string>
+    <string name="smiley">স্মাইলি</string>
+    <string name="blur">ঝাপসা</string>
+    <string name="face_blur_tooltip_title">মুখ শনাক্তকরণ</string>
+    <string name="face_blur_tooltip_text">ছবিতে মুখ খুঁজে সেগুলো ঝাপসা করুন বা একটি স্মাইলি দিয়ে ঢেকে দিন।</string>
+    <string name="listened_to">শোনা হয়েছে</string>
+    <string name="transcoder_unsupported_audio_format">সিস্টেম সমর্থন না থাকার কারণে অডিও ট্রান্সকোড করা যায়নি।</string>
+    <string name="transcoder_unknown_audio_error">অজানা অডিও ট্রান্সকোডিং ত্রুটি ঘটেছে।</string>
+    <string name="video_size_explain">এই সেটিং নির্বিশেষে খুব বড় ভিডিও সংকুচিত হতে পারে।</string>
+    <string name="status_create_notes">*আপনি এই গ্রুপের একমাত্র সদস্য*\nটেক্সট, মিডিয়া বা নথির জন্য একটি নিরাপদ নোটবুক হিসেবে এই চ্যাটটি ব্যবহার করুন।</string>
+    <string name="status_create_notes_off">*আপনি আর এই চ্যাটে একা নন*\nনতুন বার্তা সমস্ত গ্রুপ সদস্যদের কাছে পাঠানো হবে।</string>
+    <string name="note_group_howto">ইঙ্গিত: আপনি কোনো গ্রুপ সদস্য যোগ না করলে, এই গ্রুপের বার্তা স্থানীয় থাকবে। এটি নিরাপদে নোট, মিডিয়া বা নথি সংরক্ষণ বা ডেস্কটপে স্থানান্তরের জন্য আদর্শ।</string>
+    <string name="mark_unread">অপঠিত হিসেবে চিহ্নিত করুন</string>
+    <string name="mark_read_short">পঠিত চিহ্নিত করুন</string>
+    <string name="missing_app_licence">অ্যাপ স্টোর আপনার ক্রয় যাচাই করতে পারেনি। আপনি Google Play ব্যবহার করলে, দয়া করে Google Play Store অ্যাপের ডেটা পরিষ্কার করুন এবং আপনার ডিভাইস পুনরায় চালু করুন।</string>
+    <string name="set_backup_path">ব্যাকআপ পথ সেট করুন</string>
+    <string name="set_backup_path_intro">নিম্নলিখিত স্ক্রিনে দয়া করে যে ফোল্ডারে ডেটা ব্যাকআপ সংরক্ষণ করা উচিত তা নির্বাচন করুন।</string>
+    <string name="discard_changes_title">পরিবর্তন বাতিল করুন</string>
+    <string name="accept">গ্রহণ করুন</string>
+    <string name="tap_here_for_more">আরও তথ্যের জন্য এখানে চাপুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="another_connection_instructions"><![CDATA[সার্ভার একই ${app_name_short} ID সহ বিভিন্ন ডিভাইস থেকে দুটি বা ততোধিক সংযোগ শনাক্ত করেছে।<br><br>একই ${app_name_short} ID একাধিক ডিভাইসে একসাথে ব্যবহার করা সম্ভব নয়। নতুন বার্তা শুধুমাত্র সেই ডিভাইসে প্রেরণ করা হয় যা সবশেষে সার্ভারে লগ ইন করেছে।<br><br>আপনি যদি একটি নতুন ডিভাইসে স্যুইচ করছেন, তাহলে দয়া করে পুরনো ডিভাইসে %s আনইনস্টল বা নিষ্ক্রিয় করুন এবং তারপর নতুনটি পুনরায় বুট করুন।]]></string>
+    <string name="app_store_error_code">অ্যাপ স্টোর ত্রুটি কোড: %d</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="backup_restore_type"><![CDATA[আপনি কোন ধরনের ব্যাকআপ পুনরুদ্ধার করতে চান? <br/><br/> <a href=%s>${app_name_short}-এ ব্যাকআপ সম্পর্কে আরও জানুন</a>]]></string>
+    <string name="new_to_threema">%s-এ নতুন?</string>
+    <string name="back_to_threema">%s-এ ফিরে আসুন?</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_safe_backup">${app_name_short} Safe ব্যাকআপ</string>
+    <string name="forgot_your_password"><![CDATA[<a href=%s>সহায়তা</a>]]></string>
+    <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে। ত্রুটি কোড: %d</string>
+    <string name="edit_answer">উত্তর সম্পাদনা করুন</string>
+    <string name="share_media">অন্য একটি অ্যাপের সাথে শেয়ার করুন…</string>
+    <string name="miui_battery_optimization">এই কাজটি সম্পাদন করতে দয়া করে %s-এর জন্য "ব্যাটারি অপ্টিমাইজেশন" নিষ্ক্রিয় করুন। যেহেতু Xiaomi অ্যাপগুলোকে সরাসরি এই সেটিংস স্ক্রিন কল করতে দেয় না, আপনাকে এটি আপনার ফোনের সেটিংসে ম্যানুয়ালি করতে হবে। ব্যাটারি অপ্টিমাইজেশন নিষ্ক্রিয় করতে সহায়তা প্রয়োজন হলে দয়া করে Xiaomi সাপোর্টের সাথে যোগাযোগ করুন।</string>
+    <string name="forward_captions">ক্যাপশন অন্তর্ভুক্ত করুন</string>
+    <string name="label_continue">চালিয়ে যান</string>
+    <string name="select_date">একটি তারিখ নির্বাচন করুন</string>
+    <string name="select_time">একটি সময় নির্বাচন করুন</string>
+    <string name="send_to">%s-কে পাঠান</string>
+    <string name="receipts_override_choice_send">পাঠান</string>
+    <string name="receipts_override_choice_dont_send">পাঠাবেন না</string>
+    <string name="receipts_override_choice_default">ডিফল্ট (%s)</string>
+    <string name="unable_to_determine_recording_length">খালি রেকর্ডিং বা দৈর্ঘ্য নির্ধারণ করা যাচ্ছে না</string>
+    <string name="prefs_header_receipts">রসিদ</string>
+    <string name="prefs_title_reset_receipts">স্বতন্ত্র সেটিংস পরিষ্কার করুন</string>
+    <string name="prefs_sum_reset_receipts">পঠিত রসিদ ও টাইপিং নির্দেশকের জন্য পরিচিতি-নির্দিষ্ট সেটিংস ডিফল্টে রিসেট করুন</string>
+    <string name="reset_successful">ডিফল্টে সফলভাবে রিসেট করা হয়েছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="qr_scanner_id_hint">একটি পরিচিতির পরিচয় যাচাই করতে তার QR কোড স্ক্যান করুন। কোডটি প্রদর্শন করতে, আপনার পরিচিতিকে ${app_name_short} হোম স্ক্রিনের উপরের বাম কোণে প্রোফাইল ছবিতে চাপতে বলুন।</string>
+    <string name="enable_storage_access_for_media">আপনার ডিভাইসে ছবি ও ভিডিও দেখতে স্টোরেজ অ্যাক্সেস সক্ষম করুন</string>
+    <string name="select_storage_access_for_media_is_granted">আপনি নির্দিষ্ট সংখ্যক ছবি ও ভিডিওতে অ্যাক্সেস দিয়েছেন।</string>
+    <string name="take_me_there">আমাকে সেখানে নিয়ে যান…</string>
+    <string name="manage">পরিচালনা করুন</string>
+    <string name="show_public_key">পাবলিক কী দেখান</string>
+    <string name="public_key_for">%s-এর পাবলিক কী</string>
+    <string name="copied">অনুলিপি করা হয়েছে</string>
+    <string name="no_votes_yet">এখন পর্যন্ত কোনো ভোট দেওয়া হয়নি।</string>
+    <string name="permission_contacts_sync_required">আপনার পরিচিতি সিঙ্ক করতে সক্ষম হতে দয়া করে সেগুলোতে অ্যাক্সেসের অনুমতি দিন।</string>
+    <string name="not_voted_user_list">এই অংশগ্রহণকারীরা ভোট দেননি: %s</string>
+    <string name="enable_unknown_sources">ইনস্টল করা যাচ্ছে না। দয়া করে নিশ্চিত করুন যে %s-এর জন্য “অজানা অ্যাপ ইনস্টল করুন” সক্ষম আছে।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push">${app_name_short} Push</string>
+    <string name="threema_push_notification_text">আরও জানতে চাপুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_notification_info_text_1">${app_name_short} Push পটভূমিতে সক্রিয় আছে, আগত বার্তা ও কল সম্পর্কে আপনাকে জানাতে।</string>
+    <string name="threema_push_notification_info_text_2">একটি স্থায়ী বিজ্ঞপ্তি না দেখিয়ে অ্যাপগুলো পটভূমিতে চলতে পারে না। এই বিজ্ঞপ্তিটি দেখিয়ে, আমরা নিশ্চিত করতে পারি যে আপনি সক্রিয়ভাবে অ্যাপটি ব্যবহার না করলেও ${app_name_short} Push সক্রিয় থাকবে।</string>
+    <string name="threema_push_notification_info_text_3">আপনি যদি এখনও বিলম্বিত বা অনুপস্থিত বিজ্ঞপ্তির সমস্যা অনুভব করেন, তাহলে দয়া করে আপনার সিস্টেম সেটিংস সামঞ্জস্য করুন যাতে অ্যাপটি কোনো সীমাবদ্ধতা ছাড়াই পটভূমিতে সক্রিয় থাকতে পারে এবং সমস্ত ব্যাটারি সেভার নিষ্ক্রিয় থাকে।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_service_description">${app_name_short} Push সক্রিয় থাকলে প্রদর্শিত স্থায়ী বিজ্ঞপ্তি</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_push_activated">${app_name_short} Push সক্রিয় করা হয়েছে।</string>
+    <string name="add_shortcut_error">লঞ্চার স্ক্রিনে শর্টকাট যোগ করতে ত্রুটি</string>
+    <string name="web_link">লিংক</string>
+    <string name="link_copied">%s অনুলিপি করা হয়েছে</string>
+    <string name="invalid_onprem_id_title">ID যোগ করা যাচ্ছে না</string>
+    <string name="name_given">নামের প্রথম অংশ</string>
+    <string name="name_family">নামের শেষ অংশ</string>
+    <string name="name_prefix">নামের উপসর্গ</string>
+    <string name="name_middle">মাঝের নাম</string>
+    <string name="name_suffix">নামের প্রত্যয়</string>
+    <string name="full_name">পূর্ণ নাম</string>
+    <string name="send_contact">পরিচিতি পাঠান</string>
+    <string name="edit_send_contact_detail_icon">পরিচিতির বিবরণের ধরন</string>
+    <string name="phoneTypeCustom">কাস্টম</string>
+    <string name="phoneTypeHome">বাসা</string>
+    <string name="phoneTypeMobile">মোবাইল</string>
+    <string name="phoneTypeWork">কর্মস্থল</string>
+    <string name="phoneTypePager">পেজার</string>
+    <string name="phoneTypeOther">অন্যান্য</string>
+    <string name="phoneTypeCar">গাড়ি</string>
+    <string name="phoneTypeIsdn">ISDN</string>
+    <string name="phoneTypeOtherFax">অন্যান্য ফ্যাক্স</string>
+    <string name="eventTypeCustom">কাস্টম</string>
+    <string name="eventTypeBirthday">জন্মদিন</string>
+    <string name="eventTypeAnniversary">বার্ষিকী</string>
+    <string name="eventTypeOther">অন্যান্য</string>
+    <string name="emailTypeHome">বাসা</string>
+    <string name="emailTypeWork">কর্মস্থল</string>
+    <string name="emailTypeOther">অন্যান্য</string>
+    <string name="postalTypeCustom">কাস্টম</string>
+    <string name="postalTypeHome">বাসা</string>
+    <string name="postalTypeWork">কর্মস্থল</string>
+    <string name="postalTypeOther">অন্যান্য</string>
+    <string name="relationTypeCustom">কাস্টম</string>
+    <string name="relationTypeChild">সন্তান</string>
+    <string name="relationTypeFriend">বন্ধু</string>
+    <string name="relationTypeParent">পিতা-মাতা</string>
+    <string name="relationTypeSpouse">স্বামী/স্ত্রী</string>
+    <string name="contact_property_key">"কী"</string>
+    <string name="header_nickname_entry">"ডাকনাম"</string>
+    <string name="prefs_title_use_system_ringtone">সিস্টেম রিংটোন ব্যবহার করুন</string>
+    <string name="organization_type">সংস্থা</string>
+    <string name="permission_bluetooth_connect_required">সংযুক্ত ব্লুটুথ হেডসেট সনাক্ত করতে “কাছাকাছি ডিভাইস” অনুমতি সক্ষম করুন</string>
+    <string name="tooltip_multiple_recipients_title">একাধিক প্রাপক</string>
+    <string name="tooltip_multiple_recipients_text">একই বার্তা পাঠানোর জন্য একাধিক প্রাপক নির্বাচন করতে দীর্ঘক্ষণ চাপুন।</string>
+    <string name="forward_security_mode">Perfect Forward Secrecy</string>
+    <string name="forward_security_mode_none">কোনোটি নয়</string>
+    <string name="clear_forward_security">এই পরিচিতির জন্য Perfect Forward Secrecy রিসেট করুন</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="clear_forward_security_warning">শুধুমাত্র ${company_name}-এর সাপোর্ট টিম দ্বারা নির্দেশিত হলেই এই কাজটি সম্পাদন করুন।</string>
+    <string name="forward_security_cleared">এই পরিচিতির সাথে Perfect Forward Secrecy সেশন পরিষ্কার করা হয়েছে</string>
+    <string name="message_without_forward_security">Perfect Forward Secrecy ছাড়া একটি বার্তা গ্রহণ করা হয়েছে। যাচাই করুন যে প্রেরক ইচ্ছাকৃতভাবে Perfect Forward Secrecy নিষ্ক্রিয় করেছেন।</string>
+    <string name="forward_security_disabled">এই চ্যাটের জন্য Perfect Forward Secrecy নিষ্ক্রিয় করা আছে।</string>
+    <string name="forward_security_established">এই চ্যাট সঙ্গীর সাথে বার্তা এখন Perfect Forward Secrecy দ্বারা সুরক্ষিত।</string>
+    <string name="forward_security_established_rx">এই চ্যাটে গ্রহণ করা বার্তা এখন Perfect Forward Secrecy দ্বারা সুরক্ষিত।</string>
+    <string name="forward_security_reset">Perfect Forward Secrecy সেশন রিসেট করা হয়েছে। চ্যাট সঙ্গী ডিভাইস পরিবর্তন করলে বা অ্যাপ পুনরায় ইনস্টল করলে এটি ঘটতে পারে।</string>
+    <string name="forward_security_reset_simple">এই পরিচিতির সাথে Perfect Forward Secrecy সেশন রিসেট করা হয়েছে।</string>
+    <string name="forward_security_message_out_of_order">একটি বার্তা ক্রমের বাইরে গ্রহণ করা হয়েছে এবং ডিক্রিপ্ট করা যায়নি।</string>
+    <string name="forward_security_notification_channel_name">Perfect Forward Secrecy সতর্কতা</string>
+    <string name="forward_security_notification_rejected_title">বার্তা পাঠানো ব্যর্থ হয়েছে</string>
+    <string name="forward_security_notification_rejected_text_contact">%1$s-কে এক বা একাধিক বার্তা পাঠানো যায়নি।</string>
+    <string name="forward_security_notification_rejected_text_group">“%1$s”-কে এক বা একাধিক বার্তা পাঠানো যায়নি।</string>
+    <string name="forward_security_notification_rejected_text_generic">এক বা একাধিক বার্তা পাঠানো যায়নি।</string>
+    <string name="self_updater_installation_failed">আপডেটের ডাউনলোড ব্যর্থ হয়েছে। দয়া করে <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> থেকে আপডেটটি ম্যানুয়ালি ডাউনলোড ও ইনস্টল করুন।</string>
+    <string name="spam_first_contact">এই চ্যাটটি একটি অজানা পরিচিতি থেকে</string>
+    <string name="spam_report">স্প্যাম রিপোর্ট করুন</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="spam_report_dialog_explain">আপনি চালিয়ে গেলে, এই পরিচিতির ID ও ডাকনাম আপনার ID-সহ ${company_name}-কে ফরওয়ার্ড করা হবে। কোনো বিষয়বস্তু বা ব্যক্তিগত ডেটা পাঠানো হবে না। পরিচিতিকে এ সম্পর্কে জানানো হবে না।</string>
+    <string name="spam_report_dialog_block_checkbox">এই পরিচিতি ব্লক করুন এবং চ্যাট মুছুন</string>
+    <string name="spam_report_dialog_title">%s রিপোর্ট করুন</string>
+    <string name="spam_successfully_reported">ID-টি স্প্যাম পাঠানোর জন্য রিপোর্ট করা হয়েছে।</string>
+    <string name="spam_error_reporting">স্প্যাম রিপোর্ট করার সময় একটি ত্রুটি ঘটেছে: %s</string>
+    <string name="spam_report_short">রিপোর্ট করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="wizard_incompatible_contact_sync_params">অসামঞ্জস্যপূর্ণ MDM প্যারামিটার সেট করা আছে। ব্যবহারকারীর সীমাবদ্ধতা DISALLOW_MODIFY_ACCOUNTS সেট করা থাকলে ${app_name_short} MDM প্যারামিটার th_contact_sync true-তে সেট করা যাবে না। দয়া করে আপনার ডিভাইস প্রশাসকের সাথে যোগাযোগ করুন।</string>
+    <string name="messages_cannot_be_recovered">আপনি বার্তাগুলো পুনরুদ্ধার করতে পারবেন না।</string>
+    <string name="groups_left_or_dissolved">গ্রুপ ত্যাগ বা বিলুপ্ত করা হবে এবং তারপর মুছে ফেলা হবে।</string>
+    <string name="contact_deleted">পরিচিতি মুছে ফেলা হয়েছে</string>
+    <string name="last_added_contact">সর্বশেষ যোগ করা</string>
+    <string name="directory_explain_text">আপনার পরিচিতি তালিকায় এখনও নেই এমন কর্মচারীদের জন্য কোম্পানি ডিরেক্টরি অনুসন্ধান করুন।</string>
+    <string name="cannot_display_location">এই অবস্থানটি দেখানো যাবে না।</string>
+    <string name="draw_reply">আঁকা উত্তর</string>
+    <string name="drawing">আঁকা হচ্ছে</string>
+    <string name="background_color">পটভূমির রঙ</string>
+    <string name="send_video_muted">ভিডিও থেকে শব্দ সরান</string>
+    <string name="send_without_audio">অডিও সরান</string>
+    <string name="edit_filename">ফাইলের নাম সম্পাদনা করুন</string>
+    <string name="unable_to_restore_identity_because">ID পুনরুদ্ধার করা যাচ্ছে না। কারণ: %s</string>
+    <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="share_with_app">${app_name}-এর সাথে শেয়ার করুন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="read_phone_state_dialog_message">${app_name_short} কল যাতে নিয়মিত কল বাধাগ্রস্ত না করে তা রোধ করতে, ফোন অনুমতি প্রয়োজন। এই অনুমতি না দেওয়া হলে, একটি চলমান নিয়মিত কল থাকলেও একটি আগত ${app_name_short} কল রিং হবে।</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="read_phone_state_short_message">চলমান কল পরীক্ষা করতে, ${app_name}-কে ফোন অনুমতি দিন।</string>
+    <string name="prefs_title_read_phone_state">ফোন অনুমতি দিন</string>
+    <string name="prefs_title_hibernation">অব্যবহৃত অ্যাপ সেটিংস</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_hibernation_api_32">দীর্ঘ নিষ্ক্রিয়তার পরে ${app_name} যাতে সিস্টেম দ্বারা বিরতি না পায় তা রোধ করতে, দয়া করে সিস্টেম সেটিং “অনুমতি সরান ও জায়গা খালি করুন” নিষ্ক্রিয় করুন।</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="prefs_summary_hibernation_api">দীর্ঘ নিষ্ক্রিয়তার পরে ${app_name} যাতে সিস্টেম দ্বারা বিরতি না পায় তা রোধ করতে, দয়া করে সিস্টেম সেটিং “অব্যবহৃত হলে অ্যাপ কার্যকলাপ বিরতি দিন” নিষ্ক্রিয় করুন।</string>
+    <string name="unable_to_fetch_configuration">কনফিগারেশন সার্ভার থেকে ডেটা আনা যাচ্ছে না। পরে আবার চেষ্টা করুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="rogue_device_warning"><![CDATA[একই ${app_name_short} ID সহ একটি ভিন্ন ডিভাইস থেকে একটি সংযোগ শনাক্ত করা হয়েছে। আপনি কি সম্প্রতি অন্য একটি ডিভাইসে আপনার ${app_name_short} ID ব্যবহার করেছেন? <br><br> আপনি করে থাকলে, আপনি এই বার্তাটি উপেক্ষা করতে পারেন। <br><br> আপনি না করে থাকলে, আপনার প্রাইভেট কী আপোস হতে পারে। একটি নতুন ID তৈরি করার আগে আপনার ডিভাইস ও ডেটা রক্ষা করতে দয়া করে <a href="https://threema.com/faq/another_connection">আমাদের পরামর্শ অনুসরণ করুন</a>।]]></string>
+    <string name="fetch2_failure">প্রভিশনিং সার্ভারের সাথে সিঙ্ক্রোনাইজেশন ব্যর্থ হয়েছে।</string>
+    <string name="no_members_support_group_calls">এই গ্রুপে গ্রুপ কলের উত্তর দিতে সক্ষম এমন অন্য কোনো সদস্য নেই</string>
+    <string name="group_calls">গ্রুপ কল</string>
+    <string name="prefs_title_group_calls_enable">গ্রুপ কল সক্ষম করুন</string>
+    <string name="group_no_members">এই গ্রুপে অন্য কোনো সদস্য নেই</string>
+    <string name="group_call">গ্রুপ কল</string>
+    <string name="checking_compatibility">সামঞ্জস্যতা পরীক্ষা করা হচ্ছে…</string>
+    <string name="group_call_mic_permission_description">গ্রুপ কল করতে, আপনাকে মাইক্রোফোন অনুমতি দিতে হবে, যাতে অন্যরা আপনাকে শুনতে পারে।</string>
+    <string name="call_mic_permission_description">কল করতে, আপনাকে মাইক্রোফোন অনুমতি দিতে হবে, যাতে অন্যরা আপনাকে শুনতে পারে।</string>
+    <string name="group_call_camera_permission_rationale">অন্য অংশগ্রহণকারীরা যাতে আপনার ছবি দেখতে পারে, আপনাকে “অনুমতি”-র অধীনে %s-কে ক্যামেরায় অ্যাক্সেসের অনুমতি দিতে হবে।</string>
+    <string name="group_call_phone_permission_description">গ্রুপ কল করতে, অন্য একটি কল কখন গ্রুপ কল বাধাগ্রস্ত করে তা সনাক্ত করতে ফোন অনুমতি প্রয়োজন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="call_phone_permission_description">${app_name_short} কল করতে, অন্য একটি কল কখন ${app_name_short} কল বাধাগ্রস্ত করে তা সনাক্ত করতে ফোন অনুমতি প্রয়োজন।</string>
+    <string name="group_call_nearby_devices_permission_description">ব্লুটুথ হেডসেট দিয়ে গ্রুপ কল করতে, আপনাকে ব্লুটুথ হেডসেট সনাক্ত করতে “কাছাকাছি ডিভাইস” অনুমতি দিতে হবে।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="call_nearby_devices_permission_description">ব্লুটুথ হেডসেট দিয়ে ${app_name_short} কল করতে, আপনাকে ব্লুটুথ হেডসেট সনাক্ত করতে “কাছাকাছি ডিভাইস” অনুমতি দিতে হবে।</string>
+    <string name="settings">সেটিংস</string>
+    <string name="leave">ত্যাগ করুন</string>
+    <string name="fs_key_mismatch">কী অমিল</string>
+    <string name="tap_to_resend">পুনরায় পাঠাতে চাপুন</string>
+    <string name="group_calls_tooltip_title">গ্রুপ কল</string>
+    <string name="group_calls_tooltip_text">একটি কলে যোগ দিতে সমস্ত গ্রুপ সদস্যকে আমন্ত্রণ জানাতে এখানে চাপুন। সমস্ত গ্রুপ সদস্য একটি বিজ্ঞপ্তি পাবেন এবং তারা কলে যোগ দিতে চান কিনা সিদ্ধান্ত নিতে পারবেন।</string>
+    <string name="prefs_title_calls">নিরাপদ কল</string>
+    <string name="prefs_sum_group_calls_vibration">একটি গ্রুপ কল শুরু হলে কম্পন করবে কিনা তা নির্বাচন করুন</string>
+    <string name="forward_security_mode_4dh">সম্পূর্ণ</string>
+    <string name="forward_security_mode_2dh">একতরফা</string>
+    <string name="forward_security_mode_all">পূর্ণ</string>
+    <string name="forward_security_mode_partial">আংশিক</string>
+    <string name="group_call_inactivity_left">নিষ্ক্রিয়তার কারণে গ্রুপ কল ত্যাগ করা হয়েছে</string>
+    <string name="missing_permission_external_storage">ফাইলটি অনুলিপি করা যাচ্ছে না। নিম্নলিখিত ধাপগুলো চেষ্টা করুন:\n1. সেটিংস অ্যাপ খুলুন।\n2. “অ্যাপস”-এ যান এবং “বিশেষ অ্যাপ অ্যাক্সেস” বেছে নিন।\n3. “সমস্ত ফাইল অ্যাক্সেস“-এ চাপুন।\n4. উপরের ডান কোণে তিনটি বিন্দুতে চাপুন এবং “সিস্টেম দেখান“ বেছে নিন।\n5. “বাহ্যিক স্টোরেজ“-এ চাপুন এবং নিশ্চিত করুন “সমস্ত ফাইল পরিচালনার অ্যাক্সেস অনুমতি দিন“ দেওয়া আছে।\n6. ব্যাকআপ পুনরুদ্ধারের আবার চেষ্টা করুন।</string>
+    <string name="forward_security_downgraded_status_message">এই চ্যাটে Perfect Forward Secrecy নিষ্ক্রিয় করা হয়েছে কারণ আপনার চ্যাট সঙ্গীর অ্যাপ সংস্করণ এটি সমর্থন করে না বা ${app_name_desktop} 2.0 for Desktop (beta) ব্যবহার করা হচ্ছে।</string>
+    <string name="forward_security_illegal_session_status_message">অবৈধতার কারণে Perfect Forward Secrecy সেশন রিসেট করা হয়েছে।</string>
+    <string name="crop_image_title">ছবি ক্রপ করুন</string>
+    <string name="scroll_to_bottom">নিচে স্ক্রোল করুন</string>
+    <string name="scroll_to_top">উপরে স্ক্রোল করুন</string>
+    <string name="contact_sync_mdm_rationale">আপনার প্রশাসক আপনার ডিভাইসের জন্য পরিচিতি সিঙ্ক্রোনাইজেশন সক্ষম করেছেন। তাই পরিচিতি অ্যাক্সেসের অনুমতি প্রয়োজন।</string>
+    <string name="welcome_back">আবার স্বাগতম!</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="id_restored_successfully">আপনার ${app_name_short} ID সফলভাবে পুনরুদ্ধার করা হয়েছে</string>
+    <string name="prefs_dynamic_colors">ডায়নামিক রঙ</string>
+    <string name="prefs_dynamic_colors_sum">সিস্টেম রঙ ব্যবহার করুন</string>
+    <string name="apply_changes">পরিবর্তন প্রয়োগ করুন</string>
+    <string name="prefs_threema_work_summary">আপনি কি জানেন যে Threema ব্যবসার জন্য একটি পেশাদার যোগাযোগ সমাধানও অফার করে? Threema Work সম্পর্কে আরও জানতে এখানে চাপুন।</string>
+    <string name="notification_channel_voice_message_player">ভয়েস বার্তা প্লেয়ার</string>
+    <string name="voice_message_from">%s থেকে ভয়েস বার্তা</string>
+    <string name="vm_fg_service_not_allowed">ভয়েস বার্তা চালানোর ত্রুটি</string>
+    <string name="vm_fg_service_not_allowed_explain">মিডিয়া বিজ্ঞপ্তিতে প্লে বোতামটি এখনও থাকলে তাতে চাপুন, অন্যথায় দয়া করে চ্যাট থেকে চালানো শুরু করতে অ্যাপটি খুলুন।</string>
+    <string name="use_threema_without_this_permission">এই অনুমতি ছাড়াই %s ব্যবহার করুন</string>
+    <string name="grant_permission">অনুমতি দিন</string>
+    <string name="grant_permission_settings">সেটিংসে অনুমতি দিন</string>
+    <string name="ignore_permission">আর জিজ্ঞাসা করবেন না</string>
+    <string name="permission_nearby_devices">কাছাকাছি ডিভাইস</string>
+    <string name="permission_bluetooth">ব্লুটুথ</string>
+    <string name="permission_camera">ক্যামেরা</string>
+    <string name="permission_microphone">মাইক্রোফোন</string>
+    <string name="permission_read_phone_state">ফোন</string>
+    <string name="permission_enable_in_settings_rationale">দয়া করে সেটিংসে অনুমতিটি সক্ষম করুন। “অনুমতি” নির্বাচন করুন এবং তারপর “%s” অনুমতি দিন।</string>
+    <string name="group_name">গ্রুপের নাম</string>
+    <string name="star_message">বার্তা স্টার করুন</string>
+    <string name="starred_message">স্টার করা বার্তা</string>
+    <string name="starred_messages">স্টার করা বার্তা</string>
+    <string name="sorting">সাজানো</string>
+    <string name="sort_by">অনুযায়ী সাজান…</string>
+    <string name="newest_first">নতুনটি আগে</string>
+    <string name="oldest_first">পুরনোটি আগে</string>
+    <string name="no_starred_messages">কোনো স্টার করা বার্তা পাওয়া যায়নি। একটি বার্তা স্টার করতে, এতে দীর্ঘক্ষণ চাপুন এবং স্টার বোতামটি নির্বাচন করুন।</string>
+    <string name="remove_all_stars">সমস্ত স্টার সরান</string>
+    <string name="remove_star">স্টার সরান</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="samsung_permission_problem_explain">একটি সিস্টেম অ্যাপে অনুপস্থিত অনুমতির কারণে ${app_name} মিডিয়া ফাইল অ্যাক্সেস করতে পারছে না। এটি সমাধান করতে, নিশ্চিত করুন, পরবর্তী স্ক্রিনে “বাহ্যিক স্টোরেজ”-এর পাশের সুইচটি সক্ষম আছে এবং %1$s পুনরায় শুরু করুন।</string>
+    <string name="min_n_chars">ন্যূনতম %d অক্ষর</string>
+    <string name="prefs_title_grant_bluetooth_permission">ব্লুটুথ অনুমতি দিন</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_managed_password_confirm">আপনার ${app_name_short} Safe ব্যাকআপের জন্য একটি পরিচালিত পাসওয়ার্ড নির্ধারণ করা হয়েছে।\n\nআপনি কি এই পাসওয়ার্ডটি ব্যবহার করতে চান? সন্দেহ হলে, দয়া করে আপনার প্রশাসকের সাথে যোগাযোগ করুন।</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="safe_managed_new_password_confirm">আপনার ${app_name_short} Safe ব্যাকআপের জন্য একটি নতুন পরিচালিত পাসওয়ার্ড নির্ধারণ করা হয়েছে।\n\nআপনি কি বর্তমান পাসওয়ার্ডটি এই নতুন, পরিচালিত পাসওয়ার্ড দিয়ে প্রতিস্থাপন করতে চান? সন্দেহ হলে, দয়া করে আপনার প্রশাসকের সাথে যোগাযোগ করুন।</string>
+    <string name="real_not_now">এখন নয়</string>
+    <string name="add_contact_in">এতে পরিচিতি যোগ করুন…</string>
+    <string name="really_remove_all_stars">আপনি কি সত্যিই সমস্ত বার্তার স্টার সরাতে চান?</string>
+    <string name="prefs_sum_storage_management">মেমরি পরিচালনা করুন এবং বার্তা বা মিডিয়া মুছুন</string>
+    <string name="delete_automatically">স্বয়ংক্রিয়ভাবে মুছুন</string>
+    <string name="keep_messages">এই সময় পর্যন্ত বার্তা রাখুন:</string>
+    <string name="clean_up_manually">ম্যানুয়ালি পরিষ্কার করুন</string>
+    <string name="forever">চিরকাল</string>
+    <string name="autodelete_explain">“চিরকাল” ছাড়া অন্য কিছুতে সেট করা হলে, নির্দিষ্ট সময়ের পরে আগত ও বহির্গামী বার্তা অপুনরুদ্ধারযোগ্যভাবে মুছে ফেলা হবে। এর মধ্যে অপঠিত ও অপ্রেরিত বার্তাও রয়েছে। তবে, নোট গ্রুপের বার্তা ও স্টার করা বার্তা মুছে ফেলা হবে না। মুছে ফেলার প্রক্রিয়া পর্যায়ক্রমে শুরু হয়, সক্রিয়করণের পরপরই নয়।</string>
+    <string name="autodelete_confirm">%s পরে বার্তা স্বয়ংক্রিয়ভাবে মুছে ফেলা হবে। চালিয়ে যাবেন?</string>
+    <string name="autodelete_activated">স্বয়ংক্রিয় মুছে ফেলা সক্রিয় করা হয়েছে।</string>
+    <string name="autodelete_disabled">স্বয়ংক্রিয় মুছে ফেলা নিষ্ক্রিয় করা হয়েছে।</string>
+    <string name="set_by_administrator">মান প্রশাসক দ্বারা সেট করা হয়েছে এবং পরিবর্তন করা যাবে না।</string>
+    <string name="action_dissolve_group">গ্রুপ বিলুপ্ত করুন</string>
+    <string name="really_dissolve_group">আপনি যদি শুধু গ্রুপটি বিলুপ্ত করেন, তাহলে কেউ আর গ্রুপে নতুন বার্তা পাঠাতে পারবে না এবং এটি আর পরিচালনা করা যাবে না। বিলুপ্ত গ্রুপটি এখনও ক্লোন করা যাবে।</string>
+    <string name="status_orphaned_group">*এই গ্রুপটি অভিভাবকহীন*\nগ্রুপ নির্মাতা গ্রুপ ত্যাগ করেছেন এবং এটি আর রক্ষণাবেক্ষণ করা যাবে না। অবশিষ্ট সদস্যদের একজন নতুন প্রশাসক হতে গ্রুপটি ক্লোন করতে পারেন (গ্রুপের বিবরণের মাধ্যমে)।</string>
+    <string name="group_not_a_member_notice">আপনি আর এই গ্রুপের অংশ নন এবং এটি আর ব্যবহার করতে পারবেন না।</string>
+    <string name="group_dissolved_notice">এই গ্রুপটি বিলুপ্ত করা হয়েছে এবং আর ব্যবহার করা যাবে না।</string>
+    <string name="md_linked_devices">${app_name_desktop} 2.0 for Desktop (Beta)</string>
+    <string name="md_link_device">ডিভাইস যোগ করুন</string>
+    <!-- ${app_name_desktop} is a placeholder for the desktop app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. ${app_name_desktop} is a placeholder for the app's name and must NOT be translated -->
+    <string name="md_linked_devices_empty">একটি নতুন ডিভাইস লিংক করার আগে, দয়া করে [${app_name_desktop} for Desktop]-এর সর্বশেষ বিটা সংস্করণ ডাউনলোড ও খুলুন।</string>
+    <string name="directory_request_failed">ডিরেক্টরি অনুরোধ ব্যর্থ হয়েছে। আবার চেষ্টা করুন।</string>
+    <string name="add_shortcut_exists">এই লক্ষ্যের জন্য একটি শর্টকাট ইতিমধ্যে বিদ্যমান।</string>
+    <string name="scan_qr_code">QR কোড স্ক্যান করুন</string>
+    <!-- ${app_name_desktop} is a placeholder for the desktop app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="scan_qr_code_explain">আপনি যে ডিভাইসটি লিংক করতে চান তাতে ${app_name_desktop} for Desktop-এর বিটা সংস্করণে প্রদর্শিত QR কোডটি স্ক্যান করুন।</string>
+    <string name="connecting">সংযোগ করা হচ্ছে…</string>
+    <string name="trust_new_device">নতুন ডিভাইস বিশ্বাস করুন</string>
+    <string name="trust_new_device_explain">আপনি এটি বিশ্বাস করেন তা নিশ্চিত করতে নতুন ডিভাইসে প্রদর্শিত একই ছবিগুলো নির্বাচন করুন।</string>
+    <string name="trust_new_device_info">নতুন ডিভাইসটি আপনার %s প্রোফাইলের একটি স্বাধীন অনুলিপি সংরক্ষণ করবে এবং আপনার পক্ষ থেকে বার্তা পাঠানো ও গ্রহণ করা হবে।</string>
+    <string name="no_match_question">কোনো মিল নেই?</string>
+    <string name="sending_data">ডেটা পাঠানো হচ্ছে…</string>
+    <string name="continue_on_new_device">দয়া করে নতুন ডিভাইসে চালিয়ে যান</string>
+    <string name="device_linked_successfully">ডিভাইস সফলভাবে লিংক করা হয়েছে</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="device_linked_successfully_explain">আপনি এইমাত্র যে ডিভাইসটি লিংক করেছেন তাতে এখন ${app_name} ব্যবহার করা যাবে (এমনকি এই ডিভাইসটি বন্ধ থাকলে বা ইন্টারনেটের সাথে সংযুক্ত না থাকলেও)।</string>
+    <string name="resend_message_dialog_title">গ্রুপ বার্তা পুনরায় পাঠাবেন?</string>
+    <string name="resend_message_dialog_message">এই বার্তাটি সব সদস্যকে পাঠানো যায়নি। %1$s-কে বার্তা পুনরায় পাঠাবেন?</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="work_lost_credentials_help">আপনার শংসাপত্র ভুলে গেছেন? দয়া করে আপনার ${app_name_short} প্রশাসকের সাথে যোগাযোগ করুন।</string>
+    <string name="problemsolver_intro">কিছু সিস্টেম কনফিগারেশন সমস্যা সম্ভবত %s-কে সঠিকভাবে কাজ করা থেকে রোধ করছে। দয়া করে নিচের নির্দেশনা অনুসরণ করে এই সমস্যাগুলো সমাধান করুন।</string>
+    <string name="problemsolver_title">কনফিগারেশন সমস্যা সমাধান করুন</string>
+    <string name="problemsolver_title_background">পটভূমি ব্যবহার সীমাবদ্ধ</string>
+    <string name="problemsolver_title_background_data">পটভূমি ডেটা সীমাবদ্ধ</string>
+    <string name="problemsolver_title_notifications">বিজ্ঞপ্তি নিষ্ক্রিয়</string>
+    <string name="problemsolver_title_fullscreen_notifications">পূর্ণ স্ক্রিন বিজ্ঞপ্তি অনুমোদিত নয়</string>
+    <string name="problemsolver_title_debug_log_enabled">লগিং এখনও সক্ষম</string>
+    <string name="problemsolver_explain_fullscreen_notifications">অ্যাপটিকে পূর্ণ স্ক্রিন বিজ্ঞপ্তি প্রদর্শনের অনুমতি দেওয়া হয়নি। ডিভাইস লক থাকলে আপনি আগত কল মিস করতে পারেন। এটি সমাধান করতে, “পূর্ণ স্ক্রিন বিজ্ঞপ্তি অনুমতি দিন” সক্রিয় করুন।</string>
+    <string name="problemsolver_explain_notifications">এই অ্যাপের জন্য বিজ্ঞপ্তি সম্পূর্ণভাবে নিষ্ক্রিয় করা আছে। আপনাকে আগত বার্তা বা কল সম্পর্কে জানানো হবে না এবং অ্যাপটি প্রত্যাশা অনুযায়ী কাজ নাও করতে পারে। এটি সমাধান করতে, “সমস্ত বিজ্ঞপ্তি” সক্রিয় করুন।</string>
+    <string name="problemsolver_explain_background_data">পটভূমিতে থাকাকালীন অ্যাপটি মোবাইল ডেটা ব্যবহার করতে পারে না। আপনি সক্রিয়ভাবে অ্যাপটি না খুললে আপনাকে আগত বার্তা সম্পর্কে জানানো হবে না। এটি সমাধান করতে, “পটভূমি ডেটা” সক্রিয় করুন।</string>
+    <string name="problemsolver_explain_background">অ্যাপের পটভূমি ব্যবহার সীমাবদ্ধ। আপনি কোনো বিজ্ঞপ্তি পাবেন না এবং অনেক বৈশিষ্ট্য প্রত্যাশা অনুযায়ী কাজ করবে না। এটি সমাধান করতে, “অ্যাপ ব্যাটারি ব্যবহার”-এ চাপুন এবং “অসীমিত” নির্বাচন করুন।</string>
+    <string name="problemsolver_explain_debug_log_enabled">কিছুদিন আগে, আপনি ডিবাগ লগ সক্রিয় করেছিলেন। আপনার যদি আর ঘটনা ও নেটওয়ার্ক তথ্য লগ করার প্রয়োজন না থাকে, তাহলে লগটি আবার নিষ্ক্রিয় করার কথা বিবেচনা করুন।</string>
+    <string name="problemsolver_explain_debug_log_force_enabled">${app_name} বর্তমানে একটি ফাইলে ঘটনা ও নেটওয়ার্ক তথ্য লগ করছে কারণ আপনি “%s” ফাইলটি তৈরি করেছেন। আপনার যদি আর লগিংয়ের প্রয়োজন না থাকে, তাহলে ফাইলটি মুছে ফেলার কথা বিবেচনা করুন।</string>
+    <string name="problemsolver_info_text">উপরে উল্লিখিত কিছু সিস্টেম-সেটিং বিকল্পের নামকরণ Android সংস্করণ ও ডিভাইস প্রস্তুতকারকের উপর নির্ভর করে ভিন্ন হতে পারে।</string>
+    <string name="problemsolver_title_app_battery_usgae_optimized">অ্যাপ ব্যাটারি ব্যবহার “অপ্টিমাইজড”-এ সেট করা হয়েছে</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="problemsolver_explain_app_battery_usgae_optimized">অ্যাপটিকে সার্ভারের সাথে একটি স্থায়ী সংযোগ বজায় রাখার অনুমতি দেওয়া হয়নি যা ${app_name_short} Push কাজ করার জন্য প্রয়োজন। অ্যাপটি পটভূমিতে থাকলে আপনাকে নতুন বার্তা সম্পর্কে জানানো হবে না। এটি সমাধান করতে, “অ্যাপ ব্যাটারি ব্যবহার”-এ চাপুন এবং “অসীমিত” নির্বাচন করুন।</string>
+    <string name="problemsolver_to_settings">সেটিংসে যান</string>
+    <!-- Label on button to dismiss/hide a warning -->
+    <string name="problemsolver_dismiss">খারিজ করুন</string>
+    <string name="prefs_advanced_options">উন্নত বিকল্প</string>
+    <string name="push_service">পুশ পরিষেবা</string>
+    <string name="edit_and_send">সম্পাদনা করে পাঠান</string>
+    <string name="media_gallery_animated_webps">অ্যানিমেটেড WebP</string>
+    <string name="unsupported_image_type">অসমর্থিত ছবির ধরন: %s</string>
+    <string name="application_setup_steps_failed">আপনার পরিচিতিদের অবস্থা পরীক্ষা করতে একটি সক্রিয় ইন্টারনেট সংযোগ প্রয়োজন। দয়া করে নিশ্চিত করুন যে আপনি ইন্টারনেটের সাথে সংযুক্ত আছেন এবং আবার চেষ্টা করুন।</string>
+    <string name="add_contact_failed">পরিচিতি যোগ করা ব্যর্থ হয়েছে</string>
+    <string name="edit_message_not_supported_for_contact">বার্তাটি সম্পাদনা করা যাচ্ছে না কারণ প্রাপকের অ্যাপ সংস্করণ এই বৈশিষ্ট্যটি সমর্থন করে না।</string>
+    <string name="edit_message_not_supported_for_all_group_members">নিম্নলিখিত গ্রুপ সদস্যরা আপনার সম্পাদনা দেখতে পাবেন না: %1$s</string>
+    <string name="edit_message_not_supported_for_any_group_members">বার্তাটি সম্পাদনা করা যাচ্ছে না কারণ কোনো গ্রুপ সদস্যের এই বৈশিষ্ট্য সমর্থনকারী অ্যাপ সংস্করণ নেই।</string>
+    <string name="prefs_notification_settings_summary">সিস্টেম সেটিংস ডায়ালগে শব্দ ও কম্পন পরিবর্তন করুন</string>
+    <string name="new_messages">নতুন বার্তা</string>
+    <string name="new_group_messages">নতুন গ্রুপ বার্তা</string>
+    <string name="individual_notification_settings">স্বতন্ত্র বিজ্ঞপ্তি সেটিংস</string>
+    <string name="delete_message_not_supported_for_all_group_members">নিম্নলিখিত গ্রুপ সদস্যদের জন্য বার্তাটি মুছে ফেলা হবে না: %1$s</string>
+    <string name="individual_notification_settings_warn">স্বতন্ত্র বিজ্ঞপ্তি সেটিংস সহ প্রতিটি চ্যাটের জন্য, একটি বিজ্ঞপ্তি চ্যানেল তৈরি করা হয়, যার অর্থ অ্যাপ লক থাকলেও চ্যাটের নাম ডিভাইস সেটিংসে দৃশ্যমান থাকে। তবুও চালিয়ে যাবেন?</string>
+    <string name="incoming_calls">আগত কল</string>
+    <string name="group_chats">গ্রুপ চ্যাট</string>
+    <string name="edit_history_file_no_caption">কোনো ক্যাপশন নেই</string>
+    <string name="prefs_title_error_reporting">ত্রুটি রিপোর্টিং</string>
+    <string name="prefs_send_error_reports">বেনামি রিপোর্ট পাঠান</string>
+    <string name="error_reporting_option_never_send">কখনও না</string>
+    <string name="error_reporting_option_always_send">সর্বদা</string>
+    <string name="error_reporting_option_always_ask">প্রতিবার জিজ্ঞাসা করুন</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_never_send">${company_name}-কে কখনও ত্রুটি রিপোর্ট পাঠাবেন না</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_always_send">একটি গুরুতর ত্রুটি শনাক্ত হলে স্বয়ংক্রিয়ভাবে ${company_name}-কে ত্রুটি রিপোর্ট পাঠান</string>
+    <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="error_reporting_summary_always_ask">${company_name}-কে একটি ত্রুটি রিপোর্ট পাঠানো হবে কিনা প্রতিবার জিজ্ঞাসা করুন</string>
+    <string name="error_detected_dialog_title">বেনামি রিপোর্ট পাঠান</string>
+    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="crash_detected_dialog_text">মনে হচ্ছে ${app_name_short} সম্প্রতি ক্র্যাশ করেছে। আপনি কি একটি বেনামি ত্রুটি রিপোর্ট জমা দিতে চান?</string>
+    <string name="crash_detected_dialog_remember_choice">আমার পছন্দ মনে রাখুন</string>
+    <string name="crash_detected_dialog_send_button">পাঠান</string>
+    <!-- Shown in the advanced settings, shows the user their own Device's uniquely generated ID, which is used for sending error reports -->
+    <string name="prefs_error_reporting_id">বেনামি ডিভাইস ID</string>
+    <!-- The %s is a placeholder for an ID. It must be left as-is. -->
+    <string name="prefs_error_reporting_id_summary">এই ID ত্রুটি রিপোর্ট বরাদ্দ করতে ব্যবহৃত হয়। এটি বেনামি এবং আপনার Threema ID-এর সাথে সংযুক্ত নয়।\n%s</string>
+    <string name="md_device_currently_active">বর্তমানে সক্রিয়</string>
+    <string name="md_device_last_active_at">সর্বশেষ সক্রিয়: %s</string>
+    <plurals name="md_max_device_slots_reached_info">
+        <item quantity="one">একবারে শুধুমাত্র একটি ডিভাইস লিংক করা যায়।</item>
+        <item quantity="other">সর্বোচ্চ %d টি লিংক করা ডিভাইসের সংখ্যায় পৌঁছেছে। একটি নতুন ডিভাইস যোগ করতে একটি লিংক করা ডিভাইস সরান।</item>
+    </plurals>
+    <string name="md_device_invalid_label">ডিভাইস</string>
+    <string name="md_device_invalid_hint">তথ্য পাওয়া যায়নি</string>
+
+    <string name="device_linking_cancel_dialog_title">লিংকিং বাতিল করুন</string>
+    <string name="device_linking_cancel_dialog_message">লিংকিং এখনও সম্পন্ন হয়নি। আপনি কি এটি বাতিল করতে চান?</string>
+    <string name="device_linking_cancel_dialog_cancel">লিংকিং বাতিল করুন</string>
+    <string name="device_linking_cancel_dialog_continue">চালিয়ে যান</string>
+
+    <string name="md_drop_device_dialog_drop_button">ডিভাইস সরান</string>
+    <string name="md_drop_device_dialog_close_button">বন্ধ করুন</string>
+
+    <string name="md_drop_device_failed_dialog_title">লিংক করা ডিভাইস সরানো ব্যর্থ হতে পারে</string>
+    <string name="md_drop_device_failed_dialog_message">দয়া করে ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <string name="md_drop_device_failed_dialog_button_close">বন্ধ করুন</string>
+
+    <!-- Message shown in dialog when the user starts configuring a backup, but we detected that there might be a problem and thus offer a workaround option to choose from -->
+    <string name="backup_path_selection_message">ফোল্ডার নির্বাচন করার সময় একটি সম্ভাব্য সমস্যা শনাক্ত হয়েছে। সমস্যাটি থেকে গেলে, আপনি একটি কাস্টম ফোল্ডার বেছে নেওয়ার পরিবর্তে “Documents” ফোল্ডারে ব্যাকআপ সংরক্ষণ করতে পারেন।</string>
+    <!-- Button label on dialog when configuring a backup, shown on dialog that lets the user choose how they want to select the backup folder. This option lets them use the regular file picker. -->
+    <string name="backup_path_selection_default">কাস্টম ফোল্ডার নির্বাচন করুন</string>
+    <!-- Button label on dialog when configuring a backup, shown on dialog that lets the user choose how they want to select the backup folder. This option lets them bypass the file picker and use the default Documents folder instead -->
+    <string name="backup_path_selection_documents">“Documents” ফোল্ডার ব্যবহার করুন</string>
+
+    <!-- accessibility -->
+    <string name="cd_edited">বার্তা সম্পাদনা করা হয়েছে</string>
+    <string name="cd_created_at">%s-এ তৈরি হয়েছে</string>
+    <string name="cd_edited_at">%s-এ সম্পাদিত হয়েছে</string>
+    <string name="cd_index_in_edit_history">ইতিহাসে %d. সম্পাদনা</string>
+    <string name="cd_message_details_container">বার্তার বিবরণ</string>
+    <string name="cd_enable_formatting">ফরম্যাটিং সক্ষম করুন</string>
+    <string name="cd_message">বার্তা</string>
+    <string name="reactions_on_this_message">সমস্ত প্রতিক্রিয়া</string>
+    <string name="select_emoji_content_description">ইমোজি পিকার থেকে যোগ করতে ইমোজি নির্বাচন করুন</string>
+    <string name="group_emoji_reactions_partially_supported">একটি পুরনো সংস্করণের কারণে কিছু লোক আপনার প্রতিক্রিয়া দেখতে পাবেন না।</string>
+    <string name="tab_emoji_reactions_overview_content_description">%2$s সহ %1$s প্রতিক্রিয়া</string>
+    <string name="reaction_cannot_be_displayed">এই প্রতিক্রিয়াটি দেখানো যাবে না। অজানা ইমোজি।</string>
+    <string name="emoji_reactions_unavailable_title">ইমোজি প্রতিক্রিয়া উপলব্ধ নেই</string>
+    <string name="emoji_reactions_unavailable_body">%1$s এমন একটি অ্যাপ সংস্করণ ব্যবহার করছেন যা এখনও এই বৈশিষ্ট্যটি সমর্থন করে না।</string>
+    <string name="emoji_reactions_unavailable_group_body">আপনি এই বার্তায় একটি ইমোজি দিয়ে প্রতিক্রিয়া জানাতে পারবেন না কারণ কোনো গ্রুপ সদস্যের এই বৈশিষ্ট্য সমর্থনকারী অ্যাপ সংস্করণ নেই।</string>
+    <string name="emoji_reactions_cannot_remove_title">প্রতিক্রিয়া সরানো উপলব্ধ নেই</string>
+    <string name="emoji_reactions_cannot_remove_body">%1$s এমন একটি অ্যাপ সংস্করণ ব্যবহার করছেন যা এখনও ইমোজি প্রতিক্রিয়া সরানো বা একাধিক ইমোজি প্রতিক্রিয়া পাঠানো সমর্থন করে না। আপনি এখনও 👍-কে 👎 দিয়ে বা বিপরীতভাবে প্রতিস্থাপন করতে পারেন।</string>
+    <string name="emoji_reactions_cannot_remove_group_body">কোনো গ্রুপ সদস্য এমন একটি অ্যাপ সংস্করণ ব্যবহার করছেন না যা ইমোজি প্রতিক্রিয়া সরানো বা একাধিক ইমোজি প্রতিক্রিয়া পাঠানো সমর্থন করে। আপনি 👍-কে 👎 দিয়ে বা বিপরীতভাবে প্রতিস্থাপন করতে পারেন।</string>
+    <!-- Hint shown on message details screen, to let the user know how they can view a message's emoji reactions -->
+    <string name="emoji_reactions_message_details_hint">এই বার্তায় ইমোজি প্রতিক্রিয়া রয়েছে। চ্যাটে, সেগুলো সব দেখতে যেকোনো ইমোজি বাবলে চেপে ধরে রাখুন।</string>
+    <!-- Title shown in popup above emoji reaction buttons on a message, to hint to the user that they can long-press to view the details -->
+    <string name="emoji_reactions_popup_hint_title">ইমোজি প্রতিক্রিয়া</string>
+    <!-- Message shown in popup above emoji reaction buttons on a message, to hint to the user that they can long-press to view the details -->
+    <string name="emoji_reactions_popup_hint_text">এই বার্তায় ইমোজি প্রতিক্রিয়া রয়েছে। চ্যাটে, সেগুলো সব দেখতে যেকোনো ইমোজি বাবলে চেপে ধরে রাখুন।</string>
+
+    <string name="accessibility_device_linking_pfs_warning_icon">তথ্য</string>
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_pfs_warning_body">আপনি একটি ডিভাইস লিংক করলে, সমস্ত পরিচিতির জন্য Perfect Forward Secrecy নিষ্ক্রিয় করা হবে।\n\nএটি বর্তমান বিটা সংস্করণের একটি সীমাবদ্ধতা। আরও সীমাবদ্ধতার জন্য, দয়া করে [এই FAQ এন্ট্রি] দেখুন।</string>
+    <string name="device_linking_pfs_warning_button_continue">নতুন ডিভাইস লিংক করুন</string>
+    <string name="device_linking_pfs_warning_button_cancel">বাতিল</string>
+
+    <!-- Title shown on a banner shown in the old Threema web sessions screen to point to the new multi device feature instead -->
+    <!-- ${app_name_desktop} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="threema_web_link_to_multi_device_feature_banner_title">নতুন: ${app_name_desktop} 2.0 for Desktop (Beta)</string>
+    <!-- Body shown on a banner shown in the old Threema web sessions screen to point to the new multi device feature instead -->
+    <string name="threema_web_link_to_multi_device_feature_banner_body">মাল্টি-ডিভাইস সমর্থন সহ পরবর্তী প্রজন্মের ডেস্কটপ অ্যাপ ব্যবহার করতে এখানে চাপুন।</string>
+    <!-- Screen reader text on a cross icon button to close a hint banner -->
+    <string name="accessibility_dismiss_hint">ইঙ্গিত খারিজ করুন</string>
+
+    <string name="device_linking_error_generic_title">ডেটা পাঠানো ব্যর্থ হয়েছে</string>
+    <string name="device_linking_error_generic_body">দয়া করে ডিভাইস লিংক করার পুনরায় চেষ্টা করুন। এই সমস্যাটি থেকে গেলে, দয়া করে সাপোর্টের সাথে যোগাযোগ করুন (“প্রধান মেনু > সহায়তা”)।</string>
+    <string name="device_linking_error_generic_network_title">কোনো ইন্টারনেট সংযোগ নেই</string>
+    <string name="device_linking_error_generic_network_body">দয়া করে ডিভাইস লিংক করার পুনরায় চেষ্টা করুন। এই সমস্যাটি থেকে গেলে, দয়া করে সাপোর্টের সাথে যোগাযোগ করুন (“প্রধান মেনু > সহায়তা”)।</string>
+    <string name="device_linking_error_unknown_qr_code_title">অজানা QR কোড</string>
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_error_unknown_qr_code_body">এটি ${app_name_desktop} 2.0 for Desktop (Beta)-এর একটি QR কোড বলে মনে হচ্ছে না। দয়া করে [আমাদের ওয়েবসাইট] থেকে ডেস্কটপ অ্যাপের সর্বশেষ বিটা সংস্করণ ডাউনলোড করুন এবং অ্যাপটি খুললে প্রদর্শিত QR কোডটি স্ক্যান করুন।</string>
+    <string name="device_linking_error_web_qr_code_title">সঠিক QR কোড নয়</string>
+    <!-- The part of this text that is surrounded by the square brackets will be clickable by the user and lead them to the download page for the desktop client -->
+    <!-- The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="device_linking_error_web_qr_code_body">এই QR কোডটি ${app_name_short}-এর ওয়েব ক্লায়েন্টের অন্তর্ভুক্ত।\nদয়া করে [আমাদের ওয়েবসাইট] থেকে ${app_name_desktop} 2.0 for Desktop (Beta)-এর সর্বশেষ সংস্করণ ডাউনলোড করুন এবং অ্যাপটি খুললে প্রদর্শিত QR কোডটি স্ক্যান করুন।</string>
+    <string name="device_linking_error_old_rendezvous_version_title">অসামঞ্জস্যপূর্ণ সংস্করণ</string>
+    <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
+    <string name="device_linking_error_old_rendezvous_version_body">দয়া করে উভয় ডিভাইসে ${app_name}-এর সর্বশেষ সংস্করণ ইনস্টল করুন।</string>
+    <string name="device_linking_error_emoji_mismatch_title">ছবি মেলে না?</string>
+    <string name="device_linking_error_emoji_mismatch_body">মনে হচ্ছে ডিভাইসে সংযোগ করতে সমস্যা হচ্ছে। দয়া করে নতুন ডিভাইসে অ্যাপটি পুনরায় শুরু করুন এবং আবার চেষ্টা করুন।</string>
+    <string name="device_linking_error_unexpected_title">অপ্রত্যাশিত ত্রুটি</string>
+    <string name="device_linking_error_unexpected_body">দয়া করে ডিভাইস লিংক করার পুনরায় চেষ্টা করুন। এই সমস্যাটি থেকে গেলে, দয়া করে সাপোর্টের সাথে যোগাযোগ করুন (“প্রধান মেনু > সহায়তা”)।</string>
+    <string name="device_linking_error_invalid_contact_title">অবৈধ পরিচিতি</string>
+    <!-- Error message when linking of a new device failed due to an invalid contact. %1$s will be replaced with the threema identity of the affected contact. -->
+    <string name="device_linking_error_invalid_contact_body">%1$s পরিচয়ের পরিচিতিটি এই ডিভাইসে ভুলভাবে সংরক্ষিত এবং নতুন ডিভাইস লিংক করা থেকে রোধ করছে। দয়া করে সাপোর্টের সাথে যোগাযোগ করুন (“প্রধান মেনু > সহায়তা”)।</string>
+    <string name="device_linking_error_invalid_timestamp_title">অবৈধ তারিখ</string>
+    <string name="device_linking_error_invalid_timestamp_body">একটি অবৈধ তারিখ পাওয়া গেছে। দয়া করে সাপোর্টের সাথে যোগাযোগ করুন (“প্রধান মেনু > সহায়তা”)।</string>
+
+    <string name="work_directory_title">কোম্পানি ডিরেক্টরি</string>
+    <!-- Instruction text for the user directory search -->
+    <string name="work_directory_search">ডিরেক্টরিতে অনুসন্ধান করুন</string>
+    <!-- Prompt to the user shown in the work directory search. ${app_name_short} is a placeholder for the app's name, it must be kept as-is, not translated. -->
+    <string name="work_directory_empty_view_text">দয়া করে আপনার কোম্পানির ${app_name_short} ব্যবহারকারীদের ডিরেক্টরিতে অনুসন্ধান শুরু করতে একটি নামের অন্তত ৩টি অক্ষর লিখুন।</string>
+
+    <!-- Message that is shown when the user wants to share an invalid file. -->
+    <string name="invalid_file_cannot_be_shared">এই ফাইলটি অবৈধ এবং শেয়ার করা যাবে না</string>
+
+    <string name="availability_status_none">কোনো অবস্থা নেই</string>
+    <!-- Status (only relevant for Work), e.g. as shown on their profile, indicating that the person is currently not available, i.e. out-of-office -->
+    <string name="availability_status_unavailable">উপলব্ধ নেই</string>
+    <!-- Status (only relevant for Work), e.g. as shown on their profile, indicating that the person is currently busy-->
+    <string name="availability_status_busy">ব্যস্ত</string>
+
+    <!-- Error message (only relevant for OnPrem) if the preset server url is different from the one provided by the activation link. -->
+    <string name="error_preset_onprem_url_mismatch_intent">অ্যাক্টিভেশন লিংকটি অবৈধ। দয়া করে আপনার প্রশাসকের সাথে যোগাযোগ করুন।</string>
+
+    <!-- Warning message displayed on screen where the user can export a debug log file to share with Support. ${company_name} is a placeholder for the company name and should be kept as-is, not translated. -->
+    <string name="export_logs_screen_warning">গোপনীয়তার কারণে, শুধুমাত্র ${company_name}-এর সাপোর্ট টিমের সাথে এবং শুধুমাত্র আপনাকে তা করতে বলা হলেই লগ ফাইলটি শেয়ার করুন।</string>
+
+    <string name="work_intro_screen_work_title">ব্যবসার জন্য অত্যন্ত নিরাপদ যোগাযোগ</string>
+    <string name="work_intro_screen_work_subtitle">Threema Work হল কোম্পানিগুলোর জন্য নিরাপদ যোগাযোগ সমাধান – এন্ড-টু-এন্ড এনক্রিপ্টেড, GDPR-সম্মত এবং সুইজারল্যান্ডে উন্নত।</string>
+    <string name="work_intro_screen_work_sign_in_button_label">এখন সাইন ইন করুন</string>
+    <string name="work_intro_screen_work_learn_more_hint">এখনও Threema Work ব্যবহার করছেন না?</string>
+    <string name="work_intro_screen_work_learn_more_button_label">আরও জানুন</string>
+    <string name="work_intro_screen_work_use_private_hint">আপনি যদি ব্যক্তিগত উদ্দেশ্যে Threema ব্যবহার করতে চান, আমরা Threema Private অ্যাপ সুপারিশ করি।</string>
+    <string name="work_intro_screen_work_download_private_button_label">এখন ডাউনলোড করুন</string>
+
+    <string name="work_intro_screen_onprem_title">সর্বোচ্চ নিরাপত্তা স্তরে যোগাযোগ</string>
+    <string name="work_intro_screen_onprem_subtitle">Threema OnPrem হল উদ্যোগ, সরকারি সংস্থা ও সামরিক প্রতিষ্ঠানের জন্য স্ব-হোস্টেড যোগাযোগ সমাধান – পূর্ণ ডেটা সার্বভৌমত্ব, এনক্রিপ্ট করা ডেটা প্রেরণ এবং নিরাপত্তা-সংবেদনশীল পরিবেশের উচ্চ প্রয়োজনীয়তার জন্য।</string>
+    <string name="work_intro_screen_onprem_sign_in_button_label">এখন সাইন ইন করুন</string>
+    <string name="work_intro_screen_onprem_learn_more_hint">এখনও Threema OnPrem ব্যবহার করছেন না?</string>
+    <string name="work_intro_screen_onprem_learn_more_button_label">আরও জানুন</string>
+    <string name="work_intro_screen_onprem_use_private_hint">আপনি যদি ব্যক্তিগত উদ্দেশ্যে Threema ব্যবহার করতে চান, আমরা Threema Private অ্যাপ সুপারিশ করি।</string>
+    <string name="work_intro_screen_onprem_download_private_button_label">এখন ডাউনলোড করুন</string>
+
+    <!-- Description of the notification channel which is used when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_notification_channel_description">${remote_secret} সক্রিয় থাকলে একটি স্থায়ী বিজ্ঞপ্তি দেখানো হয়।</string>
+    <!-- Text of the notification which is shown when DualLock (a.k.a. "Remote Secret") is active. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_notification_text">${remote_secret} সক্রিয় আছে। আরও জানতে চাপুন।</string>
+    <!-- Message shown fullscreen when the app is opened, to inform the user that their access has been blocked by an admin. Only used for OnPrem builds. -->
+    <string name="remote_secrets_blocked_by_admin">এই অ্যাপে অ্যাক্সেস আপনার প্রশাসক দ্বারা ব্লক করা হয়েছে।\n\nআরও তথ্যের জন্য দয়া করে আপনার প্রশাসকের সাথে যোগাযোগ করুন।</string>
+    <!-- Label on button, shown when the app is blocked with the DualLock (a.k.a. "Remote Secret") feature and the user has no other option than to close the app -->
+    <string name="remote_secrets_close_app">অ্যাপ বন্ধ করুন</string>
+    <!-- Message shown fullscreen when the app is opened, to inform the user that the DualLock (a.k.a. "Remote Secret") needed to unlock the app could not be fetched due to a network issue. Shown above a "Retry" button. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secrets_failed_to_fetch">${remote_secret} টোকেন আনা যায়নি। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <!-- Shown on loading spinner after app is started while DualLock (a.k.a. "Remote Secret") is fetched from the server to unlock the app. Only used for OnPrem builds. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="fetching_remote_secret">${remote_secret} টোকেন আনা হচ্ছে</string>
+    <!-- Shown as the title of an info dialog when DualLock (a.k.a. "Remote Secret") has been activated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activated_notification_title">${remote_secret} সক্রিয় করা হয়েছে</string>
+    <!-- Shown as the content of an info dialog when DualLock (a.k.a. "Remote Secret") has been activated. The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="remote_secret_activated_dialog_content">আপনি আপনার ডিভাইস হারিয়ে ফেললে, এই বৈশিষ্ট্যটি আপনার প্রশাসককে অ্যাপটি লক করার সুযোগ দেয়, যা নিশ্চিত করে যে অননুমোদিত ব্যক্তিরা আপনার ডিভাইস আনলক করতে সক্ষম হলেও আপনার চ্যাট এনক্রিপ্টেড থাকে।\n[আরও জানুন]</string>
+    <!-- Shown as the title of an info dialog when DualLock (a.k.a. "Remote Secret") has been deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivated_notification_title">${remote_secret} নিষ্ক্রিয় করা হয়েছে</string>
+    <!-- Shown as the content of an info dialog when DualLock (a.k.a. "Remote Secret") has been deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. The text in [square brackets] must be translated, and the brackets must be kept around the translation. -->
+    <string name="remote_secret_deactivated_dialog_content">আপনার প্রশাসক ${remote_secret} নিষ্ক্রিয় করেছেন। ${remote_secret} সম্পর্কে আরও তথ্য এই [FAQ এন্ট্রি]-তে পাওয়া যাবে।</string>
+    <!-- Shown on loading indicator while the DualLock (a.k.a. "Remote Secret") feature is being activated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activating">${remote_secret} সক্রিয় করা হচ্ছে</string>
+    <!-- Error message shown fullscreen when activating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_activating_failed">${remote_secret} সক্রিয় করা ব্যর্থ হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+    <!-- Shown on loading indicator while the DualLock (a.k.a. "Remote Secret") feature is being deactivated. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivating">${remote_secret} নিষ্ক্রিয় করা হচ্ছে</string>
+    <!-- Error message shown fullscreen when deactivating the DualLock (a.k.a. "Remote Secret") feature failed. ${remote_secret} is a placeholder for a feature name, e.g. "DualLock". It must be left as-is and not translated. -->
+    <string name="remote_secret_deactivating_failed">${remote_secret} নিষ্ক্রিয় করা ব্যর্থ হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</string>
+
+    <string name="referral_banner_title">সুপারিশ করুন ও উপকৃত হন</string>
+    <string name="referral_banner_body">আপনার বন্ধুদের তাদের কোম্পানিতে Threema Work ব্যবহার করতে আমন্ত্রণ জানান এবং একটি রেফারেল বোনাস অর্জন করুন!</string>
+    <string name="referral_screen_title">সুপারিশ করুন ও উপকৃত হন</string>
+    <string name="referral_screen_subtitle">নিয়োগকৃত কোম্পানির প্রথম চালান পরিমাণের ১০% পর্যন্ত পান।</string>
+    <string name="referral_how_it_works_title">এটি কীভাবে কাজ করে</string>
+    <string name="referral_how_it_works_referral_title">রেফারেল</string>
+    <string name="referral_how_it_works_referral_body">একজন বন্ধু বা তাদের কোম্পানিকে Threema Work-এ যোগ দিতে আমন্ত্রণ জানান। নিবন্ধন বা লাইসেন্স ক্রয়ের সময় আপনার Threema ID প্রদান করা গুরুত্বপূর্ণ যাতে আপনার রেফারেল বিবেচনায় নেওয়া যায়।</string>
+    <string name="referral_how_it_works_requirements_title">প্রয়োজনীয়তা</string>
+    <string name="referral_how_it_works_requirements_body">রেফার করা কোম্পানিটি আমাদের ইতিমধ্যে গ্রাহক হওয়া উচিত নয় এবং অবশ্যই লাইসেন্স অর্ডার করতে হবে</string>
+    <string name="referral_how_it_works_confirmation_title">নিশ্চিতকরণ</string>
+    <string name="referral_how_it_works_confirmation_body">আপনার রেফারেল সঠিকভাবে বরাদ্দ ও যাচাই করা যায় তা নিশ্চিত করতে, পেমেন্ট করার আগে আমরা আপনার সাথে যোগাযোগ করব। যাচাইকরণ প্রক্রিয়া সম্পন্ন হওয়ার সাথে সাথে আমরা আপনাকে জানাব।</string>
+    <string name="referral_your_reward_title">আপনার পুরস্কার</string>
+    <string name="referral_your_reward_subtitle">একটি রেফারেল বোনাস অর্জন করুন</string>
+    <string name="referral_your_reward_body">আপনার রেফারেলের জন্য, আপনি নিয়োগকৃত কোম্পানির প্রথম চালান পরিমাণের ১০% পাবেন (কর/ফি বাদে)। পেমেন্ট প্রাপ্তির ৩০–৬০ দিন পরে বোনাসটি আপনাকে স্থানান্তর করা হবে।</string>
+    <string name="referral_share_invitation_link">আমন্ত্রণ লিংক শেয়ার করুন</string>
+    <string name="referral_view_terms_and_conditions">শর্তাবলী &amp; নিয়ম দেখুন</string>
+    <string name="referral_invitation_message_content">হাই, আমি মনে করেছিলাম এটি আপনার জন্য উপযোগী হতে পারে: Threema Work নিরাপদ ব্যবসায়িক যোগাযোগের জন্য একটি চমৎকার বিকল্প। এই আপনার টেস্ট লিংক: %1$s</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_title">ব্লুটুথ সংযোগ বিচ্ছিন্ন হলে কল শেষ করুন</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_on">কল চলাকালীন ব্লুটুথ হেডসেট সংযোগ বিচ্ছিন্ন হলে কলটি শেষ হয়।</string>
+    <string name="prefs_voip_abort_on_bluetooth_disconnect_summary_off">কল চলাকালীন ব্লুটুথ হেডসেট সংযোগ বিচ্ছিন্ন হলে কলটি চলতে থাকে। দ্রষ্টব্য: এটি হেডসেটের হ্যাং-আপ বোতাম কাজ করা থেকে রোধ করতে পারে।</string>
+
+    <string name="failed_to_load_conversations">চ্যাট লোড করা যায়নি।</string>
+    <string name="contact_support">সাপোর্টের সাথে যোগাযোগ করুন</string>
+
+    <string name="edit_availability_status_modal_title">প্রাপ্যতা অবস্থা</string>
+    <string name="edit_availability_status_modal_subtitle">এই অবস্থাটি আপনার কোম্পানির সবার কাছে দৃশ্যমান।</string>
+    <string name="edit_availability_status_modal_optional_message_label">কাস্টম টেক্সট (ঐচ্ছিক)</string>
+    <string name="edit_availability_status_modal_optional_message_placeholder">একটি মিটিংয়ে আছেন</string>
+    <string name="edit_availability_status_modal_optional_message_description">ব্যস্ত বা উপলব্ধ নেই নির্বাচন করা হলে একটি কাস্টম অবস্থা বার্তা সেট করুন।</string>
+    <string name="edit_availability_status_modal_optional_message_too_long">টেক্সট খুব দীর্ঘ, দয়া করে এটি সংক্ষিপ্ত করুন</string>
+    <string name="edit_availability_status_did_change">প্রাপ্যতা অবস্থা পরিবর্তন করা হয়েছে</string>
+
+    <plurals name="contacts_counter_label">
+        <item quantity="one">%d পরিচিতি</item>
+        <item quantity="other">%d পরিচিতি</item>
+    </plurals>
+    <plurals name="really_delete_thread_message">
+        <item quantity="one">আপনি কি সত্যিই %d টি চ্যাট মুছতে চান?</item>
+        <item quantity="other">আপনি কি সত্যিই %d টি চ্যাট মুছতে চান?</item>
+    </plurals>
+    <plurals name="sending_message_failed">
+        <item quantity="one">%1$d টি বার্তা পাঠানো যায়নি</item>
+        <item quantity="other">%1$d টি বার্তা পাঠানো যায়নি</item>
+    </plurals>
+    <plurals name="selection_counter_label">
+        <item quantity="one">%d টি ছবি নির্বাচিত</item>
+        <item quantity="other">%d টি ছবি নির্বাচিত</item>
+    </plurals>
+    <plurals name="message_copied">
+        <item quantity="one">বার্তা অনুলিপি করা হয়েছে</item>
+        <item quantity="other">বার্তা অনুলিপি করা হয়েছে</item>
+    </plurals>
+    <plurals name="new_messages">
+        <item quantity="one">%d টি নতুন বার্তা</item>
+        <item quantity="other">%d টি নতুন বার্তা</item>
+    </plurals>
+    <plurals name="unread_messages">
+        <item quantity="one">%d টি অপঠিত বার্তা</item>
+        <item quantity="other">%d টি অপঠিত বার্তা</item>
+    </plurals>
+    <plurals name="file_saved">
+        <item quantity="one">%d টি ফাইল সফলভাবে সংরক্ষণ করা হয়েছে।</item>
+        <item quantity="other">%d টি ফাইল সফলভাবে সংরক্ষণ করা হয়েছে।</item>
+    </plurals>
+    <plurals name="saving_media">
+        <item quantity="one">মিডিয়া সংরক্ষণ করা হচ্ছে</item>
+        <item quantity="other">%d টি মিডিয়া ফাইল সংরক্ষণ করা হচ্ছে</item>
+    </plurals>
+    <plurals name="ballot_really_delete">
+        <item quantity="one">জরিপ সরান</item>
+        <item quantity="other">জরিপ সরান</item>
+    </plurals>
+    <plurals name="ballot_really_delete_text">
+        <item quantity="one">আপনি কি সত্যিই %1$d টি জরিপ মুছতে চান? আপনি ভোটগুলো পুনরুদ্ধার করতে পারবেন না।</item>
+        <item quantity="other">আপনি কি সত্যিই %1$d টি জরিপ মুছতে চান? আপনি ভোটগুলো পুনরুদ্ধার করতে পারবেন না।</item>
+    </plurals>
+    <plurals name="media_files_deleted">
+        <item quantity="one">%d টি মিডিয়া ফাইল মুছে ফেলা হয়েছে</item>
+        <item quantity="other">%d টি মিডিয়া ফাইল মুছে ফেলা হয়েছে</item>
+    </plurals>
+    <plurals name="message_deleted">
+        <item quantity="one">%d টি বার্তা মুছে ফেলা হয়েছে</item>
+        <item quantity="other">%d টি বার্তা মুছে ফেলা হয়েছে</item>
+    </plurals>
+    <plurals name="notifications_for_x_hours">
+        <item quantity="one">%d ঘণ্টার জন্য</item>
+        <item quantity="other">%d ঘণ্টার জন্য</item>
+    </plurals>
+    <plurals name="really_delete_contacts_message">
+        <item quantity="one">আপনি কি সত্যিই %1$d টি পরিচিতি এবং সংশ্লিষ্ট সমস্ত চ্যাট মুছতে চান?</item>
+        <item quantity="other">আপনি কি সত্যিই %1$d টি পরিচিতি এবং সংশ্লিষ্ট সমস্ত চ্যাট মুছতে চান?</item>
+    </plurals>
+    <plurals name="some_contacts_not_deleted">
+        <item quantity="one">%d টি পরিচিতি মুছে ফেলা যায়নি কারণ এটি এখনও একটি গ্রুপের অংশ।</item>
+        <item quantity="other">%d টি পরিচিতি মুছে ফেলা যায়নি কারণ সেগুলো এখনও একটি গ্রুপের অংশ।</item>
+    </plurals>
+    <plurals name="message_archived">
+        <item quantity="one">%d টি চ্যাট আর্কাইভ করা হয়েছে</item>
+        <item quantity="other">%d টি চ্যাট আর্কাইভ করা হয়েছে</item>
+    </plurals>
+    <plurals name="new_messages_in_chats">
+        <item quantity="one">%2$d টি চ্যাটে %1$d টি নতুন বার্তা</item>
+        <item quantity="other">%2$d টি চ্যাটে %1$d টি নতুন বার্তা</item>
+    </plurals>
+    <plurals name="webclient_running_sessions">
+        <item quantity="one">%d টি সেশন চলছে</item>
+        <item quantity="other">%d টি সেশন চলছে</item>
+    </plurals>
+    <plurals name="chat_deleted">
+        <item quantity="one">%d টি চ্যাট মুছে ফেলা হয়েছে।</item>
+        <item quantity="other">%d টি চ্যাট মুছে ফেলা হয়েছে।</item>
+    </plurals>
+    <plurals name="num_archived_chats">
+        <item quantity="one">%d টি আর্কাইভ করা চ্যাট</item>
+        <item quantity="other">%d টি আর্কাইভ করা চ্যাট</item>
+    </plurals>
+    <plurals name="forward_security_messages_skipped">
+        <item quantity="one">শেষ বার্তার পর থেকে একটি বার্তা হারিয়ে গেছে।</item>
+        <item quantity="other">শেষ বার্তার পর থেকে %d টি বার্তা হারিয়ে গেছে।</item>
+    </plurals>
+    <plurals name="delete_messages">
+        <item quantity="one">এই বার্তাটি মুছবেন?</item>
+        <item quantity="other">%d টি বার্তা মুছবেন?</item>
+    </plurals>
+    <plurals name="number_of_group_members">
+        <item quantity="one">%d জন গ্রুপ সদস্য</item>
+        <item quantity="other">%d জন গ্রুপ সদস্য</item>
+    </plurals>
+    <string name="wizard_change_language">ভাষা পরিবর্তন করুন</string>
+    <string name="activation_key_hint">অ্যাক্টিভেশন কী</string>
+    <string name="use_username_password">ব্যবহারকারীর নাম ও পাসওয়ার্ড ব্যবহার করুন</string>
+    <string name="use_activation_key">অ্যাক্টিভেশন কী ব্যবহার করুন</string>
+    <string name="invalid_activation_key">অবৈধ অ্যাক্টিভেশন কী</string>
+</resources>

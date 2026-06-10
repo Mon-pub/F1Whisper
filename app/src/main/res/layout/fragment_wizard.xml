@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/dummy_title_align_view"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/dummy_title_align_view"
         app:srcCompat="@drawable/ic_about_outline"
         app:tint="@color/md_theme_dark_primary"
@@ -24,7 +24,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBaseline_toBaselineOf="@id/wizard_title"
-        app:layout_constraintRight_toLeftOf="@id/wizard_title" />
+        app:layout_constraintEnd_toStartOf="@id/wizard_title" />
 
     <TextView
         android:id="@+id/wizard_title"
@@ -32,8 +32,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_default="percent"
         app:layout_constraintWidth_percent="@dimen/wizard_title_width_percent"
@@ -46,8 +46,8 @@
         android:inflatedId="@+id/layout_content"
         android:layout="@layout/stub_dummy"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/wizard_title" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

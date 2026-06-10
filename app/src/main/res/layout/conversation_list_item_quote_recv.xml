@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:minHeight="@dimen/chat_bubble_minheight"
     android:paddingBottom="@dimen/chat_bubble_container_padding_bottom"
-    android:paddingLeft="@dimen/chat_bubble_container_padding_left_right">
+    android:paddingStart="@dimen/chat_bubble_container_padding_left_right">
 
     <include layout="@layout/conversation_bubble_start_recv" />
 

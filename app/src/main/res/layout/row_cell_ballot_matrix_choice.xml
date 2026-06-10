@@ -10,7 +10,7 @@
         android:layout_width="@dimen/ballot_matrix_cell_width"
         android:background="@color/ballot_detail_highlight_bg_color"
         android:layout_marginBottom="@dimen/ballot_matrix_cell_border"
-        android:layout_marginRight="@dimen/ballot_matrix_cell_border"
+        android:layout_marginEnd="@dimen/ballot_matrix_cell_border"
         android:layout_gravity="center"
         android:gravity="center">
 

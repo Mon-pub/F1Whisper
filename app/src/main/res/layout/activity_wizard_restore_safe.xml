@@ -90,7 +90,7 @@
                     android:id="@+id/cancel_compose"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/grid_unit_x1"
+                    android:layout_marginEnd="@dimen/grid_unit_x1"
                     android:layout_weight="1"
                     app:wizardButton_style="wizardButton_inverse"
                     app:wizardButton_text="@string/cancel" />
@@ -99,7 +99,7 @@
                     android:id="@+id/safe_restore_button_compose"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/grid_unit_x1"
+                    android:layout_marginStart="@dimen/grid_unit_x1"
                     android:layout_weight="1"
                     app:wizardButton_text="@string/restore" />
 

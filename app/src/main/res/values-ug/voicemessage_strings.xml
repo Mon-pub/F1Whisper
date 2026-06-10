@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recording">ئاۋاز خاتىرىلىنىۋاتىدۇ</string>
+    <string name="recording_stopped_title">خاتىرىلەش توختىدى</string>
+    <string name="recording_stopped_message">خاتىرىلەنگەن ئاۋازلىق ئۇچۇرنى ھازىر ئەۋەتەمسىز؟</string>
+    <string name="recording_canceled">نامەلۇم خاتالىق سەۋەبىدىن خاتىرىلەش بىكار قىلىندى.</string>
+    <string name="cancel_recording">خاتىرىلەشنى تاشلىۋېتىش</string>
+    <string name="cancel_recording_message">خاتىرىلەشنى راستىنلا بىكار قىلىپ تاشلىۋېتەمسىز؟</string>
+    <string name="stop">توختات</string>
+</resources>

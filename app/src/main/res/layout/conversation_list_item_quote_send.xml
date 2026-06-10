@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:minHeight="@dimen/chat_bubble_minheight"
     android:paddingBottom="@dimen/chat_bubble_container_padding_bottom"
-    android:paddingRight="@dimen/chat_bubble_container_padding_left_right"
+    android:paddingEnd="@dimen/chat_bubble_container_padding_left_right"
     android:descendantFocusability="blocksDescendants">
 
     <com.google.android.material.card.MaterialCardView

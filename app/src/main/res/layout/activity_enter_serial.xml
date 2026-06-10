@@ -30,6 +30,18 @@
             android:paddingHorizontal="@dimen/wizard_contents_padding_horizontal"
             android:paddingTop="@dimen/wizard_contents_padding">
 
+            <ImageButton
+                android:id="@+id/change_language_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="@dimen/grid_unit_x2"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/wizard_change_language"
+                android:scaleType="center"
+                android:src="@drawable/ic_language_outline"
+                android:tint="@android:color/white" />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

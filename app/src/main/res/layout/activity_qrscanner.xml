@@ -54,15 +54,15 @@
         android:id="@+id/camera_viewfinder"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginLeft="-4dp"
+        android:layout_marginStart="-4dp"
         android:layout_marginTop="-4dp"
-        android:layout_marginRight="-4dp"
+        android:layout_marginEnd="-4dp"
         android:layout_marginBottom="-4dp"
         android:importantForAccessibility="no"
         android:src="@drawable/qr_viewfinder"
         app:layout_constraintBottom_toBottomOf="@+id/camera_preview_container"
-        app:layout_constraintLeft_toLeftOf="@+id/camera_preview_container"
-        app:layout_constraintRight_toRightOf="@+id/camera_preview_container"
+        app:layout_constraintStart_toStartOf="@+id/camera_preview_container"
+        app:layout_constraintEnd_toEndOf="@+id/camera_preview_container"
         app:layout_constraintTop_toTopOf="@+id/camera_preview_container"
         app:tint="?attr/colorSecondary" />
 
@@ -88,8 +88,8 @@
         android:textAppearance="@style/Threema.TextAppearance.BodyMedium"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/camera_preview_container"
         tools:text="@string/msg_default_status" />
 

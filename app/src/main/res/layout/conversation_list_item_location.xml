@@ -10,7 +10,7 @@
         android:layout_width="@dimen/avatar_size_small"
         android:layout_height="@dimen/avatar_size_small"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:contentDescription="@string/location_placeholder" />
 
     <ch.threema.app.emojis.EmojiConversationTextView
@@ -18,8 +18,8 @@
         android:id="@+id/text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/chat_bubble_container_padding_left_right"
-        android:layout_toRightOf="@id/controller"
+        android:layout_marginStart="@dimen/chat_bubble_container_padding_left_right"
+        android:layout_toEndOf="@id/controller"
         android:linksClickable="false" />
 
     <TextView
@@ -28,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/text_view"
-        android:layout_alignLeft="@id/text_view"
+        android:layout_alignStart="@id/text_view"
         android:ellipsize="end"
         android:singleLine="true" />
 

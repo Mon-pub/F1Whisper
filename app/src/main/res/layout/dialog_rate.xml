@@ -11,17 +11,17 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/edittext_padding"
+        android:paddingStart="@dimen/edittext_padding"
         android:paddingTop="@dimen/dialog_margin_below_title"
-        android:paddingRight="@dimen/edittext_padding">
+        android:paddingEnd="@dimen/edittext_padding">
 
         <TextView
             android:id="@+id/intro_text"
             style="@style/Threema.MaterialAlertDialog.Body.Style"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_marginRight="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_marginBottom="4dp"
             android:text="@string/rate_intro" />
 
@@ -109,9 +109,9 @@
                 style="@style/Threema.MaterialAlertDialog.Body.Style"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"
                 android:layout_marginTop="4dp"
-                android:layout_marginRight="2dp"
+                android:layout_marginEnd="2dp"
                 android:layout_marginBottom="4dp"
                 android:text="@string/rate_feedback_intro" />
 

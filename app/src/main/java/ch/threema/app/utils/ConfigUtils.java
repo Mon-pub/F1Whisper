@@ -705,7 +705,7 @@ public class ConfigUtils {
     }
 
     public static boolean isWhitelabelOnPremBuild(@NonNull Context context) {
-        return isOnPremBuild() && !context.getPackageName().equals("ch.threema.app.onprem");
+        return isOnPremBuild() && !context.getPackageName().equals("info.f1tech.threema");
     }
 
     public static boolean isDemoOPServer(@NonNull PreferenceService preferenceService) {

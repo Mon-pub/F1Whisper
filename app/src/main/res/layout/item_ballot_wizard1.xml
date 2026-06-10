@@ -6,16 +6,16 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
     android:minHeight="@dimen/ballotchoice_list_item_height"
     android:descendantFocusability="blocksDescendants"
     android:background="?android:attr/colorBackground">
 
     <ImageView
         android:id="@+id/reorder_button"
-        android:layout_marginRight="18dp"
-        android:layout_alignParentLeft="true"
+        android:layout_marginEnd="18dp"
+        android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
         android:clickable="false"
         android:layout_width="wrap_content"
@@ -29,17 +29,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:layout_marginRight="4dp"
-        android:layout_toRightOf="@+id/reorder_button"
-        android:layout_toLeftOf="@+id/edit_button"
+        android:layout_marginEnd="4dp"
+        android:layout_toEndOf="@+id/reorder_button"
+        android:layout_toStartOf="@+id/edit_button"
         android:layout_centerVertical="true"
         android:text="X"
         android:singleLine="true" />
 
     <ImageView
         android:id="@+id/edit_button"
-        android:layout_marginRight="10dp"
-        android:layout_toLeftOf="@+id/remove_button"
+        android:layout_marginEnd="10dp"
+        android:layout_toStartOf="@+id/remove_button"
         android:layout_centerVertical="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
 
     <ImageView
         android:id="@+id/remove_button"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_width="@dimen/ballotchoice_list_item_height"
         android:layout_height="@dimen/ballotchoice_list_item_height"

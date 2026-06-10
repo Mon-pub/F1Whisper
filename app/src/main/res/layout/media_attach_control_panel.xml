@@ -59,8 +59,8 @@
                 android:elevation="4dp"
                 android:importantForAccessibility="no"
                 android:orientation="horizontal"
-                android:paddingLeft="2dp"
-                android:paddingRight="2dp"
+                android:paddingStart="2dp"
+                android:paddingEnd="2dp"
                 android:visibility="visible">
 
                 <ch.threema.app.mediaattacher.ControlPanelButton
@@ -159,7 +159,7 @@
             android:id="@+id/more_arrow"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_gravity="center_vertical|right"
+            android:layout_gravity="center_vertical|end"
             android:clickable="true"
             android:importantForAccessibility="no"
             android:visibility="gone"
@@ -177,7 +177,7 @@
                 android:id="@+id/control_buttons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="left"
+                android:layout_gravity="start"
                 android:elevation="4dp"
                 android:importantForAccessibility="no"
                 android:orientation="horizontal"

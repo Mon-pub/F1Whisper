@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
-    android:paddingRight="@dimen/chat_bubble_container_padding_left_right"
+    android:paddingEnd="@dimen/chat_bubble_container_padding_left_right"
     android:paddingBottom="@dimen/chat_bubble_container_padding_bottom">
 
     <com.google.android.material.card.MaterialCardView
@@ -16,8 +16,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingLeft="@dimen/chat_bubble_margin_end"
-            android:paddingRight="@dimen/chat_bubble_margin_start">
+            android:paddingStart="@dimen/chat_bubble_margin_end"
+            android:paddingEnd="@dimen/chat_bubble_margin_start">
 
             <ch.threema.app.emojis.EmojiConversationTextView
                 android:id="@+id/text_view"
@@ -30,8 +30,8 @@
                 android:text="@string/message_was_deleted"
                 android:textColor="@color/bubble_send_text_colorstatelist"
                 app:layout_constraintBottom_toTopOf="@id/date_view"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
@@ -39,14 +39,14 @@
                 style="@style/Threema.Bubble.Text.Footer"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity="bottom|right"
+                android:layout_gravity="bottom|end"
                 android:layout_marginTop="2dp"
                 android:layout_marginBottom="1dp"
                 android:alpha="0.6"
                 android:ellipsize="none"
                 android:singleLine="true"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 tools:text="17:20 PM" />
 
             <ImageView
@@ -59,7 +59,7 @@
                 android:contentDescription="@string/starred_message"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toLeftOf="@id/date_view"
+                app:layout_constraintEnd_toStartOf="@id/date_view"
                 app:srcCompat="@drawable/ic_star_filled"
                 app:tint="@color/bubble_send_text_colorstatelist"
                 tools:visibility="visible" />

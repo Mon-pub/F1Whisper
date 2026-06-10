@@ -9,10 +9,10 @@
         android:layout_width="match_parent"
         android:background="@color/ballot_detail_highlight_bg_color"
         android:layout_marginBottom="@dimen/ballot_matrix_cell_border"
-        android:layout_marginRight="@dimen/ballot_matrix_cell_border"
+        android:layout_marginEnd="@dimen/ballot_matrix_cell_border"
         android:padding="8dp"
-        android:layout_gravity="center_vertical|right"
-        android:gravity="center_vertical|right">
+        android:layout_gravity="center_vertical|end"
+        android:gravity="center_vertical|end">
 
         <TextView
             style="@style/Threema.TextAppearance.BallotDetailText"

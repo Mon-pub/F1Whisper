@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recording">संदेश रिकॉर्ड किया जा रहा है</string>
+    <string name="recording_stopped_title">रिकॉर्डिंग रोकी गई</string>
+    <string name="recording_stopped_message">क्या आप अभी रिकॉर्ड किया गया वॉइस संदेश भेजना चाहेंगे?</string>
+    <string name="recording_canceled">किसी अज्ञात त्रुटि के कारण रिकॉर्डिंग रद्द कर दी गई।</string>
+    <string name="cancel_recording">रिकॉर्डिंग हटाएँ</string>
+    <string name="cancel_recording_message">क्या आप वाकई रिकॉर्डिंग रद्द करके हटाना चाहते हैं?</string>
+    <string name="stop">रोकें</string>
+</resources>

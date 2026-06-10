@@ -11,8 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/emoji_popup_cardview_margin_bottom"
         android:layout_marginTop="@dimen/emoji_popup_cardview_margin_top"
-        android:layout_marginLeft="@dimen/emoji_popup_cardview_margin_horizontal"
-        android:layout_marginRight="@dimen/emoji_popup_cardview_margin_horizontal"
+        android:layout_marginStart="@dimen/emoji_popup_cardview_margin_horizontal"
+        android:layout_marginEnd="@dimen/emoji_popup_cardview_margin_horizontal"
         app:cardCornerRadius="6dp"
         app:cardElevation="4dp">
 
@@ -38,8 +38,8 @@
                 android:id="@+id/flip_separator"
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/reaction_popup_content_margin"
-                android:layout_marginRight="@dimen/reaction_popup_content_margin"
+                android:layout_marginStart="@dimen/reaction_popup_content_margin"
+                android:layout_marginEnd="@dimen/reaction_popup_content_margin"
                 android:background="@color/file_picker_divider_color" />
 
             <ImageView
@@ -58,8 +58,8 @@
                 android:id="@+id/bring_to_front_separator"
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/reaction_popup_content_margin"
-                android:layout_marginRight="@dimen/reaction_popup_content_margin"
+                android:layout_marginStart="@dimen/reaction_popup_content_margin"
+                android:layout_marginEnd="@dimen/reaction_popup_content_margin"
                 android:background="@color/file_picker_divider_color" />
 
             <ImageView
@@ -78,8 +78,8 @@
                 android:id="@+id/color_separator"
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="@dimen/reaction_popup_content_margin"
-                android:layout_marginRight="@dimen/reaction_popup_content_margin"
+                android:layout_marginStart="@dimen/reaction_popup_content_margin"
+                android:layout_marginEnd="@dimen/reaction_popup_content_margin"
                 android:background="@color/file_picker_divider_color" />
 
             <ImageView

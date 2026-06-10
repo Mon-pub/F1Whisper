@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recording">در حال ضبط پیام</string>
+    <string name="recording_stopped_title">ضبط متوقف شد</string>
+    <string name="recording_stopped_message">آیا می‌خواهید پیام صوتی ضبط‌شده را اکنون ارسال کنید؟</string>
+    <string name="recording_canceled">ضبط به دلیل خطای ناشناخته لغو شد.</string>
+    <string name="cancel_recording">حذف ضبط</string>
+    <string name="cancel_recording_message">آیا واقعاً می‌خواهید ضبط را لغو و حذف کنید؟</string>
+    <string name="stop">توقف</string>
+</resources>

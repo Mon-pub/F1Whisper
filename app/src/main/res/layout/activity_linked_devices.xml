@@ -88,7 +88,7 @@
         android:id="@+id/link_device_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
+        android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/grid_unit_x2"
         android:contentDescription="@string/md_link_device"
         android:text="@string/md_link_device"

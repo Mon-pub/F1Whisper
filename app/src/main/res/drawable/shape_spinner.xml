@@ -13,6 +13,6 @@
     <item>
         <bitmap
             android:src="@drawable/ic_next_alpha"
-            android:gravity="right" />
+            android:gravity="end" />
     </item>
 </layer-list>

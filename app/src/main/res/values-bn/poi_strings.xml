@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+These strings are used dynamically, through `resources.getIdentifier(...)`, and as such appear unused even though they aren't.
+Therefore, we suppress the "UnusedResources" error here.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
+    <string name="hamlet">পল্লি</string>
+    <string name="village">গ্রাম</string>
+    <string name="town">শহর</string>
+    <string name="isolated_dwelling">বিচ্ছিন্ন বসতি</string>
+    <string name="island">দ্বীপ</string>
+    <string name="islet">ছোট দ্বীপ</string>
+    <string name="suburb">শহরতলি</string>
+    <string name="city">নগর</string>
+    <string name="city_block">নগর ব্লক</string>
+    <string name="neighbourhood">পাড়া</string>
+    <string name="locality">এলাকা</string>
+    <string name="state">রাজ্য</string>
+    <string name="farm">খামার</string>
+    <string name="street">রাস্তা</string>
+    <string name="country">দেশ</string>
+</resources>

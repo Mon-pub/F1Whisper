@@ -22,8 +22,6 @@
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/exo_styled_bottom_bar_time_padding"
             android:paddingEnd="@dimen/exo_styled_bottom_bar_time_padding"
-            android:paddingLeft="@dimen/exo_styled_bottom_bar_time_padding"
-            android:paddingRight="@dimen/exo_styled_bottom_bar_time_padding"
             android:layout_gravity="center_vertical|start"
             android:layoutDirection="ltr">
 

@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/header_contact_section_work_height"
         android:elevation="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tabGravity="fill"
         app:tabMode="fixed">

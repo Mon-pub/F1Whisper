@@ -30,6 +30,18 @@
             android:paddingHorizontal="@dimen/wizard_contents_padding_horizontal"
             android:paddingVertical="@dimen/wizard_contents_padding">
 
+            <ImageButton
+                android:id="@+id/change_language_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="@dimen/grid_unit_x2"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/wizard_change_language"
+                android:scaleType="center"
+                android:src="@drawable/ic_language_outline"
+                android:tint="@android:color/white" />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,11 +75,55 @@
                 android:linksClickable="true"
                 android:text="@string/flavored__enter_serial_body" />
 
+            <!-- Activation key row (default visible). Encodes username+password as
+                 base64url(username).base64url(password). Toggle switches to the classic
+                 username/password rows below. -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/activation_key_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/grid_unit_x3">
+
+                <ImageView
+                    android:id="@+id/activation_key_logo"
+                    style="@style/WizardEditTextIcon"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:importantForAccessibility="no"
+                    app:layout_constraintBottom_toBottomOf="@+id/activation_key"
+                    app:layout_constraintDimensionRatio="1"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/activation_key"
+                    app:srcCompat="@drawable/ic_key_outline" />
+
+                <ch.threema.app.emojis.EmojiEditText
+                    android:id="@+id/activation_key"
+                    style="@style/WizardEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/activation_key_hint"
+                    android:imeOptions="actionNext"
+                    android:inputType="textNoSuggestions"
+                    android:minHeight="48dp"
+                    android:nextFocusRight="@+id/server"
+                    android:singleLine="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/activation_key_logo"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <requestFocus />
+
+                </ch.threema.app.emojis.EmojiEditText>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/unlock_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/grid_unit_x3">
+                android:layout_marginTop="@dimen/grid_unit_x3"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/unlock_logo"
@@ -95,11 +151,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/unlock_logo"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <requestFocus />
-
-                </ch.threema.app.emojis.EmojiEditText>
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -107,7 +159,8 @@
                 android:id="@+id/password_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/grid_unit_x2">
+                android:layout_marginTop="@dimen/grid_unit_x2"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/password_logo"
@@ -215,6 +268,16 @@
                     tools:text="@string/invalid_input" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/credential_mode_toggle"
+                style="@style/Threema.MaterialButton.Borderless.Wizard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginTop="@dimen/grid_unit_x1"
+                android:text="@string/use_username_password"
+                android:textAllCaps="false" />
 
             <ch.threema.app.activities.wizard.components.WizardButtonXml
                 android:id="@+id/unlock_button_work_compose"

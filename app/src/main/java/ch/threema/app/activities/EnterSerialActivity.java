@@ -7,6 +7,8 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Base64;
+import android.view.View;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -15,18 +17,24 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
+
+import java.util.Locale;
 
 import org.koin.java.KoinJavaComponent;
 import org.slf4j.Logger;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.text.HtmlCompat;
 import ch.threema.app.BuildConfig;
 import ch.threema.app.R;
@@ -45,6 +53,7 @@ import ch.threema.app.ui.ViewExtensionsKt;
 import ch.threema.app.utils.ConfigUtils;
 import ch.threema.app.utils.DialogUtil;
 import ch.threema.app.utils.EditTextUtil;
+import ch.threema.app.utils.LocaleUtil;
 import ch.threema.app.utils.TestUtil;
 import ch.threema.app.utils.executor.BackgroundExecutor;
 import ch.threema.app.utils.executor.BackgroundTask;
@@ -65,9 +74,15 @@ public class EnterSerialActivity extends ThreemaActivity {
     private static final String BUNDLE_SERVER = "busv";
     private static final String DIALOG_TAG_CHECKING = "check";
     private TextView stateTextView = null;
-    private EditText licenseKeyOrUsernameText, passwordText, serverText;
+    private EditText licenseKeyOrUsernameText, passwordText, serverText, activationKeyText;
     private MaterialButton unlockButton;
     private WizardButtonXml loginButtonCompose;
+
+    // Onprem setup wizard credential entry mode. The default is a single "Activation key" field
+    // that encodes username+password; the toggle switches to the classic username + password rows.
+    private MaterialButton credentialModeToggle;
+    private View activationKeyLayout, unlockLayout, passwordLayout;
+    private boolean activationKeyMode = true;
 
     @NonNull
     private final DependencyContainer dependencies = KoinJavaComponent.get(DependencyContainer.class);
@@ -104,6 +119,14 @@ public class EnterSerialActivity extends ThreemaActivity {
         passwordText = findViewById(getResources().getIdentifier("password", "id", getPackageName()));
         serverText = findViewById(getResources().getIdentifier("server", "id", getPackageName()));
 
+        // The activation-key field and credential-mode toggle only exist in the onprem layout.
+        // They are optional elsewhere, so we tolerate them being absent.
+        activationKeyText = findViewById(getResources().getIdentifier("activation_key", "id", getPackageName()));
+        credentialModeToggle = findViewById(getResources().getIdentifier("credential_mode_toggle", "id", getPackageName()));
+        activationKeyLayout = findViewById(getResources().getIdentifier("activation_key_layout", "id", getPackageName()));
+        unlockLayout = findViewById(getResources().getIdentifier("unlock_layout", "id", getPackageName()));
+        passwordLayout = findViewById(getResources().getIdentifier("password_layout", "id", getPackageName()));
+
         // Workaround to fix the prefix in the TextInputLayout not being aligned correctly when the phones font size changes
         // Open Issue: https://github.com/material-components/material-components-android/issues/773
         final @Nullable TextInputLayout serverContainer = findViewById(getResources().getIdentifier("server_container", "id", getPackageName()));
@@ -125,7 +148,175 @@ public class EnterSerialActivity extends ThreemaActivity {
             setupForWorkBuild();
         }
 
+        setupLanguageButton();
+
+        setupCredentialModeToggle();
+
         handleUrlIntent(getIntent());
+    }
+
+    /**
+     * Wire up the language selector button shown in the top corner of the setup wizard. This lets
+     * the user change the app language before authenticating. The button is optional in the layout,
+     * so we tolerate it being absent.
+     */
+    private void setupLanguageButton() {
+        final @Nullable ImageButton changeLanguageButton = findViewById(R.id.change_language_button);
+        if (changeLanguageButton != null) {
+            changeLanguageButton.setOnClickListener(v -> showLanguageSelectionDialog());
+        }
+    }
+
+    /**
+     * Show a single-choice dialog of the supported app languages. Selecting a language applies it
+     * via {@link AppCompatDelegate#setApplicationLocales(LocaleListCompat)}, which recreates the
+     * activity so the wizard re-renders in the chosen language (with correct RTL where applicable).
+     * Reuses the same arrays as the in-app settings language picker.
+     */
+    private void showLanguageSelectionDialog() {
+        final String[] languageNames = getResources().getStringArray(R.array.list_app_languages);
+        final String[] languageValues = getResources().getStringArray(R.array.list_app_languages_values);
+
+        // Determine the currently active app language so we can pre-select it.
+        final LocaleListCompat applicationLocales = AppCompatDelegate.getApplicationLocales();
+        final Locale currentLocale = applicationLocales.isEmpty() ? null : applicationLocales.get(0);
+        final String currentValue = LocaleUtil.mapLocaleToPredefinedLocales(currentLocale, languageValues);
+
+        int checkedItem = 0;
+        for (int i = 0; i < languageValues.length; i++) {
+            if (languageValues[i].equals(currentValue)) {
+                checkedItem = i;
+                break;
+            }
+        }
+
+        new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.prefs_language_override)
+            .setSingleChoiceItems(languageNames, checkedItem, (dialog, which) -> {
+                dialog.dismiss();
+                applyAppLanguage(languageValues[which]);
+            })
+            .setNegativeButton(R.string.cancel, null)
+            .show();
+    }
+
+    /**
+     * Apply the given language tag as the per-app locale. An empty tag resets to the system default.
+     * Mirrors the behaviour of {@code SettingsAppearanceFragment} (note that zh-hans-CN / zh-hant-TW
+     * tags carry the script so the variant is applied correctly).
+     */
+    private void applyAppLanguage(@NonNull String languageTag) {
+        final LocaleListCompat localeList;
+        if (!languageTag.isEmpty()) {
+            localeList = LocaleListCompat.create(Locale.forLanguageTag(languageTag));
+        } else {
+            // An empty locale list resets to the system default.
+            localeList = LocaleListCompat.getEmptyLocaleList();
+        }
+        AppCompatDelegate.setApplicationLocales(localeList);
+    }
+
+    /**
+     * Wire up the credential-mode toggle. The onprem wizard defaults to a single "Activation key"
+     * field; the toggle switches to the classic username + password rows and back. The toggle and
+     * the activation-key field are optional in the layout, so we tolerate them being absent (e.g.
+     * the non-onprem shop layout has neither). Clearing the inline error on text change keeps the
+     * behaviour consistent with the username/password fields.
+     */
+    private void setupCredentialModeToggle() {
+        if (activationKeyText != null) {
+            activationKeyText.addTextChangedListener(new TextChangeWatcher());
+        }
+        if (credentialModeToggle == null) {
+            // Nothing to toggle (e.g. non-onprem layout). Keep the username/password flow as-is.
+            return;
+        }
+        credentialModeToggle.setOnClickListener(v -> applyCredentialMode(!activationKeyMode));
+
+        // When MDM presets credentials, the activation-key field cannot be used (the username and
+        // password are fixed and shown in the disabled classic fields), so default to the classic
+        // username/password view and hide the toggle. Otherwise default to the activation-key view.
+        boolean hasPresetCredentials = getConfiguredUsername() != null || getConfiguredPassword() != null;
+        if (hasPresetCredentials) {
+            credentialModeToggle.setVisibility(View.GONE);
+            applyCredentialMode(false);
+        } else {
+            applyCredentialMode(true);
+        }
+    }
+
+    /**
+     * Show/hide the activation-key row vs the username + password rows and update the toggle label.
+     * The server URL row stays visible in both modes. Any previous inline error is cleared.
+     */
+    private void applyCredentialMode(boolean useActivationKey) {
+        activationKeyMode = useActivationKey;
+
+        if (activationKeyLayout != null) {
+            activationKeyLayout.setVisibility(useActivationKey ? View.VISIBLE : View.GONE);
+        }
+        if (unlockLayout != null) {
+            unlockLayout.setVisibility(useActivationKey ? View.GONE : View.VISIBLE);
+        }
+        if (passwordLayout != null) {
+            passwordLayout.setVisibility(useActivationKey ? View.GONE : View.VISIBLE);
+        }
+        if (credentialModeToggle != null) {
+            credentialModeToggle.setText(useActivationKey
+                ? R.string.use_username_password
+                : R.string.use_activation_key);
+        }
+        if (stateTextView != null) {
+            stateTextView.setText("");
+        }
+    }
+
+    /**
+     * Decode an activation key into the username + password it encodes. The format must match the
+     * server's {@code issue-key} output byte-for-byte:
+     * {@code base64url_nopad(username_utf8) + "." + base64url_nopad(password_utf8)}.
+     * Since '.' never appears in the URL-safe base64 alphabet, the split on the single '.' is
+     * unambiguous. Returns {@code null} when the input is malformed (not exactly one '.', or either
+     * side fails URL-safe, no-padding base64 decode to UTF-8).
+     */
+    @Nullable
+    private UserCredentials decodeActivationKey(@Nullable String activationKey) {
+        if (activationKey == null) {
+            return null;
+        }
+        final String trimmed = activationKey.trim();
+        final int separatorIndex = trimmed.indexOf('.');
+        // Exactly one '.' is required: present, and the only one.
+        if (separatorIndex < 0 || trimmed.indexOf('.', separatorIndex + 1) >= 0) {
+            return null;
+        }
+        final String usernamePart = trimmed.substring(0, separatorIndex);
+        final String passwordPart = trimmed.substring(separatorIndex + 1);
+
+        final String username = decodeBase64UrlNoPadToUtf8(usernamePart);
+        final String password = decodeBase64UrlNoPadToUtf8(passwordPart);
+        if (username == null || password == null) {
+            return null;
+        }
+        return new UserCredentials(username, password);
+    }
+
+    /**
+     * Decode a single URL-safe, no-padding base64 segment to a UTF-8 string, returning {@code null}
+     * on any decode failure (the strict flag makes malformed input fail rather than be silently
+     * accepted).
+     */
+    @Nullable
+    private String decodeBase64UrlNoPadToUtf8(@NonNull String segment) {
+        try {
+            final byte[] decoded = Base64.decode(
+                segment,
+                Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP
+            );
+            return new String(decoded, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     private void checkForValidCredentialsInBackground() {
@@ -366,8 +557,26 @@ public class EnterSerialActivity extends ThreemaActivity {
             String configuredPassword = getConfiguredPassword();
             String configuredServerUrl = getConfiguredOnPremServerUrl();
 
-            String effectiveUsername = configuredUsername != null ? configuredUsername : licenseKeyOrUsernameText.getText().toString();
-            String effectivePassword = configuredPassword != null ? configuredPassword : passwordText.getText().toString();
+            String effectiveUsername;
+            String effectivePassword;
+
+            // In activation-key mode, decode the single key into username + password and feed the
+            // exact same license-credentials flow used by the classic username/password mode. MDM
+            // preset credentials (if any) always take precedence over what the user typed.
+            if (activationKeyMode && activationKeyText != null && configuredUsername == null && configuredPassword == null) {
+                UserCredentials decoded = decodeActivationKey(activationKeyText.getText().toString());
+                if (decoded == null) {
+                    this.setLoginButtonEnabled(true);
+                    this.stateTextView.setText(getString(R.string.invalid_activation_key));
+                    return;
+                }
+                effectiveUsername = decoded.username;
+                effectivePassword = decoded.password;
+            } else {
+                effectiveUsername = configuredUsername != null ? configuredUsername : licenseKeyOrUsernameText.getText().toString();
+                effectivePassword = configuredPassword != null ? configuredPassword : passwordText.getText().toString();
+            }
+
             String effectiveServerUrl = configuredServerUrl != null ? configuredServerUrl : serverText.getText().toString();
 
             if (!TestUtil.isEmptyOrNull(effectiveUsername) && !TestUtil.isEmptyOrNull(effectivePassword) && !TestUtil.isEmptyOrNull(effectiveServerUrl)) {

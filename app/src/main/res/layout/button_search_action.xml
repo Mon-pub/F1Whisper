@@ -28,8 +28,8 @@
         android:layout_height="?attr/actionBarSize"
         android:maxHeight="24dp"
         android:maxWidth="24dp"
-        android:layout_gravity="left|center_vertical"
-        android:gravity="left|center_vertical"
+        android:layout_gravity="start|center_vertical"
+        android:gravity="start|center_vertical"
         android:visibility="gone"
         android:indeterminate="true" />
 
