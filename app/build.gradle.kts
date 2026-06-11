@@ -40,7 +40,18 @@ val appVersion = "6.4.3"
  */
 val betaSuffix = ""
 
-val defaultVersionCode = 1148
+// F1Whisper: the fork release iteration N = the trailing number of the release tag "v6.4.3-N"
+// (passed as -Pf1wReleaseName on tagged CI builds; 0 for untagged/local builds). It is folded into
+// BOTH the versionName ("6.4.3o-N") and the versionCode (1148 + N) so every published F1Whisper
+// release reports a DISTINCT, monotonically increasing version. The server's check_license update
+// advertisement and the in-place self-update both depend on this — without it, every release looked
+// identical ("6.4.3o" / build 1148) to the server and no update could ever be detected.
+val f1wRelease: Int = (project.findProperty("f1wReleaseName") as String?)
+    ?.substringAfterLast('-')?.trim()?.toIntOrNull()
+    ?.takeIf { it > 0 } ?: 0
+val f1wReleaseSuffix = if (f1wRelease > 0) "-$f1wRelease" else ""
+
+val defaultVersionCode = 1148 + f1wRelease
 
 /**
  * Map with keystore paths (if found).
@@ -240,6 +251,15 @@ android {
         }
     }
 
+    // F1Whisper: -Parm64Only restricts the packaged native libs (and the -PnoAbiSplits universal
+    // APK) to arm64-v8a, dropping the x86/x86_64/armeabi-v7a .so payloads (~32 MB compressed) for an
+    // arm64-majority audience, and pairs with the Rust `targets` gate below to cross-compile a single
+    // target (much faster CI). Reversible: omit the property to ship the full 4-ABI universal APK.
+    if (project.hasProperty("arm64Only")) {
+        defaultConfig.ndk.abiFilters.clear()
+        defaultConfig.ndk.abiFilters.add("arm64-v8a")
+    }
+
     // Assign different version code for each output
     android.applicationVariants.all {
         // Capture variant identity for the human-readable APK filename below.
@@ -403,7 +423,9 @@ android {
             }
         }
         create("onprem") {
-            versionName = "${appVersion}o$betaSuffix"
+            // F1Whisper: append the fork release iteration so the app reports e.g. "6.4.3o-8" (and
+            // build 1148+8); this is the version the update check compares against the latest tag.
+            versionName = "${appVersion}o$f1wReleaseSuffix$betaSuffix"
             applicationId = "info.f1tech.threema"
             testApplicationId = "$applicationId.test"
             setProductNames(
@@ -674,16 +696,23 @@ android {
             java.srcDir("src/foss_based/java")
         }
         getByName("onprem") {
-            // F1Whisper: onprem uses the FOSS (FCM-free) push/license source set, NOT
+            // F1Whisper: onprem uses the FOSS (FCM-free) push/license JAVA source set, NOT
             // google_services_based. The self-hosted OnPrem backend has no FCM/GMS push server
             // (BuildFlavor.forceThreemaPush keeps the persistent socket on at runtime), so the
             // Firebase/Play-Services classes are dead weight in the packaged APK. Using foss_based
-            // here (same set libre uses) drops them from the dex; the firebase/play-services
+            // java here (same set libre uses) drops them from the dex; the firebase/play-services
             // dependencies are correspondingly omitted in the dependencies {} block below.
+            //
+            // We deliberately do NOT override assets to src/foss_based/assets. That FOSS asset set
+            // ships a DIFFERENT (free-licensed) emoji spritemap, so pulling it swapped the
+            // recognizable Threema emoji for the generic FOSS set (regression introduced when the
+            // GMS-strip over-copied libre's asset line in v6.4.3-5). GMS-free is a java/deps
+            // property, not an asset one: onprem keeps the default (main) assets, which carry the
+            // proprietary Threema emoji at app/assets/emojis. The foss `passwords` blocklist is
+            // byte-identical to main's, so the Safe password policy is unaffected.
             // To re-enable FCM for onprem: revert this to "src/google_services_based/java", restore
             // the onpremImplementation(playServices.base / firebase.messaging / libgsaverification)
             // lines, and restore the FCM <service> + gms metadata in src/onprem/AndroidManifest.xml.
-            assets.srcDirs("src/foss_based/assets")
             java.srcDir("src/foss_based/java")
         }
         getByName("green") {
@@ -1143,7 +1172,12 @@ cargo {
     libname = "libthreema" // must match the Cargo.toml's package name
     profile = "release"
     pythonCommand = "python3"
-    targets = listOf("x86_64", "arm64", "arm", "x86")
+    // F1Whisper: gate the Rust cross-compile on -Prust.targets (comma-separated) or -Parm64Only.
+    // Default = all 4 ABIs. -Parm64Only (or -Prust.targets=arm64) builds only the arm64 target,
+    // which is the bulk of the CI time saved alongside the arm64-v8a abiFilter above.
+    targets = (project.findProperty("rust.targets") as String?)
+        ?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }
+        ?: if (project.hasProperty("arm64Only")) listOf("arm64") else listOf("x86_64", "arm64", "arm", "x86")
     features {
         defaultAnd(arrayOf("uniffi"))
     }

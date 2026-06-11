@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F1Whisper: override the self-updater failure dialog URL (shop.threema.ch -> our
+     GitHub releases) for the onprem self-updater. Only the URL changes; the upstream
+     translation is preserved verbatim per locale. -->
+<resources>
+    <string name="self_updater_installation_failed">アップデートのダウンロードに失敗しました。<a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> からアップデートをダウンロードしてインストールしてください。</string>
+</resources>

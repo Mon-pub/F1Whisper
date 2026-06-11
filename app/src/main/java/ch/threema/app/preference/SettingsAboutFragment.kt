@@ -23,7 +23,7 @@ import ch.threema.app.onprem.OnPremConfigFetcherProvider
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.restrictions.AppRestrictions
 import ch.threema.app.services.license.LicenseService
-import ch.threema.app.services.license.LicenseServiceSerial
+import ch.threema.app.services.license.LicenseServiceThreema
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.utils.DialogUtil
 import ch.threema.app.utils.DispatcherProvider
@@ -183,7 +183,9 @@ class SettingsAboutFragment :
 
         if (BuildFlavor.current.maySelfUpdate) {
             checkUpdatePreference.onClick {
-                checkForUpdates(licenseService as LicenseServiceSerial)
+                // F1Whisper: onprem uses LicenseServiceUser (not Serial); both extend the base
+                // LicenseServiceThreema which carries validate()/updateUrl, so cast to the base.
+                checkForUpdates(licenseService as LicenseServiceThreema<*>)
             }
         } else {
             val aboutCategory = getPref<PreferenceCategory>("pref_key_about_header")
@@ -349,7 +351,7 @@ class SettingsAboutFragment :
 
     @Suppress("DEPRECATION")
     @SuppressLint("StaticFieldLeak")
-    private fun checkForUpdates(licenseServiceSerial: LicenseServiceSerial) {
+    private fun checkForUpdates(licenseService: LicenseServiceThreema<*>) {
         if (!BuildFlavor.current.maySelfUpdate) {
             logger.warn("Called checkForUpdate in a build variant without self-updating")
             return
@@ -362,8 +364,8 @@ class SettingsAboutFragment :
             }
             val result = withContext(dispatcherProvider.worker) {
                 try {
-                    licenseServiceSerial.validate(false)
-                    val updateUrl = licenseServiceSerial.updateUrl
+                    licenseService.validate(false)
+                    val updateUrl = licenseService.updateUrl
                     if (!updateUrl.isNullOrEmpty()) {
                         Result.UpdateUrl(updateUrl)
                     } else {

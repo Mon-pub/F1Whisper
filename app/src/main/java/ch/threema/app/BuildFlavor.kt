@@ -152,9 +152,14 @@ sealed class BuildFlavor(
 
     /**
      * Return whether the self-updater is supported or not.
+     *
+     * F1Whisper: OnPrem is sideloaded (no app store), so it ships the same in-app self-updater as the
+     * direct-download StoreThreema build. The latest-version advertisement (updateMessage/updateUrl)
+     * is delivered by our check_license endpoint, which mirrors the latest GitHub release; the
+     * downloaded APK is signature-verified by Android against the installed one (same release key).
      */
     val maySelfUpdate: Boolean
-        get() = this is StoreThreema
+        get() = this is StoreThreema || this is OnPrem
 
     /**
      * Return whether this build flavor always uses Threema Push.

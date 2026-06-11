@@ -10,6 +10,12 @@
          the user on the App Info page. The libre/hms/blue flavors declare this for the same reason. -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <!-- F1Whisper: the sideloaded onprem build ships the in-app self-updater (DownloadApkActivity),
+         which downloads the latest signed APK from GitHub releases and hands it to the system
+         installer. This permission lets it trigger the install flow. The store_threema flavor that
+         self-updates declares it for the same reason. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <!--
       F1Whisper: onprem is FCM-free. The Firebase MESSAGING_EVENT <service> and the
       gms/firebase metadata were removed because the onprem flavor now compiles against the
