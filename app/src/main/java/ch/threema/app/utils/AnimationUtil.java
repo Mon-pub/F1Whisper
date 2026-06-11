@@ -423,13 +423,24 @@ public class AnimationUtil {
      * @param visibility Visibility of the view after transition
      */
     public static void setFadingVisibility(View view, int visibility) {
-        if (view.getVisibility() != visibility) {
-            Transition transition = new Fade();
-            transition.setDuration(170);
-            transition.addTarget(view);
-            TransitionManager.endTransitions((ViewGroup) view.getParent());
-            TransitionManager.beginDelayedTransition((ViewGroup) view.getParent(), transition);
-            view.setVisibility(visibility);
+        if (view == null || view.getVisibility() == visibility) {
+            return;
         }
+        ViewGroup parent = (view.getParent() instanceof ViewGroup) ? (ViewGroup) view.getParent() : null;
+        // A Fade transition calls Transition.forceToEnd(), which dereferences the view's
+        // WindowId. When the view is detached from its window (e.g. ComposeMessageFragment
+        // onDestroy -> ScrollButtonManager.hideAllButtons) that WindowId is null and the
+        // transition throws NullPointerException. Off-window there is nothing to animate, so
+        // apply the visibility change directly instead of running the transition.
+        if (parent == null || !view.isAttachedToWindow()) {
+            view.setVisibility(visibility);
+            return;
+        }
+        Transition transition = new Fade();
+        transition.setDuration(170);
+        transition.addTarget(view);
+        TransitionManager.endTransitions(parent);
+        TransitionManager.beginDelayedTransition(parent, transition);
+        view.setVisibility(visibility);
     }
 }
