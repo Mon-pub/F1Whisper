@@ -31,6 +31,11 @@ public class ContactLookupUtil {
                     lookupKey = phonesCursor.getString(phonesCursor.getColumnIndex(ContactsContract.PhoneLookup.LOOKUP_KEY));
                 }
             }
+        } catch (SecurityException e) {
+            // F1Whisper: the no-contacts onprem build holds no READ_CONTACTS permission,
+            // so the address-book query throws SecurityException. Degrade gracefully
+            // (callers treat a null result as "no match") instead of crashing.
+            return null;
         } finally {
             if (phonesCursor != null) {
                 phonesCursor.close();

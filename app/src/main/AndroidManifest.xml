@@ -260,8 +260,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="sms" />
-                <data android:scheme="smsto" />
+                <!-- F1Whisper: the sms:/smsto: schemes were removed. They drove an
+                     address-book lookup (ContactLookupUtil) that, on this no-contacts
+                     build with READ_CONTACTS removed, threw an uncaught SecurityException,
+                     so any app or an <a href="smsto:..."> web link could force-crash the
+                     recipient picker. The own-scheme "compose" deep link below is kept. -->
                 <data
                     android:host="compose"
                     android:scheme="${uriScheme}" />
