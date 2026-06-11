@@ -107,6 +107,7 @@ jobs:
           ./gradlew assembleOnpremRelease \
             --no-daemon \
             -PnoAbiSplits \
+            -Pf1wReleaseName="${GITHUB_REF_NAME}" \
             --no-parallel \
             --stacktrace
 

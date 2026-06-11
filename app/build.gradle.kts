@@ -242,6 +242,19 @@ android {
 
     // Assign different version code for each output
     android.applicationVariants.all {
+        // Capture variant identity for the human-readable APK filename below.
+        // Pattern: <appName>-v<version>-<flavor>-<buildType>.apk, e.g.
+        // "F1Whisper-v6.4.3-5-onprem-release.apk" on a tagged CI release, or
+        // "F1Whisper-v6.4.3o-onprem-release.apk" for a plain local build.
+        // The release pipeline passes the git tag via -Pf1wReleaseName=<tag> (e.g. "v6.4.3-5")
+        // so published artifacts carry the exact release version; a local build with no such
+        // property falls back to the per-variant versionName. A leading "v" on the tag is
+        // stripped so it is not duplicated by the "v" prefix in the filename.
+        val releaseName = (project.findProperty("f1wReleaseName") as String?)
+            ?.trim()?.removePrefix("v")?.takeIf { it.isNotEmpty() }
+        val variantVersionName = releaseName ?: versionName
+        val variantFlavorName = flavorName
+        val variantBuildTypeName = buildType.name
         outputs.all {
             if (this is ApkVariantOutputImpl) {
                 val abi = getFilter("ABI")
@@ -253,6 +266,12 @@ android {
                     else -> 0
                 }
                 versionCodeOverride = abiVersionCode * 1_000_000 + defaultVersionCode
+
+                // Embed the app name + version into the output APK filename so released artifacts
+                // are self-describing (rather than the generic "app-onprem-release.apk"). The ABI is
+                // appended only for per-ABI split outputs; the universal APK (noAbiSplits) omits it.
+                val abiSuffix = if (abi.isNullOrBlank()) "" else "-$abi"
+                outputFileName = "F1Whisper-v$variantVersionName-$variantFlavorName-$variantBuildTypeName$abiSuffix.apk"
             }
         }
     }
@@ -655,7 +674,17 @@ android {
             java.srcDir("src/foss_based/java")
         }
         getByName("onprem") {
-            java.srcDir("src/google_services_based/java")
+            // F1Whisper: onprem uses the FOSS (FCM-free) push/license source set, NOT
+            // google_services_based. The self-hosted OnPrem backend has no FCM/GMS push server
+            // (BuildFlavor.forceThreemaPush keeps the persistent socket on at runtime), so the
+            // Firebase/Play-Services classes are dead weight in the packaged APK. Using foss_based
+            // here (same set libre uses) drops them from the dex; the firebase/play-services
+            // dependencies are correspondingly omitted in the dependencies {} block below.
+            // To re-enable FCM for onprem: revert this to "src/google_services_based/java", restore
+            // the onpremImplementation(playServices.base / firebase.messaging / libgsaverification)
+            // lines, and restore the FCM <service> + gms metadata in src/onprem/AndroidManifest.xml.
+            assets.srcDirs("src/foss_based/assets")
+            java.srcDir("src/foss_based/java")
         }
         getByName("green") {
             java.srcDir("src/google_services_based/java")
@@ -1044,7 +1073,7 @@ dependencies {
     "store_googleImplementation"(libs.playServices.base)
     "store_google_workImplementation"(libs.playServices.base)
     "store_threemaImplementation"(libs.playServices.base)
-    "onpremImplementation"(libs.playServices.base)
+    // F1Whisper: onprem omits play-services-base (FCM-free; see onprem source set above).
     "greenImplementation"(libs.playServices.base)
     "sandbox_workImplementation"(libs.playServices.base)
     "blueImplementation"(libs.playServices.base)
@@ -1058,7 +1087,7 @@ dependencies {
     "store_googleImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
     "store_google_workImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
     "store_threemaImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
-    "onpremImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
+    // F1Whisper: onprem omits firebase-messaging (FCM-free; see onprem source set above).
     "greenImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
     "sandbox_workImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
     "blueImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
@@ -1067,7 +1096,7 @@ dependencies {
     "noneImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
     "store_googleImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
     "store_google_workImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
-    "onpremImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
+    // F1Whisper: onprem omits the Google Assistant verification client (FCM-free; see onprem source set above).
     "store_threemaImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
     "greenImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
     "sandbox_workImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
@@ -1081,7 +1110,10 @@ dependencies {
     "libreImplementation"(libs.maplibre) {
         exclude(group = "com.google.android.gms")
     }
-    "onpremImplementation"(libs.maplibre)
+    // F1Whisper: exclude transitive Google location services from maplibre on onprem (mirrors libre).
+    "onpremImplementation"(libs.maplibre) {
+        exclude(group = "com.google.android.gms")
+    }
     "greenImplementation"(libs.maplibre)
     "sandbox_workImplementation"(libs.maplibre)
     "blueImplementation"(libs.maplibre)
