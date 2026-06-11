@@ -1397,7 +1397,9 @@ public class ComposeMessageFragment extends Fragment implements
         if (!ConfigUtils.isDefaultEmojiStyle()) {
             // remove emoji button
             this.emojiButton.setVisibility(View.GONE);
-            this.messageText.setPadding(getResources().getDimensionPixelSize(R.dimen.no_emoji_button_padding_left), this.messageText.getPaddingTop(), this.messageText.getPaddingRight(), this.messageText.getPaddingBottom());
+            // Emoji button lives at the layout START; use the relative padding API so the reduced
+            // start inset mirrors correctly under RTL instead of being applied to the physical left.
+            this.messageText.setPaddingRelative(getResources().getDimensionPixelSize(R.dimen.no_emoji_button_padding_left), this.messageText.getPaddingTop(), this.messageText.getPaddingEnd(), this.messageText.getPaddingBottom());
         } else {
             try {
                 final EmojiPicker.EmojiKeyListener emojiKeyListener = new EmojiPicker.EmojiKeyListener() {
@@ -2320,19 +2322,22 @@ public class ComposeMessageFragment extends Fragment implements
 
     private void fixMessageTextPadding(int cameraButtonVisibility, int attachButtonVisibility) {
         if (isAdded()) {
-            int marginRight = ThreemaApplication.getAppContext().getResources().getDimensionPixelSize(R.dimen.emoji_and_photo_button_width);
+            // This is the inline padding that reserves room for the camera/attach/send button
+            // cluster, which lives at the layout END (right in LTR, left in RTL). Use the
+            // relative (start/end) padding API so the reserved space mirrors correctly under RTL.
+            int endPadding = ThreemaApplication.getAppContext().getResources().getDimensionPixelSize(R.dimen.emoji_and_photo_button_width);
 
             if (cameraButtonVisibility != View.VISIBLE) {
-                marginRight -= getResources().getDimensionPixelSize(R.dimen.emoji_button_width);
+                endPadding -= getResources().getDimensionPixelSize(R.dimen.emoji_button_width);
             }
 
             if (attachButtonVisibility != View.VISIBLE) {
-                marginRight -= getResources().getDimensionPixelSize(R.dimen.emoji_button_width);
+                endPadding -= getResources().getDimensionPixelSize(R.dimen.emoji_button_width);
             }
 
-            marginRight = Math.max(marginRight, getResources().getDimensionPixelSize(R.dimen.no_emoji_button_padding_left));
+            endPadding = Math.max(endPadding, getResources().getDimensionPixelSize(R.dimen.no_emoji_button_padding_left));
 
-            messageText.setPadding(messageText.getPaddingLeft(), messageText.getPaddingTop(), marginRight, messageText.getPaddingBottom());
+            messageText.setPaddingRelative(messageText.getPaddingStart(), messageText.getPaddingTop(), endPadding, messageText.getPaddingBottom());
         }
     }
 

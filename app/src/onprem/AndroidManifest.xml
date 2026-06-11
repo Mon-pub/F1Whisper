@@ -4,6 +4,12 @@
     android:installLocation="internalOnly"
     android:testOnly="false">
 
+    <!-- F1Whisper: the onprem build is sideloaded (not via Google Play), so it may request the
+         direct Doze exemption. This lets the battery-optimization warning open the one-tap system
+         "allow" dialog (Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) instead of dropping
+         the user on the App Info page. The libre/hms/blue flavors declare this for the same reason. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
     <!--
       F1Whisper: onprem is FCM-free. The Firebase MESSAGING_EVENT <service> and the
       gms/firebase metadata were removed because the onprem flavor now compiles against the

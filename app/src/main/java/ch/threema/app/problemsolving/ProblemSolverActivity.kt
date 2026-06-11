@@ -175,7 +175,12 @@ class ProblemSolverActivity : ThreemaToolbarActivity() {
             Problem.THREEMA_PUSH_BATTERY_OPTIMIZATION,
             Problem.WEBCLIENT_BATTERY_OPTIMIZATION,
             Problem.REMOTE_SECRET_BATTERY_OPTIMIZATION,
-            -> if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            -> {
+                // F1Whisper: always route battery-optimization warnings through
+                // DisableBatteryOptimizationsActivity, which (now that the onprem manifest declares
+                // REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) opens the one-tap system "allow/unrestricted"
+                // dialog. Upstream sent Android 12+ (S) to the App Info page because Play builds may
+                // not hold that permission; the sideloaded onprem build can and does.
                 val intent = buildActivityIntent<DisableBatteryOptimizationsActivity>(this) {
                     putExtra(
                         DisableBatteryOptimizationsActivity.EXTRA_NAME,
@@ -184,9 +189,6 @@ class ProblemSolverActivity : ThreemaToolbarActivity() {
                     putExtra(DisableBatteryOptimizationsActivity.EXTRA_CANCEL_LABEL, R.string.cancel)
                     putExtra(DisableBatteryOptimizationsActivity.EXTRA_DISABLE_RATIONALE, true)
                 }
-                startActivity(intent)
-            } else {
-                val intent = buildSettingsIntent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 startActivity(intent)
             }
             Problem.DEBUG_LOG_FORCE_ENABLED -> Unit

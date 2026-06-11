@@ -88,8 +88,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
+                    <!-- F1Whisper: force the message list to LTR so conversation bubbles keep the
+                         same sides as English (own messages right, incoming left) even in RTL
+                         locales. Per-message text still renders RTL via the text views' own
+                         bidi/text-direction; only the bubble column layout is fixed to LTR. -->
                     <ch.threema.app.ui.ConversationListView
                         android:id="@+id/history"
+                        android:layoutDirection="ltr"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:animateLayoutChanges="true"
