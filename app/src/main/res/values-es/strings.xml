@@ -957,14 +957,10 @@ almacenado.</string>
     <string name="safe_threema_id">Tu ID de ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Introduce la ID de ${app_name_short} que quieres recuperar</string>
-    <string name="safe_search_id_title">Introduce el número de teléfono móvil o la dirección de correo electrónico vinculados a tu ID de ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Buscando ID de ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">No se encontró ninguna ID de ${app_name_short}</string>
     <string name="safe_no_backup_found">No se encontró ninguna copia de seguridad en el servidor. Comprueba la ID y la contraseña.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Se han encontrado múltiples ID de ${app_name_short}. Selecciona la ID que quieres usar:</string>
     <string name="safe_backup_now">Hacer copia de seguridad ahora</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Habilita ${app_name_short} Safe para crear copias de seguridad automáticas, seguras y anónimas de todos tus datos importantes.</string>
@@ -1002,7 +998,6 @@ almacenado.</string>
     <string name="safe_restore">Restablecer ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Copia de seguridad o restablecimiento en curso. Comprueba las notificaciones para ver la información de estado.</string>
     <string name="restore_error_body">El restablecimiento no se ha completado correctamente</string>
-    <string name="forgot_your_id">¿Has olvidado la ID?</string>
     <string name="restore_success_body">Restablecimiento completado correctamente</string>
     <string name="work_data_sync">Sincronización de datos</string>
     <string name="private_contact">Contacto privado</string>

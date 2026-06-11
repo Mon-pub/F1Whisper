@@ -978,14 +978,10 @@
     <string name="safe_threema_id">Il tuo ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Inserisci il ${app_name_short} ID che vorresti recuperare</string>
-    <string name="safe_search_id_title">Inserisci il numero di cellulare o l\'indirizzo e-mail collegati al tuo ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Ricerca ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Nessun ${app_name_short} ID trovato</string>
     <string name="safe_no_backup_found">Nessun backup trovato nel server. Controlla ID e password.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Trovati più di un ${app_name_short} ID. Seleziona quello da usare:</string>
     <string name="safe_backup_now">Esegui backup ora</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Abilita ${app_name_short} Safe per creare automaticamente backup sicuri e anonimi di tutti i tuoi dati importanti.</string>
@@ -1023,7 +1019,6 @@
     <string name="safe_restore">Ripristina ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Backup o ripristino in corso. Controlla le notifiche per informazioni di stato.</string>
     <string name="restore_error_body">Il ripristino non è stato completato in modo corretto</string>
-    <string name="forgot_your_id">Hai dimenticato l\'ID?</string>
     <string name="restore_success_body">Ripristino completato con successo</string>
     <string name="work_data_sync">Sincr. dati</string>
     <string name="private_contact">Contatto privato</string>

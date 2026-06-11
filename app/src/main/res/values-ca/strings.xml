@@ -875,12 +875,9 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Entreu la ID de ${app_name_short} que voldríeu recuperar</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Buscant la ID de ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">No s\'ha trobat cap ID de ${app_name_short}</string>
     <string name="safe_no_backup_found">No s\'ha trobat cap còpia al servidor. Comproveu la ID i contrasenya.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">S\'ha trobat múltiples IDs de ${app_name_short}. Seleccioneu la ID que voleu usar:</string>
     <string name="safe_backup_now">Copiar ara</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Activeu ${app_name_short} Safe per crear còpies segures automàtiques i anònimes de les vostres dades importants.</string>
@@ -918,7 +915,6 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <string name="safe_restore">Restaurar ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Còpia o restauració en procés. Comproveu la notificació per informació de l\'estat.</string>
     <string name="restore_error_body">La restauració no s\'ha completat correctament</string>
-    <string name="forgot_your_id">Heu oblidat la ID?</string>
     <string name="restore_success_body">Restauració completada correctament</string>
     <string name="work_data_sync">Sincr. de dades</string>
     <string name="private_contact">Contacte privat</string>

@@ -961,14 +961,10 @@
     <string name="safe_threema_id">Ваш ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Введите ${app_name_short} ID, который вы хотите восстановить</string>
-    <string name="safe_search_id_title">Введите номер телефона или эл. почту, связанную с вашим ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Поиск ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} ID не найден</string>
     <string name="safe_no_backup_found">На сервере не найдена резервная копия. Проверьте ID и пароль.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Найдено несколько ${app_name_short} ID. Выберите ID для использования:</string>
     <string name="safe_backup_now">Создать копию</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Включите ${app_name_short} Safe для автоматического создания защищённых анонимных резервных копий всех ваших важных данных.</string>
@@ -1006,7 +1002,6 @@
     <string name="safe_restore">Восстановить ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Выполняется резервное копирование или восстановление. Смотрите сведения о статусе в уведомлениях.</string>
     <string name="restore_error_body">Невозможно выполнить восстановление</string>
-    <string name="forgot_your_id">Забыли свой ID?</string>
     <string name="restore_success_body">Восстановление данных успешно завершено</string>
     <string name="work_data_sync">Синхронизация данных</string>
     <string name="private_contact">Приватный контакт</string>

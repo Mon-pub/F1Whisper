@@ -991,14 +991,10 @@
     <string name="safe_threema_id">আপনার ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">দয়া করে আপনি যে ${app_name_short} ID পুনরুদ্ধার করতে চান তা লিখুন</string>
-    <string name="safe_search_id_title">দয়া করে আপনার ${app_name_short}-ID-এর সাথে সংযুক্ত মোবাইল নম্বর বা ইমেল ঠিকানা লিখুন</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} ID খোঁজা হচ্ছে</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">কোনো ${app_name_short} ID পাওয়া যায়নি</string>
     <string name="safe_no_backup_found">সার্ভারে কোনো ব্যাকআপ পাওয়া যায়নি। ID ও পাসওয়ার্ড পরীক্ষা করুন।</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">একাধিক ${app_name_short} ID পাওয়া গেছে। দয়া করে ব্যবহারের জন্য ID নির্বাচন করুন:</string>
     <string name="safe_backup_now">এখন ব্যাকআপ করুন</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">আপনার সমস্ত গুরুত্বপূর্ণ ডেটার স্বয়ংক্রিয় নিরাপদ ও বেনামি ব্যাকআপ তৈরি করতে ${app_name_short} Safe সক্ষম করুন।</string>
@@ -1036,7 +1032,6 @@
     <string name="safe_restore">${app_name_short} Safe পুনরুদ্ধার করুন</string>
     <string name="backup_restore_in_progress">ব্যাকআপ বা পুনরুদ্ধার চলছে। অবস্থা তথ্যের জন্য বিজ্ঞপ্তি পরীক্ষা করুন।</string>
     <string name="restore_error_body">পুনরুদ্ধার সফলভাবে সম্পন্ন হয়নি</string>
-    <string name="forgot_your_id">আপনার ID ভুলে গেছেন?</string>
     <string name="restore_success_body">পুনরুদ্ধার সফলভাবে সম্পন্ন হয়েছে</string>
     <string name="work_data_sync">ডেটা সিঙ্ক</string>
     <string name="private_contact">ব্যক্তিগত পরিচিতি</string>

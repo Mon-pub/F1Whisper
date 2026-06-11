@@ -950,14 +950,10 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="safe_threema_id">${app_name_short} kimliğiniz</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Lütfen kurtarmak istediğiniz ${app_name_short} kimliğini girin</string>
-    <string name="safe_search_id_title">Lütfen ${app_name_short} kimliğinize bağlı cep telefonu numarasını veya e-posta adresini girin</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} kimliği aranıyor</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} kimliği bulunamadı</string>
     <string name="safe_no_backup_found">Sunucuda yedekleme bulunamadı. Kimlik ve şifreyi kontrol edin.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Birden fazla ${app_name_short} kimliği bulundu. Lütfen kullanılacak kimliği seçin:</string>
     <string name="safe_backup_now">Şimdi yedekle</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Tüm önemli verilerinizin otomatik, güvenli ve anonim yedeklerini oluşturmak için ${app_name_short} Safe\'i etkinleştirin.</string>
@@ -995,7 +991,6 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="safe_restore">${app_name_short} Safe\'i geri yükle</string>
     <string name="backup_restore_in_progress">Yedekleme veya geri yükleme devam ediyor. Son durum için bildirimleri kontrol edin</string>
     <string name="restore_error_body">Geri yükleme başarıyla tamamlanmadı</string>
-    <string name="forgot_your_id">Kimliğinizi mi unuttunuz?</string>
     <string name="restore_success_body">Geri yükleme başarıyla tamamlandı</string>
     <string name="work_data_sync">Veri eşitlemesi</string>
     <string name="private_contact">Özel kişi</string>

@@ -940,12 +940,9 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Zadajte ${app_name_short} ID, ktoré chcete obnoviť</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Vyhľadáva sa ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} ID nenájdené</string>
     <string name="safe_no_backup_found">Na serveri nenájdená žiadna záloha. Skontrolujte ID a heslo.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Bolo nájdených niekoľko ${app_name_short} ID. Vyberte ID, ktoré chcete použiť:</string>
     <string name="safe_backup_now">Zálohovať</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Ak chcete automaticky vytvárať zabezpečené a anonymné zálohy všetkých vašich dôležitých údajov, povolte Trezor ${app_name_short}.</string>
@@ -983,7 +980,6 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="safe_restore">Obnoviť Trezor ${app_name_short}</string>
     <string name="backup_restore_in_progress">Prebieha zálohovanie alebo obnovenie. Priebeh sledujte v notifikačnej lište.</string>
     <string name="restore_error_body">Údaje sa nepodarilo úspešne obnoviť.</string>
-    <string name="forgot_your_id">Zabudli ste vaše ID?</string>
     <string name="restore_success_body">Obnovenie úspešne dokončené</string>
     <string name="work_data_sync">Synchronizácia dát</string>
     <string name="private_contact">Súkromný kontakt</string>

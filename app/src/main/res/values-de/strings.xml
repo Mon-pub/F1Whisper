@@ -980,14 +980,10 @@
     <string name="safe_threema_id">Ihre ${app_name_short}-ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Bitte geben Sie die ${app_name_short}-ID ein, die Sie wiederherstellen möchten</string>
-    <string name="safe_search_id_title">Bitte geben Sie die mit Ihrer ${app_name_short}-ID verknüpfte Handynummer oder E-Mail-Adresse ein</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short}-ID wird gesucht</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Keine ${app_name_short}-ID gefunden</string>
     <string name="safe_no_backup_found">Kein Backup auf dem Server gefunden. Überprüfen Sie ID und Passwort.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Mehrere ${app_name_short}-IDs gefunden. Wählen Sie die gewünschte ID:</string>
     <string name="safe_backup_now">Jetzt sichern</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Aktivieren Sie ${app_name_short} Safe für automatische, sichere und anonyme Backups Ihrer wichtigsten Daten.</string>
@@ -1025,7 +1021,6 @@
     <string name="safe_restore">${app_name_short} Safe wiederherstellen</string>
     <string name="backup_restore_in_progress">Backup oder Wiederherstellen im Gange. Überprüfen Sie die Benachrichtigung für weitere Informationen.</string>
     <string name="restore_error_body">Wiederherstellung fehlgeschlagen</string>
-    <string name="forgot_your_id">ID vergessen?</string>
     <string name="restore_success_body">Wiederherstellen erfolgreich abgeschlossen.</string>
     <string name="work_data_sync">Datensynchronisation</string>
     <string name="private_contact">Privater Kontakt</string>

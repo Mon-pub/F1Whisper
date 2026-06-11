@@ -958,14 +958,10 @@
     <string name="safe_threema_id">Ihri ${app_name_short}-ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Bitte gebed Sie d’${app_name_short}-ID ii, wo Sie wiederherstelle wänd</string>
-    <string name="safe_search_id_title">Bitte gebed Sie die mit Ihrere ${app_name_short}-ID verchnüpfti Handynummere oder E-Mail-Adrässe ii</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short}-ID wird gsuecht</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Kei ${app_name_short}-ID gfunde</string>
     <string name="safe_no_backup_found">Keis Backup ufem Server gfunde. Überprüefed Sie d’ID und s’Passwort.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Mehreri ${app_name_short}-IDs gfunde. Wähled Sie die gwünschti ID:</string>
     <string name="safe_backup_now">Jetzt sichere</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Aktiviered Sie ${app_name_short} Safe für automatischi, sicheri und anonymi Backups vo Ihrne wichtigste Date.</string>
@@ -1003,7 +999,6 @@
     <string name="safe_restore">${app_name_short} Safe wiederherstelle</string>
     <string name="backup_restore_in_progress">Backup oder Wiederherstelle im Gang. Überprüefed Sie d’Benachrichtigung für wiiteri Informatione.</string>
     <string name="restore_error_body">Wiederherstellig fehlgschlage</string>
-    <string name="forgot_your_id">ID vergässe?</string>
     <string name="restore_success_body">Wiederherstelle erfolgriich abgschlosse.</string>
     <string name="work_data_sync">Datesynchronisation</string>
     <string name="private_contact">Private Kontakt</string>

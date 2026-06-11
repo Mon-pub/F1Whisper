@@ -979,14 +979,10 @@
     <string name="safe_threema_id">${app_name_short} ID ئىڭىز</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">ئەسلىگە كەلتۈرمەكچى بولغان ${app_name_short} ID نى كىرگۈزۈڭ</string>
-    <string name="safe_search_id_title">${app_name_short}-ID ئىڭىزغا باغلانغان يانفون نومۇرى ياكى ئېلخەت ئادرېسىنى كىرگۈزۈڭ</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} ID ئىزدىلىۋاتىدۇ</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} ID تېپىلمىدى</string>
     <string name="safe_no_backup_found">مۇلازىمېتىردا زاپاس تېپىلمىدى. ID ۋە ئىمنى تەكشۈرۈڭ.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">بىر قانچە ${app_name_short} ID تېپىلدى. ئىشلىتىدىغان ID نى تاللاڭ:</string>
     <string name="safe_backup_now">ھازىر زاپاسلاش</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">بارلىق مۇھىم سانلىق مەلۇماتلىرىڭىزنىڭ ئاپتوماتىك بىخەتەر ۋە ئاتسىز زاپاسلىرىنى قۇرۇش ئۈچۈن ${app_name_short} Safe نى قوزغىتىڭ.</string>
@@ -1024,7 +1020,6 @@
     <string name="safe_restore">${app_name_short} Safe نى ئەسلىگە كەلتۈرۈش</string>
     <string name="backup_restore_in_progress">زاپاسلاش ياكى ئەسلىگە كەلتۈرۈش جەريانىدا. ھالەت ئۇچۇرى ئۈچۈن ئۇقتۇرۇشنى تەكشۈرۈڭ.</string>
     <string name="restore_error_body">ئەسلىگە كەلتۈرۈش مۇۋەپپەقىيەتلىك تاماملانمىدى</string>
-    <string name="forgot_your_id">ID ئىڭىزنى ئۇنتۇپ قالدىڭىزمۇ؟</string>
     <string name="restore_success_body">ئەسلىگە كەلتۈرۈش مۇۋەپپەقىيەتلىك تاماملاندى</string>
     <string name="work_data_sync">سانلىق مەلۇمات ماسلاشتۇرۇش</string>
     <string name="private_contact">شەخسىي ئالاقەداش</string>

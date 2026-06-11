@@ -979,14 +979,10 @@
     <string name="safe_threema_id">معرّف ${app_name_short} الخاص بك</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">يرجى إدخال معرّف ${app_name_short} الذي تريد استرداده</string>
-    <string name="safe_search_id_title">يرجى إدخال رقم الهاتف المحمول أو عنوان البريد الإلكتروني المرتبط بمعرّف ${app_name_short} الخاص بك</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">جارٍ البحث عن معرّف ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">لم يُعثر على معرّف ${app_name_short}</string>
     <string name="safe_no_backup_found">لم يُعثر على نسخة احتياطية على الخادم. تحقق من المعرّف وكلمة المرور.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">عُثر على عدة معرّفات ${app_name_short}. يرجى اختيار المعرّف الذي تريد استخدامه:</string>
     <string name="safe_backup_now">النسخ الاحتياطي الآن</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">فعّل ${app_name_short} Safe لإنشاء نسخ احتياطية آمنة ومجهولة وتلقائية لجميع بياناتك المهمة.</string>
@@ -1024,7 +1020,6 @@
     <string name="safe_restore">استعادة ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">نسخ احتياطي أو استعادة قيد التنفيذ. تحقق من الإشعار لمعلومات الحالة.</string>
     <string name="restore_error_body">لم تكتمل الاستعادة بنجاح</string>
-    <string name="forgot_your_id">نسيت معرّفك؟</string>
     <string name="restore_success_body">اكتملت الاستعادة بنجاح</string>
     <string name="work_data_sync">مزامنة البيانات</string>
     <string name="private_contact">جهة اتصال خاصة</string>

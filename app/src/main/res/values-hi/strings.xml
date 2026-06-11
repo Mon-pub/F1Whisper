@@ -955,14 +955,10 @@
     <string name="safe_threema_id">आपकी ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">कृपया वह ${app_name_short} ID दर्ज करें जिसे आप पुनर्प्राप्त करना चाहते हैं</string>
-    <string name="safe_search_id_title">कृपया अपनी ${app_name_short}-ID से लिंक किया गया मोबाइल नंबर या ईमेल पता दर्ज करें</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} ID खोजी जा रही है</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">कोई ${app_name_short} ID नहीं मिली</string>
     <string name="safe_no_backup_found">सर्वर पर कोई बैकअप नहीं मिला। ID और पासवर्ड जाँचें।</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">एकाधिक ${app_name_short} ID मिलीं। कृपया उपयोग करने के लिए ID चुनें:</string>
     <string name="safe_backup_now">अभी बैकअप लें</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">अपने सभी महत्वपूर्ण डेटा के स्वचालित सुरक्षित और गुमनाम बैकअप बनाने के लिए ${app_name_short} Safe सक्षम करें।</string>
@@ -1000,7 +996,6 @@
     <string name="safe_restore">${app_name_short} Safe पुनर्स्थापित करें</string>
     <string name="backup_restore_in_progress">बैकअप या पुनर्स्थापना प्रगति पर है। स्थिति जानकारी के लिए सूचना जाँचें।</string>
     <string name="restore_error_body">पुनर्स्थापना सफलतापूर्वक पूर्ण नहीं हुई</string>
-    <string name="forgot_your_id">अपनी ID भूल गए?</string>
     <string name="restore_success_body">पुनर्स्थापना सफलतापूर्वक पूर्ण हुई</string>
     <string name="work_data_sync">डेटा समन्वयन</string>
     <string name="private_contact">निजी संपर्क</string>

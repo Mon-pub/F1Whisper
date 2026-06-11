@@ -955,14 +955,10 @@
     <string name="safe_threema_id">Ваш ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Увядзіце ${app_name_short} ID, які вы хочаце аднавіць</string>
-    <string name="safe_search_id_title">Увядзіце нумар мабільнага тэлефона або адрас электроннай пошты, прывязаны да вашага ${app_name_short}-ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Пошук ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">ID ${app_name_short} не знойдзены</string>
     <string name="safe_no_backup_found">На серверы не знойдзена рэзервовая копія. Праверце ID і пароль.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Знойдзена некалькі ID ${app_name_short}. Абярыце ID для выкарыстання:</string>
     <string name="safe_backup_now">Стварыць копію зараз</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Уключыце ${app_name_short} Safe для аўтаматычнага стварэння абароненых ананімных рэзервовых копій усіх вашых важных даных.</string>
@@ -1000,7 +996,6 @@
     <string name="safe_restore">Аднавіць ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Выконваецца рэзервовае капіяванне або аднаўленне. Глядзіце звесткі аб статусе ў апавяшчэннях.</string>
     <string name="restore_error_body">Не ўдалося выканаць аднаўленне</string>
-    <string name="forgot_your_id">Забыліся ID?</string>
     <string name="restore_success_body">Аднаўленне даных паспяхова завершана</string>
     <string name="work_data_sync">Сінхр. даных</string>
     <string name="private_contact">Прыватны кантакт</string>

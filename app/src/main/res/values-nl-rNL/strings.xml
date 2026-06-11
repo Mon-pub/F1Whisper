@@ -961,14 +961,10 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="safe_threema_id">Uw ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Voer het ${app_name_short} ID in dat u wilt herstellen</string>
-    <string name="safe_search_id_title">Voer het mobiele nummer of het e-mailadres in dat aan uw ${app_name_short}-ID is gekoppeld</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} ID opzoeken</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Geen ${app_name_short} ID gevonden</string>
     <string name="safe_no_backup_found">Geen back-up gevonden op de server. Controleer het ID en het wachtwoord.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Meerdere ${app_name_short} IDs gevonden. Selecteer het ID dat u wilt gebruiken:</string>
     <string name="safe_backup_now">Back-up maken</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">${app_name_short} Safe inschakelen om automatisch veilige en anonieme back-ups van al uw belangrijke gegevens te maken.</string>
@@ -1006,7 +1002,6 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="safe_restore">${app_name_short} Safe herstellen</string>
     <string name="backup_restore_in_progress">Bezig met back-up of herstel. Controleer de meldingen voor statusinformatie.</string>
     <string name="restore_error_body">Herstel niet voltooid</string>
-    <string name="forgot_your_id">Uw ID vergeten?</string>
     <string name="restore_success_body">Herstel voltooid</string>
     <string name="work_data_sync">Synchroniseren</string>
     <string name="private_contact">Privé-contactpersoon</string>

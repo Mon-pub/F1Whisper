@@ -886,12 +886,9 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Vennligst skriv ${app_name_short} IDen du vil gjenopprette</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Sjekker ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Ingen ${app_name_short} ID funnet</string>
     <string name="safe_no_backup_found">Ingen sikkerhetskopi er funnet på serveren. Sjekk ID og passord.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Flere ${app_name_short} IDer er funnet. Vennligst velg ID du vil bruke:</string>
     <string name="safe_backup_now">Sikkerhetskopier</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Aktiver ${app_name_short} Safe for å opprette automatiske, sikre og anonyme sikkerhetskopier av alle dine viktigste data.</string>
@@ -929,7 +926,6 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <string name="safe_restore">Gjenopprett ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Sikkerhetskopi eller gjenoppretting pågår nå. Sjekk varsel for status og informasjon.</string>
     <string name="restore_error_body">Gjenoppretting ble ikke fullført skikkelig</string>
-    <string name="forgot_your_id">Har du glemt din ID?</string>
     <string name="restore_success_body">Gjenoppretting vellykket</string>
     <string name="work_data_sync">Data synk.</string>
     <string name="private_contact">Privat kontakt</string>

@@ -995,14 +995,10 @@
     <string name="safe_threema_id">Ваш ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Введіть ID ${app_name_short}, який потрібно відновити</string>
-    <string name="safe_search_id_title">Введіть номер телефону або адресу ел. пошти, зв\'язані з вашим ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Пошук ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">ID ${app_name_short} не знайдено</string>
     <string name="safe_no_backup_found">Резервну копію не знайдено на сервері. Перевірте ID та пароль.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Знайдено кілька ID ${app_name_short}. Виберіть потрібний:</string>
     <string name="safe_backup_now">Створити резервну копію</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Увімкніть ${app_name_short} Safe, щоб автоматично створювати безпечні й анонімні резервні копії ваших найважливіших даних.</string>
@@ -1040,7 +1036,6 @@
     <string name="safe_restore">Відновити ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Перегляньте сповіщення, щоб дізнатися про перебіг створення або відновлення резервної копії.</string>
     <string name="restore_error_body">Не вдалося завершити відновлення</string>
-    <string name="forgot_your_id">Забули свій ID?</string>
     <string name="restore_success_body">Відновлення завершено</string>
     <string name="work_data_sync">Синхронізація даних</string>
     <string name="private_contact">Приватний контакт</string>

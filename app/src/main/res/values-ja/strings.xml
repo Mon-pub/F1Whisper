@@ -914,12 +914,9 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">復元をする${app_name_short} IDを入力してください</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} IDを見る</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} IDが見つかりませんでした</string>
     <string name="safe_no_backup_found">サーバー上にバックアップが見つかりませんでした。IDとパスワードを確認してください。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">複数の${app_name_short} IDが見つかりました。使用したいIDを選択してください。</string>
     <string name="safe_backup_now">バックアップする</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">${app_name_short} Safeを有効にすると、すべての重要なデータを自動的に安全かつ匿名でバックアップすることができます。</string>
@@ -956,7 +953,6 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="safe_restore">${app_name_short} Safeから復元</string>
     <string name="backup_restore_in_progress">バックアップまたは復元が進行中です。ステータス情報は通知を確認してください。</string>
     <string name="restore_error_body">復元が正常に完了しませんでした</string>
-    <string name="forgot_your_id">ID をお忘れですか？</string>
     <string name="restore_success_body">復元が完了しました</string>
     <string name="work_data_sync">データを同期</string>
     <string name="private_contact">プライベートな連絡先</string>

@@ -975,14 +975,10 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="safe_threema_id">您的 ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">請輸入您想恢復的 ${app_name_short} ID</string>
-    <string name="safe_search_id_title">請輸入與您的 ${app_name_short} ID所連結的電話號碼或電子郵件地址</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">查找 ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">找不到 ${app_name_short} ID</string>
     <string name="safe_no_backup_found">在伺服器上找不到備份。請檢查ID和密碼。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">找到多個 ${app_name_short} ID。請選擇要使用的 ID：</string>
     <string name="safe_backup_now">立即備份</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">開啟 ${app_name_short} Safe 可以自動為所有重要資料建立安全和匿名的備份。</string>
@@ -1020,7 +1016,6 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="safe_restore">還原 ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">正在進行備份或還原。檢查通知以取用狀態資訊。</string>
     <string name="restore_error_body">還原未成功完成</string>
-    <string name="forgot_your_id">忘記了您的ID？</string>
     <string name="restore_success_body">還原成功完成</string>
     <string name="work_data_sync">資料同步</string>
     <string name="private_contact">私密聯絡人</string>

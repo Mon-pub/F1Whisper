@@ -960,14 +960,10 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="safe_threema_id">Votre ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Veuillez saisir l\'ID ${app_name_short} que vous voudriez récupérer</string>
-    <string name="safe_search_id_title">Veuillez saisir l’adresse e-mail ou le numéro de téléphone mobile associé à votre identifiant ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Recherche de l\'ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Aucun ID ${app_name_short} trouvé</string>
     <string name="safe_no_backup_found">Aucune sauvegarde trouvée sur le serveur. Vérifiez l\'ID et le mot de passe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Plusieurs ID ${app_name_short} trouvés. Veuillez sélectionner l\'ID à utiliser :</string>
     <string name="safe_backup_now">Sauvegarder maintenant</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Activez ${app_name_short} Safe pour créer des sauvegardes automatiques, sécurisées et anonymes de toutes vos données importantes.</string>
@@ -1005,7 +1001,6 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="safe_restore">Restaurer ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Sauvegarde ou restauration en cours. Consultez la notification pour voir les informations d\'état.</string>
     <string name="restore_error_body">La restauration n\'a pas été finalisée</string>
-    <string name="forgot_your_id">ID oublié ?</string>
     <string name="restore_success_body">Restauration bien finalisée</string>
     <string name="work_data_sync">Synchronisation des données</string>
     <string name="private_contact">Contact privé</string>

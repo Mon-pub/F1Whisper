@@ -948,14 +948,10 @@
     <string name="safe_threema_id">Вашият ${app_name_short} идентификатор</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Моля, въведете ${app_name_short} идентификатора, който искате да възстановите</string>
-    <string name="safe_search_id_title">Моля, въведете мобилния номер или имейл адреса, който е свързан към Вашия ${app_name_short} идентификатор</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Търсене на ${app_name_short} идентификатора</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Не е намерен ${app_name_short} идентификатора</string>
     <string name="safe_no_backup_found">Не е намерено резервно копие в сървъра. Проверете идентификатора или паролата.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Открити са множество ${app_name_short} идентификатори. Моля, изберете идентификатора, който искате да използвате:</string>
     <string name="safe_backup_now">Направете резервно копие сега</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Активирайте ${app_name_short} Safe, за да създадете автоматични, сигурни и анонимни резервни копия на всичките Ви важни данни.</string>
@@ -993,7 +989,6 @@
     <string name="safe_restore">Възстановяване на ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Резервното копие или възстановяването е в ход. Проверете напредъка в известията.</string>
     <string name="restore_error_body">Възстановяването е неуспешно</string>
-    <string name="forgot_your_id">Забравили сте Вашия идентификатор?</string>
     <string name="restore_success_body">Възстановяването е успешно</string>
     <string name="work_data_sync">Синхронизиране на данни</string>
     <string name="private_contact">Поверителен контакт</string>

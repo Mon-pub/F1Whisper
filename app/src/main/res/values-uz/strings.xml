@@ -987,14 +987,10 @@
     <string name="safe_threema_id">Sizning ${app_name_short} ID raqamingiz</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Iltimos, tiklamoqchi boʻlgan ${app_name_short} ID ni kiriting</string>
-    <string name="safe_search_id_title">Iltimos, ${app_name_short} ID raqamingizga bogʻlangan mobil raqam yoki elektron pochta manzilini kiriting</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} ID qidirilmoqda</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} ID topilmadi</string>
     <string name="safe_no_backup_found">Serverda zaxira topilmadi. ID va parolni tekshiring.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Bir nechta ${app_name_short} ID topildi. Iltimos, foydalaniladigan ID ni tanlang:</string>
     <string name="safe_backup_now">Hozir zaxiralash</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Barcha muhim maʼlumotlaringizning avtomatik xavfsiz va anonim zaxiralarini yaratish uchun ${app_name_short} Safe ni yoqing.</string>
@@ -1032,7 +1028,6 @@
     <string name="safe_restore">${app_name_short} Safe ni tiklash</string>
     <string name="backup_restore_in_progress">Zaxiralash yoki tiklash davom etmoqda. Holat maʼlumotlari uchun bildirishnomani tekshiring.</string>
     <string name="restore_error_body">Tiklash muvaffaqiyatli yakunlanmadi</string>
-    <string name="forgot_your_id">ID raqamingizni unutdingizmi?</string>
     <string name="restore_success_body">Tiklash muvaffaqiyatli yakunlandi</string>
     <string name="work_data_sync">Maʼlumotlar sinxroni</string>
     <string name="private_contact">Maxfiy kontakt</string>

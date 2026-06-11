@@ -872,14 +872,10 @@
     <string name="safe_threema_id">Az ön ${app_name_short} ID-ja</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Kérjük, adja meg a helyreállítani kívánt ${app_name_short} ID-t</string>
-    <string name="safe_search_id_title">Kérjük, adja meg a ${app_name_short} ID-hoz csatolt mobilszámot vagy e-mail címet.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short}-ID keresése</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Nem találtunk ${app_name_short}-ID-t</string>
     <string name="safe_no_backup_found">Nincs biztonsági mentés a kiszolgálón. Ellenőrizze az ID-t és a jelszót.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Több ${app_name_short} ID-t találtunk. Válassza ki a kívánt ID-t:</string>
     <string name="safe_backup_now">Biztonsági mentés most</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Aktiválja a ${app_name_short} Safe szolgáltatást a legfontosabb adatok automatikus, biztonságos és anonim mentéséhez</string>
@@ -916,7 +912,6 @@
     <string name="safe_restore">${app_name_short} Safe visszaállítása</string>
     <string name="backup_restore_in_progress">Biztonsági mentés vagy visszaállítás folyamatban. További információkért nézze meg az értesítést.</string>
     <string name="restore_error_body">A visszaállítás sikertelen</string>
-    <string name="forgot_your_id">Elfelejtette az ID-ját?</string>
     <string name="restore_success_body">A visszaállítás sikeresen befejeződött.</string>
     <string name="work_data_sync">Adatok szinkronizálása</string>
     <string name="private_contact">Privát névjegy</string>

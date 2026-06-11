@@ -950,14 +950,10 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="safe_threema_id">Sua ID do ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Insira a ID do ${app_name_short} se quiser recuperar</string>
-    <string name="safe_search_id_title">Insira o número de celular ou o endereço de e-mail vinculado ao seu ${app_name_short}-ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Procurando a ID do ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Nenhuma ID do ${app_name_short} encontrada</string>
     <string name="safe_no_backup_found">Nenhum backup encontrado no servidor. Verifique a ID e a senha.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Diversas IDs do ${app_name_short} encontradas. Selecione a ID para usar:</string>
     <string name="safe_backup_now">Backup agora</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Habilite o ${app_name_short} Safe para criar backups automáticos, seguros e anônimos de todos os seus dados importantes.</string>
@@ -995,7 +991,6 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="safe_restore">Restaurar ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Backup ou restauração em andamento. Verifique a notificação para informações de status.</string>
     <string name="restore_error_body">A restauração não foi concluída com sucesso</string>
-    <string name="forgot_your_id">Esqueceu sua ID?</string>
     <string name="restore_success_body">Restauração concluída com sucesso</string>
     <string name="work_data_sync">Sincronização de dados</string>
     <string name="private_contact">Contato privado</string>

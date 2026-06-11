@@ -947,14 +947,10 @@
     <string name="safe_threema_id">آپ کا ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">براہ کرم وہ ${app_name_short} ID درج کریں جسے آپ بحال کرنا چاہتے ہیں</string>
-    <string name="safe_search_id_title">براہ کرم اپنے ${app_name_short}-ID سے منسلک موبائل نمبر یا ای میل ایڈریس درج کریں</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} ID تلاش کیا جا رہا ہے</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">کوئی ${app_name_short} ID نہیں ملا</string>
     <string name="safe_no_backup_found">سرور پر کوئی بیک اپ نہیں ملا۔ ID اور پاس ورڈ چیک کریں۔</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">متعدد ${app_name_short} IDs ملے۔ براہ کرم استعمال کرنے کے لیے ID منتخب کریں:</string>
     <string name="safe_backup_now">ابھی بیک اپ کریں</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">اپنے تمام اہم ڈیٹا کے خود کار محفوظ اور گمنام بیک اپ بنانے کے لیے ${app_name_short} Safe فعال کریں۔</string>
@@ -992,7 +988,6 @@
     <string name="safe_restore">${app_name_short} Safe بحال کریں</string>
     <string name="backup_restore_in_progress">بیک اپ یا بحالی جاری ہے۔ حیثیت کی معلومات کے لیے اطلاع چیک کریں۔</string>
     <string name="restore_error_body">بحالی کامیابی سے مکمل نہیں ہوئی</string>
-    <string name="forgot_your_id">اپنا ID بھول گئے؟</string>
     <string name="restore_success_body">بحالی کامیابی سے مکمل ہوئی</string>
     <string name="work_data_sync">ڈیٹا ہم آہنگی</string>
     <string name="private_contact">نجی رابطہ</string>

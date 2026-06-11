@@ -955,14 +955,10 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="safe_threema_id">Twój identyfikator ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Wprowadź identyfikator ${app_name_short}, który chcesz odzyskać</string>
-    <string name="safe_search_id_title">Wprowadź numer telefonu lub adres e-mail powiązany z Twoim identyfikatorem ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Sprawdzanie identyfikatora ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Nie znaleziono identyfikatora ${app_name_short}</string>
     <string name="safe_no_backup_found">Nie znaleziono kopii zapasowej na serwerze. Sprawdź identyfikator i hasło.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Znaleziono kilka identyfikatorów ${app_name_short}. Wybierz ten, którego chcesz użyć:</string>
     <string name="safe_backup_now">Utwórz kopię</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Pozwól ${app_name_short} Safe automatycznie tworzyć bezpieczne i anonimowe kopie zapasowe wszystkich ważnych danych.</string>
@@ -1000,7 +996,6 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="safe_restore">Przywróć ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Trwa tworzenie lub przywracanie kopii zapasowej. Status procesu znajdziesz w powiadomieniu.</string>
     <string name="restore_error_body">Przywracanie nie zostało pomyślnie zakończone</string>
-    <string name="forgot_your_id">Nie pamiętasz swojego identyfikatora?</string>
     <string name="restore_success_body">Przywracanie zakończone powodzeniem</string>
     <string name="work_data_sync">Synch. danych</string>
     <string name="private_contact">Kontakt prywatny</string>

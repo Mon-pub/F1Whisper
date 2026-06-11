@@ -947,14 +947,10 @@
     <string name="safe_threema_id">شناسه ${app_name_short} شما</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">لطفاً شناسه ${app_name_short} را که می‌خواهید بازیابی کنید وارد کنید</string>
-    <string name="safe_search_id_title">لطفاً شماره موبایل یا آدرس ایمیل پیوندشده به شناسه ${app_name_short} خود را وارد کنید</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">در حال جست‌وجوی شناسه ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">شناسه ${app_name_short} یافت نشد</string>
     <string name="safe_no_backup_found">پشتیبانی روی سرور یافت نشد. شناسه و رمز عبور را بررسی کنید.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">چندین شناسه ${app_name_short} یافت شد. لطفاً شناسه‌ای را که می‌خواهید استفاده کنید انتخاب کنید:</string>
     <string name="safe_backup_now">اکنون پشتیبان‌گیری کن</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">${app_name_short} Safe را فعال کنید تا پشتیبان‌های امن و ناشناس خودکاری از تمام داده‌های مهم خود ایجاد کنید.</string>
@@ -992,7 +988,6 @@
     <string name="safe_restore">بازیابی ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">پشتیبان‌گیری یا بازیابی در حال انجام است. برای اطلاعات وضعیت اعلان را بررسی کنید.</string>
     <string name="restore_error_body">بازیابی با موفقیت کامل نشد</string>
-    <string name="forgot_your_id">شناسه خود را فراموش کرده‌اید؟</string>
     <string name="restore_success_body">بازیابی با موفقیت کامل شد</string>
     <string name="work_data_sync">همگام‌سازی داده</string>
     <string name="private_contact">مخاطب خصوصی</string>

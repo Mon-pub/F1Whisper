@@ -951,14 +951,10 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="safe_threema_id">Vaše ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Zadejte prosím ${app_name_short} ID, které si přejete obnovit</string>
-    <string name="safe_search_id_title">Zadejte prosím číslo mobilního telefonu nebo e-mailovou adresu propojenou s vaším ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Vyhledává se ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Žádné ${app_name_short} ID nebylo nalezeno</string>
     <string name="safe_no_backup_found">Na serveru nebyla nalezena žádná záloha. Zkontrolujte ID a heslo.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Bylo nalezeno více ${app_name_short} ID. Vyberte prosím ID, které chcete použít:</string>
     <string name="safe_backup_now">Zálohovat</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Povolením ${app_name_short} Safe vytvoříte automatické zabezpečené a anonymní zálohy všech vašich důležitých dat.</string>
@@ -996,7 +992,6 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="safe_restore">Obnovení ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Zálohování nebo obnovení právě probíhá. Průběh sledujte v panelu oznámení.</string>
     <string name="restore_error_body">Obnovení dat neproběhlo úspěšně</string>
-    <string name="forgot_your_id">Zapomněli jste své ID?</string>
     <string name="restore_success_body">Obnovení dat bylo úspěšně dokončeno</string>
     <string name="work_data_sync">Synchronizace dat</string>
     <string name="private_contact">Soukromý kontakt</string>
