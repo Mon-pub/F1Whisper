@@ -1844,4 +1844,21 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
         <item quantity="one">%d groepslid</item>
         <item quantity="other">%d groepsleden</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Reacties</string>
+    <string name="reaction_notification_text">%1$s reageerde %2$s op je bericht</string>
+    <string name="prefs_title_reaction_notifications">Reactiemeldingen</string>
+    <string name="prefs_sum_reaction_notifications">Stel me op de hoogte wanneer iemand op een van mijn berichten reageert</string>
+    <string name="chat_background_choose">Achtergronden</string>
+    <string name="chat_background_random">Willekeurig (varieert per chat)</string>
+    <string name="chat_background_numbered">Achtergrond %1$d</string>
+    <string name="listen_once_enabled">Eenmalig beluisteren: aan</string>
+    <string name="listen_once_disabled">Eenmalig beluisteren: uit</string>
+    <string name="listen_once_badge_content_description">Eenmalig te beluisteren spraakbericht</string>
+    <string name="listen_once_already_listened">Beluisterd</string>
+    <string name="group_one_typing">%s is aan het typen…</string>
+    <string name="group_two_typing">%1$s en %2$s zijn aan het typen…</string>
+    <string name="group_many_typing">%1$s en %2$d anderen zijn aan het typen…</string>
+    <string name="message_details_read_by">Gelezen door</string>
+    <string name="message_details_delivered_to">Bezorgd aan</string>
+    <string name="message_details_sent_to">Verzonden aan</string>
 </resources>

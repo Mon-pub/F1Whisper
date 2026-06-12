@@ -36,6 +36,9 @@ object NotificationChannels {
     const val NOTIFICATION_CHANNEL_NEW_SYNCED_CONTACTS = "new_contact_found"
     const val NOTIFICATION_CHANNEL_FORWARD_SECURITY = "forward_security_alert"
 
+    /** F1Whisper: channel for "someone reacted to your message" notifications */
+    const val NOTIFICATION_CHANNEL_EMOJI_REACTIONS = "emoji_reactions"
+
     /** channel for quiet chat notification updates (e.g. when changing from regular to PIN locked) */
     const val NOTIFICATION_CHANNEL_CHAT_UPDATE = "silent_chat_update"
     const val NOTIFICATION_CHANNEL_WORK_SYNC = "work_sync"

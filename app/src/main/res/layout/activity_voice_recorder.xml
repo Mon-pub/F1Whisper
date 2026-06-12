@@ -90,9 +90,24 @@
                     android:clickable="true"
                     android:contentDescription="@string/pause"
                     android:focusable="true"
-                    android:nextFocusRight="@+id/send_button"
+                    android:nextFocusRight="@+id/listen_once_toggle"
                     android:scaleType="centerInside"
                     app:srcCompat="@drawable/ic_pause"
+                    app:tint="?attr/colorOnSurface" />
+
+                <ImageView
+                    android:id="@+id/listen_once_toggle"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/selector_compose_button"
+                    android:clickable="true"
+                    android:contentDescription="@string/listen_once_disabled"
+                    android:focusable="true"
+                    android:nextFocusRight="@+id/send_button"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@drawable/ic_listen_once"
                     app:tint="?attr/colorOnSurface" />
 
             </LinearLayout>

@@ -1891,4 +1891,21 @@
     <string name="activation_key_already_redeemed">Dieser Aktivierungsschlüssel wurde bereits verwendet. Bitte geben Sie einen anderen Schlüssel ein.</string>
     <!-- Safe-password complexity validation error -->
     <string name="safe_password_complexity_unmet">Das Passwort muss länger als 10 Zeichen sein und Klein- und Großbuchstaben, eine Ziffer und ein Sonderzeichen enthalten</string>
+    <string name="notification_channel_emoji_reactions">Reaktionen</string>
+    <string name="reaction_notification_text">%1$s hat mit %2$s auf deine Nachricht reagiert</string>
+    <string name="prefs_title_reaction_notifications">Reaktionsbenachrichtigungen</string>
+    <string name="prefs_sum_reaction_notifications">Benachrichtige mich, wenn jemand auf eine meiner Nachrichten reagiert</string>
+    <string name="chat_background_choose">Hintergründe</string>
+    <string name="chat_background_random">Zufällig (pro Chat unterschiedlich)</string>
+    <string name="chat_background_numbered">Hintergrund %1$d</string>
+    <string name="listen_once_enabled">Einmal anhören: an</string>
+    <string name="listen_once_disabled">Einmal anhören: aus</string>
+    <string name="listen_once_badge_content_description">Einmal abspielbare Sprachnachricht</string>
+    <string name="listen_once_already_listened">Angehört</string>
+    <string name="group_one_typing">%s schreibt…</string>
+    <string name="group_two_typing">%1$s und %2$s schreiben…</string>
+    <string name="group_many_typing">%1$s und %2$d weitere schreiben…</string>
+    <string name="message_details_read_by">Gelesen von</string>
+    <string name="message_details_delivered_to">Zugestellt an</string>
+    <string name="message_details_sent_to">Gesendet an</string>
 </resources>

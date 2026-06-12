@@ -82,7 +82,7 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         logger.info("configureChatMessage for {}", getMessageModel().getId());
 
         AudioDataModel audioDataModel;
-        FileDataModel fileDataModel;
+        FileDataModel fileDataModel = null;
         final long duration;
         final boolean isDownloaded;
         String caption = null;
@@ -97,6 +97,15 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
             isDownloaded = fileDataModel.isDownloaded();
             caption = fileDataModel.getCaption();
         }
+
+        // F1Whisper: "listen once" voice messages. Only relevant for incoming messages.
+        final boolean isListenOnce = !getMessageModel().isOutbox()
+            && fileDataModel != null
+            && fileDataModel.isListenOnce();
+        // Once the recipient has played a listen-once message it is marked CONSUMED and its media is
+        // deleted. From then on we show a "listened" placeholder and never offer replay.
+        final boolean alreadyListened = isListenOnce
+            && getMessageModel().getState() == MessageState.CONSUMED;
 
         MessagePlayer audioMessagePlayer = messagePlayerFactory.create(getMessageModel(), helper.getMediaControllerFuture());
 
@@ -116,7 +125,20 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         holder.seekBar.setEnabled(false);
         holder.readOnButton.setVisibility(View.GONE);
         holder.audioMessageIcon.setVisibility(View.VISIBLE);
+        // F1Whisper: show the "1" (listen once) badge in place of the microphone icon for incoming
+        // listen-once voice messages.
+        if (isListenOnce) {
+            holder.audioMessageIcon.setImageResource(R.drawable.ic_listen_once);
+            holder.audioMessageIcon.setContentDescription(context.getString(R.string.listen_once_badge_content_description));
+        } else {
+            holder.audioMessageIcon.setImageResource(R.drawable.ic_microphone_outline);
+        }
         holder.controller.setOnClickListener(v -> {
+            if (alreadyListened) {
+                // Already played once: replay is blocked.
+                Toast.makeText(context, R.string.listen_once_already_listened, Toast.LENGTH_SHORT).show();
+                return;
+            }
             int status = holder.controller.getStatus();
 
             switch (status) {
@@ -150,6 +172,17 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
 
             //reset progressbar
             updateProgressCount(holder, 0);
+
+            if (alreadyListened) {
+                // F1Whisper: media has been played once and deleted. No play/download/replay.
+                holder.controller.setHidden();
+                if (holder.seekBar != null) {
+                    holder.seekBar.setEnabled(false);
+                }
+                holder.audioMessageIcon.setImageResource(R.drawable.ic_listen_once);
+                holder.audioMessageIcon.setVisibility(View.VISIBLE);
+                return;
+            }
 
             if (audioMessagePlayer != null) {
                 boolean isPlaying = false;
@@ -370,6 +403,11 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         if (holder.contentView != null) {
             //one size fits all :-)
             holder.contentView.getLayoutParams().width = ConfigUtils.getPreferredAudioMessageWidth(context, false);
+        }
+
+        if (alreadyListened) {
+            // F1Whisper: replace the caption with a "listened" placeholder for consumed listen-once messages.
+            caption = context.getString(R.string.listen_once_already_listened);
         }
 
         configureBodyText(holder, caption);

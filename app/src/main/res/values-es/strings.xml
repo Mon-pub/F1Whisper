@@ -1862,4 +1862,21 @@ almacenado.</string>
     <string name="use_different_key">Usar otra clave</string>
     <string name="activation_key_already_redeemed">Esta clave de activación ya ha sido usada. Por favor, introduce una clave diferente.</string>
     <string name="safe_password_complexity_unmet">La contraseña debe tener más de 10 caracteres y contener minúsculas, mayúsculas, un dígito y un símbolo</string>
+    <string name="notification_channel_emoji_reactions">Reacciones</string>
+    <string name="reaction_notification_text">%1$s reaccionó %2$s a tu mensaje</string>
+    <string name="prefs_title_reaction_notifications">Notificaciones de reacciones</string>
+    <string name="prefs_sum_reaction_notifications">Avisarme cuando alguien reacciona a uno de mis mensajes</string>
+    <string name="chat_background_choose">Fondos</string>
+    <string name="chat_background_random">Aleatorio (distinto en cada chat)</string>
+    <string name="chat_background_numbered">Fondo %1$d</string>
+    <string name="listen_once_enabled">Escuchar una vez: activado</string>
+    <string name="listen_once_disabled">Escuchar una vez: desactivado</string>
+    <string name="listen_once_badge_content_description">Mensaje de voz de escucha única</string>
+    <string name="listen_once_already_listened">Escuchado</string>
+    <string name="group_one_typing">%s está escribiendo…</string>
+    <string name="group_two_typing">%1$s y %2$s están escribiendo…</string>
+    <string name="group_many_typing">%1$s y otras %2$d personas están escribiendo…</string>
+    <string name="message_details_read_by">Leído por</string>
+    <string name="message_details_delivered_to">Entregado a</string>
+    <string name="message_details_sent_to">Enviado a</string>
 </resources>

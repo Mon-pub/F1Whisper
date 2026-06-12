@@ -416,6 +416,22 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
         );
     }
 
+    /**
+     * F1Whisper: send a group delivery/read receipt for {@code messageModel} to the given identities
+     * (used to report "delivered"/"read" back to the message sender for the group message-details
+     * screen). Gating by the "send read receipts" preference happens at the call site.
+     */
+    public void sendGroupDeliveryReceipt(
+        int receiptType,
+        @NonNull GroupMessageModel messageModel,
+        @NonNull Set<String> toIdentities
+    ) {
+        if (toIdentities.isEmpty()) {
+            return;
+        }
+        sendGroupDeliveryReceiptWithoutReflection(toIdentities, messageModel, receiptType);
+    }
+
     @Override
     @NonNull
     public List<GroupMessageModel> loadMessages(MessageService.MessageFilter filter) {

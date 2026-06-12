@@ -1872,4 +1872,21 @@
     <string name="change_server_warning_title">سرور تغییر کند؟</string>
     <string name="change_server_warning_message">تغییر سرور احتمالاً اتصال شناسه فعلی شما را قطع خواهد کرد. این کار را فقط زمانی انجام دهید که ارائه‌دهنده‌تان دامنه جدید را تأیید کرده باشد. اگر دامنه نادرست باشد، برنامه از کار خواهد افتاد.</string>
     <string name="safe_password_complexity_unmet">گذرواژه باید بیش از ۱۰ نویسه داشته باشد و شامل حروف کوچک، حروف بزرگ، یک رقم و یک نماد باشد</string>
+    <string name="notification_channel_emoji_reactions">واکنش‌ها</string>
+    <string name="reaction_notification_text">%1$s با %2$s به پیام شما واکنش نشان داد</string>
+    <string name="prefs_title_reaction_notifications">اعلان‌های واکنش</string>
+    <string name="prefs_sum_reaction_notifications">وقتی کسی به یکی از پیام‌های من واکنش نشان می‌دهد به من اطلاع بده</string>
+    <string name="chat_background_choose">پس‌زمینه‌ها</string>
+    <string name="chat_background_random">تصادفی (متفاوت برای هر گفت‌وگو)</string>
+    <string name="chat_background_numbered">پس‌زمینه %1$d</string>
+    <string name="listen_once_enabled">پخش یک‌بار: روشن</string>
+    <string name="listen_once_disabled">پخش یک‌بار: خاموش</string>
+    <string name="listen_once_badge_content_description">پیام صوتی پخش یک‌بار</string>
+    <string name="listen_once_already_listened">پخش‌شده</string>
+    <string name="group_one_typing">%s در حال نوشتن است…</string>
+    <string name="group_two_typing">%1$s و %2$s در حال نوشتن هستند…</string>
+    <string name="group_many_typing">%1$s و %2$d نفر دیگر در حال نوشتن هستند…</string>
+    <string name="message_details_read_by">خوانده‌شده توسط</string>
+    <string name="message_details_delivered_to">تحویل‌شده به</string>
+    <string name="message_details_sent_to">ارسال‌شده به</string>
 </resources>

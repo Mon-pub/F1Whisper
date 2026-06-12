@@ -1857,4 +1857,21 @@
         <item quantity="one">%d Gruppemitglied</item>
         <item quantity="other">%d Gruppemitglieder</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Reaktione</string>
+    <string name="reaction_notification_text">%1$s het %2$s uf dini Nachricht reagiert</string>
+    <string name="prefs_title_reaction_notifications">Reaktions-Benachrichtigunge</string>
+    <string name="prefs_sum_reaction_notifications">Mich benachrichtige, wenn öpper uf eini vo mine Nachrichte reagiert</string>
+    <string name="chat_background_choose">Hintergründ</string>
+    <string name="chat_background_random">Zuefällig (pro Chat verschiede)</string>
+    <string name="chat_background_numbered">Hintergrund %1$d</string>
+    <string name="listen_once_enabled">Eimal aalose: ii</string>
+    <string name="listen_once_disabled">Eimal aalose: us</string>
+    <string name="listen_once_badge_content_description">Sprachnachricht zum eimal Aalose</string>
+    <string name="listen_once_already_listened">Aaglost</string>
+    <string name="group_one_typing">%s schriibt grad…</string>
+    <string name="group_two_typing">%1$s und %2$s schriibed grad…</string>
+    <string name="group_many_typing">%1$s und %2$d anderi schriibed grad…</string>
+    <string name="message_details_read_by">Gläse vo</string>
+    <string name="message_details_delivered_to">Zuegstellt a</string>
+    <string name="message_details_sent_to">Gschickt a</string>
 </resources>

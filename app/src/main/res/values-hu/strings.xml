@@ -1317,4 +1317,21 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="change_server_warning_message">A szerver módosítása valószínűleg le fogja választani a jelenlegi identitását. Csak akkor tegye ezt meg, ha a szolgáltatója megerősítette az új domaint. Ha a domain hibás, az alkalmazás működésképtelenné válik.</string>
     <string name="use_different_key">Másik kulcs használata</string>
     <string name="activation_key_already_redeemed">Ez az aktiválási kulcs már fel lett használva. Kérjük, adjon meg egy másik kulcsot.</string>
+    <string name="notification_channel_emoji_reactions">Reakciók</string>
+    <string name="reaction_notification_text">%1$s a következővel reagált az üzenetére: %2$s</string>
+    <string name="prefs_title_reaction_notifications">Reakcióértesítések</string>
+    <string name="prefs_sum_reaction_notifications">Értesítsen, ha valaki reagál az egyik üzenetemre</string>
+    <string name="chat_background_choose">Hátterek</string>
+    <string name="chat_background_random">Véletlenszerű (csevegésenként eltérő)</string>
+    <string name="chat_background_numbered">%1$d. háttér</string>
+    <string name="listen_once_enabled">Egyszeri meghallgatás: be</string>
+    <string name="listen_once_disabled">Egyszeri meghallgatás: ki</string>
+    <string name="listen_once_badge_content_description">Egyszer meghallgatható hangüzenet</string>
+    <string name="listen_once_already_listened">Meghallgatva</string>
+    <string name="group_one_typing">%s ír…</string>
+    <string name="group_two_typing">%1$s és %2$s ír…</string>
+    <string name="group_many_typing">%1$s és további %2$d személy ír…</string>
+    <string name="message_details_read_by">Olvasta</string>
+    <string name="message_details_delivered_to">Kézbesítve neki</string>
+    <string name="message_details_sent_to">Elküldve neki</string>
 </resources>

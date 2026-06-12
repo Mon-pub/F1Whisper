@@ -48,7 +48,9 @@ import ch.threema.app.R;
 import ch.threema.app.ThreemaApplication;
 import ch.threema.app.activities.BackupAdminActivity;
 import ch.threema.app.activities.ComposeMessageActivity;
+import ch.threema.app.fragments.composemessage.ComposeMessageFragment;
 import ch.threema.app.home.HomeActivity;
+import androidx.preference.PreferenceManager;
 import ch.threema.app.activities.ServerMessageActivity;
 import ch.threema.app.notifications.NotificationIDs;
 import ch.threema.app.preference.service.PreferenceService;
@@ -1160,6 +1162,83 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void showForwardSecurityMessageRejectedNotification(@NonNull MessageReceiver<?> messageReceiver) {
         fsNotificationManager.showForwardSecurityNotification(messageReceiver);
+    }
+
+    @Override
+    public void showReactionNotification(
+        @NonNull MessageReceiver<?> messageReceiver,
+        @NonNull AbstractMessageModel targetMessage,
+        @NonNull String reactorIdentity,
+        @NonNull String emojiSequence
+    ) {
+        // global toggle (default on)
+        if (!PreferenceManager.getDefaultSharedPreferences(appContext)
+            .getBoolean(appContext.getString(R.string.preferences__reaction_notifications), true)) {
+            return;
+        }
+
+        // respect per-conversation mute (do-not-disturb)
+        final NotificationTriggerPolicyOverride policy = messageReceiver.getNotificationTriggerPolicyOverrideOrNull();
+        if (policy != null && policy.getMuteAppliesRightNow()) {
+            return;
+        }
+
+        // do not notify for the conversation that is currently on screen
+        if (visibleConversationReceiver != null && messageReceiver.isEqual(visibleConversationReceiver)) {
+            return;
+        }
+
+        // do not reveal content while the app is locked
+        if (lockAppService.isLocked()) {
+            return;
+        }
+
+        String reactorName = reactorIdentity;
+        if (getContactService() != null) {
+            final ch.threema.storage.models.ContactModel reactor = getContactService().getByIdentity(reactorIdentity);
+            if (reactor != null) {
+                // OrNickname: a contact with only a nickname (no first/last name) must show the
+                // nickname, not fall back to the raw Threema ID
+                reactorName = NameUtil.getContactDisplayNameOrNickname(reactor, true, preferenceService.getContactNameFormat());
+            }
+        }
+        final String title = messageReceiver.getDisplayName(preferenceService.getContactNameFormat());
+        final String content = appContext.getString(R.string.reaction_notification_text, reactorName, emojiSequence);
+
+        final Intent notificationIntent = new Intent(appContext, ComposeMessageActivity.class);
+        messageReceiver.prepareIntent(notificationIntent);
+        // ComposeMessageFragment only scrolls to the message when BOTH the api message id and a
+        // NON-EMPTY search query are present (an empty query shows "Message not found"). The scroll
+        // itself is keyed by the message id, so the query only needs to be non-empty.
+        String jumpQuery = targetMessage.getBody();
+        if (jumpQuery == null || jumpQuery.isEmpty()) {
+            jumpQuery = targetMessage.getApiMessageId();
+        }
+        notificationIntent.putExtra(ComposeMessageFragment.EXTRA_API_MESSAGE_ID, targetMessage.getApiMessageId());
+        notificationIntent.putExtra(ComposeMessageFragment.EXTRA_SEARCH_QUERY, jumpQuery);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NO_USER_ACTION);
+        final PendingIntent openPendingIntent = createPendingIntentWithTaskStack(notificationIntent);
+
+        final NotificationCompat.Builder builder = new NotificationCompat.Builder(appContext, NotificationChannels.NOTIFICATION_CHANNEL_EMOJI_REACTIONS)
+            .setSmallIcon(R.drawable.ic_notification_small)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setContentIntent(openPendingIntent)
+            .setStyle(new NotificationCompat.BigTextStyle().bigText(content))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_SOCIAL)
+            .setAutoCancel(true);
+
+        try {
+            // tag namespaces per-conversation so reactions in different chats don't overwrite each other
+            notificationManagerCompat.notify(
+                "reaction:" + messageReceiver.getUniqueIdString(),
+                NotificationIDs.REACTION_NOTIFICATION_ID,
+                builder.build()
+            );
+        } catch (Exception e) {
+            logger.error("Failed to show reaction notification", e);
+        }
     }
 
     @Override

@@ -2004,4 +2004,21 @@
     <string name="change_server_dialog_hint">نطاق الخادم</string>
     <string name="change_server_warning_title">تغيير الخادم؟</string>
     <string name="change_server_warning_message">من المرجح أن يؤدي تغيير الخادم إلى قطع اتصال هويتك الحالية. لا تقم بذلك إلا إذا أكد مزوّد الخدمة لديك النطاق الجديد. إذا كان النطاق غير صحيح، فسيتوقف التطبيق عن العمل.</string>
+    <string name="notification_channel_emoji_reactions">التفاعلات</string>
+    <string name="reaction_notification_text">تفاعل %1$s مع رسالتك بـ %2$s</string>
+    <string name="prefs_title_reaction_notifications">إشعارات التفاعلات</string>
+    <string name="prefs_sum_reaction_notifications">أرسل لي إشعاراً عندما يتفاعل أحدهم مع إحدى رسائلي</string>
+    <string name="chat_background_choose">الخلفيات</string>
+    <string name="chat_background_random">عشوائي (مختلف لكل محادثة)</string>
+    <string name="chat_background_numbered">الخلفية %1$d</string>
+    <string name="listen_once_enabled">الاستماع مرة واحدة: مُفعّل</string>
+    <string name="listen_once_disabled">الاستماع مرة واحدة: مُعطّل</string>
+    <string name="listen_once_badge_content_description">رسالة صوتية للاستماع مرة واحدة</string>
+    <string name="listen_once_already_listened">تم الاستماع</string>
+    <string name="group_one_typing">%s يكتب الآن…</string>
+    <string name="group_two_typing">%1$s و%2$s يكتبان الآن…</string>
+    <string name="group_many_typing">%1$s و%2$d آخرون يكتبون الآن…</string>
+    <string name="message_details_read_by">قُرئت من قبل</string>
+    <string name="message_details_delivered_to">سُلّمت إلى</string>
+    <string name="message_details_sent_to">أُرسلت إلى</string>
 </resources>

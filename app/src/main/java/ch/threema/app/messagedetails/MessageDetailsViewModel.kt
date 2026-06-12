@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class MessageDetailsViewModel(
-    messageService: MessageService,
+    private val messageService: MessageService,
     private val emojiReactionsRepository: EmojiReactionsRepository,
     private val preferenceService: PreferenceService,
     private val messageId: Int,
@@ -34,6 +34,7 @@ class MessageDetailsViewModel(
             ChatMessageDetailsUiState(
                 message = message.toUiModel(
                     contactNameFormat = preferenceService.getContactNameFormat(),
+                    groupReceipts = message.buildGroupReceipts(),
                 ),
                 hasReactions = message.hasReactions(),
                 shouldMarkupText = true,
@@ -45,11 +46,22 @@ class MessageDetailsViewModel(
     private fun AbstractMessageModel.hasReactions(): Boolean =
         emojiReactionsRepository.safeGetReactionsByMessage(this).isNotEmpty()
 
+    // F1Whisper: per-member delivered/read states for an OUTGOING group message
+    private fun AbstractMessageModel.buildGroupReceipts(): List<GroupMemberReceiptUiModel> =
+        if (this is GroupMessageModel && this.isOutbox) {
+            messageService.getGroupReceiptStates(this).map {
+                GroupMemberReceiptUiModel(it.displayName, it.state)
+            }
+        } else {
+            emptyList()
+        }
+
     fun refreshMessage(updatedMessage: AbstractMessageModel) {
         _uiState.update {
             it.copy(
                 message = updatedMessage.toUiModel(
                     contactNameFormat = preferenceService.getContactNameFormat(),
+                    groupReceipts = updatedMessage.buildGroupReceipts(),
                 ),
             )
         }
@@ -80,6 +92,16 @@ data class MessageUiModel(
     val messageTimestampsUiModel: MessageTimestampsUiModel,
     val messageDetailsUiModel: MessageDetailsUiModel,
     val type: MessageType?,
+    val groupReceipts: List<GroupMemberReceiptUiModel> = emptyList(),
+)
+
+/**
+ * F1Whisper: one group member's delivered/read state for the message-details screen.
+ * [state] is [MessageState.READ], [MessageState.DELIVERED], or {@code null} (sent only).
+ */
+data class GroupMemberReceiptUiModel(
+    val displayName: String,
+    val state: MessageState?,
 )
 
 data class MessageTimestampsUiModel(
@@ -118,7 +140,10 @@ data class MessageDetailsUiModel(
     }
 }
 
-fun AbstractMessageModel.toUiModel(contactNameFormat: ContactNameFormat) = MessageUiModel(
+fun AbstractMessageModel.toUiModel(
+    contactNameFormat: ContactNameFormat,
+    groupReceipts: List<GroupMemberReceiptUiModel> = emptyList(),
+) = MessageUiModel(
     id = this.id,
     uid = this.uid!!,
     text = QuoteUtil.getMessageBody(
@@ -139,6 +164,7 @@ fun AbstractMessageModel.toUiModel(contactNameFormat: ContactNameFormat) = Messa
     messageTimestampsUiModel = this.toMessageTimestampsUiModel(),
     messageDetailsUiModel = this.toMessageDetailsUiModel(),
     type = this.type,
+    groupReceipts = groupReceipts,
 )
 
 fun AbstractMessageModel?.toMessageTimestampsUiModel(): MessageTimestampsUiModel {

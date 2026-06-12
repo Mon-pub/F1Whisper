@@ -1908,4 +1908,21 @@
     <string name="use_different_key">Boshqa kalitdan foydalanish</string>
     <string name="activation_key_already_redeemed">Bu aktivatsiya kaliti allaqachon ishlatilgan. Iltimos, boshqa kalit kiriting.</string>
     <string name="safe_password_complexity_unmet">Parol 10 belgidan uzunroq boʻlishi hamda kichik harf, bosh harf, raqam va belgini oʻz ichiga olishi kerak</string>
+    <string name="notification_channel_emoji_reactions">Reaksiyalar</string>
+    <string name="reaction_notification_text">%1$s xabaringizga %2$s reaksiya bildirdi</string>
+    <string name="prefs_title_reaction_notifications">Reaksiya bildirishnomalari</string>
+    <string name="prefs_sum_reaction_notifications">Kimdir xabarlarimdan biriga reaksiya bildirsa, meni xabardor qil</string>
+    <string name="chat_background_choose">Fon rasmlari</string>
+    <string name="chat_background_random">Tasodifiy (har bir suhbat uchun har xil)</string>
+    <string name="chat_background_numbered">Fon %1$d</string>
+    <string name="listen_once_enabled">Bir marta tinglash: yoqilgan</string>
+    <string name="listen_once_disabled">Bir marta tinglash: oʻchirilgan</string>
+    <string name="listen_once_badge_content_description">Bir marta tinglanadigan ovozli xabar</string>
+    <string name="listen_once_already_listened">Tinglandi</string>
+    <string name="group_one_typing">%s yozmoqda…</string>
+    <string name="group_two_typing">%1$s va %2$s yozmoqda…</string>
+    <string name="group_many_typing">%1$s va yana %2$d kishi yozmoqda…</string>
+    <string name="message_details_read_by">Oʻqiganlar</string>
+    <string name="message_details_delivered_to">Yetkazilganlar</string>
+    <string name="message_details_sent_to">Yuborilganlar</string>
 </resources>

@@ -9,6 +9,7 @@ import ch.threema.base.utils.getThreemaLogger
 import ch.threema.domain.protocol.csp.messages.ReactionMessage
 import ch.threema.domain.taskmanager.ActiveTaskCodec
 import ch.threema.domain.taskmanager.TriggerSource
+import ch.threema.protobuf.csp.e2e.Reaction.ActionCase
 
 private val logger = getThreemaLogger("IncomingContactReactionMessageTask")
 
@@ -19,6 +20,7 @@ class IncomingContactReactionMessageTask(
 ) : IncomingCspMessageSubTask<ReactionMessage>(message, triggerSource, serviceManager) {
     private val messageService by lazy { serviceManager.messageService }
     private val contactService by lazy { serviceManager.contactService }
+    private val notificationService by lazy { serviceManager.notificationService }
 
     override suspend fun executeMessageStepsFromRemote(handle: ActiveTaskCodec) =
         processContactReactionMessage()
@@ -47,6 +49,16 @@ class IncomingContactReactionMessageTask(
             message.data.actionCase,
             emojiSequence,
         )
+
+        // F1Whisper: notify when someone reacts to one of the user's own messages
+        if (message.data.actionCase == ActionCase.APPLY && targetMessage.isOutbox) {
+            notificationService.showReactionNotification(
+                receiver,
+                targetMessage,
+                message.fromIdentity,
+                emojiSequence,
+            )
+        }
 
         return ReceiveStepsResult.SUCCESS
     }

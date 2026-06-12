@@ -1901,4 +1901,21 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="activation_key_already_redeemed">Ten klucz aktywacyjny został już użyty. Proszę wpisać inny klucz.</string>
     <!-- Safe-password complexity validation error -->
     <string name="safe_password_complexity_unmet">Hasło musi mieć więcej niż 10 znaków oraz zawierać małą literę, wielką literę, cyfrę i symbol</string>
+    <string name="notification_channel_emoji_reactions">Reakcje</string>
+    <string name="reaction_notification_text">%1$s zareagował(a) %2$s na Twoją wiadomość</string>
+    <string name="prefs_title_reaction_notifications">Powiadomienia o reakcjach</string>
+    <string name="prefs_sum_reaction_notifications">Powiadamiaj mnie, gdy ktoś zareaguje na jedną z moich wiadomości</string>
+    <string name="chat_background_choose">Tła</string>
+    <string name="chat_background_random">Losowe (inne dla każdego czatu)</string>
+    <string name="chat_background_numbered">Tło %1$d</string>
+    <string name="listen_once_enabled">Odtwarzanie jednorazowe: wł.</string>
+    <string name="listen_once_disabled">Odtwarzanie jednorazowe: wył.</string>
+    <string name="listen_once_badge_content_description">Wiadomość głosowa do jednorazowego odtworzenia</string>
+    <string name="listen_once_already_listened">Odtworzono</string>
+    <string name="group_one_typing">%s pisze…</string>
+    <string name="group_two_typing">%1$s i %2$s piszą…</string>
+    <string name="group_many_typing">%1$s i %2$d innych pisze…</string>
+    <string name="message_details_read_by">Przeczytane przez</string>
+    <string name="message_details_delivered_to">Dostarczone do</string>
+    <string name="message_details_sent_to">Wysłane do</string>
 </resources>

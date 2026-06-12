@@ -1907,4 +1907,21 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="use_different_key">Použít jiný klíč</string>
     <string name="activation_key_already_redeemed">Tento aktivační klíč byl již použit. Zadejte prosím jiný klíč.</string>
     <string name="safe_password_complexity_unmet">Heslo musí být delší než 10 znaků a obsahovat malé písmeno, velké písmeno, číslici a symbol</string>
+    <string name="notification_channel_emoji_reactions">Reakce</string>
+    <string name="reaction_notification_text">%1$s reagoval(a) %2$s na vaši zprávu</string>
+    <string name="prefs_title_reaction_notifications">Oznámení o reakcích</string>
+    <string name="prefs_sum_reaction_notifications">Upozornit mě, když někdo zareaguje na některou z mých zpráv</string>
+    <string name="chat_background_choose">Pozadí</string>
+    <string name="chat_background_random">Náhodné (pro každou konverzaci jiné)</string>
+    <string name="chat_background_numbered">Pozadí %1$d</string>
+    <string name="listen_once_enabled">Přehrát jen jednou: zapnuto</string>
+    <string name="listen_once_disabled">Přehrát jen jednou: vypnuto</string>
+    <string name="listen_once_badge_content_description">Hlasová zpráva k jednorázovému přehrání</string>
+    <string name="listen_once_already_listened">Přehráno</string>
+    <string name="group_one_typing">%s píše…</string>
+    <string name="group_two_typing">%1$s a %2$s píšou…</string>
+    <string name="group_many_typing">%1$s a %2$d další píšou…</string>
+    <string name="message_details_read_by">Přečteno</string>
+    <string name="message_details_delivered_to">Doručeno</string>
+    <string name="message_details_sent_to">Odesláno</string>
 </resources>

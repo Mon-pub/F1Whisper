@@ -121,6 +121,9 @@ public class ProtocolDefines {
     public static final int MSGTYPE_GROUP_DELETE_MESSAGE = 0x94;
     public static final int MSGTYPE_REACTION = 0x82;
     public static final int MSGTYPE_GROUP_REACTION = 0x83;
+    // F1Whisper: group typing indicator (group variant of MSGTYPE_TYPING_INDICATOR 0x90).
+    // Decoded purely in Kotlin (MessageCoder); no libthreema/proto change needed.
+    public static final int MSGTYPE_GROUP_TYPING_INDICATOR = 0x84;
     public static final int MSGTYPE_WORK_SYNC_DELTA = 0xfd;
 
     /* message flags */

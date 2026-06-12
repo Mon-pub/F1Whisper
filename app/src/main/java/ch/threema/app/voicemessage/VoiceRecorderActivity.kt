@@ -83,6 +83,7 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
     private lateinit var recordingPauseResumeButton: ImageView
     private lateinit var recordingOrPlayingIndicator: ImageView
     private lateinit var bluetoothToggle: ImageView
+    private lateinit var listenOnceToggle: ImageView
     private lateinit var seekBar: SeekBar
 
     private var hasAudioFocus = false
@@ -185,6 +186,11 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
         playButton = findViewById(R.id.play_button)
 
         recordingPauseResumeButton = findViewById(R.id.recording_pause_resume_button)
+
+        listenOnceToggle = findViewById(R.id.listen_once_toggle)
+        listenOnceToggle.setOnClickListener {
+            viewModel.toggleListenOnce()
+        }
 
         seekBar = findViewById(R.id.seekbar)
         seekBar.setOnSeekBarChangeListener(
@@ -420,6 +426,22 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
                 AudioManager.SCO_AUDIO_STATE_CONNECTING -> R.drawable.ic_bluetooth_searching_outline
                 else -> R.drawable.ic_bluetooth_searching_outline
             },
+        )
+
+        // F1Whisper: reflect the "listen once" toggle state. Highlighted (primary color) when active.
+        if (screenState.listenOnce) {
+            listenOnceToggle.setColorFilter(
+                ConfigUtils.getColorFromAttribute(this, R.attr.colorPrimary),
+                PorterDuff.Mode.SRC_IN,
+            )
+        } else {
+            listenOnceToggle.setColorFilter(
+                ConfigUtils.getColorFromAttribute(this, R.attr.colorOnSurface),
+                PorterDuff.Mode.SRC_IN,
+            )
+        }
+        listenOnceToggle.contentDescription = getString(
+            if (screenState.listenOnce) R.string.listen_once_enabled else R.string.listen_once_disabled,
         )
     }
 

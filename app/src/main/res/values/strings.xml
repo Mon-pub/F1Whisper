@@ -341,6 +341,10 @@
     <string name="my_backups_title">Backups</string>
     <string name="backup_delete_confirm">Backup file deleted</string>
     <string name="message_log_title">Message details</string>
+    <!-- F1Whisper: group message-details receipt sections -->
+    <string name="message_details_read_by">Read by</string>
+    <string name="message_details_delivered_to">Delivered to</string>
+    <string name="message_details_sent_to">Sent to</string>
     <string name="state_read">read</string>
     <string name="state_delivered">delivered</string>
     <string name="state_sending">sending</string>
@@ -420,6 +424,10 @@
     <string name="title_tab_distribution_list">Distribution lists</string>
     <string name="no_matching_distribution_lists">No matching distribution lists</string>
     <string name="is_typing">is typing…</string>
+    <!-- F1Whisper: group typing indicators -->
+    <string name="group_one_typing">%s is typing…</string>
+    <string name="group_two_typing">%1$s and %2$s are typing…</string>
+    <string name="group_many_typing">%1$s and %2$d others are typing…</string>
     <string name="push_not_available_title">No push service found</string>
     <string name="push_not_available_text1">We could not find a push service on your device because Google Play Services are not installed or outdated.</string>
     <string name="push_not_available_text2">%s will try to open a persistent background connection to the server. This may not work reliably if your device’s battery optimization mechanisms interfere with the background connection.</string>
@@ -1168,6 +1176,15 @@
     <string name="wallpaper_gallery">Select from gallery</string>
     <string name="wallpaper_none">Empty background</string>
     <string name="wallpaper_threema">%s wallpaper</string>
+    <!-- F1Whisper: built-in gradient chat backgrounds -->
+    <string name="chat_background_choose">Backgrounds</string>
+    <string name="chat_background_random">Random (varied per chat)</string>
+    <string name="chat_background_numbered">Background %1$d</string>
+    <!-- F1Whisper: listen-once voice messages -->
+    <string name="listen_once_enabled">Listen once: on</string>
+    <string name="listen_once_disabled">Listen once: off</string>
+    <string name="listen_once_badge_content_description">Listen once voice message</string>
+    <string name="listen_once_already_listened">Listened</string>
     <string name="message_id">Message ID</string>
     <string name="mime_type">MIME type</string>
     <string name="password_does_not_comply">The password does not comply with the guidelines set by the administrator.</string>
@@ -1397,6 +1414,11 @@
     <string name="forward_security_reset_simple">The Perfect Forward Secrecy session with this contact has been reset.</string>
     <string name="forward_security_message_out_of_order">A message was received out of order and could not be decrypted.</string>
     <string name="forward_security_notification_channel_name">Perfect Forward Secrecy Warnings</string>
+    <!-- F1Whisper: emoji reaction notifications -->
+    <string name="notification_channel_emoji_reactions">Reactions</string>
+    <string name="reaction_notification_text">%1$s reacted %2$s to your message</string>
+    <string name="prefs_title_reaction_notifications">Reaction notifications</string>
+    <string name="prefs_sum_reaction_notifications">Notify me when someone reacts to one of my messages</string>
     <string name="forward_security_notification_rejected_title">Sending of messages failed</string>
     <string name="forward_security_notification_rejected_text_contact">One or more messages could not be sent to %1$s.</string>
     <string name="forward_security_notification_rejected_text_group">One or more messages could not be sent to “%1$s.”</string>

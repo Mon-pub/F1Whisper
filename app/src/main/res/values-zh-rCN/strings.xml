@@ -1856,4 +1856,21 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="change_server_warning_message">更改服务器很可能会断开您当前身份的连接。请仅在您的提供商已确认新域名的情况下执行此操作。如果域名错误，应用将无法正常工作。</string>
     <string name="use_different_key">使用其他密钥</string>
     <string name="activation_key_already_redeemed">此激活密钥已被使用。请输入其他密钥。</string>
+    <string name="notification_channel_emoji_reactions">回应</string>
+    <string name="reaction_notification_text">%1$s 对您的消息回应了 %2$s</string>
+    <string name="prefs_title_reaction_notifications">回应通知</string>
+    <string name="prefs_sum_reaction_notifications">当有人回应我的消息时通知我</string>
+    <string name="chat_background_choose">背景</string>
+    <string name="chat_background_random">随机（每个会话各异）</string>
+    <string name="chat_background_numbered">背景 %1$d</string>
+    <string name="listen_once_enabled">仅播放一次：开</string>
+    <string name="listen_once_disabled">仅播放一次：关</string>
+    <string name="listen_once_badge_content_description">仅播放一次的语音消息</string>
+    <string name="listen_once_already_listened">已播放</string>
+    <string name="group_one_typing">%s 正在输入…</string>
+    <string name="group_two_typing">%1$s 和 %2$s 正在输入…</string>
+    <string name="group_many_typing">%1$s 和另外 %2$d 人正在输入…</string>
+    <string name="message_details_read_by">已读</string>
+    <string name="message_details_delivered_to">已送达</string>
+    <string name="message_details_sent_to">已发送</string>
 </resources>

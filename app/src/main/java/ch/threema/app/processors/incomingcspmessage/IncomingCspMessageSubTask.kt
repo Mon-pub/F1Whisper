@@ -36,6 +36,7 @@ import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingGroupSe
 import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingGroupSyncRequestTask
 import ch.threema.app.processors.incomingcspmessage.statusupdates.IncomingDeliveryReceiptTask
 import ch.threema.app.processors.incomingcspmessage.statusupdates.IncomingGroupDeliveryReceiptTask
+import ch.threema.app.processors.incomingcspmessage.statusupdates.IncomingGroupTypingIndicatorTask
 import ch.threema.app.processors.incomingcspmessage.statusupdates.IncomingTypingIndicatorTask
 import ch.threema.app.tasks.ActiveComposableTask
 import ch.threema.domain.protocol.csp.messages.AbstractGroupMessage
@@ -53,6 +54,7 @@ import ch.threema.domain.protocol.csp.messages.GroupEditMessage
 import ch.threema.domain.protocol.csp.messages.GroupLeaveMessage
 import ch.threema.domain.protocol.csp.messages.GroupNameMessage
 import ch.threema.domain.protocol.csp.messages.GroupReactionMessage
+import ch.threema.domain.protocol.csp.messages.GroupTypingIndicatorMessage
 import ch.threema.domain.protocol.csp.messages.GroupSetProfilePictureMessage
 import ch.threema.domain.protocol.csp.messages.GroupSetupMessage
 import ch.threema.domain.protocol.csp.messages.GroupSyncRequestMessage
@@ -140,6 +142,7 @@ fun getSubTaskFromMessage(
 
     // Check if message is a status update
     is TypingIndicatorMessage -> IncomingTypingIndicatorTask(message, triggerSource, serviceManager)
+    is GroupTypingIndicatorMessage -> IncomingGroupTypingIndicatorTask(message, triggerSource, serviceManager)
     is DeliveryReceiptMessage -> IncomingDeliveryReceiptTask(message, triggerSource, serviceManager)
     is GroupDeliveryReceiptMessage -> IncomingGroupDeliveryReceiptTask(
         message,

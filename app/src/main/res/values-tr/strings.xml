@@ -1858,4 +1858,21 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="change_server_warning_message">Sunucuyu değiştirmek büyük olasılıkla mevcut kimliğinizin bağlantısını keser. Bunu yalnızca sağlayıcınız yeni alan adını onayladıysa yapın. Alan adı yanlışsa uygulama çalışmayı durdurur.</string>
     <string name="use_different_key">Farklı bir anahtar kullan</string>
     <string name="activation_key_already_redeemed">Bu aktivasyon anahtarı zaten kullanıldı. Lütfen farklı bir anahtar girin.</string>
+    <string name="notification_channel_emoji_reactions">Tepkiler</string>
+    <string name="reaction_notification_text">%1$s mesajınıza %2$s tepkisini verdi</string>
+    <string name="prefs_title_reaction_notifications">Tepki bildirimleri</string>
+    <string name="prefs_sum_reaction_notifications">Biri mesajlarımdan birine tepki verdiğinde beni bilgilendir</string>
+    <string name="chat_background_choose">Arka planlar</string>
+    <string name="chat_background_random">Rastgele (her sohbette farklı)</string>
+    <string name="chat_background_numbered">Arka plan %1$d</string>
+    <string name="listen_once_enabled">Bir kez dinle: açık</string>
+    <string name="listen_once_disabled">Bir kez dinle: kapalı</string>
+    <string name="listen_once_badge_content_description">Bir kez dinlenen sesli mesaj</string>
+    <string name="listen_once_already_listened">Dinlendi</string>
+    <string name="group_one_typing">%s yazıyor…</string>
+    <string name="group_two_typing">%1$s ve %2$s yazıyor…</string>
+    <string name="group_many_typing">%1$s ve %2$d kişi daha yazıyor…</string>
+    <string name="message_details_read_by">Okuyanlar</string>
+    <string name="message_details_delivered_to">Ulaşanlar</string>
+    <string name="message_details_sent_to">Gönderilenler</string>
 </resources>

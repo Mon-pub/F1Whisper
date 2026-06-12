@@ -38,7 +38,10 @@ class IncomingGroupDeliveryReceiptTask(
         logger.info("Processing message {}: incoming group delivery receipt", message.messageId)
 
         val messageState: MessageState? = MessageUtil.receiptTypeToMessageState(message.receiptType)
-        if (messageState == null || !MessageUtil.isReaction(messageState)) {
+        // F1Whisper: accept group reactions (ACK/DEC) AND per-member delivered/read states
+        val isReaction = messageState != null && MessageUtil.isReaction(messageState)
+        val isDeliveryState = messageState == MessageState.DELIVERED || messageState == MessageState.READ
+        if (messageState == null || (!isReaction && !isDeliveryState)) {
             logger.warn(
                 "Message {} error: unknown or unsupported delivery receipt type: {}",
                 message.messageId,
@@ -71,12 +74,21 @@ class IncomingGroupDeliveryReceiptTask(
                 )
                 continue
             }
-            messageService.addMessageReaction(
-                groupMessageModel,
-                messageState,
-                message.fromIdentity,
-                message.date,
-            )
+            if (isReaction) {
+                messageService.addMessageReaction(
+                    groupMessageModel,
+                    messageState,
+                    message.fromIdentity,
+                    message.date,
+                )
+            } else {
+                // F1Whisper: store the per-member delivered/read state for the message-details screen
+                messageService.addGroupMessageState(
+                    groupMessageModel,
+                    messageState,
+                    message.fromIdentity,
+                )
+            }
         }
 
         return ReceiveStepsResult.SUCCESS

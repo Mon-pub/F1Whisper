@@ -1943,4 +1943,21 @@
         <item quantity="many">%d учасників групи</item>
         <item quantity="other">%d учасника групи</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Реакції</string>
+    <string name="reaction_notification_text">%1$s відреагував(-ла) %2$s на ваше повідомлення</string>
+    <string name="prefs_title_reaction_notifications">Сповіщення про реакції</string>
+    <string name="prefs_sum_reaction_notifications">Сповіщати, коли хтось реагує на одне з моїх повідомлень</string>
+    <string name="chat_background_choose">Фони</string>
+    <string name="chat_background_random">Випадковий (різний для кожного чату)</string>
+    <string name="chat_background_numbered">Фон %1$d</string>
+    <string name="listen_once_enabled">Прослухати один раз: увімкнено</string>
+    <string name="listen_once_disabled">Прослухати один раз: вимкнено</string>
+    <string name="listen_once_badge_content_description">Голосове повідомлення для одноразового прослуховування</string>
+    <string name="listen_once_already_listened">Прослухано</string>
+    <string name="group_one_typing">%s друкує…</string>
+    <string name="group_two_typing">%1$s і %2$s друкують…</string>
+    <string name="group_many_typing">%1$s та ще %2$d інших друкують…</string>
+    <string name="message_details_read_by">Прочитали</string>
+    <string name="message_details_delivered_to">Доставлено</string>
+    <string name="message_details_sent_to">Надіслано</string>
 </resources>

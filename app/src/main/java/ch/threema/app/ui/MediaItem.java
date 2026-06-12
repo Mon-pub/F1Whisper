@@ -58,6 +58,7 @@ public class MediaItem implements Parcelable {
     private boolean deleteAfterUse;
     private boolean isEdited;
     private boolean muted;
+    private boolean listenOnce;
 
     private static final Logger logger = getThreemaLogger("MediaItem");
 
@@ -274,6 +275,7 @@ public class MediaItem implements Parcelable {
         this.filename = null;
         this.deleteAfterUse = false;
         isEdited = false;
+        this.listenOnce = false;
     }
 
 
@@ -297,6 +299,7 @@ public class MediaItem implements Parcelable {
         deleteAfterUse = in.readInt() != 0;
         originalUri = in.readParcelable(Uri.class.getClassLoader());
         isEdited = in.readInt() != 0;
+        listenOnce = in.readInt() != 0;
     }
 
     @Override
@@ -319,6 +322,7 @@ public class MediaItem implements Parcelable {
         dest.writeInt(deleteAfterUse ? 1 : 0);
         dest.writeParcelable(originalUri, flags);
         dest.writeInt(isEdited ? 1 : 0);
+        dest.writeInt(listenOnce ? 1 : 0);
     }
 
     @Override
@@ -556,6 +560,21 @@ public class MediaItem implements Parcelable {
      */
     public void setMuted(boolean muted) {
         this.muted = muted;
+    }
+
+    /**
+     * Return true if this voice message should be sent as "listen once" (the recipient may play it
+     * a single time, after which it is deleted and replay is blocked).
+     */
+    public boolean isListenOnce() {
+        return listenOnce;
+    }
+
+    /**
+     * Mark this voice message as "listen once". Only meaningful for {@link #TYPE_VOICEMESSAGE} items.
+     */
+    public void setListenOnce(boolean listenOnce) {
+        this.listenOnce = listenOnce;
     }
 
     /**

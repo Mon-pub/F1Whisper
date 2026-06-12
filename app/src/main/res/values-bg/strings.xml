@@ -1796,4 +1796,21 @@
         <item quantity="one">%d член на групата</item>
         <item quantity="other">%d членове на групата</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Реакции</string>
+    <string name="reaction_notification_text">%1$s реагира с %2$s на Вашето съобщение</string>
+    <string name="prefs_title_reaction_notifications">Известия за реакции</string>
+    <string name="prefs_sum_reaction_notifications">Известявайте ме, когато някой реагира на едно от моите съобщения</string>
+    <string name="chat_background_choose">Фонове</string>
+    <string name="chat_background_random">Произволен (различен за всеки чат)</string>
+    <string name="chat_background_numbered">Фон %1$d</string>
+    <string name="listen_once_enabled">Еднократно слушане: вкл.</string>
+    <string name="listen_once_disabled">Еднократно слушане: изкл.</string>
+    <string name="listen_once_badge_content_description">Гласово съобщение за еднократно слушане</string>
+    <string name="listen_once_already_listened">Прослушано</string>
+    <string name="group_one_typing">%s пише…</string>
+    <string name="group_two_typing">%1$s и %2$s пишат…</string>
+    <string name="group_many_typing">%1$s и още %2$d пишат…</string>
+    <string name="message_details_read_by">Прочетено от</string>
+    <string name="message_details_delivered_to">Доставено до</string>
+    <string name="message_details_sent_to">Изпратено до</string>
 </resources>

@@ -19,10 +19,12 @@ object DynamicColorsHelper {
         }
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(application)
             ?: return
-        if (sharedPreferences.getBoolean(PREF_KEY_DYNAMIC_COLOR, false)) {
+        // F1Whisper: dynamic color is ON by default (fallback true) so a fresh install on
+        // Android 12+ adopts the system palette before setDefaultValues persists the pref.
+        if (sharedPreferences.getBoolean(PREF_KEY_DYNAMIC_COLOR, true)) {
             val dynamicColorsOptions = DynamicColorsOptions.Builder()
                 .setPrecondition { _, _ ->
-                    sharedPreferences.getBoolean(PREF_KEY_DYNAMIC_COLOR, false)
+                    sharedPreferences.getBoolean(PREF_KEY_DYNAMIC_COLOR, true)
                 }
                 .build()
             DynamicColors.applyToActivitiesIfAvailable(application, dynamicColorsOptions)

@@ -32,6 +32,7 @@ import ch.threema.app.compose.edithistory.EditHistoryList
 import ch.threema.app.compose.edithistory.EditHistoryViewModel
 import ch.threema.app.compose.message.CompleteMessageBubble
 import ch.threema.app.compose.message.MessageDebugInfoBox
+import ch.threema.app.compose.message.GroupReceiptStatesBox
 import ch.threema.app.compose.message.MessageDetailsListBox
 import ch.threema.app.compose.message.MessageTimestampsListBox
 import ch.threema.app.compose.theme.ThreemaTheme
@@ -251,6 +252,11 @@ class MessageDetailsActivity : ThreemaToolbarActivity(), DialogClickListener, Li
                                         messageTimestampsUiModel = messageModel.messageTimestampsUiModel,
                                         isOutbox = messageModel.isOutbox,
                                     )
+                                }
+                                // F1Whisper: "Read by / Delivered to / Sent to" for outgoing group messages
+                                if (messageModel.groupReceipts.isNotEmpty()) {
+                                    SpacerVertical(height = GridUnit.x2)
+                                    GroupReceiptStatesBox(groupReceipts = messageModel.groupReceipts)
                                 }
                                 if (messageModel.messageDetailsUiModel.hasProperties()) {
                                     SpacerVertical(height = GridUnit.x2)

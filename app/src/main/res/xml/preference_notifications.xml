@@ -161,6 +161,14 @@
             android:title="@string/prefs_notification_preview"
             android:widgetLayout="@layout/preference_switch_layout" />
 
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:icon="@drawable/ic_tag_faces_outline"
+            android:key="@string/preferences__reaction_notifications"
+            android:summary="@string/prefs_sum_reaction_notifications"
+            android:title="@string/prefs_title_reaction_notifications"
+            android:widgetLayout="@layout/preference_switch_layout" />
+
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/preferences__work_life_balance"

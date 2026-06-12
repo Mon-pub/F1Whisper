@@ -7,6 +7,11 @@ import kotlin.time.Duration
 data class VoiceRecorderScreenState(
     val mediaState: MediaState,
     val scoAudioState: Int,
+    /**
+     * F1Whisper: when true, the voice message is sent as "listen once" (the recipient may play it a
+     * single time before it is deleted and replay is blocked). Toggled by the user via the recorder UI.
+     */
+    val listenOnce: Boolean,
 ) {
     companion object {
         fun initial() = VoiceRecorderScreenState(
@@ -15,6 +20,7 @@ data class VoiceRecorderScreenState(
                 duration = Duration.ZERO,
             ),
             scoAudioState = AudioManager.SCO_AUDIO_STATE_DISCONNECTED,
+            listenOnce = false,
         )
     }
 }

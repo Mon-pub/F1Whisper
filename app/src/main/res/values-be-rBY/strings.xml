@@ -1914,4 +1914,21 @@
     <string name="use_different_key">Выкарыстаць іншы ключ</string>
     <string name="activation_key_already_redeemed">Гэты ключ актывацыі ўжо быў выкарыстаны. Калі ласка, увядзіце іншы ключ.</string>
     <string name="safe_password_complexity_unmet">Пароль павінен быць даўжэйшым за 10 сімвалаў і змяшчаць малыя і вялікія літары, лічбу і сімвал</string>
+    <string name="notification_channel_emoji_reactions">Рэакцыі</string>
+    <string name="reaction_notification_text">%1$s адрэагаваў %2$s на ваша паведамленне</string>
+    <string name="prefs_title_reaction_notifications">Апавяшчэнні пра рэакцыі</string>
+    <string name="prefs_sum_reaction_notifications">Апавяшчаць мяне, калі хтосьці рэагуе на адно з маіх паведамленняў</string>
+    <string name="chat_background_choose">Фоны</string>
+    <string name="chat_background_random">Выпадковы (розны для кожнага чату)</string>
+    <string name="chat_background_numbered">Фон %1$d</string>
+    <string name="listen_once_enabled">Праслухаць адзін раз: укл.</string>
+    <string name="listen_once_disabled">Праслухаць адзін раз: выкл.</string>
+    <string name="listen_once_badge_content_description">Галасавое паведамленне для аднаразовага праслухоўвання</string>
+    <string name="listen_once_already_listened">Праслухана</string>
+    <string name="group_one_typing">%s друкуе…</string>
+    <string name="group_two_typing">%1$s і %2$s друкуюць…</string>
+    <string name="group_many_typing">%1$s і яшчэ %2$d іншых друкуюць…</string>
+    <string name="message_details_read_by">Прачытана</string>
+    <string name="message_details_delivered_to">Дастаўлена</string>
+    <string name="message_details_sent_to">Адпраўлена</string>
 </resources>

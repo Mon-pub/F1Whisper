@@ -1840,4 +1840,21 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="use_different_key">Usar uma chave diferente</string>
     <string name="activation_key_already_redeemed">Esta chave de ativação já foi usada. Por favor, insira uma chave diferente.</string>
     <string name="safe_password_complexity_unmet">A senha deve ter mais de 10 caracteres e conter letras minúsculas, maiúsculas, um dígito e um símbolo</string>
+    <string name="notification_channel_emoji_reactions">Reações</string>
+    <string name="reaction_notification_text">%1$s reagiu %2$s à sua mensagem</string>
+    <string name="prefs_title_reaction_notifications">Notificações de reações</string>
+    <string name="prefs_sum_reaction_notifications">Avise-me quando alguém reagir a uma das minhas mensagens</string>
+    <string name="chat_background_choose">Planos de fundo</string>
+    <string name="chat_background_random">Aleatório (varia por conversa)</string>
+    <string name="chat_background_numbered">Plano de fundo %1$d</string>
+    <string name="listen_once_enabled">Ouvir uma vez: ativado</string>
+    <string name="listen_once_disabled">Ouvir uma vez: desativado</string>
+    <string name="listen_once_badge_content_description">Mensagem de voz para ouvir uma vez</string>
+    <string name="listen_once_already_listened">Ouvida</string>
+    <string name="group_one_typing">%s está digitando…</string>
+    <string name="group_two_typing">%1$s e %2$s estão digitando…</string>
+    <string name="group_many_typing">%1$s e mais %2$d estão digitando…</string>
+    <string name="message_details_read_by">Lido por</string>
+    <string name="message_details_delivered_to">Entregue para</string>
+    <string name="message_details_sent_to">Enviado para</string>
 </resources>

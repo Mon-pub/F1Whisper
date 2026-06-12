@@ -31,7 +31,8 @@ fun ThreemaTheme(
     val context = LocalContext.current
     val shouldUseDynamicColors = remember {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        sharedPreferences.getBoolean("pref_dynamic_color", false)
+        // F1Whisper: dynamic color defaults ON (fallback true); guarded by SDK >= S downstream.
+        sharedPreferences.getBoolean("pref_dynamic_color", true)
     }
 
     ThreemaThemeBase(

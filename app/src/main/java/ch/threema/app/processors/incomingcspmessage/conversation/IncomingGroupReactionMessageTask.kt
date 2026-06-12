@@ -12,6 +12,7 @@ import ch.threema.data.models.GroupModel
 import ch.threema.domain.protocol.csp.messages.GroupReactionMessage
 import ch.threema.domain.taskmanager.ActiveTaskCodec
 import ch.threema.domain.taskmanager.TriggerSource
+import ch.threema.protobuf.csp.e2e.Reaction.ActionCase
 import ch.threema.storage.models.AbstractMessageModel
 
 private val logger = getThreemaLogger("IncomingGroupReactionMessageTask")
@@ -23,6 +24,7 @@ class IncomingGroupReactionMessageTask(
 ) : IncomingCspMessageSubTask<GroupReactionMessage>(message, triggerSource, serviceManager) {
     private val messageService by lazy { serviceManager.messageService }
     private val groupService by lazy { serviceManager.groupService }
+    private val notificationService by lazy { serviceManager.notificationService }
     private val groupModelRepository by lazy { serviceManager.modelRepositories.groups }
 
     override suspend fun executeMessageStepsFromRemote(handle: ActiveTaskCodec): ReceiveStepsResult {
@@ -78,10 +80,20 @@ class IncomingGroupReactionMessageTask(
             /* emojiSequence = */
             emojiSequence,
         )
-        return if (savedSuccessfully) {
-            ReceiveStepsResult.SUCCESS
-        } else {
-            ReceiveStepsResult.DISCARD
+        if (!savedSuccessfully) {
+            return ReceiveStepsResult.DISCARD
         }
+
+        // F1Whisper: notify when someone reacts to one of the user's own group messages
+        if (message.data.actionCase == ActionCase.APPLY && targetMessage.isOutbox) {
+            notificationService.showReactionNotification(
+                receiver,
+                targetMessage,
+                message.fromIdentity,
+                emojiSequence,
+            )
+        }
+
+        return ReceiveStepsResult.SUCCESS
     }
 }

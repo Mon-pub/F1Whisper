@@ -181,6 +181,7 @@ import ch.threema.app.listeners.BallotListener;
 import ch.threema.app.listeners.ContactListener;
 import ch.threema.app.listeners.ContactTypingListener;
 import ch.threema.app.listeners.ConversationListener;
+import ch.threema.app.listeners.GroupTypingListener;
 import ch.threema.app.listeners.GroupListener;
 import ch.threema.app.listeners.MessageDeletedForAllListener;
 import ch.threema.app.listeners.MessageListener;
@@ -260,6 +261,7 @@ import ch.threema.app.utils.IntentDataUtil;
 import ch.threema.app.utils.LinkifyUtil;
 import ch.threema.app.utils.LocaleUtil;
 import ch.threema.app.utils.MessageUtil;
+import ch.threema.app.utils.NameUtil;
 import ch.threema.app.utils.MessageUtilKt;
 import ch.threema.app.utils.NavigationUtil;
 import ch.threema.app.utils.QuoteUtil;
@@ -1056,6 +1058,20 @@ public class ComposeMessageFragment extends Fragment implements
         }
     };
 
+    // F1Whisper: refresh the group header "... is typing" line when group typing state changes
+    private final GroupTypingListener groupTypingListener = new GroupTypingListener() {
+        @Override
+        public void onGroupTypingChanged(long groupDatabaseId, final @NonNull Set<String> typingIdentities) {
+            RuntimeUtil.runOnUiThread(() -> {
+                if (isGroupChat && groupModel != null
+                    && ComposeMessageFragment.this.groupDbId != null
+                    && ComposeMessageFragment.this.groupDbId == groupDatabaseId) {
+                    updateToolbarTitle();
+                }
+            });
+        }
+    };
+
     private final ConversationListener conversationListener = new ConversationListener() {
         @Override
         public void onNew(@NonNull ConversationModel conversationModel) {
@@ -1248,6 +1264,7 @@ public class ComposeMessageFragment extends Fragment implements
         super.onCreate(savedInstanceState);
 
         ListenerManager.contactTypingListeners.add(this.contactTypingListener);
+        ListenerManager.groupTypingListeners.add(this.groupTypingListener);
         ListenerManager.messageListeners.add(this.messageListener, true);
         ListenerManager.messageDeletedForAllListener.add(this.messageDeletedForAllListener);
         ListenerManager.groupListeners.add(this.groupListener);
@@ -1873,6 +1890,7 @@ public class ComposeMessageFragment extends Fragment implements
 
         try {
             ListenerManager.contactTypingListeners.remove(this.contactTypingListener);
+            ListenerManager.groupTypingListeners.remove(this.groupTypingListener);
             ListenerManager.groupListeners.remove(this.groupListener);
             ListenerManager.messageListeners.remove(this.messageListener);
             ListenerManager.messageDeletedForAllListener.remove(this.messageDeletedForAllListener);
@@ -2657,6 +2675,15 @@ public class ComposeMessageFragment extends Fragment implements
 
             intent.removeExtra(AppConstants.INTENT_DATA_GROUP_DATABASE_ID);
             this.messageReceiver = this.groupService.createReceiver(this.groupModel);
+            // F1Whisper: send group typing indicators as the user types
+            final long typingGroupDatabaseId = this.groupModel.getDatabaseId();
+            this.typingIndicatorTextWatcher = new TypingIndicatorTextWatcher(
+                isTyping -> {
+                    groupService.sendTypingIndicator(typingGroupDatabaseId, isTyping);
+                    return Unit.INSTANCE;
+                },
+                this
+            );
             this.conversationUid = ConversationUtil.getGroupConversationUid(this.groupDbId);
 
             this.messageText.enableMentionPopup(
@@ -2852,7 +2879,8 @@ public class ComposeMessageFragment extends Fragment implements
 
         this.notificationService.setVisibleReceiver(this.messageReceiver);
 
-        if (!this.isGroupChat && !this.isDistributionListChat) {
+        // F1Whisper: typing indicators for both 1:1 and group chats (not distribution lists)
+        if (!this.isDistributionListChat && this.typingIndicatorTextWatcher != null) {
             this.messageText.addTextChangedListener(this.typingIndicatorTextWatcher);
         }
 
@@ -4602,6 +4630,38 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     @UiThread
+    /**
+     * F1Whisper: build the "&lt;names&gt; is/are typing…" subtitle for a group chat, or {@code null}
+     * if no member is currently typing.
+     */
+    @Nullable
+    private CharSequence buildGroupTypingText() {
+        if (!isGroupChat || groupModel == null) {
+            return null;
+        }
+        final Set<String> typingIdentities = groupService.getTypingMembers(groupModel.getDatabaseId());
+        if (typingIdentities.isEmpty()) {
+            return null;
+        }
+        final List<String> names = new ArrayList<>(typingIdentities.size());
+        for (String identity : typingIdentities) {
+            names.add(NameUtil.getShortName(
+                contactService.getByIdentity(identity),
+                preferenceService.getContactNameFormat()
+            ));
+        }
+        // stable, deterministic ordering for a steady subtitle
+        Collections.sort(names);
+        switch (names.size()) {
+            case 1:
+                return getString(R.string.group_one_typing, names.get(0));
+            case 2:
+                return getString(R.string.group_two_typing, names.get(0), names.get(1));
+            default:
+                return getString(R.string.group_many_typing, names.get(0), names.size() - 1);
+        }
+    }
+
     private void updateToolbarTitle() {
         if (
             actionBar == null
@@ -4630,7 +4690,12 @@ public class ComposeMessageFragment extends Fragment implements
             if (groupModel != null && !groupModel.isMember()) {
                 this.actionBarTitleTextView.setPaintFlags(this.actionBarTitleTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
-            actionBarSubtitleTextView.setText(groupService.getMembersString(groupModel));
+            // F1Whisper: show "... is typing" when group members are typing, otherwise the member list
+            CharSequence groupSubtitle = buildGroupTypingText();
+            if (groupSubtitle == null) {
+                groupSubtitle = groupService.getMembersString(groupModel);
+            }
+            actionBarSubtitleTextView.setText(groupSubtitle);
             actionBarSubtitleTextView.setVisibility(View.VISIBLE);
             if (actionBarAvatarView.getAvatarView().isAttachedToWindow()) {
                 groupService.loadAvatarIntoImageView(

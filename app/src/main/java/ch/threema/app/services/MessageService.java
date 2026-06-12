@@ -327,6 +327,50 @@ public interface MessageService {
         @NonNull Date date
     );
 
+    /**
+     * F1Whisper: send a "delivered" group receipt for an incoming group message to its sender, gated
+     * by the "send read receipts" preference. No-op for outgoing messages or if receipts are off.
+     */
+    void sendGroupDeliveredReceipt(@NonNull GroupMessageModel messageModel);
+
+    /**
+     * F1Whisper: record a per-member delivered/read state for a group message (drives the
+     * "Read by / Delivered to" sections of the group message-details screen). READ is never
+     * downgraded to DELIVERED.
+     */
+    void addGroupMessageState(
+        @NonNull GroupMessageModel messageModel,
+        @NonNull MessageState state,
+        @NonNull String fromIdentity
+    );
+
+    /**
+     * F1Whisper: a single group member's delivered/read state for the group message-details screen.
+     */
+    class GroupReceiptState {
+        @NonNull
+        public final String identity;
+        @NonNull
+        public final String displayName;
+        /** {@link MessageState#READ}, {@link MessageState#DELIVERED}, or {@code null} = sent only. */
+        @Nullable
+        public final MessageState state;
+
+        public GroupReceiptState(@NonNull String identity, @NonNull String displayName, @Nullable MessageState state) {
+            this.identity = identity;
+            this.displayName = displayName;
+            this.state = state;
+        }
+    }
+
+    /**
+     * F1Whisper: for an OUTGOING group message, the per-member delivered/read state of every other
+     * member (drives the "Read by / Delivered to / Sent to" sections). Empty for incoming or
+     * non-group messages.
+     */
+    @NonNull
+    List<GroupReceiptState> getGroupReceiptStates(@NonNull GroupMessageModel messageModel);
+
     boolean markAsRead(AbstractMessageModel message, boolean silent);
 
     @WorkerThread

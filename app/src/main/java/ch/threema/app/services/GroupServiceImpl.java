@@ -15,8 +15,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,6 +39,7 @@ import ch.threema.app.ThreemaApplication;
 import ch.threema.app.activities.GroupDetailActivity;
 import ch.threema.app.glide.AvatarOptions;
 import ch.threema.app.managers.ListenerManager;
+import ch.threema.app.tasks.OutgoingGroupTypingIndicatorMessageTask;
 import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.messagereceiver.GroupMessageReceiver;
 import ch.threema.app.preference.service.PreferenceService;
@@ -567,6 +571,94 @@ public class GroupServiceImpl implements GroupService {
         otherMembers.remove(userService.getIdentity());
         return otherMembers;
     }
+
+    // region F1Whisper: group typing indicators
+
+    private static final long GROUP_TYPING_RESET_TIMEOUT_MS = 15000L;
+    private final Map<Long, Set<String>> typingMembersByGroup = new HashMap<>();
+    private final Map<String, TimerTask> groupTypingTimerTasks = new HashMap<>();
+    private final Timer groupTypingTimer = new Timer("GroupTypingTimer", true);
+
+    @Override
+    public void setMemberTyping(long groupDatabaseId, @NonNull String identity, boolean isTyping) {
+        final String timerKey = groupDatabaseId + ":" + identity;
+
+        // cancel any pending auto-reset timer for this member
+        synchronized (groupTypingTimerTasks) {
+            TimerTask oldTask = groupTypingTimerTasks.remove(timerKey);
+            if (oldTask != null) {
+                oldTask.cancel();
+            }
+        }
+
+        final Set<String> snapshot;
+        synchronized (typingMembersByGroup) {
+            Set<String> members = typingMembersByGroup.get(groupDatabaseId);
+            if (isTyping) {
+                if (members == null) {
+                    members = new HashSet<>();
+                    typingMembersByGroup.put(groupDatabaseId, members);
+                }
+                members.add(identity);
+            } else if (members != null) {
+                members.remove(identity);
+                if (members.isEmpty()) {
+                    typingMembersByGroup.remove(groupDatabaseId);
+                }
+            }
+            Set<String> current = typingMembersByGroup.get(groupDatabaseId);
+            snapshot = current != null ? new HashSet<>(current) : Collections.emptySet();
+        }
+
+        ListenerManager.groupTypingListeners.handle(listener -> listener.onGroupTypingChanged(groupDatabaseId, snapshot));
+
+        // schedule an auto-reset so a missed "stopped typing" message does not stick
+        if (isTyping) {
+            TimerTask resetTask = new TimerTask() {
+                @Override
+                public void run() {
+                    setMemberTyping(groupDatabaseId, identity, false);
+                }
+            };
+            synchronized (groupTypingTimerTasks) {
+                groupTypingTimerTasks.put(timerKey, resetTask);
+            }
+            try {
+                groupTypingTimer.schedule(resetTask, GROUP_TYPING_RESET_TIMEOUT_MS);
+            } catch (Exception e) {
+                logger.error("Failed to schedule group typing reset", e);
+            }
+        }
+    }
+
+    @NonNull
+    @Override
+    public Set<String> getTypingMembers(long groupDatabaseId) {
+        synchronized (typingMembersByGroup) {
+            Set<String> members = typingMembersByGroup.get(groupDatabaseId);
+            return members != null ? new HashSet<>(members) : Collections.emptySet();
+        }
+    }
+
+    @Override
+    public void sendTypingIndicator(long groupDatabaseId, boolean isTyping) {
+        if (!serviceManager.getSynchronizedSettingsService().isTypingIndicatorEnabled()) {
+            return;
+        }
+        GroupModelOld groupModel = getById((int) groupDatabaseId);
+        if (groupModel == null) {
+            return;
+        }
+        Set<String> recipients = getMembersWithoutUser(groupModel);
+        if (recipients.isEmpty()) {
+            return;
+        }
+        serviceManager.getTaskManager().schedule(
+            new OutgoingGroupTypingIndicatorMessageTask(groupDatabaseId, isTyping, recipients)
+        );
+    }
+
+    // endregion
 
     @NonNull
     @Override

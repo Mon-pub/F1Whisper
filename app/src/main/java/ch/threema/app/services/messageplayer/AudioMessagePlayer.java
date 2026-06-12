@@ -57,6 +57,8 @@ public class AudioMessagePlayer extends MessagePlayer {
     @NonNull
     private final NotificationPreferenceService notificationPreferenceService;
     private final FileService fileService;
+    @NonNull
+    private final MessageService messageService;
     private final ConversationCategoryService conversationCategoryService;
     private final ListenableFuture<MediaController> mediaControllerFuture;
 
@@ -76,6 +78,7 @@ public class AudioMessagePlayer extends MessagePlayer {
         this.preferenceService = preferenceService;
         this.notificationPreferenceService = notificationPreferenceService;
         this.fileService = fileService;
+        this.messageService = messageService;
         this.conversationCategoryService = conversationCategoryService;
         this.mediaControllerFuture = mediaControllerFuture;
 
@@ -129,6 +132,9 @@ public class AudioMessagePlayer extends MessagePlayer {
         public void onPlaybackStateChanged(int playbackState) {
             if (playbackState == Player.STATE_ENDED) {
                 logger.info("onStopped");
+                // F1Whisper: a "listen once" voice message is deleted once playback completes, so it
+                // can never be replayed (best-effort, client-side enforcement).
+                enforceListenOnceIfNeeded();
                 AudioMessagePlayer.super.stop();
                 ListenerManager.messagePlayerListener.handle(listener -> listener.onAudioPlayEnded(getMessageModel(), mediaControllerFuture));
             } else if (playbackState == Player.STATE_READY) {
@@ -466,6 +472,46 @@ public class AudioMessagePlayer extends MessagePlayer {
             return this.position;
         }
         return 0;
+    }
+
+    /**
+     * F1Whisper: if the just-finished message is an incoming "listen once" voice message, mark it
+     * consumed and delete its stored (encrypted) media so it can never be played again.
+     *
+     * <p>This enforcement is purely client-side and best-effort: a modified client, a rooted device
+     * or a screen recorder can still capture the audio. It is NOT a cryptographic guarantee.</p>
+     */
+    private void enforceListenOnceIfNeeded() {
+        final AbstractMessageModel messageModel = getMessageModel();
+        if (messageModel == null || messageModel.isOutbox() || messageModel.getType() != MessageType.FILE) {
+            return;
+        }
+        final FileDataModel fileDataModel = messageModel.getFileData();
+        if (fileDataModel == null || !fileDataModel.isListenOnce()) {
+            return;
+        }
+
+        logger.info("Enforcing listen-once deletion for {}", messageModel.getId());
+
+        RuntimeUtil.runOnWorkerThread(() -> {
+            try {
+                // Mark as consumed (no-op if already consumed at playback start)
+                messageService.markAsConsumed(messageModel);
+
+                // Delete the stored encrypted media + thumbnail so it can never be decrypted again
+                fileService.removeMessageFiles(messageModel, true);
+
+                // Reflect that the media is gone so the bubble offers no replay
+                fileDataModel.isDownloaded(false);
+                messageModel.setFileData(fileDataModel);
+                messageService.save(messageModel);
+
+                // Refresh any visible bubble for this message
+                ListenerManager.messageListeners.handle(listener -> listener.onModified(java.util.List.of(messageModel)));
+            } catch (Exception e) {
+                logger.error("Failed to enforce listen-once deletion", e);
+            }
+        });
     }
 
     @Nullable

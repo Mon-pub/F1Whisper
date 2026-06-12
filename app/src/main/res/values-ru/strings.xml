@@ -1909,4 +1909,21 @@
         <item quantity="many">%d участников группы</item>
         <item quantity="other">%d участников группы</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Реакции</string>
+    <string name="reaction_notification_text">%1$s отреагировал %2$s на ваше сообщение</string>
+    <string name="prefs_title_reaction_notifications">Уведомления о реакциях</string>
+    <string name="prefs_sum_reaction_notifications">Уведомлять, когда кто-то реагирует на одно из моих сообщений</string>
+    <string name="chat_background_choose">Фоны</string>
+    <string name="chat_background_random">Случайный (свой для каждого чата)</string>
+    <string name="chat_background_numbered">Фон %1$d</string>
+    <string name="listen_once_enabled">Прослушать один раз: вкл.</string>
+    <string name="listen_once_disabled">Прослушать один раз: выкл.</string>
+    <string name="listen_once_badge_content_description">Голосовое сообщение для однократного прослушивания</string>
+    <string name="listen_once_already_listened">Прослушано</string>
+    <string name="group_one_typing">%s печатает…</string>
+    <string name="group_two_typing">%1$s и %2$s печатают…</string>
+    <string name="group_many_typing">%1$s и ещё %2$d печатают…</string>
+    <string name="message_details_read_by">Прочитано</string>
+    <string name="message_details_delivered_to">Доставлено</string>
+    <string name="message_details_sent_to">Отправлено</string>
 </resources>

@@ -1334,4 +1334,21 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <!-- Action label for the activation-key screen. -->
     <string name="use_different_key">Utilitzar una clau diferent</string>
     <string name="activation_key_already_redeemed">Aquesta clau d\'activació ja ha estat usada. Si us plau, introduïu una clau diferent.</string>
+    <string name="notification_channel_emoji_reactions">Reaccions</string>
+    <string name="reaction_notification_text">%1$s ha reaccionat %2$s al teu missatge</string>
+    <string name="prefs_title_reaction_notifications">Notificacions de reaccions</string>
+    <string name="prefs_sum_reaction_notifications">Avisa\'m quan algú reaccioni a un dels meus missatges</string>
+    <string name="chat_background_choose">Fons</string>
+    <string name="chat_background_random">Aleatori (diferent per a cada xat)</string>
+    <string name="chat_background_numbered">Fons %1$d</string>
+    <string name="listen_once_enabled">Escoltar una vegada: activat</string>
+    <string name="listen_once_disabled">Escoltar una vegada: desactivat</string>
+    <string name="listen_once_badge_content_description">Missatge de veu per escoltar una vegada</string>
+    <string name="listen_once_already_listened">Escoltat</string>
+    <string name="group_one_typing">%s està escrivint…</string>
+    <string name="group_two_typing">%1$s i %2$s estan escrivint…</string>
+    <string name="group_many_typing">%1$s i %2$d més estan escrivint…</string>
+    <string name="message_details_read_by">Llegit per</string>
+    <string name="message_details_delivered_to">Lliurat a</string>
+    <string name="message_details_sent_to">Enviat a</string>
 </resources>

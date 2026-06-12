@@ -88,6 +88,7 @@ import ch.threema.app.utils.IconUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.MimeUtil;
 import ch.threema.app.utils.NameUtil;
+import ch.threema.data.datatypes.ContactNameFormat;
 import ch.threema.app.utils.QuoteUtil;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.utils.ElapsedTimeFormatter;
@@ -1420,25 +1421,19 @@ public class MessageServiceImpl implements MessageService {
                 return saved;
             }
 
-            boolean receiverAllowsDeliveryReceipt;
-            switch (contactModel.getReadReceipts()) {
-                case ContactModel.SEND:
-                    receiverAllowsDeliveryReceipt = true;
-                    break;
-                case ContactModel.DONT_SEND:
-                    receiverAllowsDeliveryReceipt = false;
-                    break;
-                default:
-                    receiverAllowsDeliveryReceipt = synchronizedSettingsService.areReadReceiptsEnabled();
-                    break;
-            }
+            boolean receiverAllowsDeliveryReceipt = isDeliveryReceiptAllowedForContact(contactModel);
 
             if (messageAllowsDeliveryReceipt && receiverAllowsDeliveryReceipt) {
-                contactService.createReceiver(contactModel).sendDeliveryReceipt(
-                    ProtocolDefines.DELIVERYRECEIPT_MSGREAD,
-                    new MessageId[]{message.getMessageId()},
-                    readAt.getTime()
-                );
+                if (message instanceof GroupMessageModel) {
+                    // F1Whisper: a group read receipt goes ONLY to the message sender (not all members)
+                    sendGroupReceiptToSender((GroupMessageModel) message, ProtocolDefines.DELIVERYRECEIPT_MSGREAD);
+                } else {
+                    contactService.createReceiver(contactModel).sendDeliveryReceipt(
+                        ProtocolDefines.DELIVERYRECEIPT_MSGREAD,
+                        new MessageId[]{message.getMessageId()},
+                        readAt.getTime()
+                    );
+                }
                 logger.info("Enqueued delivery receipt (read) message for message ID {} from {}",
                     message.getApiMessageId(), contactModel.getIdentity());
             } else {
@@ -1463,6 +1458,124 @@ public class MessageServiceImpl implements MessageService {
 
         return saved;
     }
+
+    // region F1Whisper: group delivery/read receipts (for the group message-details screen)
+
+    /**
+     * Whether a delivery/read receipt may be sent to the given contact, using the same gate as 1:1
+     * read receipts: the per-contact override, falling back to the global "send read receipts"
+     * preference.
+     */
+    private boolean isDeliveryReceiptAllowedForContact(@Nullable ContactModel contactModel) {
+        if (contactModel == null) {
+            return false;
+        }
+        switch (contactModel.getReadReceipts()) {
+            case ContactModel.SEND:
+                return true;
+            case ContactModel.DONT_SEND:
+                return false;
+            default:
+                return synchronizedSettingsService.areReadReceiptsEnabled();
+        }
+    }
+
+    /**
+     * Send a group delivery/read receipt for {@code messageModel} to its sender only. Does NOT gate
+     * on preferences — callers are responsible for the gating.
+     */
+    private void sendGroupReceiptToSender(@NonNull GroupMessageModel messageModel, int receiptType) {
+        final String senderIdentity = messageModel.getIdentity();
+        if (senderIdentity == null) {
+            return;
+        }
+        final GroupModelOld groupModel = groupService.getById(messageModel.getGroupId());
+        if (groupModel == null) {
+            logger.warn("Could not find group {} while sending group delivery receipt", messageModel.getGroupId());
+            return;
+        }
+        groupService.createReceiver(groupModel).sendGroupDeliveryReceipt(
+            receiptType,
+            messageModel,
+            Set.of(senderIdentity)
+        );
+    }
+
+    @Override
+    public void sendGroupDeliveredReceipt(@NonNull GroupMessageModel messageModel) {
+        if (messageModel.isOutbox()) {
+            return;
+        }
+        if ((messageModel.getMessageFlags() & ProtocolDefines.MESSAGE_FLAG_NO_DELIVERY_RECEIPTS) == ProtocolDefines.MESSAGE_FLAG_NO_DELIVERY_RECEIPTS) {
+            return;
+        }
+        final String senderIdentity = messageModel.getIdentity();
+        if (senderIdentity == null) {
+            return;
+        }
+        if (!isDeliveryReceiptAllowedForContact(contactService.getByIdentity(senderIdentity))) {
+            return;
+        }
+        sendGroupReceiptToSender(messageModel, ProtocolDefines.DELIVERYRECEIPT_MSGRECEIVED);
+    }
+
+    @Override
+    public void addGroupMessageState(
+        @NonNull GroupMessageModel messageModel,
+        @NonNull MessageState state,
+        @NonNull String fromIdentity
+    ) {
+        if (state != MessageState.DELIVERED && state != MessageState.READ) {
+            return;
+        }
+        Map<String, Object> states = messageModel.getGroupMessageStates();
+        states = (states != null) ? new HashMap<>(states) : new HashMap<>();
+        final Object existing = states.get(fromIdentity);
+        // never downgrade READ -> DELIVERED (a late "delivered" must not clobber a "read")
+        if (MessageState.READ.toString().equals(existing) && state == MessageState.DELIVERED) {
+            return;
+        }
+        states.put(fromIdentity, state.toString());
+        messageModel.setGroupMessageStates(states);
+        save(messageModel);
+        fireOnModifiedMessage(messageModel);
+    }
+
+    @NonNull
+    @Override
+    public List<MessageService.GroupReceiptState> getGroupReceiptStates(@NonNull GroupMessageModel messageModel) {
+        final List<MessageService.GroupReceiptState> result = new ArrayList<>();
+        if (!messageModel.isOutbox()) {
+            return result;
+        }
+        final GroupModelOld groupModel = groupService.getById(messageModel.getGroupId());
+        if (groupModel == null) {
+            return result;
+        }
+        final Map<String, Object> states = messageModel.getGroupMessageStates();
+        final String myIdentity = identityStore.getIdentityString();
+        final ContactNameFormat nameFormat = preferenceService.getContactNameFormat();
+        for (ContactModel member : groupService.getMembers(groupModel)) {
+            final String identity = member.getIdentity();
+            if (identity == null || identity.equals(myIdentity)) {
+                continue;
+            }
+            MessageState state = null;
+            if (states != null) {
+                final Object stored = states.get(identity);
+                if (MessageState.READ.toString().equals(stored)) {
+                    state = MessageState.READ;
+                } else if (MessageState.DELIVERED.toString().equals(stored)) {
+                    state = MessageState.DELIVERED;
+                }
+            }
+            final String displayName = NameUtil.getContactDisplayNameOrNickname(member, true, nameFormat);
+            result.add(new MessageService.GroupReceiptState(identity, displayName, state));
+        }
+        return result;
+    }
+
+    // endregion
 
     @Override
     @WorkerThread
@@ -4111,6 +4224,11 @@ public class MessageServiceImpl implements MessageService {
                 break;
             case MediaItem.TYPE_VOICEMESSAGE:
                 metaData.put(FileDataModel.METADATA_KEY_DURATION, (float) mediaItem.getDurationMs() / (float) DateUtils.SECOND_IN_MILLIS);
+                if (mediaItem.isListenOnce()) {
+                    // F1Whisper: carry the "listen once" flag inside the E2E-encrypted file metadata.
+                    // Strictly for voice messages; the recipient enforces single playback client-side.
+                    metaData.put(FileDataModel.METADATA_KEY_LISTEN_ONCE, true);
+                }
                 // voice messages do not have thumbnails
                 thumbnailBitmap = null;
                 break;

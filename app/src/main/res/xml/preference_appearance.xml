@@ -22,7 +22,7 @@
             android:key="@string/preferences__dynamic_color"
             android:title="@string/prefs_dynamic_colors"
             android:summary="@string/prefs_dynamic_colors_sum"
-            android:defaultValue="false" />
+            android:defaultValue="true" />
 
         <DropDownPreference
             android:key="@string/preferences__app_language"

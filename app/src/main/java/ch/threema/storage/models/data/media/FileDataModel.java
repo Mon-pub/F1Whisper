@@ -31,6 +31,13 @@ public class FileDataModel implements MediaMessageDataInterface {
     public static final String METADATA_KEY_WIDTH = "w";
     public static final String METADATA_KEY_HEIGHT = "h";
     public static final String METADATA_KEY_ANIMATED = "a";
+    /**
+     * Custom (F1Whisper) metadata flag marking a voice message as "listen once". When {@code true},
+     * the recipient may play the message a single time, after which the decrypted media is deleted
+     * and replay is blocked. This is carried inside the E2E-encrypted file metadata map ("x"), so it
+     * is invisible to the server. NOTE: enforcement is purely client-side and best-effort.
+     */
+    public static final String METADATA_KEY_LISTEN_ONCE = "lo";
 
     private byte[] fileBlobId;
     private byte[] encryptionKey;
@@ -249,6 +256,15 @@ public class FileDataModel implements MediaMessageDataInterface {
             }
         }
         return null;
+    }
+
+    /**
+     * @return {@code true} if this file message carries the "listen once" metadata flag (a voice
+     * message that the recipient may play only a single time). Returns {@code false} when the flag
+     * is absent or not set, so it is safe to call on any file message.
+     */
+    public boolean isListenOnce() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_LISTEN_ONCE));
     }
 
     /**

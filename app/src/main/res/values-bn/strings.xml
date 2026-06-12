@@ -1909,4 +1909,21 @@
     <string name="use_username_password">ব্যবহারকারীর নাম ও পাসওয়ার্ড ব্যবহার করুন</string>
     <string name="use_activation_key">অ্যাক্টিভেশন কী ব্যবহার করুন</string>
     <string name="invalid_activation_key">অবৈধ অ্যাক্টিভেশন কী</string>
+    <string name="notification_channel_emoji_reactions">প্রতিক্রিয়া</string>
+    <string name="reaction_notification_text">%1$s আপনার বার্তায় %2$s দিয়ে প্রতিক্রিয়া জানিয়েছেন</string>
+    <string name="prefs_title_reaction_notifications">প্রতিক্রিয়ার বিজ্ঞপ্তি</string>
+    <string name="prefs_sum_reaction_notifications">কেউ আমার কোনো বার্তায় প্রতিক্রিয়া জানালে আমাকে জানান</string>
+    <string name="chat_background_choose">পটভূমি</string>
+    <string name="chat_background_random">এলোমেলো (প্রতিটি চ্যাটে আলাদা)</string>
+    <string name="chat_background_numbered">পটভূমি %1$d</string>
+    <string name="listen_once_enabled">একবার শুনুন: চালু</string>
+    <string name="listen_once_disabled">একবার শুনুন: বন্ধ</string>
+    <string name="listen_once_badge_content_description">একবার শোনার ভয়েস বার্তা</string>
+    <string name="listen_once_already_listened">শোনা হয়েছে</string>
+    <string name="group_one_typing">%s টাইপ করছেন…</string>
+    <string name="group_two_typing">%1$s এবং %2$s টাইপ করছেন…</string>
+    <string name="group_many_typing">%1$s এবং আরও %2$dজন টাইপ করছেন…</string>
+    <string name="message_details_read_by">যারা পড়েছেন</string>
+    <string name="message_details_delivered_to">যাদের কাছে পৌঁছেছে</string>
+    <string name="message_details_sent_to">যাদের কাছে পাঠানো হয়েছে</string>
 </resources>

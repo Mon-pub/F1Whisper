@@ -18,6 +18,7 @@ import ch.threema.app.listeners.ContactTypingListener;
 import ch.threema.app.listeners.ConversationListener;
 import ch.threema.app.listeners.DistributionListListener;
 import ch.threema.app.listeners.GroupListener;
+import ch.threema.app.listeners.GroupTypingListener;
 import ch.threema.app.listeners.MessageDeletedForAllListener;
 import ch.threema.app.listeners.EditMessageListener;
 import ch.threema.app.listeners.MessageListener;
@@ -138,6 +139,8 @@ public class ListenerManager {
     public static final TypedListenerManager<ConversationListener> conversationListeners = new TypedListenerManager<>();
     public static final TypedListenerManager<ContactListener> contactListeners = new TypedListenerManager<>();
     public static final TypedListenerManager<ContactTypingListener> contactTypingListeners = new TypedListenerManager<>();
+    // F1Whisper: group typing indicators
+    public static final TypedListenerManager<GroupTypingListener> groupTypingListeners = new TypedListenerManager<>();
     public static final TypedListenerManager<DistributionListListener> distributionListListeners = new TypedListenerManager<>();
     public static final TypedListenerManager<GroupListener> groupListeners = new TypedListenerManager<>();
     public static final TypedListenerManager<MessageListener> messageListeners = new TypedListenerManager<>();

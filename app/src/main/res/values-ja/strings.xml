@@ -1608,4 +1608,21 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <!-- Action label (e.g. activation-key action) -->
     <string name="use_different_key">別のキーを使用</string>
     <string name="activation_key_already_redeemed">このアクティベーションキーはすでに使用されています。別のキーを入力してください。</string>
+    <string name="notification_channel_emoji_reactions">リアクション</string>
+    <string name="reaction_notification_text">%1$s さんがあなたのメッセージに %2$s でリアクションしました</string>
+    <string name="prefs_title_reaction_notifications">リアクション通知</string>
+    <string name="prefs_sum_reaction_notifications">自分のメッセージに誰かがリアクションしたときに通知する</string>
+    <string name="chat_background_choose">背景</string>
+    <string name="chat_background_random">ランダム（トークごとに変化）</string>
+    <string name="chat_background_numbered">背景 %1$d</string>
+    <string name="listen_once_enabled">1回のみ再生：オン</string>
+    <string name="listen_once_disabled">1回のみ再生：オフ</string>
+    <string name="listen_once_badge_content_description">1回のみ再生のボイスメッセージ</string>
+    <string name="listen_once_already_listened">再生済み</string>
+    <string name="group_one_typing">%sが入力中…</string>
+    <string name="group_two_typing">%1$sと%2$sが入力中…</string>
+    <string name="group_many_typing">%1$sと他%2$d人が入力中…</string>
+    <string name="message_details_read_by">既読</string>
+    <string name="message_details_delivered_to">配信済み</string>
+    <string name="message_details_sent_to">送信済み</string>
 </resources>

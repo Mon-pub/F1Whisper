@@ -1861,4 +1861,21 @@ Veuillez saisir une question pour votre enquête.</string>
     </plurals>
     <string name="use_different_key">Utiliser une autre clé</string>
     <string name="activation_key_already_redeemed">Cette clé d\'activation a déjà été utilisée. Veuillez saisir une clé différente.</string>
+    <string name="notification_channel_emoji_reactions">Réactions</string>
+    <string name="reaction_notification_text">%1$s a réagi %2$s à votre message</string>
+    <string name="prefs_title_reaction_notifications">Notifications de réaction</string>
+    <string name="prefs_sum_reaction_notifications">M\'avertir lorsqu\'une personne réagit à l\'un de mes messages</string>
+    <string name="chat_background_choose">Arrière-plans</string>
+    <string name="chat_background_random">Aléatoire (varié selon la discussion)</string>
+    <string name="chat_background_numbered">Arrière-plan %1$d</string>
+    <string name="listen_once_enabled">Écoute unique : activée</string>
+    <string name="listen_once_disabled">Écoute unique : désactivée</string>
+    <string name="listen_once_badge_content_description">Message vocal à écoute unique</string>
+    <string name="listen_once_already_listened">Écouté</string>
+    <string name="group_one_typing">%s écrit…</string>
+    <string name="group_two_typing">%1$s et %2$s écrivent…</string>
+    <string name="group_many_typing">%1$s et %2$d autres écrivent…</string>
+    <string name="message_details_read_by">Lu par</string>
+    <string name="message_details_delivered_to">Distribué à</string>
+    <string name="message_details_sent_to">Envoyé à</string>
 </resources>

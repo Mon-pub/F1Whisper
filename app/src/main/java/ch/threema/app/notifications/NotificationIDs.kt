@@ -17,6 +17,9 @@ object NotificationIDs {
     const val NEW_SYNCED_CONTACTS_NOTIFICATION_ID = 736
     const val WEB_RESUME_FAILED_NOTIFICATION_ID = 737
     const val VOICE_MSG_PLAYER_NOTIFICATION_ID = 749
+
+    /** F1Whisper: id for "someone reacted to your message" notifications (per-conversation via tag) */
+    const val REACTION_NOTIFICATION_ID = 751
     const val INCOMING_CALL_NOTIFICATION_ID = 800
     const val INCOMING_GROUP_CALL_NOTIFICATION_ID = 803
 }

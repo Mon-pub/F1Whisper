@@ -1828,4 +1828,21 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="change_server_warning_message">Zmena servera pravdepodobne odpojí vašu aktuálnu identitu. Urobte to len vtedy, ak váš poskytovateľ potvrdil novú doménu. Ak je doména nesprávna, aplikácia prestane fungovať.</string>
     <string name="use_different_key">Použiť iný kľúč</string>
     <string name="activation_key_already_redeemed">Tento aktivačný kľúč bol už použitý. Zadajte prosím iný kľúč.</string>
+    <string name="notification_channel_emoji_reactions">Reakcie</string>
+    <string name="reaction_notification_text">%1$s reagoval(a) na vašu správu emodži %2$s</string>
+    <string name="prefs_title_reaction_notifications">Upozornenia na reakcie</string>
+    <string name="prefs_sum_reaction_notifications">Upozorniť ma, keď niekto zareaguje na niektorú z mojich správ</string>
+    <string name="chat_background_choose">Pozadia</string>
+    <string name="chat_background_random">Náhodné (iné pre každú konverzáciu)</string>
+    <string name="chat_background_numbered">Pozadie %1$d</string>
+    <string name="listen_once_enabled">Prehrať raz: zapnuté</string>
+    <string name="listen_once_disabled">Prehrať raz: vypnuté</string>
+    <string name="listen_once_badge_content_description">Hlasová správa na jedno prehratie</string>
+    <string name="listen_once_already_listened">Prehraté</string>
+    <string name="group_one_typing">%s píše…</string>
+    <string name="group_two_typing">%1$s a %2$s píšu…</string>
+    <string name="group_many_typing">%1$s a %2$d ďalší píšu…</string>
+    <string name="message_details_read_by">Prečítané</string>
+    <string name="message_details_delivered_to">Doručené</string>
+    <string name="message_details_sent_to">Odoslané</string>
 </resources>

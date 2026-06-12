@@ -1908,4 +1908,21 @@
     <string name="change_server_warning_title">مۇلازىمېتىر ئۆزگەرتىلسۇنمۇ؟</string>
     <!-- Warning message shown before applying a new (on prem) server domain. -->
     <string name="change_server_warning_message">مۇلازىمېتىرنى ئۆزگەرتسىڭىز نۆۋەتتىكى كىملىكىڭىزنىڭ ئالاقىسى ئۈزۈلۈشى مۇمكىن. بۇنى پەقەت تەمىنلىگۈچىڭىز يېڭى دائىرە ئاتىنى جەزملەشتۈرگەن ئەھۋالدىلا قىلىڭ. ئەگەر دائىرە ئاتى خاتا بولسا، دېتال ئىشلىمەي قالىدۇ.</string>
+    <string name="notification_channel_emoji_reactions">ئىنكاسلار</string>
+    <string name="reaction_notification_text">%1$s ئۇچۇرىڭىزغا %2$s ئىنكاس قايتۇردى</string>
+    <string name="prefs_title_reaction_notifications">ئىنكاس ئۇقتۇرۇشلىرى</string>
+    <string name="prefs_sum_reaction_notifications">بىرەرسى ئۇچۇرلىرىمنىڭ بىرىگە ئىنكاس قايتۇرغاندا مېنى ئاگاھلاندۇرۇش</string>
+    <string name="chat_background_choose">تەگلىكلەر</string>
+    <string name="chat_background_random">ئىختىيارىي (ھەر ئەڭگىمەدە ئوخشىمايدۇ)</string>
+    <string name="chat_background_numbered">تەگلىك %1$d</string>
+    <string name="listen_once_enabled">بىر قېتىم ئاڭلاش: ئوچۇق</string>
+    <string name="listen_once_disabled">بىر قېتىم ئاڭلاش: ئېتىك</string>
+    <string name="listen_once_badge_content_description">بىر قېتىملا ئاڭلايدىغان ئاۋازلىق ئۇچۇر</string>
+    <string name="listen_once_already_listened">ئاڭلاندى</string>
+    <string name="group_one_typing">%s يېزىۋاتىدۇ…</string>
+    <string name="group_two_typing">%1$s بىلەن %2$s يېزىۋاتىدۇ…</string>
+    <string name="group_many_typing">%1$s ۋە باشقا %2$d كىشى يېزىۋاتىدۇ…</string>
+    <string name="message_details_read_by">ئوقۇغانلار</string>
+    <string name="message_details_delivered_to">يەتكۈزۈلگەنلەر</string>
+    <string name="message_details_sent_to">ئەۋەتىلگەنلەر</string>
 </resources>

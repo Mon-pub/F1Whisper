@@ -35,6 +35,7 @@ import ch.threema.domain.protocol.csp.messages.EditMessage;
 import ch.threema.domain.protocol.csp.messages.GroupDeleteMessage;
 import ch.threema.domain.protocol.csp.messages.GroupEditMessage;
 import ch.threema.domain.protocol.csp.messages.GroupReactionMessage;
+import ch.threema.domain.protocol.csp.messages.GroupTypingIndicatorMessage;
 import ch.threema.domain.protocol.csp.messages.ImageMessage;
 import ch.threema.domain.protocol.csp.messages.location.LocationMessage;
 import ch.threema.domain.protocol.csp.messages.ReactionMessage;
@@ -645,6 +646,12 @@ public class MessageCoder {
 
             case ProtocolDefines.MSGTYPE_GROUP_REACTION: {
                 message = GroupReactionMessage.fromByteArray(data, 1, realDataLength - 1);
+                break;
+            }
+
+            // F1Whisper: group typing indicator
+            case ProtocolDefines.MSGTYPE_GROUP_TYPING_INDICATOR: {
+                message = GroupTypingIndicatorMessage.fromByteArray(data, 1, realDataLength - 1);
                 break;
             }
 

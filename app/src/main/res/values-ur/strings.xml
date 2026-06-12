@@ -1871,4 +1871,21 @@
     <string name="change_server_dialog_hint">سرور ڈومین</string>
     <string name="change_server_warning_title">سرور تبدیل کریں؟</string>
     <string name="change_server_warning_message">سرور تبدیل کرنے سے غالباً آپ کی موجودہ شناخت منقطع ہو جائے گی۔ ایسا صرف اسی صورت میں کریں جب آپ کے فراہم کنندہ نے نئے ڈومین کی تصدیق کر دی ہو۔ اگر ڈومین غلط ہوا تو ایپ کام کرنا بند کر دے گی۔</string>
+    <string name="notification_channel_emoji_reactions">ردِعمل</string>
+    <string name="reaction_notification_text">%1$s نے آپ کے پیغام پر %2$s کا ردِعمل دیا</string>
+    <string name="prefs_title_reaction_notifications">ردِعمل کی اطلاعات</string>
+    <string name="prefs_sum_reaction_notifications">جب کوئی میرے کسی پیغام پر ردِعمل دے تو مجھے مطلع کریں</string>
+    <string name="chat_background_choose">پس منظر</string>
+    <string name="chat_background_random">بے ترتیب (ہر چیٹ کے لیے مختلف)</string>
+    <string name="chat_background_numbered">پس منظر %1$d</string>
+    <string name="listen_once_enabled">ایک بار سنیں: آن</string>
+    <string name="listen_once_disabled">ایک بار سنیں: آف</string>
+    <string name="listen_once_badge_content_description">ایک بار سننے والا صوتی پیغام</string>
+    <string name="listen_once_already_listened">سن لیا گیا</string>
+    <string name="group_one_typing">%s ٹائپ کر رہا ہے…</string>
+    <string name="group_two_typing">%1$s اور %2$s ٹائپ کر رہے ہیں…</string>
+    <string name="group_many_typing">%1$s اور %2$d دیگر ٹائپ کر رہے ہیں…</string>
+    <string name="message_details_read_by">پڑھنے والے</string>
+    <string name="message_details_delivered_to">پہنچا دیا گیا بنام</string>
+    <string name="message_details_sent_to">بھیجا گیا بنام</string>
 </resources>

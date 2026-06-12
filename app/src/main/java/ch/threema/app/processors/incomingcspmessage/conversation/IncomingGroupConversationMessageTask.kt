@@ -21,6 +21,10 @@ class IncomingGroupConversationMessageTask(
         }
 
         return if (messageService.processIncomingGroupMessage(message, triggerSource)) {
+            // F1Whisper: report "delivered" back to the sender (gated by the read-receipts pref) so
+            // the sender's group message-details screen can show "Delivered to".
+            messageService.getGroupMessageModel(message.messageId, message.groupCreator, message.apiGroupId)
+                ?.let { messageService.sendGroupDeliveredReceipt(it) }
             ReceiveStepsResult.SUCCESS
         } else {
             ReceiveStepsResult.DISCARD

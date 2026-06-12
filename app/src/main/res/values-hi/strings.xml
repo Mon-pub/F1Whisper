@@ -1920,4 +1920,21 @@
     <string name="use_different_key">कोई अन्य कुंजी का उपयोग करें</string>
     <string name="activation_key_already_redeemed">यह एक्टिवेशन कुंजी पहले ही उपयोग की जा चुकी है। कृपया कोई अन्य कुंजी दर्ज करें।</string>
     <string name="safe_password_complexity_unmet">पासवर्ड 10 अक्षरों से लंबा होना चाहिए और इसमें लोअरकेस, अपरकेस, एक अंक तथा एक प्रतीक होना चाहिए</string>
+    <string name="notification_channel_emoji_reactions">प्रतिक्रियाएँ</string>
+    <string name="reaction_notification_text">%1$s ने आपके संदेश पर %2$s प्रतिक्रिया दी</string>
+    <string name="prefs_title_reaction_notifications">प्रतिक्रिया सूचनाएँ</string>
+    <string name="prefs_sum_reaction_notifications">जब कोई मेरे किसी संदेश पर प्रतिक्रिया दे तो मुझे सूचित करें</string>
+    <string name="chat_background_choose">पृष्ठभूमियाँ</string>
+    <string name="chat_background_random">यादृच्छिक (प्रत्येक चैट के लिए अलग)</string>
+    <string name="chat_background_numbered">पृष्ठभूमि %1$d</string>
+    <string name="listen_once_enabled">एक बार सुनें: चालू</string>
+    <string name="listen_once_disabled">एक बार सुनें: बंद</string>
+    <string name="listen_once_badge_content_description">एक बार सुनने वाला वॉइस संदेश</string>
+    <string name="listen_once_already_listened">सुना गया</string>
+    <string name="group_one_typing">%s टाइप कर रहे हैं…</string>
+    <string name="group_two_typing">%1$s और %2$s टाइप कर रहे हैं…</string>
+    <string name="group_many_typing">%1$s और %2$d अन्य टाइप कर रहे हैं…</string>
+    <string name="message_details_read_by">द्वारा पढ़ा गया</string>
+    <string name="message_details_delivered_to">को डिलीवर किया गया</string>
+    <string name="message_details_sent_to">को भेजा गया</string>
 </resources>

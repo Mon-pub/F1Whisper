@@ -1878,4 +1878,21 @@
         <item quantity="one">%d membro del gruppo</item>
         <item quantity="other">%d membri del gruppo</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Reazioni</string>
+    <string name="reaction_notification_text">%1$s ha reagito %2$s al tuo messaggio</string>
+    <string name="prefs_title_reaction_notifications">Notifiche di reazione</string>
+    <string name="prefs_sum_reaction_notifications">Avvisami quando qualcuno reagisce a uno dei miei messaggi</string>
+    <string name="chat_background_choose">Sfondi</string>
+    <string name="chat_background_random">Casuale (diverso per ogni chat)</string>
+    <string name="chat_background_numbered">Sfondo %1$d</string>
+    <string name="listen_once_enabled">Ascolta una volta: attivo</string>
+    <string name="listen_once_disabled">Ascolta una volta: disattivo</string>
+    <string name="listen_once_badge_content_description">Messaggio vocale ascoltabile una volta</string>
+    <string name="listen_once_already_listened">Ascoltato</string>
+    <string name="group_one_typing">%s sta scrivendo…</string>
+    <string name="group_two_typing">%1$s e %2$s stanno scrivendo…</string>
+    <string name="group_many_typing">%1$s e altri %2$d stanno scrivendo…</string>
+    <string name="message_details_read_by">Letto da</string>
+    <string name="message_details_delivered_to">Consegnato a</string>
+    <string name="message_details_sent_to">Inviato a</string>
 </resources>

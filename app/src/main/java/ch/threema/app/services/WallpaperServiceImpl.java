@@ -8,6 +8,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -21,6 +22,7 @@ import android.widget.ImageView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.preference.PreferenceManager;
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +48,8 @@ import ch.threema.app.messagereceiver.MessageReceiver;
 import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.ui.BottomSheetItem;
 import ch.threema.app.utils.BitmapUtil;
+import ch.threema.app.utils.ChatBackground;
+import ch.threema.app.utils.ChatBackgrounds;
 import ch.threema.app.utils.ConfigUtils;
 import ch.threema.app.utils.DialogUtil;
 import ch.threema.app.utils.FileUtil;
@@ -65,7 +69,16 @@ public class WallpaperServiceImpl implements WallpaperService {
     private static final String SELECTOR_TAG_WALLPAPER_DEFAULT = "def";
     private static final String SELECTOR_TAG_WALLPAPER_GALLERY = "gal";
     private static final String SELECTOR_TAG_WALLPAPER_NONE = "none";
+    private static final String SELECTOR_TAG_WALLPAPER_BUILTIN = "builtin";
     private static final String DIALOG_TAG_SELECT_WALLPAPER = "selwal";
+    private static final String DIALOG_TAG_SELECT_BUILTIN = "selbuiltin";
+
+    // F1Whisper: built-in gradient chat backgrounds (rendered in code, no assets)
+    private static final String SELECTOR_TAG_BUILTIN_RANDOM = "bg_random";
+    private static final String SELECTOR_TAG_BUILTIN_PREFIX = "bg_";
+    private static final String PREF_CHAT_BG_PREFIX = "chat_bg_";
+    private static final String PREF_CHAT_BG_GLOBAL = "chat_bg_global";
+    private static final String PREF_CHAT_BG_RANDOM_ENABLED = "chat_bg_random_enabled";
 
     private final Context appContext;
     private final PreferenceService preferenceService;
@@ -159,6 +172,26 @@ public class WallpaperServiceImpl implements WallpaperService {
                     }
                 }
 
+                // F1Whisper: built-in gradient background (rendered in code) when no image wallpaper is set
+                if (bitmap == null) {
+                    final ChatBackground background = resolveBuiltInBackground(messageReceiver);
+                    if (background != null) {
+                        final DisplayMetrics metrics = appContext.getResources().getDisplayMetrics();
+                        int width = metrics.widthPixels;
+                        int height = metrics.heightPixels;
+                        if (landscape) {
+                            final int tmp = width;
+                            width = height;
+                            height = tmp;
+                        }
+                        try {
+                            bitmap = background.toBitmap(width, height);
+                        } catch (Exception e) {
+                            logger.error("Failed to render built-in chat background", e);
+                        }
+                    }
+                }
+
                 if (bitmap == null && !hasGlobalEmptyWallpaper() && !ConfigUtils.isWorkBuild()) {
                     final BitmapFactory.Options noptions = new BitmapFactory.Options();
                     noptions.inPreferredConfig = Bitmap.Config.ALPHA_8;
@@ -234,6 +267,14 @@ public class WallpaperServiceImpl implements WallpaperService {
             );
         }
 
+        // F1Whisper: built-in gradient backgrounds
+        items.add(new BottomSheetItem(
+                R.drawable.ic_palette_outline,
+                appContext.getString(R.string.chat_background_choose),
+                SELECTOR_TAG_WALLPAPER_BUILTIN
+            )
+        );
+
         items.add(new BottomSheetItem(
                 R.drawable.ic_image_outline,
                 appContext.getString(R.string.wallpaper_gallery),
@@ -293,6 +334,9 @@ public class WallpaperServiceImpl implements WallpaperService {
                                 onSuccess.run();
                             }
                             break;
+                        case SELECTOR_TAG_WALLPAPER_BUILTIN:
+                            showBuiltInBackgroundPicker(fragment, messageReceiver, onSuccess);
+                            break;
                         case SELECTOR_TAG_WALLPAPER_GALLERY:
                             selectWallpaperFromGallery(fragment, fileSelectionLauncher);
                             break;
@@ -328,17 +372,23 @@ public class WallpaperServiceImpl implements WallpaperService {
 
     private void setDefaultWallpaper(MessageReceiver messageReceiver) {
         deleteWallpaperFile(messageReceiver);
+        clearBuiltInBackground(messageReceiver);
 
         if (messageReceiver == null) {
             preferenceService.setCustomWallpaperEnabled(false);
+            // global "default" means the app's default look, so disable random built-in backgrounds
+            sharedPreferences().edit().putBoolean(PREF_CHAT_BG_RANDOM_ENABLED, false).apply();
         }
     }
 
     private void setEmptyWallpaper(MessageReceiver messageReceiver) {
         deleteWallpaperFile(messageReceiver);
+        clearBuiltInBackground(messageReceiver);
 
         if (messageReceiver == null) {
             preferenceService.setCustomWallpaperEnabled(true);
+            // global "none" means no background anywhere, so disable random built-in backgrounds
+            sharedPreferences().edit().putBoolean(PREF_CHAT_BG_RANDOM_ENABLED, false).apply();
         }
 
         // create an empty file
@@ -356,6 +406,127 @@ public class WallpaperServiceImpl implements WallpaperService {
     private void selectWallpaperFromGallery(Fragment fragment, ActivityResultLauncher<Intent> imageSelectLauncher) {
         FileUtil.selectFile(fragment.requireContext(), imageSelectLauncher, new String[]{MimeUtil.MIME_TYPE_IMAGE}, false, 0, null);
     }
+
+    // region F1Whisper: built-in gradient chat backgrounds
+
+    private SharedPreferences sharedPreferences() {
+        return PreferenceManager.getDefaultSharedPreferences(appContext);
+    }
+
+    /**
+     * Resolve which built-in gradient background applies to the given conversation, or {@code null}
+     * if none. Priority: per-chat selection, then global selection, then (if enabled) a stable
+     * background derived from the conversation id (so existing chats get a varied look).
+     */
+    @Nullable
+    private ChatBackground resolveBuiltInBackground(@Nullable MessageReceiver messageReceiver) {
+        final SharedPreferences sp = sharedPreferences();
+        if (messageReceiver != null) {
+            final String perChat = sp.getString(PREF_CHAT_BG_PREFIX + messageReceiver.getUniqueIdString(), null);
+            if (perChat != null) {
+                return ChatBackgrounds.byId(perChat);
+            }
+        }
+        final String global = sp.getString(PREF_CHAT_BG_GLOBAL, null);
+        if (global != null) {
+            return ChatBackgrounds.byId(global);
+        }
+        if (messageReceiver != null && sp.getBoolean(PREF_CHAT_BG_RANDOM_ENABLED, true)) {
+            return ChatBackgrounds.stableForUid(messageReceiver.getUniqueIdString());
+        }
+        return null;
+    }
+
+    private void setBuiltInWallpaper(@Nullable MessageReceiver messageReceiver, @NonNull String backgroundId) {
+        // remove any image wallpaper so the gradient takes effect
+        deleteWallpaperFile(messageReceiver);
+        final SharedPreferences.Editor editor = sharedPreferences().edit();
+        if (messageReceiver != null) {
+            editor.putString(PREF_CHAT_BG_PREFIX + messageReceiver.getUniqueIdString(), backgroundId);
+        } else {
+            editor.putString(PREF_CHAT_BG_GLOBAL, backgroundId);
+        }
+        editor.apply();
+    }
+
+    private void setRandomBuiltInWallpaper(@Nullable MessageReceiver messageReceiver) {
+        deleteWallpaperFile(messageReceiver);
+        final SharedPreferences.Editor editor = sharedPreferences().edit();
+        if (messageReceiver != null) {
+            // per-chat: follow the global / varied setting by clearing any per-chat override
+            editor.remove(PREF_CHAT_BG_PREFIX + messageReceiver.getUniqueIdString());
+        } else {
+            editor.remove(PREF_CHAT_BG_GLOBAL);
+            editor.putBoolean(PREF_CHAT_BG_RANDOM_ENABLED, true);
+        }
+        editor.apply();
+    }
+
+    private void clearBuiltInBackground(@Nullable MessageReceiver messageReceiver) {
+        final SharedPreferences.Editor editor = sharedPreferences().edit();
+        if (messageReceiver != null) {
+            editor.remove(PREF_CHAT_BG_PREFIX + messageReceiver.getUniqueIdString());
+        } else {
+            editor.remove(PREF_CHAT_BG_GLOBAL);
+        }
+        editor.apply();
+    }
+
+    private void showBuiltInBackgroundPicker(@NonNull final Fragment fragment, @Nullable final MessageReceiver messageReceiver, @Nullable final Runnable onSuccess) {
+        final ArrayList<BottomSheetItem> items = new ArrayList<>();
+
+        // a "varied per chat" option only makes sense for the global setting
+        if (messageReceiver == null) {
+            items.add(new BottomSheetItem(
+                R.drawable.ic_palette_outline,
+                appContext.getString(R.string.chat_background_random),
+                SELECTOR_TAG_BUILTIN_RANDOM
+            ));
+        }
+
+        int index = 1;
+        for (ChatBackground background : ChatBackgrounds.ALL) {
+            items.add(new BottomSheetItem(
+                R.drawable.ic_palette_outline,
+                appContext.getString(R.string.chat_background_numbered, index),
+                SELECTOR_TAG_BUILTIN_PREFIX + background.getId()
+            ));
+            index++;
+        }
+
+        BottomSheetListDialog dialog = BottomSheetListDialog.newInstance(R.string.chat_background_choose, items, 0, new BottomSheetAbstractDialog.BottomSheetDialogInlineClickListener() {
+            @Override
+            public int describeContents() {
+                return 0;
+            }
+
+            @Override
+            public void writeToParcel(Parcel dest, int flags) {
+            }
+
+            @Override
+            public void onSelected(String tag, String data) {
+                if (!fragment.isAdded()) {
+                    return;
+                }
+                if (SELECTOR_TAG_BUILTIN_RANDOM.equals(tag)) {
+                    setRandomBuiltInWallpaper(messageReceiver);
+                } else if (tag != null && tag.startsWith(SELECTOR_TAG_BUILTIN_PREFIX)) {
+                    setBuiltInWallpaper(messageReceiver, tag.substring(SELECTOR_TAG_BUILTIN_PREFIX.length()));
+                }
+                if (onSuccess != null) {
+                    onSuccess.run();
+                }
+            }
+
+            @Override
+            public void onCancel(String tag) {
+            }
+        });
+        dialog.show(fragment.getParentFragmentManager(), DIALOG_TAG_SELECT_BUILTIN);
+    }
+
+    // endregion
 
     @Override
     public boolean hasGalleryWallpaper(MessageReceiver messageReceiver) {

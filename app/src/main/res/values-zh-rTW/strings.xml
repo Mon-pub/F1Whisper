@@ -1856,4 +1856,21 @@ ${app_name_short} 支援的所有表情符號。</string>
     <plurals name="number_of_group_members">
         <item quantity="other">%d個群組成員</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">回應</string>
+    <string name="reaction_notification_text">%1$s 對你的訊息回應了 %2$s</string>
+    <string name="prefs_title_reaction_notifications">回應通知</string>
+    <string name="prefs_sum_reaction_notifications">當有人對我的訊息做出回應時通知我</string>
+    <string name="chat_background_choose">背景</string>
+    <string name="chat_background_random">隨機（每個對話各異）</string>
+    <string name="chat_background_numbered">背景 %1$d</string>
+    <string name="listen_once_enabled">僅聽一次：開啟</string>
+    <string name="listen_once_disabled">僅聽一次：關閉</string>
+    <string name="listen_once_badge_content_description">僅聽一次語音訊息</string>
+    <string name="listen_once_already_listened">已聽取</string>
+    <string name="group_one_typing">%s 正在輸入…</string>
+    <string name="group_two_typing">%1$s 和 %2$s 正在輸入…</string>
+    <string name="group_many_typing">%1$s 和另外 %2$d 人正在輸入…</string>
+    <string name="message_details_read_by">已讀的成員</string>
+    <string name="message_details_delivered_to">已送達的成員</string>
+    <string name="message_details_sent_to">已傳送的成員</string>
 </resources>

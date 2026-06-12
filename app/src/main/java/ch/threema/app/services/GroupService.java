@@ -251,6 +251,26 @@ public interface GroupService extends AvatarService<GroupModelOld> {
     Set<String> getMembersWithoutUser(@NonNull GroupModelOld groupModel);
 
     /**
+     * F1Whisper: record that a group member started or stopped typing (from an incoming group
+     * typing indicator). Updates the in-memory typing state, notifies
+     * {@code ListenerManager.groupTypingListeners}, and schedules an auto-reset timeout so a missed
+     * "stopped typing" message does not leave the indicator stuck.
+     */
+    void setMemberTyping(long groupDatabaseId, @NonNull String identity, boolean isTyping);
+
+    /**
+     * F1Whisper: the identities of the members of the given group that are currently typing.
+     */
+    @NonNull
+    Set<String> getTypingMembers(long groupDatabaseId);
+
+    /**
+     * F1Whisper: send a group typing indicator to all members (gated by the typing-indicator
+     * preference). No-op if typing indicators are disabled.
+     */
+    void sendTypingIndicator(long groupDatabaseId, boolean isTyping);
+
+    /**
      * Get a string where the group members' display names are concatenated and separated by a
      * comma. This includes the group creator.
      *

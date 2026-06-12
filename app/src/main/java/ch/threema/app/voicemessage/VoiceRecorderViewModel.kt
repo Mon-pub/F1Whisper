@@ -321,6 +321,16 @@ class VoiceRecorderViewModel(
         }
     }
 
+    /**
+     * Toggle the "listen once" flag. When enabled, the resulting voice message can be played a
+     * single time by the recipient before being deleted (client-side, best-effort enforcement).
+     */
+    fun toggleListenOnce() {
+        val newValue = !_state.value.listenOnce
+        logger.info("Toggle listen once to {}", newValue)
+        _state.value = _state.value.copy(listenOnce = newValue)
+    }
+
     fun send() {
         val currentMediaState = _state.value.mediaState
         if (currentMediaState is MediaState.Record) {
@@ -348,6 +358,7 @@ class VoiceRecorderViewModel(
             durationMs = audioFileDuration.inWholeMilliseconds.coerceAtLeast(
                 minimumValue = DateUtils.SECOND_IN_MILLIS,
             )
+            isListenOnce = _state.value.listenOnce
         }
         messageService.sendMediaAsync(
             /* mediaItems = */

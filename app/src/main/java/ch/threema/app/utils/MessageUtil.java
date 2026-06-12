@@ -149,7 +149,9 @@ public class MessageUtil {
                 && message.getType() != MessageType.VOIP_STATUS
                 && !((message.getMessageFlags() & ProtocolDefines.MESSAGE_FLAG_NO_DELIVERY_RECEIPTS) == ProtocolDefines.MESSAGE_FLAG_NO_DELIVERY_RECEIPTS);
         } else {
-            return message instanceof MessageModel
+            // F1Whisper: allow group messages to send read/received receipts (gated, like 1:1, by the
+            // "send read receipts" preference at the call site)
+            return (message instanceof MessageModel || message instanceof GroupMessageModel)
                 && !message.isOutbox()
                 && !message.isRead()
                 && !message.isStatusMessage()
