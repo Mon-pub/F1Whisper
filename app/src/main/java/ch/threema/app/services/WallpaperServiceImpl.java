@@ -16,7 +16,16 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Parcel;
 import android.util.DisplayMetrics;
+import android.graphics.drawable.GradientDrawable;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import android.view.Window;
 import android.widget.ImageView;
 
@@ -74,8 +83,6 @@ public class WallpaperServiceImpl implements WallpaperService {
     private static final String DIALOG_TAG_SELECT_BUILTIN = "selbuiltin";
 
     // F1Whisper: built-in gradient chat backgrounds (rendered in code, no assets)
-    private static final String SELECTOR_TAG_BUILTIN_RANDOM = "bg_random";
-    private static final String SELECTOR_TAG_BUILTIN_PREFIX = "bg_";
     private static final String PREF_CHAT_BG_PREFIX = "chat_bg_";
     private static final String PREF_CHAT_BG_GLOBAL = "chat_bg_global";
     private static final String PREF_CHAT_BG_RANDOM_ENABLED = "chat_bg_random_enabled";
@@ -473,57 +480,98 @@ public class WallpaperServiceImpl implements WallpaperService {
     }
 
     private void showBuiltInBackgroundPicker(@NonNull final Fragment fragment, @Nullable final MessageReceiver messageReceiver, @Nullable final Runnable onSuccess) {
-        final ArrayList<BottomSheetItem> items = new ArrayList<>();
+        final Context context = fragment.getContext();
+        if (context == null) {
+            return;
+        }
 
-        // a "varied per chat" option only makes sense for the global setting
+        // F1Whisper: preview each built-in background as a full-width gradient bar (one line tall)
+        // instead of a "Background N" text row, so the user picks by the actual colours.
+        final BottomSheetDialog dialog = new BottomSheetDialog(context);
+
+        final LinearLayout container = new LinearLayout(context);
+        container.setOrientation(LinearLayout.VERTICAL);
+        final int pad = dpToPx(context, 16);
+        container.setPadding(pad, pad, pad, pad);
+
+        final TextView title = new TextView(context);
+        title.setText(R.string.chat_background_choose);
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        title.setTextColor(ConfigUtils.getColorFromAttribute(context, R.attr.colorOnSurface));
+        title.setPadding(0, 0, 0, dpToPx(context, 8));
+        container.addView(title);
+
+        final int rowHeight = dpToPx(context, 44);
+        final int rowSpacing = dpToPx(context, 6);
+        final float corner = dpToPx(context, 10);
+
+        // "Random varied" only makes sense for the global setting; show it as a multi-colour bar.
         if (messageReceiver == null) {
-            items.add(new BottomSheetItem(
-                R.drawable.ic_palette_outline,
-                appContext.getString(R.string.chat_background_random),
-                SELECTOR_TAG_BUILTIN_RANDOM
-            ));
-        }
-
-        int index = 1;
-        for (ChatBackground background : ChatBackgrounds.ALL) {
-            items.add(new BottomSheetItem(
-                R.drawable.ic_palette_outline,
-                appContext.getString(R.string.chat_background_numbered, index),
-                SELECTOR_TAG_BUILTIN_PREFIX + background.getId()
-            ));
-            index++;
-        }
-
-        BottomSheetListDialog dialog = BottomSheetListDialog.newInstance(R.string.chat_background_choose, items, 0, new BottomSheetAbstractDialog.BottomSheetDialogInlineClickListener() {
-            @Override
-            public int describeContents() {
-                return 0;
+            final int[] sampleColors = new int[ChatBackgrounds.ALL.size()];
+            for (int i = 0; i < sampleColors.length; i++) {
+                sampleColors[i] = ChatBackgrounds.ALL.get(i).getColors()[0];
             }
+            final FrameLayout randomRow = new FrameLayout(context);
+            final GradientDrawable randomBg = new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, sampleColors);
+            randomBg.setCornerRadius(corner);
+            randomRow.setBackground(randomBg);
+            final LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, rowHeight);
+            rlp.bottomMargin = rowSpacing;
+            randomRow.setLayoutParams(rlp);
 
-            @Override
-            public void writeToParcel(Parcel dest, int flags) {
-            }
+            final TextView randomLabel = new TextView(context);
+            randomLabel.setText(R.string.chat_background_random);
+            randomLabel.setTextColor(0xFFFFFFFF);
+            randomLabel.setShadowLayer(dpToPx(context, 2), 0, 0, 0xCC000000);
+            final FrameLayout.LayoutParams llp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+            llp.gravity = Gravity.CENTER;
+            randomRow.addView(randomLabel, llp);
 
-            @Override
-            public void onSelected(String tag, String data) {
+            randomRow.setOnClickListener(v -> {
                 if (!fragment.isAdded()) {
                     return;
                 }
-                if (SELECTOR_TAG_BUILTIN_RANDOM.equals(tag)) {
-                    setRandomBuiltInWallpaper(messageReceiver);
-                } else if (tag != null && tag.startsWith(SELECTOR_TAG_BUILTIN_PREFIX)) {
-                    setBuiltInWallpaper(messageReceiver, tag.substring(SELECTOR_TAG_BUILTIN_PREFIX.length()));
-                }
+                setRandomBuiltInWallpaper(messageReceiver);
                 if (onSuccess != null) {
                     onSuccess.run();
                 }
-            }
+                dialog.dismiss();
+            });
+            container.addView(randomRow);
+        }
 
-            @Override
-            public void onCancel(String tag) {
-            }
-        });
-        dialog.show(fragment.getParentFragmentManager(), DIALOG_TAG_SELECT_BUILTIN);
+        for (final ChatBackground background : ChatBackgrounds.ALL) {
+            final View row = new View(context);
+            // Preview runs horizontally (the bar is much wider than tall), so the colour transition
+            // reads clearly; the applied chat background itself stays diagonal.
+            final GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, background.getColors());
+            gd.setCornerRadius(corner);
+            row.setBackground(gd);
+            final LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, rowHeight);
+            lp.bottomMargin = rowSpacing;
+            row.setLayoutParams(lp);
+            row.setOnClickListener(v -> {
+                if (!fragment.isAdded()) {
+                    return;
+                }
+                setBuiltInWallpaper(messageReceiver, background.getId());
+                if (onSuccess != null) {
+                    onSuccess.run();
+                }
+                dialog.dismiss();
+            });
+            container.addView(row);
+        }
+
+        final ScrollView scrollView = new ScrollView(context);
+        scrollView.addView(container);
+        dialog.setContentView(scrollView);
+        dialog.show();
+    }
+
+    private static int dpToPx(@NonNull Context context, float dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
     }
 
     // endregion

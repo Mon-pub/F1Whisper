@@ -6,6 +6,7 @@ import ch.threema.storage.factories.BallotModelFactory
 import ch.threema.storage.factories.BallotVoteModelFactory
 import ch.threema.storage.factories.ContactAvailabilityStatusModelFactory
 import ch.threema.storage.factories.ContactEditHistoryEntryModelFactory
+import ch.threema.storage.factories.ChatFolderFactory
 import ch.threema.storage.factories.ContactEmojiReactionModelFactory
 import ch.threema.storage.factories.ContactModelFactory
 import ch.threema.storage.factories.ConversationTagFactory
@@ -24,6 +25,7 @@ import ch.threema.storage.factories.IncomingGroupSyncRequestLogModelFactory
 import ch.threema.storage.factories.MessageModelFactory
 import ch.threema.storage.factories.OutgoingGroupSyncRequestLogModelFactory
 import ch.threema.storage.factories.RejectedGroupMessageFactory
+import ch.threema.storage.factories.ScheduledMessageModelFactory
 import ch.threema.storage.factories.ServerMessageModelFactory
 import ch.threema.storage.factories.TaskArchiveFactory
 import ch.threema.storage.factories.WebClientSessionModelFactory
@@ -57,6 +59,7 @@ object DatabaseSchemaCreator {
             GroupBallotModelFactory.Creator(),
             WebClientSessionModelFactory.Creator(),
             ConversationTagFactory.Creator(),
+            ChatFolderFactory.Creator,
             GroupCallModelFactory.Creator(),
             ServerMessageModelFactory.Creator,
             TaskArchiveFactory.Creator,
@@ -67,5 +70,6 @@ object DatabaseSchemaCreator {
             ContactEmojiReactionModelFactory.Creator,
             GroupEmojiReactionModelFactory.Creator,
             ContactAvailabilityStatusModelFactory.Creator,
+            ScheduledMessageModelFactory.Creator(),
         )
 }

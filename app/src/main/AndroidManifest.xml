@@ -794,6 +794,11 @@
             android:theme="@style/Theme.Threema.WithToolbar"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".activities.ChatFoldersActivity"
+            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
+            android:theme="@style/Theme.Threema.WithToolbar"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".activities.referral.ReferralActivity"
             android:configChanges="touchscreen|orientation|screenLayout|screenSize|uiMode"
             android:theme="@style/Theme.Threema.WithToolbar" />
@@ -1015,6 +1020,9 @@
         </receiver>
         <receiver
             android:name=".receivers.AlarmManagerBroadcastReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".receivers.ScheduledMessageAlarmReceiver"
             android:exported="false" />
         <receiver
             android:name=".receivers.WidgetProvider"

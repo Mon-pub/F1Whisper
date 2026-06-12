@@ -18,6 +18,7 @@ import ch.threema.storage.factories.IncomingGroupSyncRequestLogModelFactory
 import ch.threema.storage.factories.MessageModelFactory
 import ch.threema.storage.factories.OutgoingGroupSyncRequestLogModelFactory
 import ch.threema.storage.factories.RejectedGroupMessageFactory
+import ch.threema.storage.factories.ScheduledMessageModelFactory
 
 @Deprecated("Use Koin to inject model factories directly")
 class DatabaseService(
@@ -74,5 +75,8 @@ class DatabaseService(
     }
     val rejectedGroupMessageFactory: RejectedGroupMessageFactory by lazy {
         RejectedGroupMessageFactory(databaseProvider)
+    }
+    val scheduledMessageModelFactory: ScheduledMessageModelFactory by lazy {
+        ScheduledMessageModelFactory(databaseProvider)
     }
 }

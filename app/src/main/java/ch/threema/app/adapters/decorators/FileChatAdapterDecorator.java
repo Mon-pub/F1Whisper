@@ -21,6 +21,7 @@ import ch.threema.app.utils.FileUtil;
 import ch.threema.app.utils.IconUtil;
 import ch.threema.app.utils.ImageViewUtil;
 import ch.threema.app.utils.LinkifyUtil;
+import ch.threema.app.utils.MediaSpoilerUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.MimeUtil;
 import ch.threema.app.utils.RuntimeUtil;
@@ -74,6 +75,13 @@ public class FileChatAdapterDecorator extends ChatAdapterDecorator {
 
         setControllerClickListener(fileMessagePlayer, fileData, holder);
         setOnClickListener(view -> {
+            // F1Whisper: while an un-revealed image spoiler is shown, a tap reveals it instead of
+            // opening / downloading the media.
+            if (MediaSpoilerUtil.shouldObscure(getMessageModel())) {
+                MediaSpoilerUtil.reveal(getMessageModel().getId());
+                invalidate(holder, context, position);
+                return;
+            }
             if (
                 getMessageModel().getState() != MessageState.FS_KEY_MISMATCH &&
                     getMessageModel().getState() != MessageState.SENDFAILED
@@ -81,6 +89,18 @@ public class FileChatAdapterDecorator extends ChatAdapterDecorator {
                 prepareDownload(fileData, fileMessagePlayer);
             }
         }, holder.messageBlockView);
+
+        // F1Whisper: also reveal on a direct tap of the (blurred) image thumbnail.
+        if (holder.attachmentImage != null) {
+            if (MediaSpoilerUtil.shouldObscure(getMessageModel())) {
+                holder.attachmentImage.setOnClickListener(v -> {
+                    MediaSpoilerUtil.reveal(getMessageModel().getId());
+                    invalidate(holder, context, position);
+                });
+            } else {
+                holder.attachmentImage.setOnClickListener(null);
+            }
+        }
 
         configureFileMessagePlayer(fileMessagePlayer, holder, fileData, context, position);
         configureBodyText(holder, fileData.getCaption());
@@ -301,6 +321,13 @@ public class FileChatAdapterDecorator extends ChatAdapterDecorator {
         }
 
         if (FileUtil.isImageFile(fileData) && (fileData.getRenderingType() == FileData.RENDERING_STICKER || fileData.getRenderingType() == FileData.RENDERING_MEDIA)) {
+            // F1Whisper: blur the thumbnail and show a tap-to-reveal overlay for un-revealed image
+            // spoilers. Only image file messages are obscured here (non-image files never are).
+            final boolean obscure = MediaSpoilerUtil.shouldObscure(getMessageModel());
+            if (obscure && thumbnail != null) {
+                thumbnail = MediaSpoilerUtil.obscure(thumbnail, holder.attachmentImage.getContext());
+            }
+
             ImageViewUtil.showRoundedBitmapOrImagePlaceholder(
                 holder.contentView,
                 holder.attachmentImage,
@@ -311,7 +338,17 @@ public class FileChatAdapterDecorator extends ChatAdapterDecorator {
             if (holder.attachmentImage != null) {
                 boolean hasDrawable = holder.attachmentImage.getDrawable() != null;
                 holder.attachmentImage.setVisibility(hasDrawable ? View.VISIBLE : View.GONE);
-                holder.attachmentImage.setContentDescription(holder.attachmentImage.getContext().getString(R.string.image_placeholder));
+                holder.attachmentImage.setContentDescription(holder.attachmentImage.getContext().getString(
+                    obscure ? R.string.media_spoiler_badge_content_description : R.string.image_placeholder));
+            }
+
+            if (obscure) {
+                showSpoilerOverlay(holder, true);
+                if (holder.controller != null) {
+                    holder.controller.setHidden();
+                }
+            } else {
+                showSpoilerOverlay(holder, false);
             }
 
             if (fileData.getRenderingType() == FileData.RENDERING_STICKER) {
@@ -320,6 +357,7 @@ public class FileChatAdapterDecorator extends ChatAdapterDecorator {
                 setDefaultBackground(holder);
             }
         } else {
+            showSpoilerOverlay(holder, false);
             if (thumbnail != null) {
                 if (holder.controller != null) {
                     holder.controller.setBackgroundImage(thumbnail);

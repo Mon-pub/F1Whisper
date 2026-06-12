@@ -44,6 +44,8 @@ import ch.threema.app.ThreemaApplication;
 import ch.threema.app.contactdetails.ContactDetailActivity;
 import ch.threema.app.services.ContactService;
 import ch.threema.app.ui.BottomSheetItem;
+import ch.threema.app.emojis.EmojiConversationTextView;
+import ch.threema.app.emojis.SpoilerSpan;
 import ch.threema.app.ui.MentionClickableSpan;
 import ch.threema.domain.protocol.csp.ProtocolDefines;
 import ch.threema.storage.models.AbstractMessageModel;
@@ -243,6 +245,20 @@ public class LinkifyUtil {
 
             int line = layout.getLineForVertical(y);
             int off = layout.getOffsetForHorizontal(line, x);
+
+            // F1Whisper: a tap on an unrevealed text spoiler reveals it and consumes the gesture, so
+            // the chat-bubble row click (which opens "Message details" for text messages) never
+            // fires. This mirrors how a link tap is consumed here. Once revealed, the span reports
+            // revealed and taps fall through to normal behaviour again.
+            SpoilerSpan[] spoilerSpans = buffer.getSpans(off, off, SpoilerSpan.class);
+            for (SpoilerSpan spoilerSpan : spoilerSpans) {
+                if (!spoilerSpan.isRevealed()) {
+                    if (action == MotionEvent.ACTION_UP && widget instanceof EmojiConversationTextView) {
+                        ((EmojiConversationTextView) widget).revealSpoilers();
+                    }
+                    return true;
+                }
+            }
 
             ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
             if (link.length == 0) {

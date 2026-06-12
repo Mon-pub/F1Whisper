@@ -15,6 +15,7 @@ import ch.threema.app.ui.DebouncedOnClickListener;
 import ch.threema.app.ui.listitemholder.ComposeMessageHolder;
 import ch.threema.app.utils.ImageViewUtil;
 import ch.threema.app.utils.LinkifyUtil;
+import ch.threema.app.utils.MediaSpoilerUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.utils.TestUtil;
@@ -66,6 +67,13 @@ public class ImageChatAdapterDecorator extends ChatAdapterDecorator {
         holder.messagePlayer = imageMessagePlayer;
 
         setOnClickListener(view -> {
+            // F1Whisper: while an un-revealed spoiler is shown, a tap reveals the media instead of
+            // opening the lightbox.
+            if (MediaSpoilerUtil.shouldObscure(getMessageModel())) {
+                MediaSpoilerUtil.reveal(getMessageModel().getId());
+                invalidate(holder, holder.messageBlockView.getContext(), position);
+                return;
+            }
             AbstractMessageModel model = getMessageModel();
             MessageState state = model.getState();
             if (state != FS_KEY_MISMATCH && state != SENDFAILED && model.isAvailable()) {
@@ -75,7 +83,7 @@ public class ImageChatAdapterDecorator extends ChatAdapterDecorator {
 
         setControllerClickListener(holder, imageMessagePlayer);
 
-        configureThumbnail(holder);
+        configureThumbnail(holder, position);
 
         if (holder.attachmentImage != null) {
             holder.attachmentImage.setContentDescription(context.getString(R.string.image_placeholder));
@@ -162,7 +170,7 @@ public class ImageChatAdapterDecorator extends ChatAdapterDecorator {
         }
     }
 
-    private void configureThumbnail(@NonNull ComposeMessageHolder holder) {
+    private void configureThumbnail(@NonNull ComposeMessageHolder holder, final int position) {
         Bitmap thumbnail;
         try {
             thumbnail = getFileService().getMessageThumbnailBitmap(getMessageModel(),
@@ -170,6 +178,12 @@ public class ImageChatAdapterDecorator extends ChatAdapterDecorator {
         } catch (Exception e) {
             logger.error("Exception", e);
             thumbnail = null;
+        }
+
+        // F1Whisper: blur the thumbnail and show a tap-to-reveal overlay for un-revealed spoilers.
+        final boolean obscure = MediaSpoilerUtil.shouldObscure(getMessageModel());
+        if (obscure && thumbnail != null) {
+            thumbnail = MediaSpoilerUtil.obscure(thumbnail, holder.attachmentImage.getContext());
         }
 
         ImageViewUtil.showBitmapOrImagePlaceholder(
@@ -184,6 +198,19 @@ public class ImageChatAdapterDecorator extends ChatAdapterDecorator {
             holder.controller.setHidden();
         } else {
             showHide(holder.controller, false);
+        }
+
+        if (obscure) {
+            holder.attachmentImage.setContentDescription(holder.attachmentImage.getContext().getString(R.string.media_spoiler_badge_content_description));
+            showSpoilerOverlay(holder, true);
+            holder.controller.setHidden();
+            holder.attachmentImage.setOnClickListener(v -> {
+                MediaSpoilerUtil.reveal(getMessageModel().getId());
+                invalidate(holder, holder.attachmentImage.getContext(), position);
+            });
+        } else {
+            showSpoilerOverlay(holder, false);
+            holder.attachmentImage.setOnClickListener(null);
         }
     }
 

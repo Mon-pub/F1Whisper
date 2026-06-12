@@ -9,6 +9,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -29,6 +31,13 @@ private val logger = getThreemaLogger("AnnotatedConversationString")
 private val styleBold = SpanStyle(fontWeight = FontWeight.Bold)
 private val styleItalic = SpanStyle(fontStyle = FontStyle.Italic)
 private val styleStrikeThrough = SpanStyle(textDecoration = TextDecoration.LineThrough)
+private val styleMonospace = SpanStyle(fontFamily = FontFamily.Monospace)
+
+// Spoiler rendering in the Compose path (search results, previews) has no tap-to-reveal wiring
+// (that lives in the TextView chat-bubble path), so spoilers are simply obscured by painting the
+// foreground and background with the same colour.
+private val spoilerObscureColor = Color(0x8A000000)
+private val styleSpoiler = SpanStyle(background = spoilerObscureColor, color = spoilerObscureColor)
 
 /**
  *  @param rawInput containing all `markup`, `mention` and `emoji` characters in their raw form
@@ -78,11 +87,18 @@ fun buildAnnotatedConversationString(
 
             val markupSpanItem: MarkupParser.SpanItem? = markupSpans[rawInputIndex]
             when {
-                markupSpanItem?.markerStart == rawInputIndex -> pushStyle(getStyleFromSpanItem(markupSpanItem))
+                markupSpanItem?.markerStart == rawInputIndex -> {
+                    pushStyle(getStyleFromSpanItem(markupSpanItem))
+                    // Skip the full marker (markers can be more than one character wide, e.g. `||`)
+                    rawInputIndex += markupSpanItem.markerLength
+                    continue
+                }
                 markupSpanItem?.markerEnd == rawInputIndex -> {
                     // TODO(ANDR-4149): Remove try-catch around pop() and never append the currentChar in this state
                     try {
                         pop()
+                        rawInputIndex += markupSpanItem.markerLength
+                        continue
                     } catch (illegalStateException: IllegalStateException) {
                         logger.warn("Tried to pop style from empty style stack", illegalStateException)
                         append(currentChar)
@@ -219,7 +235,11 @@ private fun getAllMarkupSpans(rawInput: CharSequence): Map<Int, MarkupParser.Spa
         .filter { spanItem ->
             // We are only interested in markup spans
             when (spanItem.kind) {
-                MarkupParser.TokenType.ASTERISK, MarkupParser.TokenType.UNDERSCORE, MarkupParser.TokenType.TILDE -> true
+                MarkupParser.TokenType.ASTERISK,
+                MarkupParser.TokenType.UNDERSCORE,
+                MarkupParser.TokenType.TILDE,
+                MarkupParser.TokenType.BACKTICK,
+                MarkupParser.TokenType.PIPE -> true
                 MarkupParser.TokenType.TEXT, MarkupParser.TokenType.NEWLINE -> false
             }
         }
@@ -241,6 +261,8 @@ private fun getStyleFromSpanItem(spanItem: MarkupParser.SpanItem): SpanStyle =
         MarkupParser.TokenType.ASTERISK -> styleBold
         MarkupParser.TokenType.UNDERSCORE -> styleItalic
         MarkupParser.TokenType.TILDE -> styleStrikeThrough
+        MarkupParser.TokenType.BACKTICK -> styleMonospace
+        MarkupParser.TokenType.PIPE -> styleSpoiler
     }
 
 /**

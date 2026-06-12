@@ -62,14 +62,49 @@ class EmojiReactionsPopup(
         null,
     )
     private val backgroundColor = ResourcesCompat.getColor(context.resources, android.R.color.transparent, null)
-    private val topReactions = arrayOf(
-        ReactionEntry(R.id.top_0, EmojiUtil.THUMBS_UP_SEQUENCE),
-        ReactionEntry(R.id.top_1, EmojiUtil.THUMBS_DOWN_SEQUENCE),
-        ReactionEntry(R.id.top_2, EmojiUtil.HEART_SEQUENCE),
-        ReactionEntry(R.id.top_3, EmojiUtil.TEARS_OF_JOY_SEQUENCE),
-        ReactionEntry(R.id.top_4, EmojiUtil.CRYING_SEQUENCE),
-        ReactionEntry(R.id.top_5, EmojiUtil.FOLDED_HANDS_SEQUENCE),
+    // The six fixed slots in popup_emojireactions, in display order.
+    private val reactionSlotIds = intArrayOf(
+        R.id.top_0, R.id.top_1, R.id.top_2, R.id.top_3, R.id.top_4, R.id.top_5,
     )
+
+    // Default reaction set, shown when the user has no recent reactions yet. For phase-1 (ACK/DEC
+    // only) receivers, slots 0 and 1 MUST stay thumbs up / thumbs down (see isDisabledOrHiddenButton).
+    private val defaultReactions = listOf(
+        EmojiUtil.THUMBS_UP_SEQUENCE,
+        EmojiUtil.THUMBS_DOWN_SEQUENCE,
+        EmojiUtil.HEART_SEQUENCE,
+        EmojiUtil.TEARS_OF_JOY_SEQUENCE,
+        EmojiUtil.CRYING_SEQUENCE,
+        EmojiUtil.FOLDED_HANDS_SEQUENCE,
+    )
+
+    // F1Whisper: surface the user's most-recently-used reactions first (Telegram-style), falling
+    // back to the defaults to fill the six slots. Only reordered when full reactions are supported;
+    // ACK/DEC-only receivers keep the fixed thumbs up/down layout.
+    private val topReactions: Array<ReactionEntry> = buildTopReactions()
+
+    private fun buildTopReactions(): Array<ReactionEntry> {
+        val sequences = linkedSetOf<String>()
+        if (isSendingReactionsAllowed) {
+            for (recent in preferenceService.getRecentEmojiReactions()) {
+                if (sequences.size >= reactionSlotIds.size) {
+                    break
+                }
+                if (EmojiUtil.isFullyQualifiedEmoji(recent)) {
+                    sequences.add(recent)
+                }
+            }
+        }
+        for (default in defaultReactions) {
+            if (sequences.size >= reactionSlotIds.size) {
+                break
+            }
+            sequences.add(default)
+        }
+        return sequences.toList()
+            .mapIndexed { index, sequence -> ReactionEntry(reactionSlotIds[index], sequence) }
+            .toTypedArray()
+    }
 
     init {
         val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater

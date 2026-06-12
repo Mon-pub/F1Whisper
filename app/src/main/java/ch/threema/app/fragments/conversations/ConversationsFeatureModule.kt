@@ -15,6 +15,7 @@ val conversationsFeatureModule = module {
             dispatcherProvider = get(),
             conversationService = get(),
             conversationCategoryService = get(),
+            chatFolderService = get(),
             distributionListService = get(),
             preferenceService = get(),
             messageService = get(),

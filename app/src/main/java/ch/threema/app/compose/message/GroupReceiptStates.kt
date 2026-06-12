@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,7 @@ fun GroupReceiptStatesBox(
     val borderColor = colorReferenceResource(R.attr.colorMessageBubbleSendContainer)
     Column(
         modifier = modifier
+            .fillMaxWidth()
             .border(width = 2.dp, color = borderColor, shape = RoundedCornerShape(8.dp))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),

@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -38,6 +39,23 @@ public class FileDataModel implements MediaMessageDataInterface {
      * is invisible to the server. NOTE: enforcement is purely client-side and best-effort.
      */
     public static final String METADATA_KEY_LISTEN_ONCE = "lo";
+
+    /**
+     * Custom (F1Whisper) metadata flag marking a "listen once" voice message as already consumed
+     * (played once by the recipient and its media deleted). Stored locally only - it is set after
+     * playback and persisted in the message's file-data JSON so the "burned" placeholder survives
+     * closing and reopening the chat, independent of the volatile {@link ch.threema.storage.models.MessageState}
+     * (which a later reaction/receipt could move away from {@code CONSUMED}). Never sent over the wire.
+     */
+    public static final String METADATA_KEY_LISTEN_ONCE_CONSUMED = "loc";
+
+    /**
+     * Custom (F1Whisper) metadata flag marking an image or video message as a "spoiler". When
+     * {@code true}, the recipient sees a blurred thumbnail with a tap-to-reveal overlay until they
+     * choose to reveal it (re-hidden each session). Carried inside the E2E-encrypted file metadata
+     * map ("x"), invisible to the server. Rendering/reveal are purely client-side.
+     */
+    public static final String METADATA_KEY_SPOILER = "sp";
 
     private byte[] fileBlobId;
     private byte[] encryptionKey;
@@ -265,6 +283,34 @@ public class FileDataModel implements MediaMessageDataInterface {
      */
     public boolean isListenOnce() {
         return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_LISTEN_ONCE));
+    }
+
+    /**
+     * @return {@code true} if this listen-once voice message has already been played once and burned
+     * (media deleted). The burned state is persisted in the file-data metadata, so it survives a
+     * chat close/reopen regardless of the message's {@link ch.threema.storage.models.MessageState}.
+     */
+    public boolean isListenOnceConsumed() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_LISTEN_ONCE_CONSUMED));
+    }
+
+    /**
+     * Persistently mark this listen-once voice message as consumed (burned). Lazily creates the
+     * metadata map if absent. Call after the single playback completes and the media is deleted.
+     */
+    public void setListenOnceConsumed() {
+        if (this.metaData == null) {
+            this.metaData = new HashMap<>();
+        }
+        this.metaData.put(METADATA_KEY_LISTEN_ONCE_CONSUMED, Boolean.TRUE);
+    }
+
+    /**
+     * @return {@code true} if this image/video file message carries the "spoiler" metadata flag.
+     * Safe to call on any file message (returns {@code false} when absent).
+     */
+    public boolean isSpoiler() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_SPOILER));
     }
 
     /**

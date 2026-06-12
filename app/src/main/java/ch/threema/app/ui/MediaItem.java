@@ -59,6 +59,7 @@ public class MediaItem implements Parcelable {
     private boolean isEdited;
     private boolean muted;
     private boolean listenOnce;
+    private boolean spoiler;
 
     private static final Logger logger = getThreemaLogger("MediaItem");
 
@@ -276,6 +277,7 @@ public class MediaItem implements Parcelable {
         this.deleteAfterUse = false;
         isEdited = false;
         this.listenOnce = false;
+        this.spoiler = false;
     }
 
 
@@ -300,6 +302,7 @@ public class MediaItem implements Parcelable {
         originalUri = in.readParcelable(Uri.class.getClassLoader());
         isEdited = in.readInt() != 0;
         listenOnce = in.readInt() != 0;
+        spoiler = in.readInt() != 0;
     }
 
     @Override
@@ -323,6 +326,7 @@ public class MediaItem implements Parcelable {
         dest.writeParcelable(originalUri, flags);
         dest.writeInt(isEdited ? 1 : 0);
         dest.writeInt(listenOnce ? 1 : 0);
+        dest.writeInt(spoiler ? 1 : 0);
     }
 
     @Override
@@ -575,6 +579,20 @@ public class MediaItem implements Parcelable {
      */
     public void setListenOnce(boolean listenOnce) {
         this.listenOnce = listenOnce;
+    }
+
+    /**
+     * Return true if this image/video should be sent obscured (Telegram-style spoiler).
+     */
+    public boolean isSpoiler() {
+        return spoiler;
+    }
+
+    /**
+     * Mark this image/video as a spoiler. Only meaningful for {@link #TYPE_IMAGE}/{@link #TYPE_VIDEO} items.
+     */
+    public void setSpoiler(boolean spoiler) {
+        this.spoiler = spoiler;
     }
 
     /**

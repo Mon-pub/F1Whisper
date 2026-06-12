@@ -50,6 +50,13 @@
         android:checkableBehavior="none">
 
         <item
+            android:id="@+id/menu_manage_folders"
+            android:icon="@drawable/ic_folder_outline"
+            android:orderInCategory="45"
+            android:title="@string/manage_folders"
+            app:showAsAction="never" />
+
+        <item
             android:id="@+id/menu_toggle_private_chats"
             android:icon="@drawable/ic_outline_visibility"
             android:orderInCategory="50"

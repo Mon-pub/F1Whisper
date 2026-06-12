@@ -38,6 +38,8 @@ public class ComposeEditText extends EmojiEditText implements MentionSelectorPop
     private static final int CONTEXT_MENU_BOLD = 700;
     private static final int CONTEXT_MENU_ITALIC = 701;
     private static final int CONTEXT_MENU_STRIKETHRU = 702;
+    private static final int CONTEXT_MENU_MONOSPACE = 703;
+    private static final int CONTEXT_MENU_SPOILER = 704;
     private static final int CONTEXT_MENU_GROUP = 22100;
 
     private Context context;
@@ -72,6 +74,8 @@ public class ComposeEditText extends EmojiEditText implements MentionSelectorPop
                             menu.add(CONTEXT_MENU_GROUP, CONTEXT_MENU_BOLD, 200, R.string.bold);
                             menu.add(CONTEXT_MENU_GROUP, CONTEXT_MENU_ITALIC, 201, R.string.italic);
                             menu.add(CONTEXT_MENU_GROUP, CONTEXT_MENU_STRIKETHRU, 203, R.string.strikethrough);
+                            menu.add(CONTEXT_MENU_GROUP, CONTEXT_MENU_MONOSPACE, 204, R.string.markup_monospace);
+                            menu.add(CONTEXT_MENU_GROUP, CONTEXT_MENU_SPOILER, 205, R.string.markup_spoiler);
                         }
                     } catch (Exception e) {
                         // do not add menus if an error occurs
@@ -92,6 +96,12 @@ public class ComposeEditText extends EmojiEditText implements MentionSelectorPop
                     break;
                 case CONTEXT_MENU_STRIKETHRU:
                     addMarkup("~");
+                    break;
+                case CONTEXT_MENU_MONOSPACE:
+                    addMarkup("`");
+                    break;
+                case CONTEXT_MENU_SPOILER:
+                    addMarkup("||");
                     break;
                 default:
                     return false;

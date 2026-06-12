@@ -626,6 +626,10 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
 
     private void setImageDropdown(@NonNull PopupMenu popup, @NonNull MediaItem mediaItem) {
         popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.spoiler_item) {
+                toggleSpoiler();
+                return true;
+            }
             final @PreferenceService.ImageScale int oldSetting = mediaItem.getImageScale();
             final @PreferenceService.ImageScale int newSetting = item.getOrder();
             mediaItem.setImageScale(newSetting);
@@ -636,6 +640,7 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
             return true;
         });
         popup.inflate(R.menu.view_image_settings);
+        MenuCompat.setGroupDividerEnabled(popup.getMenu(), true);
 
         if (mediaItem.hasChanges()) {
             popup.getMenu().removeItem(R.id.menu_send_as_file);
@@ -647,10 +652,15 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
         }
 
         popup.getMenu().getItem(currentScale).setChecked(true);
+        popup.getMenu().findItem(R.id.spoiler_item).setChecked(mediaItem.isSpoiler());
     }
 
     private void setVideoDropdown(@NonNull PopupMenu popup, @NonNull MediaItem mediaItem) {
         popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.spoiler_item) {
+                toggleSpoiler();
+                return true;
+            }
             if (item.getItemId() == R.id.mute_item) {
                 toggleMuteVideo();
                 return true;
@@ -690,6 +700,9 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
         } else {
             popup.getMenu().findItem(R.id.mute_item).setChecked(mediaItem.isMuted());
         }
+
+        // Update spoiler option (available also when sending as file - the metadata still rides along)
+        popup.getMenu().findItem(R.id.spoiler_item).setChecked(mediaItem.isSpoiler());
     }
 
     private void launchCamera() {
@@ -1149,6 +1162,16 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
 
         currentItem.setMuted(!currentItem.isMuted());
         mediaAdapterManager.updateMuteState(NOTIFY_BOTH_ADAPTERS);
+    }
+
+    private void toggleSpoiler() {
+        MediaItem currentItem = mediaAdapterManager.getCurrentItem();
+        if (currentItem == null) {
+            logger.error("Cannot toggle spoiler as current media item is null");
+            return;
+        }
+
+        currentItem.setSpoiler(!currentItem.isSpoiler());
     }
 
     private void updateMenu() {

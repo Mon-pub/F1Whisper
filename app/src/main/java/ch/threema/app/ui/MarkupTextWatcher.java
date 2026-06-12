@@ -4,9 +4,11 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
 import android.widget.EditText;
 
 import java.util.regex.Pattern;
@@ -66,6 +68,8 @@ public class MarkupTextWatcher implements TextWatcher {
             for (Object span : spans) {
                 if (span instanceof StyleSpan ||
                     span instanceof StrikethroughSpan ||
+                    span instanceof TypefaceSpan ||
+                    span instanceof BackgroundColorSpan ||
                     span instanceof ForegroundColorSpan) {
                     editableText.removeSpan(span);
                 }

@@ -13,6 +13,8 @@ import ch.threema.data.datatypes.ContactNameFormat
  *  @param archivedConversationsCount The count of all archived conversations that match an optional [filterQuery]. The count respects the users
  *  @param availabilityStatus         The [AvailabilityStatus] of the user
  *  setting to hide private conversations. If private conversations should be hidden, these will never be counted.
+ *  @param folders                    The user-defined chat folders rendered as filter chips above the list.
+ *  @param selectedFolderId           The id of the currently selected folder, or `null` for the "All" filter.
  */
 @Immutable
 data class ConversationsViewState(
@@ -23,6 +25,14 @@ data class ConversationsViewState(
     val archivedConversationsCount: Long,
     val contactNameFormat: ContactNameFormat,
     val availabilityStatus: AvailabilityStatus,
+    val folders: List<ChatFolderUiModel>,
+    val selectedFolderId: Long?,
+)
+
+@Immutable
+data class ChatFolderUiModel(
+    val id: Long,
+    val name: String,
 )
 
 @Immutable

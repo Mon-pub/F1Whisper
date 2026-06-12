@@ -29,6 +29,11 @@
             android:id="@+id/mute_item"
             android:orderInCategory="10"
             android:title="@string/send_without_audio" />
+        <item
+            android:id="@+id/spoiler_item"
+            android:orderInCategory="11"
+            android:icon="@drawable/ic_spoiler"
+            android:title="@string/media_spoiler" />
     </group>
 
 </menu>

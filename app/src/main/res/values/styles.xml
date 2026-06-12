@@ -689,6 +689,14 @@
         <item name="ensureMinTouchTargetSize">false</item>
     </style>
 
+    <!-- F1Whisper: theme overlay applied to the wheels in the scheduled-message picker, so the
+         platform NumberPicker selection divider and text pick up the app accent / surface colors. -->
+    <style name="Threema.NumberPicker" parent="">
+        <item name="android:textColorPrimary">?attr/colorOnSurface</item>
+        <item name="colorControlNormal">?attr/colorPrimary</item>
+        <item name="android:colorControlNormal">?attr/colorPrimary</item>
+    </style>
+
     <!-- default borderless button style used in dialogs etc. -->
     <style name="Threema.MaterialButtonStyle" parent="@style/Widget.Material3.Button">
         <item name="backgroundTint">?attr/colorPrimary</item>

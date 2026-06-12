@@ -60,6 +60,12 @@ object ChatBackgrounds {
         ChatBackground("berry", intArrayOf(0xFFC94B4B.toInt(), 0xFF4B134F.toInt())),
         ChatBackground("sky", intArrayOf(0xFF1FA2FF.toInt(), 0xFF12D8FA.toInt(), 0xFFA6FFCB.toInt())),
         ChatBackground("ember", intArrayOf(0xFFF12711.toInt(), 0xFFF5AF19.toInt())),
+        // Sourced from Telegram's built-in animated gradient wallpapers.
+        ChatBackground("candy", intArrayOf(0xFF837CFF.toInt(), 0xFFB063FF.toInt(), 0xFFFF72A9.toInt(), 0xFFE269FF.toInt())),
+        ChatBackground("aqua", intArrayOf(0xFF4D8DFF.toInt(), 0xFF2BBFFF.toInt(), 0xFF20E2CD.toInt(), 0xFF0EE1F1.toInt())),
+        ChatBackground("lime", intArrayOf(0xFF00D2D5.toInt(), 0xFF09E279.toInt(), 0xFFC7EF60.toInt(), 0xFF6DD957.toInt())),
+        ChatBackground("coral", intArrayOf(0xFFFF7866.toInt(), 0xFFFF82A5.toInt(), 0xFFFEB055.toInt(), 0xFFFF8E51.toInt())),
+        ChatBackground("rose", intArrayOf(0xFFF94BA0.toInt(), 0xFFFB5C80.toInt(), 0xFFFFB23A.toInt(), 0xFFFE7E62.toInt())),
     )
 
     @JvmStatic

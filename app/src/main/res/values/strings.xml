@@ -915,6 +915,9 @@
     <string name="strikethrough">Strikethru</string>
     <string name="italic">Italic</string>
     <string name="bold">Bold</string>
+    <string name="markup_monospace">Monospace</string>
+    <string name="markup_spoiler">Spoiler</string>
+    <string name="spoiler_hidden_content_description">Hidden spoiler text, double tap to reveal</string>
     <string name="shortcut_choice_title">Create a shortcut for a…</string>
     <string name="notifications_disabled_title">Notifications disabled</string>
     <string name="error_attaching_files">Error adding attachments.</string>
@@ -1185,6 +1188,11 @@
     <string name="listen_once_disabled">Listen once: off</string>
     <string name="listen_once_badge_content_description">Listen once voice message</string>
     <string name="listen_once_already_listened">Listened</string>
+    <string name="listen_once_sent">Listen-once voice message</string>
+    <!-- F1Whisper: image/video spoiler -->
+    <string name="media_spoiler">Spoiler</string>
+    <string name="media_spoiler_reveal">Tap to reveal</string>
+    <string name="media_spoiler_badge_content_description">Hidden media. Double tap to reveal.</string>
     <string name="message_id">Message ID</string>
     <string name="mime_type">MIME type</string>
     <string name="password_does_not_comply">The password does not comply with the guidelines set by the administrator.</string>
@@ -1982,4 +1990,35 @@
         <item quantity="many">%d group members</item>
         <item quantity="other">%d group members</item>
     </plurals>
+    <!-- F1Whisper: scheduled messages -->
+    <string name="schedule_message">Schedule message</string>
+    <string name="message_scheduled">Message scheduled</string>
+    <string name="scheduled_time_in_past">Pick a time in the future</string>
+    <string name="scheduled_messages_title">Scheduled messages</string>
+    <string name="scheduled_messages_count">%d scheduled</string>
+    <string name="scheduled_message_send_at">%1$s · %2$s</string>
+    <string name="scheduled_message_cancel">Cancel scheduled message</string>
+    <string name="scheduled_message_canceled">Scheduled message canceled</string>
+    <string name="schedule_message_pick_date">Choose a date</string>
+    <string name="schedule_message_pick_time">Choose a time</string>
+    <string name="no_scheduled_messages">No scheduled messages</string>
+    <string name="schedule_today">Today</string>
+    <string name="schedule_tomorrow">Tomorrow</string>
+    <!-- Chat folders -->
+    <string name="chat_folders">Chat folders</string>
+    <string name="manage_folders">Manage folders</string>
+    <string name="add_to_folder">Add to folder</string>
+    <string name="folder_all">All</string>
+    <string name="new_folder">New folder</string>
+    <string name="create_folder">Create folder</string>
+    <string name="rename_folder">Rename folder</string>
+    <string name="delete_folder">Delete folder</string>
+    <string name="delete_folder_confirm">Remove this folder? Your chats will not be deleted.</string>
+    <string name="folder_name_hint">Folder name</string>
+    <string name="folder_name_empty">Please enter a folder name</string>
+    <string name="no_chat_folders">You haven\'t created any folders yet</string>
+    <string name="folder_created">Folder created</string>
+    <string name="folder_deleted">Folder deleted</string>
+    <string name="add_to_folder_title">Add chat to folders</string>
+    <string name="folder_empty">No chats in this folder</string>
 </resources>

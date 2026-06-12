@@ -43,6 +43,7 @@ import ch.threema.app.BuildConfig
 import ch.threema.app.BuildFlavor
 import ch.threema.app.R
 import ch.threema.app.activities.BackupAdminActivity
+import ch.threema.app.activities.ChatFoldersActivity
 import ch.threema.app.activities.BackupRestoreProgressActivity
 import ch.threema.app.activities.ComposeMessageActivity
 import ch.threema.app.activities.DistributionListAddActivity
@@ -1127,6 +1128,10 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
             R.id.menu_new_distribution_list -> consume {
                 logger.info("New distribution list button clicked")
                 startActivity(DistributionListAddActivity.createIntent(this))
+            }
+            R.id.menu_manage_folders -> consume {
+                logger.info("Manage folders button clicked")
+                startActivity(ChatFoldersActivity.createIntent(this))
             }
             R.id.my_backups -> consume {
                 logger.info("Backups button clicked")

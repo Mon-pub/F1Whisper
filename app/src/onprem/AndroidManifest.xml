@@ -16,6 +16,14 @@
          self-updates declares it for the same reason. -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
+    <!-- F1Whisper: scheduled messages use an exact AlarmManager alarm so a deferred message fires at
+         the user-chosen time. Android 12 (API 31) requires SCHEDULE_EXACT_ALARM for
+         setExactAndAllowWhileIdle; on Android 13+ USE_EXACT_ALARM is granted to alarm-clock-class
+         apps. The service degrades to an inexact alarm if neither is available
+         (canScheduleExactAlarms() == false). -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
     <!--
       F1Whisper: onprem is FCM-free. The Firebase MESSAGING_EVENT <service> and the
       gms/firebase metadata were removed because the onprem flavor now compiles against the

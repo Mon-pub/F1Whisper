@@ -149,6 +149,17 @@ class PreferenceServiceImpl(
         preferenceStore.save(getKeyName(R.string.preferences__recent_emojis2), list.toTypedArray<String>())
     }
 
+    override fun getRecentEmojiReactions(): LinkedList<String> =
+        LinkedList(
+            preferenceStore.getStringArray(getKeyName(R.string.preferences__recent_emoji_reactions))
+                ?.toList()
+                ?: emptyList(),
+        )
+
+    override fun setRecentEmojiReactions(list: LinkedList<String>) {
+        preferenceStore.save(getKeyName(R.string.preferences__recent_emoji_reactions), list.toTypedArray<String>())
+    }
+
     override fun getEmojiSearchIndexVersion(): Int =
         preferenceStore.getInt(getKeyName(R.string.preferences__emoji_search_index_version), defaultValue = -1)
 

@@ -6,8 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.text.Spannable;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -477,6 +479,41 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
 
     protected int getThumbnailWidth() {
         return helper.getThumbnailWidth();
+    }
+
+    /**
+     * Tag used to look up / deduplicate the single spoiler overlay child added programmatically to a
+     * media bubble's content block. Because list-item holders are recycled, the overlay must be
+     * deduplicated and explicitly removed when the bubble is no longer a (un-revealed) spoiler.
+     */
+    private static final String SPOILER_OVERLAY_TAG = "spoiler_overlay";
+
+    /**
+     * Show or hide the F1Whisper "spoiler" tap-to-reveal overlay on a media bubble's content block.
+     * Always call with {@code show = false} for non-spoiler / revealed bubbles so a recycled holder
+     * does not keep a stale overlay.
+     *
+     * @param holder the media bubble holder (its {@code contentView} is the FrameLayout content block)
+     * @param show   {@code true} to add the overlay, {@code false} to remove it
+     */
+    protected void showSpoilerOverlay(@NonNull ComposeMessageHolder holder, boolean show) {
+        final ViewGroup parent = holder.contentView;
+        if (parent == null) {
+            return;
+        }
+        final View existing = parent.findViewWithTag(SPOILER_OVERLAY_TAG);
+        if (!show) {
+            if (existing != null) {
+                parent.removeView(existing);
+            }
+            return;
+        }
+        if (existing == null) {
+            final View overlay = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.spoiler_overlay, parent, false);
+            overlay.setTag(SPOILER_OVERLAY_TAG);
+            parent.addView(overlay);
+        }
     }
 
     protected ThumbnailCache getThumbnailCache() {

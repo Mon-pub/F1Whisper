@@ -7,6 +7,7 @@ import ch.threema.storage.factories.AppTaskPersistenceFactory
 import ch.threema.storage.factories.BallotChoiceModelFactory
 import ch.threema.storage.factories.BallotModelFactory
 import ch.threema.storage.factories.BallotVoteModelFactory
+import ch.threema.storage.factories.ChatFolderFactory
 import ch.threema.storage.factories.ContactEditHistoryEntryModelFactory
 import ch.threema.storage.factories.ContactEmojiReactionModelFactory
 import ch.threema.storage.factories.ContactModelFactory
@@ -53,6 +54,7 @@ val storageModule = module {
     } bind DatabaseProvider::class
 
     singleOf(::AppTaskPersistenceFactory)
+    singleOf(::ChatFolderFactory)
     singleOf(::ContactEditHistoryEntryModelFactory)
     singleOf(::ConversationTagFactory)
     singleOf(::GroupEditHistoryEntryModelFactory)

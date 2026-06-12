@@ -13,6 +13,7 @@ import ch.threema.app.profilepicture.GroupProfilePictureUploader
 import ch.threema.app.services.ActivityService
 import ch.threema.app.services.ApiService
 import ch.threema.app.services.BlockedIdentitiesService
+import ch.threema.app.services.ChatFolderService
 import ch.threema.app.services.ContactService
 import ch.threema.app.services.ConversationCategoryService
 import ch.threema.app.services.ConversationService
@@ -79,6 +80,7 @@ val sessionScopedModule = module {
     service<BackupChatService> { backupChatService }
     service<BallotService> { ballotService }
     service<BlockedIdentitiesService> { blockedIdentitiesService }
+    service<ChatFolderService> { chatFolderService }
     service<ContactService> { contactService }
     service<ContactStore> { contactStore }
     service<ConversationCategoryService> { conversationCategoryService }

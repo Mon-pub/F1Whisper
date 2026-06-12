@@ -28,6 +28,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.SparseBooleanArray;
 import android.view.Gravity;
@@ -49,6 +50,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +61,7 @@ import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.badge.ExperimentalBadgeUtils;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
@@ -78,6 +81,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -214,6 +218,7 @@ import ch.threema.app.services.GroupFlowDispatcher;
 import ch.threema.app.services.GroupService;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.services.RingtoneService;
+import ch.threema.app.services.ScheduledMessageService;
 import ch.threema.app.services.UserService;
 import ch.threema.app.services.VoiceMessagePlayerService;
 import ch.threema.app.services.WallpaperService;
@@ -260,6 +265,7 @@ import ch.threema.app.utils.GroupFeatureSupport;
 import ch.threema.app.utils.IntentDataUtil;
 import ch.threema.app.utils.LinkifyUtil;
 import ch.threema.app.utils.LocaleUtil;
+import ch.threema.app.utils.MediaSpoilerUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.NameUtil;
 import ch.threema.app.utils.MessageUtilKt;
@@ -307,6 +313,7 @@ import ch.threema.storage.models.DistributionListModel;
 import ch.threema.storage.models.FirstUnreadMessageModel;
 import ch.threema.storage.models.MessageModel;
 import ch.threema.storage.models.MessageState;
+import ch.threema.storage.models.ScheduledMessageModel;
 import ch.threema.storage.models.MessageType;
 import ch.threema.storage.models.ballot.BallotModel;
 import ch.threema.storage.models.data.DisplayTag;
@@ -413,6 +420,9 @@ public class ComposeMessageFragment extends Fragment implements
     private AudioManager audioManager;
     private ConversationListView convListView;
     private FrameLayout historyParent;
+    // F1Whisper: scheduled-messages indicator bar
+    private @Nullable View scheduledMessagesBar;
+    private @Nullable TextView scheduledMessagesCount;
     private @Nullable ComposeMessageAdapter composeMessageAdapter;
     private View isTypingView;
 
@@ -1358,6 +1368,13 @@ public class ComposeMessageFragment extends Fragment implements
             this.dateView = this.fragmentView.findViewById(R.id.date_separator_container);
             this.dateTextView = this.fragmentView.findViewById(R.id.text_view);
 
+            // F1Whisper: scheduled-messages indicator chip
+            this.scheduledMessagesBar = this.fragmentView.findViewById(R.id.scheduled_messages_bar);
+            this.scheduledMessagesCount = this.fragmentView.findViewById(R.id.scheduled_messages_count);
+            if (this.scheduledMessagesBar != null) {
+                this.scheduledMessagesBar.setOnClickListener(v -> showScheduledMessagesDialog());
+            }
+
             this.editMessageBubbleContainer = this.fragmentView.findViewById(R.id.edit_message_bubble_container);
             this.editMessageBubbleComposeView = this.fragmentView.findViewById(R.id.edit_message_bubble_compose_view);
             this.dimBackground = this.fragmentView.findViewById(R.id.dim_background);
@@ -1823,6 +1840,9 @@ public class ComposeMessageFragment extends Fragment implements
         updateOngoingCallNotice();
 
         viewModel.onResume(messageReceiver);
+
+        // F1Whisper: refresh the scheduled-messages indicator for this conversation
+        updateScheduledMessagesBar();
     }
 
     @Override
@@ -1844,6 +1864,11 @@ public class ComposeMessageFragment extends Fragment implements
         if (this.typingIndicatorTextWatcher != null) {
             this.typingIndicatorTextWatcher.stopSending();
         }
+
+        // F1Whisper: media spoilers reveal strictly per chat-visit. Forget every revealed spoiler when
+        // leaving the conversation so re-entering shows them obscured again (tap-to-reveal each time).
+        // Bubbles re-bind on chat re-entry, so no explicit adapter refresh is needed here.
+        MediaSpoilerUtil.clearRevealed();
 
         preserveListInstanceValues();
     }
@@ -2158,6 +2183,19 @@ public class ComposeMessageFragment extends Fragment implements
                     logger.info("Send button clicked");
                     sendMessage();
                 }
+            });
+            // F1Whisper: long-press the send button to schedule the currently typed message
+            sendButton.setOnLongClickListener(v -> {
+                if (!validateSendingPermission()) {
+                    return true;
+                }
+                if (TestUtil.isBlankOrNull(messageText.getText())) {
+                    // nothing typed -> let the normal (voice) long-press behaviour stand
+                    return false;
+                }
+                logger.info("Send button long-pressed, showing schedule picker");
+                showScheduleMessagePicker();
+                return true;
             });
         }
     }
@@ -4201,6 +4239,247 @@ public class ComposeMessageFragment extends Fragment implements
             logger.warn("Message text is empty");
         }
     }
+
+    // region F1Whisper scheduled messages
+
+    /**
+     * Telegram-style scheduling: a single bottom sheet with smooth day / hour / minute wheels
+     * (plus an AM/PM wheel on 12-hour locales). On confirm, schedule the currently typed message.
+     */
+    private void showScheduleMessagePicker() {
+        final Context context = getContext();
+        if (messageReceiver == null || context == null) {
+            return;
+        }
+
+        final boolean is24h = DateFormat.is24HourFormat(context);
+        final BottomSheetDialog dialog = new BottomSheetDialog(context);
+        final View sheet = LayoutInflater.from(context)
+            .inflate(R.layout.bottom_sheet_schedule_message, null);
+        dialog.setContentView(sheet);
+
+        final NumberPicker dayPicker = sheet.findViewById(R.id.day_picker);
+        final NumberPicker hourPicker = sheet.findViewById(R.id.hour_picker);
+        final NumberPicker minutePicker = sheet.findViewById(R.id.minute_picker);
+        final NumberPicker ampmPicker = sheet.findViewById(R.id.ampm_picker);
+        final MaterialButton confirmButton = sheet.findViewById(R.id.schedule_confirm_button);
+
+        final Calendar now = Calendar.getInstance();
+
+        // Day wheel: a year of days, labelled Today / Tomorrow / a localized weekday-date.
+        final int daysAhead = 365;
+        final String[] dayLabels = new String[daysAhead + 1];
+        final Calendar dayCursor = Calendar.getInstance();
+        for (int i = 0; i <= daysAhead; i++) {
+            if (i == 0) {
+                dayLabels[i] = context.getString(R.string.schedule_today);
+            } else if (i == 1) {
+                dayLabels[i] = context.getString(R.string.schedule_tomorrow);
+            } else {
+                dayLabels[i] = DateUtils.formatDateTime(
+                    context,
+                    dayCursor.getTimeInMillis(),
+                    DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE
+                        | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_NO_YEAR);
+            }
+            dayCursor.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        dayPicker.setMinValue(0);
+        dayPicker.setMaxValue(daysAhead);
+        dayPicker.setDisplayedValues(dayLabels);
+        dayPicker.setWrapSelectorWheel(false);
+
+        // Minute wheel: 00..59, zero-padded.
+        final NumberPicker.Formatter twoDigits =
+            value -> String.format(java.util.Locale.getDefault(), "%02d", value);
+        minutePicker.setMinValue(0);
+        minutePicker.setMaxValue(59);
+        minutePicker.setFormatter(twoDigits);
+        minutePicker.setValue(now.get(Calendar.MINUTE));
+        minutePicker.setWrapSelectorWheel(true);
+
+        // Hour wheel: 0..23 on 24h locales, else 1..12 with an AM/PM wheel.
+        if (is24h) {
+            hourPicker.setMinValue(0);
+            hourPicker.setMaxValue(23);
+            hourPicker.setFormatter(twoDigits);
+            hourPicker.setValue(now.get(Calendar.HOUR_OF_DAY));
+            ampmPicker.setVisibility(View.GONE);
+        } else {
+            hourPicker.setMinValue(1);
+            hourPicker.setMaxValue(12);
+            int hour12 = now.get(Calendar.HOUR);
+            hourPicker.setValue(hour12 == 0 ? 12 : hour12);
+            final String[] ampmLabels =
+                new java.text.DateFormatSymbols(java.util.Locale.getDefault()).getAmPmStrings();
+            ampmPicker.setMinValue(0);
+            ampmPicker.setMaxValue(1);
+            ampmPicker.setDisplayedValues(ampmLabels);
+            ampmPicker.setValue(now.get(Calendar.AM_PM));
+            ampmPicker.setWrapSelectorWheel(false);
+            ampmPicker.setVisibility(View.VISIBLE);
+        }
+
+        confirmButton.setOnClickListener(v -> {
+            final Calendar scheduled = Calendar.getInstance();
+            scheduled.add(Calendar.DAY_OF_MONTH, dayPicker.getValue());
+            final int hourOfDay;
+            if (is24h) {
+                hourOfDay = hourPicker.getValue();
+            } else {
+                final int base12 = hourPicker.getValue() % 12; // 12 -> 0
+                hourOfDay = ampmPicker.getValue() == Calendar.PM ? base12 + 12 : base12;
+            }
+            scheduled.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            scheduled.set(Calendar.MINUTE, minutePicker.getValue());
+            scheduled.set(Calendar.SECOND, 0);
+            scheduled.set(Calendar.MILLISECOND, 0);
+            final long atMillis = scheduled.getTimeInMillis();
+
+            if (atMillis <= System.currentTimeMillis()) {
+                Toast.makeText(getActivity(), R.string.scheduled_time_in_past, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            dialog.dismiss();
+            scheduleCurrentMessage(atMillis);
+        });
+
+        dialog.show();
+    }
+
+    /**
+     * Persist the currently typed message (quote-encoded like an immediate send) into the
+     * scheduled-messages store for the given fire time.
+     */
+    private void scheduleCurrentMessage(long atMillis) {
+        if (messageReceiver == null) {
+            return;
+        }
+
+        final CharSequence message;
+        if (isQuotePopupShown()) {
+            QuotePopup.QuoteInfo quoteInfo = quotePopup.getQuoteInfo();
+            message = QuoteUtil.quote(
+                this.messageText.getText().toString(),
+                quoteInfo.getQuoteIdentity(),
+                quoteInfo.getQuoteText(),
+                quoteInfo.getMessageModel()
+            );
+            messageText.postDelayed(this::dismissQuotePopup, 500);
+        } else {
+            message = this.messageText.getText();
+        }
+
+        if (TestUtil.isBlankOrNull(message)) {
+            logger.warn("Scheduled message text is empty");
+            return;
+        }
+
+        ScheduledMessageService.getInstance().schedule(messageReceiver, message.toString(), atMillis);
+        messageText.setText("");
+        LongToast.makeText(getActivity(), R.string.message_scheduled, Toast.LENGTH_SHORT).show();
+        updateScheduledMessagesBar();
+    }
+
+    @Nullable
+    private String scheduledReceiverKey() {
+        if (messageReceiver == null) {
+            return null;
+        }
+        return ScheduledMessageService.receiverKeyOf(messageReceiver);
+    }
+
+    /**
+     * Refresh the scheduled-messages indicator chip for the current conversation.
+     */
+    private void updateScheduledMessagesBar() {
+        if (scheduledMessagesBar == null || messageReceiver == null) {
+            return;
+        }
+        final int receiverType = messageReceiver.getType();
+        final String receiverKey = scheduledReceiverKey();
+        if (receiverKey == null) {
+            scheduledMessagesBar.setVisibility(View.GONE);
+            return;
+        }
+        new Thread(() -> {
+            final int count = ScheduledMessageService.getInstance().countByReceiver(receiverType, receiverKey);
+            RuntimeUtil.runOnUiThread(() -> {
+                if (scheduledMessagesBar == null) {
+                    return;
+                }
+                if (count > 0) {
+                    if (scheduledMessagesCount != null) {
+                        scheduledMessagesCount.setText(getString(R.string.scheduled_messages_count, count));
+                    }
+                    scheduledMessagesBar.setVisibility(View.VISIBLE);
+                } else {
+                    scheduledMessagesBar.setVisibility(View.GONE);
+                }
+            });
+        }).start();
+    }
+
+    /**
+     * Show a dialog listing the pending scheduled messages for this conversation, each cancellable.
+     */
+    private void showScheduledMessagesDialog() {
+        if (messageReceiver == null) {
+            return;
+        }
+        final int receiverType = messageReceiver.getType();
+        final String receiverKey = scheduledReceiverKey();
+        if (receiverKey == null) {
+            return;
+        }
+
+        new Thread(() -> {
+            final List<ScheduledMessageModel> models =
+                ScheduledMessageService.getInstance().getByReceiver(receiverType, receiverKey);
+            RuntimeUtil.runOnUiThread(() -> {
+                if (!isAdded()) {
+                    return;
+                }
+                if (models.isEmpty()) {
+                    Toast.makeText(getActivity(), R.string.no_scheduled_messages, Toast.LENGTH_SHORT).show();
+                    updateScheduledMessagesBar();
+                    return;
+                }
+
+                final CharSequence[] entries = new CharSequence[models.size()];
+                for (int i = 0; i < models.size(); i++) {
+                    ScheduledMessageModel model = models.get(i);
+                    Date when = new Date(model.getScheduledAt());
+                    String dateStr = DateUtils.formatDateTime(getContext(), when.getTime(),
+                        DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
+                    String preview = model.getBody();
+                    if (preview != null && preview.length() > 40) {
+                        preview = preview.substring(0, 40) + "…";
+                    }
+                    entries[i] = getString(R.string.scheduled_message_send_at, dateStr, preview != null ? preview : "");
+                }
+
+                new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.scheduled_messages_title)
+                    .setItems(entries, (dialog, which) -> {
+                        ScheduledMessageModel selected = models.get(which);
+                        new MaterialAlertDialogBuilder(requireContext())
+                            .setMessage(R.string.scheduled_message_cancel)
+                            .setPositiveButton(R.string.ok, (d, w) -> {
+                                ScheduledMessageService.getInstance().cancel(selected.getId());
+                                Toast.makeText(getActivity(), R.string.scheduled_message_canceled, Toast.LENGTH_SHORT).show();
+                                updateScheduledMessagesBar();
+                            })
+                            .setNegativeButton(R.string.cancel, null)
+                            .show();
+                    })
+                    .setNegativeButton(R.string.close, null)
+                    .show();
+            });
+        }).start();
+    }
+
+    // endregion
 
     private void sendTextMessage(CharSequence message) {
         // block send button to avoid double posting

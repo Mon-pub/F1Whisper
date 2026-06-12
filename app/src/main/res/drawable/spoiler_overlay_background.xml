@@ -1,0 +1,9 @@
+<!--
+  ~ F1Whisper: frosted scrim background for the "tap to reveal" spoiler chip drawn over a blurred
+  ~ image/video thumbnail.
+  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#80000000" />
+    <corners android:radius="24dp" />
+</shape>

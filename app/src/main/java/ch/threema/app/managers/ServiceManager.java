@@ -48,6 +48,8 @@ import ch.threema.app.services.ConversationCategoryService;
 import ch.threema.app.services.ConversationCategoryServiceImpl;
 import ch.threema.app.services.ConversationService;
 import ch.threema.app.services.ConversationServiceImpl;
+import ch.threema.app.services.ChatFolderService;
+import ch.threema.app.services.ChatFolderServiceImpl;
 import ch.threema.app.services.ConversationTagService;
 import ch.threema.app.services.ConversationTagServiceImpl;
 import ch.threema.app.services.DefaultServerAddressProvider;
@@ -135,6 +137,7 @@ import ch.threema.localcrypto.exceptions.MasterKeyLockedException;
 import ch.threema.localcrypto.MasterKeyProvider;
 import ch.threema.storage.DatabaseProvider;
 import ch.threema.storage.DatabaseService;
+import ch.threema.storage.factories.ChatFolderFactory;
 import ch.threema.storage.factories.ContactModelFactory;
 import ch.threema.storage.factories.ConversationTagFactory;
 import ch.threema.storage.factories.ServerMessageModelFactory;
@@ -232,6 +235,8 @@ public class ServiceManager {
     private SfuConnection sfuConnection;
     @Nullable
     private ConversationTagServiceImpl conversationTagService;
+    @Nullable
+    private ChatFolderServiceImpl chatFolderService;
     @Nullable
     private ServerAddressProviderService serverAddressProviderService;
     @Nullable
@@ -711,6 +716,18 @@ public class ServiceManager {
         }
 
         return this.conversationTagService;
+    }
+
+    @NonNull
+    public ChatFolderService getChatFolderService() {
+        ensureNotClosed();
+        if (this.chatFolderService == null) {
+            this.chatFolderService = new ChatFolderServiceImpl(
+                KoinJavaComponent.get(ChatFolderFactory.class)
+            );
+        }
+
+        return this.chatFolderService;
     }
 
     @NonNull

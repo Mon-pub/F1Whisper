@@ -102,10 +102,14 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         final boolean isListenOnce = !getMessageModel().isOutbox()
             && fileDataModel != null
             && fileDataModel.isListenOnce();
-        // Once the recipient has played a listen-once message it is marked CONSUMED and its media is
-        // deleted. From then on we show a "listened" placeholder and never offer replay.
-        final boolean alreadyListened = isListenOnce
-            && getMessageModel().getState() == MessageState.CONSUMED;
+        // A listen-once voice message is "burned" once it can no longer be played: on the RECIPIENT
+        // after they play it once, and on the SENDER once it has been sent (so neither side can
+        // replay it, matching Telegram/WhatsApp view-once). We trust the persistent file-metadata
+        // flag first (survives reopen, immune to later state changes) and fall back to the CONSUMED
+        // message state for recipient messages burned before this flag existed.
+        final boolean alreadyListened =
+            (fileDataModel != null && fileDataModel.isListenOnce() && fileDataModel.isListenOnceConsumed())
+                || (isListenOnce && getMessageModel().getState() == MessageState.CONSUMED);
 
         MessagePlayer audioMessagePlayer = messagePlayerFactory.create(getMessageModel(), helper.getMediaControllerFuture());
 
@@ -175,11 +179,13 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
 
             if (alreadyListened) {
                 // F1Whisper: media has been played once and deleted. No play/download/replay.
+                // Show a "burned" flame icon (Telegram-style) instead of the "1" once badge.
                 holder.controller.setHidden();
                 if (holder.seekBar != null) {
                     holder.seekBar.setEnabled(false);
                 }
-                holder.audioMessageIcon.setImageResource(R.drawable.ic_listen_once);
+                holder.audioMessageIcon.setImageResource(R.drawable.ic_listen_once_burned);
+                holder.audioMessageIcon.setContentDescription(context.getString(R.string.listen_once_already_listened));
                 holder.audioMessageIcon.setVisibility(View.VISIBLE);
                 return;
             }
@@ -406,8 +412,11 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         }
 
         if (alreadyListened) {
-            // F1Whisper: replace the caption with a "listened" placeholder for consumed listen-once messages.
-            caption = context.getString(R.string.listen_once_already_listened);
+            // F1Whisper: replace the caption with a burned placeholder. The recipient sees "Listened";
+            // the sender (who never plays it back) sees a neutral "Listen-once voice message".
+            caption = context.getString(getMessageModel().isOutbox()
+                ? R.string.listen_once_sent
+                : R.string.listen_once_already_listened);
         }
 
         configureBodyText(holder, caption);

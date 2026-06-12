@@ -495,12 +495,17 @@ public class AudioMessagePlayer extends MessagePlayer {
 
         RuntimeUtil.runOnWorkerThread(() -> {
             try {
-                // Mark as consumed (no-op if already consumed at playback start)
+                // Best-effort: also move the message state to CONSUMED (no-op if a reaction/receipt
+                // already moved it to a state that cannot transition to CONSUMED).
                 messageService.markAsConsumed(messageModel);
 
                 // Delete the stored encrypted media + thumbnail so it can never be decrypted again
                 fileService.removeMessageFiles(messageModel, true);
 
+                // Persist the burned state in the file metadata itself, NOT only in MessageState:
+                // the metadata survives reopen and cannot be clobbered by a later reaction/receipt
+                // (which could move the state away from CONSUMED and otherwise un-burn the bubble).
+                fileDataModel.setListenOnceConsumed();
                 // Reflect that the media is gone so the bubble offers no replay
                 fileDataModel.isDownloaded(false);
                 messageModel.setFileData(fileDataModel);

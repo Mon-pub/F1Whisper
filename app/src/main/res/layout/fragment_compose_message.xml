@@ -127,6 +127,9 @@
                         <include layout="@layout/date_separator_elevated" />
                     </FrameLayout>
 
+                    <!-- F1Whisper: scheduled-messages indicator chip (see scheduled_messages_bar.xml) -->
+                    <include layout="@layout/scheduled_messages_bar" />
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/quickscroll_top"
                         style="@style/Threema.MaterialButton.Icon.Circle.Filled"

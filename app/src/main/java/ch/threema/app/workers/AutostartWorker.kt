@@ -15,6 +15,7 @@ import ch.threema.app.notifications.NotificationChannels
 import ch.threema.app.notifications.NotificationIDs
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.preference.service.SynchronizedSettingsService
+import ch.threema.app.services.ScheduledMessageService
 import ch.threema.app.services.UserService
 import ch.threema.app.utils.IntentDataUtil
 import ch.threema.base.utils.getThreemaLogger
@@ -79,6 +80,14 @@ class AutostartWorker(
                 userService.getAccount(true)
                 userService.enableAccountAutoSync(true)
             }
+        }
+
+        // F1Whisper: exact alarms do not survive a reboot, so re-arm the scheduled-messages alarm
+        // for the earliest pending message after boot.
+        try {
+            ScheduledMessageService.getInstance().rescheduleNextAlarm(applicationContext)
+        } catch (e: Exception) {
+            logger.warn("Could not re-arm scheduled messages after boot", e)
         }
 
         logger.info("Processing AutoStart - end")

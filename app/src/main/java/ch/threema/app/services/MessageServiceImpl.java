@@ -714,8 +714,33 @@ public class MessageServiceImpl implements MessageService {
             emojiSequence
         );
 
+        if (actionCase == Reaction.ActionCase.APPLY) {
+            // F1Whisper: remember this reaction so the reaction picker can surface the user's
+            // most-recently-used reactions first instead of a fixed list.
+            rememberRecentEmojiReaction(emojiSequence);
+        }
+
         fireOnModifiedMessage(message);
         return true;
+    }
+
+    /**
+     * F1Whisper: push an applied reaction emoji to the front of the recent-reactions list
+     * (de-duplicated, most-recent first, capped). Best-effort; never throws into the send path.
+     */
+    private void rememberRecentEmojiReaction(@NonNull String emojiSequence) {
+        try {
+            final int maxRecentReactions = 16;
+            java.util.LinkedList<String> recents = preferenceService.getRecentEmojiReactions();
+            recents.remove(emojiSequence);
+            recents.addFirst(emojiSequence);
+            while (recents.size() > maxRecentReactions) {
+                recents.removeLast();
+            }
+            preferenceService.setRecentEmojiReactions(recents);
+        } catch (Exception e) {
+            logger.warn("Could not store recent emoji reaction", e);
+        }
     }
 
     /**
@@ -1329,6 +1354,40 @@ public class MessageServiceImpl implements MessageService {
                 save(messageModel);
                 fireOnModifiedMessage(messageModel);
             }
+        }
+
+        // F1Whisper: once an outgoing "listen once" voice message has actually been sent (its blob is
+        // now on the server, ready for the recipient to fetch once), burn the sender's own copy too,
+        // so the sender can never replay it either (Telegram/WhatsApp view-once behaviour).
+        if (state == MessageState.SENT || state == MessageState.DELIVERED || state == MessageState.READ) {
+            burnOutgoingListenOnceIfNeeded(messageModel);
+        }
+    }
+
+    /**
+     * F1Whisper: delete the sender's local media for a sent "listen once" voice message and mark it
+     * burned, so the sender cannot replay it. Idempotent and a no-op for anything that is not an
+     * outgoing, not-yet-burned listen-once voice file message. Best-effort, client-side only.
+     */
+    private void burnOutgoingListenOnceIfNeeded(@NonNull AbstractMessageModel messageModel) {
+        if (!messageModel.isOutbox() || messageModel.getType() != MessageType.FILE) {
+            return;
+        }
+        final FileDataModel fileDataModel = messageModel.getFileData();
+        if (fileDataModel == null || !fileDataModel.isListenOnce() || fileDataModel.isListenOnceConsumed()) {
+            return;
+        }
+        try {
+            logger.info("Burning sent listen-once voice message {}", messageModel.getId());
+            // Delete the stored encrypted media + thumbnail; the recipient still gets it from the blob.
+            fileService.removeMessageFiles(messageModel, true);
+            fileDataModel.setListenOnceConsumed();
+            fileDataModel.isDownloaded(false);
+            messageModel.setFileData(fileDataModel);
+            save(messageModel);
+            fireOnModifiedMessage(messageModel);
+        } catch (Exception e) {
+            logger.error("Failed to burn sent listen-once voice message", e);
         }
     }
 
@@ -4238,6 +4297,15 @@ public class MessageServiceImpl implements MessageService {
                 break;
             default:
                 break;
+        }
+
+        // F1Whisper: carry the "spoiler" flag inside the E2E-encrypted file metadata for image/video
+        // media. The recipient renders a blurred, tap-to-reveal thumbnail. Client-side only.
+        if (mediaItem.isSpoiler()
+            && (mediaType == TYPE_IMAGE || mediaType == TYPE_IMAGE_CAM
+            || mediaType == TYPE_IMAGE_ANIMATED || mediaType == TYPE_VIDEO
+            || mediaType == TYPE_VIDEO_CAM)) {
+            metaData.put(FileDataModel.METADATA_KEY_SPOILER, true);
         }
 
         final byte[] thumbnailData;

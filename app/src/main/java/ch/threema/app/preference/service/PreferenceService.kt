@@ -102,6 +102,15 @@ interface PreferenceService {
 
     fun setRecentEmojis2(list: LinkedList<String>)
 
+    /**
+     * F1Whisper: recently-used emoji REACTIONS (most-recent first), used to surface the user's
+     * last-used reactions in the reaction picker instead of a fixed list. Distinct from the
+     * recently-typed emojis ([getRecentEmojis2]).
+     */
+    fun getRecentEmojiReactions(): LinkedList<String>
+
+    fun setRecentEmojiReactions(list: LinkedList<String>)
+
     fun getEmojiSearchIndexVersion(): Int
 
     fun setEmojiSearchIndexVersion(version: Int)

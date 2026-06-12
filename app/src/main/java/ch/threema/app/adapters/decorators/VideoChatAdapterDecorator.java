@@ -19,6 +19,7 @@ import ch.threema.app.ui.listitemholder.ComposeMessageHolder;
 import ch.threema.app.utils.ElapsedTimeFormatter;
 import ch.threema.app.utils.ImageViewUtil;
 import ch.threema.app.utils.LinkifyUtil;
+import ch.threema.app.utils.MediaSpoilerUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.utils.TestUtil;
@@ -65,6 +66,13 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
         });
 
         setOnClickListener(v -> {
+            // F1Whisper: while an un-revealed spoiler is shown, a tap reveals the media instead of
+            // opening it.
+            if (MediaSpoilerUtil.shouldObscure(getMessageModel())) {
+                MediaSpoilerUtil.reveal(getMessageModel().getId());
+                invalidate(holder, holder.messageBlockView.getContext(), position);
+                return;
+            }
             if (!isInChoiceMode() &&
                 getMessageModel().getState() != MessageState.TRANSCODING &&
                 getMessageModel().getState() != MessageState.SENDFAILED &&
@@ -76,7 +84,7 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
 
         setControllerClickListener(holder, videoMessagePlayer);
 
-        configureThumbnail(holder);
+        configureThumbnail(holder, position);
 
         if (getMessageModel().getType() == MessageType.VIDEO) {
             configureForMessageTypeVideo(holder, context);
@@ -262,7 +270,7 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
         });
     }
 
-    private void configureThumbnail(@NonNull ComposeMessageHolder holder) {
+    private void configureThumbnail(@NonNull ComposeMessageHolder holder, final int position) {
         Bitmap thumbnail;
         try {
             thumbnail = getFileService().getMessageThumbnailBitmap(getMessageModel(),
@@ -270,6 +278,12 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
         } catch (Exception e) {
             logger.error("Exception", e);
             thumbnail = null;
+        }
+
+        // F1Whisper: blur the thumbnail and show a tap-to-reveal overlay for un-revealed spoilers.
+        final boolean obscure = MediaSpoilerUtil.shouldObscure(getMessageModel());
+        if (obscure && thumbnail != null) {
+            thumbnail = MediaSpoilerUtil.obscure(thumbnail, holder.attachmentImage.getContext());
         }
 
         ImageViewUtil.showBitmapOrMoviePlaceholder(
@@ -281,6 +295,19 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
         holder.bodyTextView.setWidth(getThumbnailWidth());
         holder.attachmentImage.setContentDescription(holder.attachmentImage.getContext().getString(R.string.video_placeholder));
         showHide(holder.bodyTextView, false);
+
+        if (obscure) {
+            holder.attachmentImage.setContentDescription(holder.attachmentImage.getContext().getString(R.string.media_spoiler_badge_content_description));
+            showSpoilerOverlay(holder, true);
+            holder.controller.setHidden();
+            holder.attachmentImage.setOnClickListener(v -> {
+                MediaSpoilerUtil.reveal(getMessageModel().getId());
+                invalidate(holder, holder.attachmentImage.getContext(), position);
+            });
+        } else {
+            showSpoilerOverlay(holder, false);
+            holder.attachmentImage.setOnClickListener(null);
+        }
     }
 
     private void setControllerState(@NonNull ComposeMessageHolder holder) {
