@@ -1384,6 +1384,10 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="forward_security_notification_rejected_text_group">一則或多則訊息無法傳送至「%1$s」。</string>
     <string name="forward_security_notification_rejected_text_generic">一則或多則訊息無法傳送。</string>
     <string name="self_updater_installation_failed">下載更新失敗。請手動從 <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> 下載並安裝更新。</string>
+    <string name="self_updater_downloading_background">正在背景下載更新…</string>
+    <string name="self_updater_update_ready_title">更新已下載</string>
+    <string name="self_updater_update_ready_text">點選以安裝更新</string>
+    <string name="self_updater_download_failed">更新下載失敗。請點選以手動下載。</string>
     <string name="spam_first_contact">此對話來自一位未知聯絡人</string>
     <string name="spam_report">檢舉垃圾訊息</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

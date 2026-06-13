@@ -45,6 +45,17 @@
             android:name="android.content.APP_RESTRICTIONS"
             android:resource="@xml/app_restrictions" />
 
+        <!-- F1Whisper: handles completion of the background self-update download (DownloadManager).
+             Exported so the system DownloadManager broadcast (ACTION_DOWNLOAD_COMPLETE for our own
+             enqueued download) is delivered; it only acts on our stored download id. -->
+        <receiver
+            android:name="ch.threema.app.receivers.UpdateDownloadCompleteReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

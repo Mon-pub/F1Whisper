@@ -1389,6 +1389,10 @@
     <string name="forward_security_notification_rejected_text_group">Es konnten nicht alle Nachrichten an «%1$s» versendet werden.</string>
     <string name="forward_security_notification_rejected_text_generic">Es konnten nicht alle Nachrichten versendet werden.</string>
     <string name="self_updater_installation_failed">Der Download des Updates ist fehlgeschlagen. Bitte laden Sie das Update von der Webseite <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> herunter und installieren Sie es manuell.</string>
+    <string name="self_updater_downloading_background">Update wird im Hintergrund heruntergeladen…</string>
+    <string name="self_updater_update_ready_title">Update heruntergeladen</string>
+    <string name="self_updater_update_ready_text">Zum Installieren des Updates tippen</string>
+    <string name="self_updater_download_failed">Update-Download fehlgeschlagen. Zum manuellen Herunterladen tippen.</string>
     <string name="spam_first_contact">Dieser Chat stammt von einem unbekannten Kontakt</string>
     <string name="spam_report">Spam melden</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

@@ -1320,6 +1320,10 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="forward_security_notification_rejected_text_group">「%1$s」に対する１つ以上のメッセージが送信できませんでした。</string>
     <string name="forward_security_notification_rejected_text_generic">１つ以上のメッセージの送信に失敗しました。</string>
     <string name="self_updater_installation_failed">アップデートのダウンロードに失敗しました。<a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> からアップデートをダウンロードしてインストールしてください。</string>
+    <string name="self_updater_downloading_background">バックグラウンドでアップデートをダウンロードしています…</string>
+    <string name="self_updater_update_ready_title">アップデートをダウンロードしました</string>
+    <string name="self_updater_update_ready_text">タップしてアップデートをインストール</string>
+    <string name="self_updater_download_failed">アップデートのダウンロードに失敗しました。タップして手動でダウンロードしてください。</string>
     <string name="spam_first_contact">このトークは不明な連絡先からのものです</string>
     <string name="spam_report">スパム報告</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

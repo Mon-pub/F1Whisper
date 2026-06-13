@@ -1370,6 +1370,10 @@
     <string name="forward_security_notification_rejected_text_group">Одно или несколько сообщений невозможно отправить группе «%1$s».</string>
     <string name="forward_security_notification_rejected_text_generic">Одно или несколько сообщений невозможно отправить.</string>
     <string name="self_updater_installation_failed">Невозможно загрузить обновление. Загрузите и установите обновление с сайта <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> вручную.</string>
+    <string name="self_updater_downloading_background">Загрузка обновления в фоновом режиме…</string>
+    <string name="self_updater_update_ready_title">Обновление загружено</string>
+    <string name="self_updater_update_ready_text">Нажмите, чтобы установить обновление</string>
+    <string name="self_updater_download_failed">Не удалось загрузить обновление. Нажмите, чтобы загрузить его вручную.</string>
     <string name="spam_first_contact">Этот чат инициирован неизвестным контактом</string>
     <string name="spam_report">Сообщить о спаме</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

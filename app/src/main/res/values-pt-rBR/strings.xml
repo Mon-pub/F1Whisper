@@ -1359,6 +1359,10 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="forward_security_notification_rejected_text_group">Uma ou mais mensagens não puderam ser enviadas para \"%1$s\".</string>
     <string name="forward_security_notification_rejected_text_generic">Uma ou mais mensagens não puderam ser enviadas.</string>
     <string name="self_updater_installation_failed">O download da atualização falhou. Faça o download e instale a atualização em <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> manualmente.</string>
+    <string name="self_updater_downloading_background">Baixando a atualização em segundo plano…</string>
+    <string name="self_updater_update_ready_title">Atualização baixada</string>
+    <string name="self_updater_update_ready_text">Toque para instalar a atualização</string>
+    <string name="self_updater_download_failed">Falha ao baixar a atualização. Toque para baixá-la manualmente.</string>
     <string name="spam_first_contact">Esta conversa é de um contato desconhecido</string>
     <string name="spam_report">Denunciar SPAM</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

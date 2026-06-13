@@ -1340,6 +1340,10 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="reaction_notification_text">%1$s ha reaccionat %2$s al teu missatge</string>
     <string name="prefs_title_reaction_notifications">Notificacions de reaccions</string>
     <string name="prefs_sum_reaction_notifications">Avisa\'m quan algú reaccioni a un dels meus missatges</string>
+    <string name="self_updater_downloading_background">S\'està baixant l\'actualització en segon pla…</string>
+    <string name="self_updater_update_ready_title">Actualització baixada</string>
+    <string name="self_updater_update_ready_text">Toca per instal·lar l\'actualització</string>
+    <string name="self_updater_download_failed">Ha fallat la baixada de l\'actualització. Toca per baixar-la manualment.</string>
     <string name="chat_background_choose">Fons</string>
     <string name="chat_background_random">Aleatori (diferent per a cada xat)</string>
     <string name="chat_background_numbered">Fons %1$d</string>

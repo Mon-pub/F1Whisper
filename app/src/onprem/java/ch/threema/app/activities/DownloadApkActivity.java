@@ -1,14 +1,13 @@
 package ch.threema.app.activities;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,8 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import ch.threema.app.R;
 import ch.threema.app.dialogs.GenericAlertDialog;
-import ch.threema.app.dialogs.GenericProgressDialog;
-import ch.threema.app.utils.DialogUtil;
 import ch.threema.app.utils.DownloadUtil;
 import ch.threema.app.utils.IntentDataUtil;
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
@@ -40,24 +37,37 @@ import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 import static ch.threema.app.utils.ActiveScreenLoggerKt.logScreenVisibility;
 
 /**
- * F1Whisper: the real in-app self-updater for the sideloaded OnPrem build (the other foss/libre
- * flavors ship a no-op stub). This is a copy of the StoreThreema implementation; the ONLY fork
- * change is the manual-fallback help URL, which points at the F1Whisper GitHub releases page instead
- * of shop.threema.ch. The actual APK download URL is supplied at runtime via the intent
+ * F1Whisper: the in-app self-updater for the sideloaded OnPrem build (the other foss/libre flavors
+ * ship a no-op stub). The actual APK download URL is supplied at runtime via the intent
  * ({@link IntentDataUtil#getUrl}) from the check_license updateUrl (= the latest GitHub release APK
  * asset), so the downloader itself is brand-agnostic.
+ * <p>
+ * The download runs fully in the BACKGROUND via the system {@link DownloadManager} (which survives
+ * this activity finishing and shows its own progress notification). There is no blocking modal: after
+ * enqueuing, this activity finishes so the user keeps using the app. On completion
+ * {@link ch.threema.app.receivers.UpdateDownloadCompleteReceiver} posts an "update ready, tap to
+ * install" notification which relaunches this activity with {@link #EXTRA_INSTALL_DOWNLOAD_ID} to run
+ * the install (reusing the unknown-sources grant flow). The manual-fallback help URL points at the
+ * F1Whisper GitHub releases page.
  */
 public class DownloadApkActivity extends ThreemaActivity implements GenericAlertDialog.DialogClickListener {
     private static final Logger logger = getThreemaLogger("DownloadApkActivity");
 
     private static final String DIALOG_TAG_DOWNLOAD_UPDATE = "cfu";
-    private static final String DIALOG_TAG_DOWNLOADING = "dtd";
 
     private static final String PREF_STRING = "download_apk_dialog_time";
 
     private static final String BUNDLE_DOWNLOAD_ID = "download_id";
 
     public static final String EXTRA_FORCE_UPDATE_DIALOG = "forceu";
+
+    // F1Whisper: relaunch extra carrying the completed download id, set by the "update ready"
+    // notification so this activity performs the install step (and the unknown-sources grant flow).
+    public static final String EXTRA_INSTALL_DOWNLOAD_ID = "installid";
+
+    // F1Whisper: persisted id of the currently enqueued self-update download. Read by
+    // UpdateDownloadCompleteReceiver so it only acts on our own download.
+    public static final String PREF_DOWNLOAD_ID = "self_update_download_id";
 
     // F1Whisper: where to send the user if the automatic download/install fails.
     private static final String FALLBACK_DOWNLOAD_URL = "https://github.com/Mon-pub/F1Whisper/releases/latest";
@@ -67,64 +77,24 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
 
     private int numFailures = 0;
 
+    @Nullable
+    private String pendingDownloadUrl;
+
     private final ActivityResultLauncher<Intent> requestUnknownSourcesSettingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
         result -> {
             DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
             if (downloadId > 0) {
                 installPackage(downloadManager.getUriForDownloadedFile(downloadId));
             } else {
-                logger.error("downloadState should not be null");
+                logger.error("downloadId should be set");
+                finishUp();
             }
         });
 
-    private final BroadcastReceiver downloadApkFinishedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            DialogUtil.dismissDialog(getSupportFragmentManager(), DIALOG_TAG_DOWNLOADING, true);
-
-            //check if the broadcast message is for our Enqueued download
-            final long referenceId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-            downloadId = referenceId;
-
-            if (referenceId > 0 && context != null) {
-                int status = 0, reason = 0;
-                DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-                DownloadManager.Query query = new DownloadManager.Query();
-                query.setFilterById(referenceId);
-                Cursor cursor = null;
-                try {
-                    cursor = downloadManager.query(query);
-                    if (cursor.moveToFirst()) {
-                        status = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-                        reason = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_REASON));
-                    }
-                } finally {
-                    if (cursor != null) {
-                        cursor.close();
-                    }
-                }
-
-                if (status == DownloadManager.STATUS_SUCCESSFUL) {
-                    Uri uri = downloadManager.getUriForDownloadedFile(referenceId);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !getPackageManager().canRequestPackageInstalls()) {
-                        try {
-                            requestUnknownSourcesSettingsLauncher.launch(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(Uri.parse(String.format("package:%s", getPackageName()))));
-                        } catch (ActivityNotFoundException e) {
-                            logger.error("No activity for unknown sources", e);
-                            Toast.makeText(getApplicationContext(), getString(R.string.enable_unknown_sources, getString(R.string.app_name)), Toast.LENGTH_LONG).show();
-                            finishUp();
-                        }
-                    } else {
-                        installPackage(uri);
-                    }
-                    return;
-                } else {
-                    Toast.makeText(getApplicationContext(), getString(R.string.download_failed, reason), Toast.LENGTH_LONG).show();
-                }
-                finishUp();
-            }
-        }
-    };
+    // F1Whisper: request POST_NOTIFICATIONS (Android 13+) so the system download-progress
+    // notification isn't silently suppressed. We proceed with the download regardless of the result.
+    private final ActivityResultLauncher<String> postNotificationsLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
+        granted -> reallyDownload(pendingDownloadUrl));
 
     private void finishUp() {
         new Handler().postDelayed(this::finish, 1000);
@@ -170,21 +140,40 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
         }
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        long lastShownTime = sharedPreferences.getLong(PREF_STRING, 0);
 
         Intent intent = getIntent();
+
+        // F1Whisper: relaunched from the "update ready" completion notification -> run the install.
+        final long installId = intent.getLongExtra(EXTRA_INSTALL_DOWNLOAD_ID, -1);
+        if (installId > 0) {
+            downloadId = installId;
+            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            Uri uri = downloadManager.getUriForDownloadedFile(installId);
+            if (uri == null) {
+                logger.error("Downloaded file uri is null for id {}", installId);
+                showHelpOnUpdateFailure();
+                return;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !getPackageManager().canRequestPackageInstalls()) {
+                try {
+                    requestUnknownSourcesSettingsLauncher.launch(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(Uri.parse(String.format("package:%s", getPackageName()))));
+                } catch (ActivityNotFoundException e) {
+                    logger.error("No activity for unknown sources", e);
+                    Toast.makeText(getApplicationContext(), getString(R.string.enable_unknown_sources, getString(R.string.app_name)), Toast.LENGTH_LONG).show();
+                    finishUp();
+                }
+            } else {
+                installPackage(uri);
+            }
+            return;
+        }
+
+        long lastShownTime = sharedPreferences.getLong(PREF_STRING, 0);
 
         if (intent.getBooleanExtra(EXTRA_FORCE_UPDATE_DIALOG, false) || (System.currentTimeMillis() > (lastShownTime + DateUtils.DAY_IN_MILLIS))) {
             GenericAlertDialog dialog = GenericAlertDialog.newInstance(R.string.update_available, IntentDataUtil.getMessage(intent), R.string.download, R.string.not_now, false);
             dialog.setData(IntentDataUtil.getUrl(intent));
             getSupportFragmentManager().beginTransaction().add(dialog, DIALOG_TAG_DOWNLOAD_UPDATE).commitAllowingStateLoss();
-
-            ContextCompat.registerReceiver(
-                this,
-                this.downloadApkFinishedReceiver,
-                new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-                ContextCompat.RECEIVER_EXPORTED
-            );
         } else {
             finish();
         }
@@ -198,29 +187,33 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
     }
 
     @Override
-    protected void onDestroy() {
-        try {
-            this.unregisterReceiver(this.downloadApkFinishedReceiver);
-        } catch (Exception ignore) {
-        }
-
-        super.onDestroy();
-    }
-
-    @Override
     public void onYes(String tag, Object data) {
-        reallyDownload((String) data);
+        pendingDownloadUrl = (String) data;
+        // F1Whisper: make sure the progress notification can show before kicking off the download.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            postNotificationsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+        } else {
+            reallyDownload(pendingDownloadUrl);
+        }
     }
 
-    private void reallyDownload(String data) {
-        GenericProgressDialog.newInstance(R.string.downloading, R.string.please_wait).show(getSupportFragmentManager(), DIALOG_TAG_DOWNLOADING);
+    /**
+     * F1Whisper: enqueue the background download and finish, so the user keeps using the app. The
+     * system shows download progress; completion is handled by UpdateDownloadCompleteReceiver.
+     */
+    private void reallyDownload(@Nullable String data) {
         if (data != null) {
             try {
-                DownloadUtil.downloadUpdate(this, data);
+                long id = DownloadUtil.downloadUpdate(this, data);
+                sharedPreferences.edit().putLong(PREF_DOWNLOAD_ID, id).apply();
+                Toast.makeText(getApplicationContext(), R.string.self_updater_downloading_background, Toast.LENGTH_LONG).show();
             } catch (Exception e) {
                 logger.error("Exception while downloading update", e);
+                Toast.makeText(getApplicationContext(), R.string.an_error_occurred, Toast.LENGTH_LONG).show();
             }
         }
+        finish();
     }
 
     @Override

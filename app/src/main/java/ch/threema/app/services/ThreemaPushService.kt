@@ -1,6 +1,7 @@
 package ch.threema.app.services
 
 import android.annotation.TargetApi
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -21,6 +22,7 @@ import ch.threema.app.ThreemaApplication
 import ch.threema.app.activities.DummyActivity
 import ch.threema.app.activities.ThreemaPushNotificationInfoActivity
 import ch.threema.app.notifications.NotificationChannels
+import ch.threema.app.receivers.ThreemaPushReviveReceiver
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.webclient.services.SessionAndroidService
 import ch.threema.base.utils.getThreemaLogger
@@ -84,6 +86,12 @@ class ThreemaPushService : Service() {
         // Acquire unpauseable connection while the service is running
         lifetimeService.acquireUnpauseableConnection(LIFETIME_SERVICE_TAG)
         isRunning = true
+
+        // F1Whisper: arm the periodic self-heal alarm so that if this foreground service / its
+        // process is later reaped (common in managed work profiles e.g. Shelter, where there is no
+        // FCM to wake us), an AlarmManager wake restarts it instead of staying dead until the user
+        // reopens the app. Gated on useThreemaPush inside scheduleRevive.
+        scheduleRevive(applicationContext, HEARTBEAT_INTERVAL_MS)
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -93,8 +101,10 @@ class ThreemaPushService : Service() {
     @Synchronized
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         logger.trace("onStartCommand")
+        // F1Whisper: a null/no-action intent means the OS recreated us after a kill (START_STICKY).
+        // Keep it sticky and let onCreate re-acquire the connection.
         if (intent == null || intent.action == null) {
-            return START_NOT_STICKY
+            return START_STICKY
         }
         if (isStopping) {
             // Already stopping
@@ -106,17 +116,26 @@ class ThreemaPushService : Service() {
                 logger.info("ACTION_STOP")
                 isRunning = false
                 isStopping = true
+                // F1Whisper: an explicit stop is the user/app turning push off; cancel the self-heal
+                // alarm so we don't resurrect ourselves.
+                cancelRevive(applicationContext)
                 stopSelf()
+                return START_NOT_STICKY
             }
 
             else -> {
             }
         }
-        return START_NOT_STICKY
+        // F1Whisper: START_STICKY so the OS recreates the push service after an out-of-memory /
+        // work-profile process kill (see scheduleRevive for the alarm-based backstop too).
+        return START_STICKY
     }
 
     override fun onDestroy() {
         logger.trace("onDestroy")
+
+        // F1Whisper: capture whether this is an explicit stop before the flag is reset below.
+        val explicitStop = isStopping
 
         // Release connection
         lifetimeService?.releaseConnection(LIFETIME_SERVICE_TAG)
@@ -127,6 +146,13 @@ class ThreemaPushService : Service() {
         // Stop foreground service
         stopForeground(true)
         logger.info("stopForeground")
+
+        // F1Whisper: if we were killed (not an explicit ACTION_STOP), schedule a near-term alarm to
+        // bring the push connection back, so background message delivery resumes without the user
+        // reopening the app (matters most on managed work profiles with no FCM).
+        if (!explicitStop) {
+            scheduleRevive(applicationContext, REVIVE_DELAY_MS)
+        }
 
         // Done
         isRunning = false
@@ -143,11 +169,16 @@ class ThreemaPushService : Service() {
 
     override fun onTimeout(startId: Int) {
         logger.warn("onTimeout called, this is going to kill the foreground service :(")
+        // F1Whisper: Android 14+ enforces a runtime limit on REMOTE_MESSAGING foreground services.
+        // Re-arm the self-heal alarm so the connection comes back shortly after the OS kills us.
+        scheduleRevive(applicationContext, REVIVE_DELAY_MS)
         super.onTimeout(startId)
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
         logger.info("onTaskRemoved")
+        // F1Whisper: also re-arm on swipe-away so push survives the user clearing the task.
+        scheduleRevive(applicationContext, REVIVE_DELAY_MS)
         val intent = Intent(this, DummyActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
@@ -193,10 +224,69 @@ class ThreemaPushService : Service() {
         const val ACTION_START = "start"
         const val ACTION_STOP = "stop"
 
+        // F1Whisper: self-heal alarm. Period between heartbeat checks that the push service/socket is
+        // still alive, and the short delay used to revive after a kill/timeout. Public interval so the
+        // revive receiver can re-arm itself.
+        const val ACTION_REVIVE = "ch.threema.app.THREEMA_PUSH_REVIVE"
+        const val HEARTBEAT_INTERVAL_MS = 15L * 60 * 1000
+        private const val REVIVE_DELAY_MS = 60L * 1000
+        private const val REVIVE_REQUEST_CODE = 27393
+
         // State variables
         var isRunning = false
             private set
         private var isStopping = false
+
+        private fun revivePendingIntent(appContext: Context): PendingIntent {
+            val intent = Intent(appContext, ThreemaPushReviveReceiver::class.java).setAction(ACTION_REVIVE)
+            return PendingIntent.getBroadcast(
+                appContext,
+                REVIVE_REQUEST_CODE,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        }
+
+        /**
+         * F1Whisper: schedule a single AlarmManager wake (after [delayMs]) that revives the push
+         * service via [ThreemaPushReviveReceiver]. No-op unless Threema/F1 push is enabled. Uses an
+         * exact-while-idle alarm when allowed (it also grants the brief background foreground-service
+         * start exemption on Android 12+), falling back to an inexact while-idle alarm otherwise.
+         */
+        @JvmStatic
+        fun scheduleRevive(appContext: Context, delayMs: Long) {
+            val rawSharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext)
+            if (!ConfigUtils.useThreemaPush(rawSharedPreferences, appContext)) {
+                return
+            }
+            val alarmManager = appContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+            val pendingIntent = revivePendingIntent(appContext)
+            val triggerAt = System.currentTimeMillis() + delayMs
+            val canExact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
+            try {
+                if (canExact) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+                } else {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+                }
+            } catch (e: SecurityException) {
+                logger.warn("Exact revive alarm denied, falling back to inexact", e)
+                try {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAt, pendingIntent)
+                } catch (e2: Exception) {
+                    logger.error("Could not schedule push revive alarm", e2)
+                }
+            }
+        }
+
+        /**
+         * F1Whisper: cancel the self-heal alarm (used when push is explicitly turned off).
+         */
+        @JvmStatic
+        fun cancelRevive(appContext: Context) {
+            val alarmManager = appContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+            alarmManager.cancel(revivePendingIntent(appContext))
+        }
 
         /**
          * Try to start this service. Will start if:

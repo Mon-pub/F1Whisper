@@ -1402,6 +1402,10 @@
     <string name="forward_security_notification_rejected_text_group">“%1$s”-কে এক বা একাধিক বার্তা পাঠানো যায়নি।</string>
     <string name="forward_security_notification_rejected_text_generic">এক বা একাধিক বার্তা পাঠানো যায়নি।</string>
     <string name="self_updater_installation_failed">আপডেটের ডাউনলোড ব্যর্থ হয়েছে। দয়া করে <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> থেকে আপডেটটি ম্যানুয়ালি ডাউনলোড ও ইনস্টল করুন।</string>
+    <string name="self_updater_downloading_background">ব্যাকগ্রাউন্ডে আপডেট ডাউনলোড হচ্ছে…</string>
+    <string name="self_updater_update_ready_title">আপডেট ডাউনলোড হয়েছে</string>
+    <string name="self_updater_update_ready_text">আপডেটটি ইনস্টল করতে ট্যাপ করুন</string>
+    <string name="self_updater_download_failed">আপডেটের ডাউনলোড ব্যর্থ হয়েছে। ম্যানুয়ালি ডাউনলোড করতে ট্যাপ করুন।</string>
     <string name="spam_first_contact">এই চ্যাটটি একটি অজানা পরিচিতি থেকে</string>
     <string name="spam_report">স্প্যাম রিপোর্ট করুন</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

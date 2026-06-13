@@ -1356,6 +1356,10 @@
     <string name="forward_security_notification_rejected_text_group">Едно или повече съобщения не могат да бъдат изпратени на %1$s.”</string>
     <string name="forward_security_notification_rejected_text_generic">Едно или повече съобщения не могат да бъдат изпратени.</string>
     <string name="self_updater_installation_failed">Изтеглянето на актуализацията е неуспешно. Моля, изтеглете и инсталирайте актуализацията от <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> ръчно.</string>
+    <string name="self_updater_downloading_background">Изтегляне на актуализацията във фонов режим…</string>
+    <string name="self_updater_update_ready_title">Актуализацията е изтеглена</string>
+    <string name="self_updater_update_ready_text">Докоснете, за да инсталирате актуализацията</string>
+    <string name="self_updater_download_failed">Изтеглянето на актуализацията е неуспешно. Докоснете, за да я изтеглите ръчно.</string>
     <string name="spam_first_contact">Чатът е от непознат контакт</string>
     <string name="spam_report">Докладвайте за спам</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

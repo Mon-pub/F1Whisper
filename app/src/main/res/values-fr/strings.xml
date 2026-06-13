@@ -1370,6 +1370,10 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="forward_security_notification_rejected_text_group">Impossible d\'envoyer un ou plusieurs messages à « %1$s »</string>
     <string name="forward_security_notification_rejected_text_generic">Impossible d\'envoyer un ou plusieurs messages.</string>
     <string name="self_updater_installation_failed">Le téléchargement de la mise à jour a échoué. Veuillez télécharger et installer manuellement la mise à jour à partir de <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a>.</string>
+    <string name="self_updater_downloading_background">Téléchargement de la mise à jour en arrière-plan…</string>
+    <string name="self_updater_update_ready_title">Mise à jour téléchargée</string>
+    <string name="self_updater_update_ready_text">Appuyez pour installer la mise à jour</string>
+    <string name="self_updater_download_failed">Le téléchargement de la mise à jour a échoué. Appuyez pour la télécharger manuellement.</string>
     <string name="spam_first_contact">Ce chat provient d\'un contact inconnu</string>
     <string name="spam_report">Signaler un spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

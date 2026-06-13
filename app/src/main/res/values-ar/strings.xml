@@ -1390,6 +1390,10 @@
     <string name="forward_security_notification_rejected_text_group">تعذَّر إرسال رسالة واحدة أو أكثر إلى ”%1$s“.</string>
     <string name="forward_security_notification_rejected_text_generic">تعذَّر إرسال رسالة واحدة أو أكثر.</string>
     <string name="self_updater_installation_failed">فشل تنزيل التحديث. يرجى تنزيل وتثبيت التحديث من <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> يدوياً.</string>
+    <string name="self_updater_downloading_background">جارٍ تنزيل التحديث في الخلفية…</string>
+    <string name="self_updater_update_ready_title">تم تنزيل التحديث</string>
+    <string name="self_updater_update_ready_text">اضغط لتثبيت التحديث</string>
+    <string name="self_updater_download_failed">فشل تنزيل التحديث. اضغط لتنزيله يدوياً.</string>
     <string name="spam_first_contact">هذه المحادثة من جهة اتصال مجهولة</string>
     <string name="spam_report">الإبلاغ عن بريد عشوائي</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

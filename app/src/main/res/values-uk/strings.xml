@@ -1404,6 +1404,10 @@
     <string name="forward_security_notification_rejected_text_group">Не вдалося надіслати принаймні одне повідомлення групі \"%1$s\".</string>
     <string name="forward_security_notification_rejected_text_generic">Не вдалося надіслати принаймні одне повідомлення.</string>
     <string name="self_updater_installation_failed">Не вдалося завантажити оновлення. Завантажте та встановіть його зі сторінки <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> вручну.</string>
+    <string name="self_updater_downloading_background">Завантаження оновлення у фоновому режимі…</string>
+    <string name="self_updater_update_ready_title">Оновлення завантажено</string>
+    <string name="self_updater_update_ready_text">Натисніть, щоб встановити оновлення</string>
+    <string name="self_updater_download_failed">Не вдалося завантажити оновлення. Натисніть, щоб завантажити його вручну.</string>
     <string name="spam_first_contact">Це чат із невідомим контактом</string>
     <string name="spam_report">Поскаржитися на спам</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

@@ -1368,6 +1368,10 @@
     <string name="forward_security_notification_rejected_text_group">Es händ nöd all Nachrichte a «%1$s» chöne verschickt werde.</string>
     <string name="forward_security_notification_rejected_text_generic">Es händ nöd all Nachrichte chöne verschickt werde.</string>
     <string name="self_updater_installation_failed">De Download vom Update isch fehlgschlage. Bitte ladet Sie s’Update vode Websiite <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> abe und installiered Sie’s manuell.</string>
+    <string name="self_updater_downloading_background">S’Update wird im Hintergrund abeglade…</string>
+    <string name="self_updater_update_ready_title">Update abeglade</string>
+    <string name="self_updater_update_ready_text">Tippet zum s’Update installiere</string>
+    <string name="self_updater_download_failed">De Download vom Update isch fehlgschlage. Tippet zum s’manuell abelade.</string>
     <string name="spam_first_contact">De Chat stammt vomene unbekannte Kontakt</string>
     <string name="spam_report">Spam mälde</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

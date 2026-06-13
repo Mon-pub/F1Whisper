@@ -1365,6 +1365,10 @@
     <string name="forward_security_notification_rejected_text_group">Адно або некалькі паведамленняў не могуць быць адпраўленыя на «%1$s».</string>
     <string name="forward_security_notification_rejected_text_generic">Немагчыма адправіць адно або некалькі паведамленняў.</string>
     <string name="self_updater_installation_failed">Не ўдалося спампаваць абнаўленне. Калі ласка, спампуйце і ўсталюйце яго ўручную з <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a>.</string>
+    <string name="self_updater_downloading_background">Спампоўванне абнаўлення ў фонавым рэжыме…</string>
+    <string name="self_updater_update_ready_title">Абнаўленне спампавана</string>
+    <string name="self_updater_update_ready_text">Націсніце, каб усталяваць абнаўленне</string>
+    <string name="self_updater_download_failed">Не ўдалося спампаваць абнаўленне. Націсніце, каб спампаваць яго ўручную.</string>
     <string name="spam_first_contact">Гэты чат ад невядомага кантакту</string>
     <string name="spam_report">Паведаміць пра спам</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

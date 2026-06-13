@@ -1360,6 +1360,10 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="forward_security_notification_rejected_text_group">Jednu nebo více zpráv se nezdařilo odeslat kontaktu „%1$s“.</string>
     <string name="forward_security_notification_rejected_text_generic">Jednu nebo více zpráv se nezdařilo odeslat.</string>
     <string name="self_updater_installation_failed">Stažení aktualizace selhalo. Stáhněte a nainstalujte aktualizaci z <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> ručně.</string>
+    <string name="self_updater_downloading_background">Stahování aktualizace na pozadí…</string>
+    <string name="self_updater_update_ready_title">Aktualizace stažena</string>
+    <string name="self_updater_update_ready_text">Klepnutím nainstalujte aktualizaci</string>
+    <string name="self_updater_download_failed">Stažení aktualizace selhalo. Klepnutím ji stáhnete ručně.</string>
     <string name="spam_first_contact">Tato konverzace pochází od neznámého kontaktu</string>
     <string name="spam_report">Nahlásit spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

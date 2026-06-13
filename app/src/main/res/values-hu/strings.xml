@@ -1377,4 +1377,8 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="folder_empty">Nincsenek csevegések ebben a mappában</string>
     <string name="schedule_today">Ma</string>
     <string name="schedule_tomorrow">Holnap</string>
+    <string name="self_updater_downloading_background">Frissítés letöltése a háttérben…</string>
+    <string name="self_updater_update_ready_title">Frissítés letöltve</string>
+    <string name="self_updater_update_ready_text">Koppintson a frissítés telepítéséhez</string>
+    <string name="self_updater_download_failed">A frissítés letöltése sikertelen. Koppintson a kézi letöltéshez.</string>
 </resources>

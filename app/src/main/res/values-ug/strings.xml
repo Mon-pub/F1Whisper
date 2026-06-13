@@ -1390,6 +1390,10 @@
     <string name="forward_security_notification_rejected_text_group">بىر ياكى بىر قانچە ئۇچۇرنى “%1$s.” غا ئەۋەتكىلى بولمىدى</string>
     <string name="forward_security_notification_rejected_text_generic">بىر ياكى بىر قانچە ئۇچۇرنى ئەۋەتكىلى بولمىدى.</string>
     <string name="self_updater_installation_failed">يېڭىلاشنى چۈشۈرۈش مەغلۇپ بولدى. يېڭىلاشنى <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> دىن قولدا چۈشۈرۈپ ئورنىتىڭ.</string>
+    <string name="self_updater_downloading_background">يېڭىلاش ئارقا سۇپىدا چۈشۈرۈلۈۋاتىدۇ…</string>
+    <string name="self_updater_update_ready_title">يېڭىلاش چۈشۈرۈلدى</string>
+    <string name="self_updater_update_ready_text">يېڭىلاشنى ئورنىتىش ئۈچۈن چېكىڭ</string>
+    <string name="self_updater_download_failed">يېڭىلاشنى چۈشۈرۈش مەغلۇپ بولدى. قولدا چۈشۈرۈش ئۈچۈن چېكىڭ.</string>
     <string name="spam_first_contact">بۇ ئەڭگىمە نامەلۇم ئالاقەداشتىن</string>
     <string name="spam_report">ئەخلەتنى مەلۇم قىلىش</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

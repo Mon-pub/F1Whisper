@@ -1283,6 +1283,10 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="forward_security_notification_rejected_text_group">En eller flere meldinger kunne ikke bli sendt til \"%1$s\".</string>
     <string name="forward_security_notification_rejected_text_generic">En eller flere meldinger kunne ikke bli sendt.</string>
     <string name="self_updater_installation_failed">Det skjedde en feil under nedlasting av oppdateringen. Vennligst last ned oppdateringen fra <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> manuelt.</string>
+    <string name="self_updater_downloading_background">Laster ned oppdatering i bakgrunnen…</string>
+    <string name="self_updater_update_ready_title">Oppdatering lastet ned</string>
+    <string name="self_updater_update_ready_text">Trykk for å installere oppdateringen</string>
+    <string name="self_updater_download_failed">Nedlasting av oppdatering mislyktes. Trykk for å laste den ned manuelt.</string>
     <string name="spam_first_contact">Denne samtalen er fra en ukjent kontakt</string>
     <string name="spam_report">Rapporter spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

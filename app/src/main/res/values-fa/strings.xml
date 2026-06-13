@@ -1358,6 +1358,10 @@
     <string name="forward_security_notification_rejected_text_group">یک یا چند پیام به «%1$s» ارسال نشد.</string>
     <string name="forward_security_notification_rejected_text_generic">یک یا چند پیام ارسال نشد.</string>
     <string name="self_updater_installation_failed">دانلود به‌روزرسانی ناموفق بود. لطفاً به‌روزرسانی را به‌صورت دستی از <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> دانلود و نصب کنید.</string>
+    <string name="self_updater_downloading_background">در حال دانلود به‌روزرسانی در پس‌زمینه…</string>
+    <string name="self_updater_update_ready_title">به‌روزرسانی دانلود شد</string>
+    <string name="self_updater_update_ready_text">برای نصب به‌روزرسانی ضربه بزنید</string>
+    <string name="self_updater_download_failed">دانلود به‌روزرسانی ناموفق بود. برای دانلود دستی آن ضربه بزنید.</string>
     <string name="spam_first_contact">این گفت‌وگو از یک مخاطب ناشناس است</string>
     <string name="spam_report">گزارش هرزنامه</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

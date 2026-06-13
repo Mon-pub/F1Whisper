@@ -1389,6 +1389,10 @@
     <string name="forward_security_notification_rejected_text_group">Non è stato possibile inviare tutti i messaggi a «%1$s».</string>
     <string name="forward_security_notification_rejected_text_generic">Non è stato possibile inviare tutti i messaggi.</string>
     <string name="self_updater_installation_failed">Il download dell\'update è fallito. Scarica l\'update dal sito <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> e installalo manualmente.</string>
+    <string name="self_updater_downloading_background">Download dell\'aggiornamento in corso in background…</string>
+    <string name="self_updater_update_ready_title">Aggiornamento scaricato</string>
+    <string name="self_updater_update_ready_text">Tocca per installare l\'aggiornamento</string>
+    <string name="self_updater_download_failed">Download dell\'aggiornamento non riuscito. Tocca per scaricarlo manualmente.</string>
     <string name="spam_first_contact">Questa chat proviene da un contatto sconosciuto</string>
     <string name="spam_report">Segnala spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

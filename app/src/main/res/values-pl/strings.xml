@@ -1364,6 +1364,10 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="forward_security_notification_rejected_text_group">Nie powiodło się wysłanie co najmniej jednej wiadomości do „%1$s”.</string>
     <string name="forward_security_notification_rejected_text_generic">Nie powiodło się wysłanie co najmniej jednej wiadomości.</string>
     <string name="self_updater_installation_failed">Pobranie aktualizacji nie powiodło się. Pobierz ją ze strony <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> i zainstaluj ręcznie.</string>
+    <string name="self_updater_downloading_background">Pobieranie aktualizacji w tle…</string>
+    <string name="self_updater_update_ready_title">Pobrano aktualizację</string>
+    <string name="self_updater_update_ready_text">Dotknij, aby zainstalować aktualizację</string>
+    <string name="self_updater_download_failed">Pobieranie aktualizacji nie powiodło się. Dotknij, aby pobrać ją ręcznie.</string>
     <string name="spam_first_contact">Ten czat jest z nieznanym kontaktem</string>
     <string name="spam_report">Zgłoś Spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

@@ -1348,6 +1348,10 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="forward_security_notification_rejected_text_group">Jednu alebo viac správ sa nepodarilo odoslať na \"%1$s\".</string>
     <string name="forward_security_notification_rejected_text_generic">Jednu alebo viac správ sa nepodarilo odoslať.</string>
     <string name="self_updater_installation_failed">Sťahovanie aktualizácie zlyhalo. Stiahnite si a nainštalujte aktualizáciu z <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> manuálne.</string>
+    <string name="self_updater_downloading_background">Sťahovanie aktualizácie na pozadí…</string>
+    <string name="self_updater_update_ready_title">Aktualizácia stiahnutá</string>
+    <string name="self_updater_update_ready_text">Klepnutím nainštalujete aktualizáciu</string>
+    <string name="self_updater_download_failed">Sťahovanie aktualizácie zlyhalo. Klepnutím ju stiahnete manuálne.</string>
     <string name="spam_first_contact">Táto konverzácia je od neznámeho kontaktu</string>
     <string name="spam_report">Nahlásiť spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

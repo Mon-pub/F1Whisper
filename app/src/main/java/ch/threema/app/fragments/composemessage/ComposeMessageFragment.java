@@ -3785,28 +3785,49 @@ public class ComposeMessageFragment extends Fragment implements
         keyboardAnimationInsetsCallback.setEnabled(false);
     }
 
+    // F1Whisper: bound the unread-anchor retries (see jumpToFirstUnreadMessage). ~6 x 120ms covers
+    // the async populate of a large unread list without a noticeable delay.
+    private static final int UNREAD_ANCHOR_MAX_RETRIES = 6;
+    private static final int UNREAD_ANCHOR_RETRY_DELAY_MS = 120;
+
     /**
      * Jump to first unread message keeping in account shift caused by date separators and other decorations
      * Currently depends on various globals...
      */
     @UiThread
     private void jumpToFirstUnreadMessage() {
+        jumpToFirstUnreadMessage(0);
+    }
+
+    /**
+     * F1Whisper: when opening a chat with unread messages, the unread divider
+     * ({@link FirstUnreadMessageModel}) may not be in the list yet because a large unread list
+     * (> MESSAGE_PAGE_SIZE) is populated on a background task while this anchor runs from onResume.
+     * Upstream fell straight through to {@link android.widget.ListView#setSelection(int)} with
+     * {@code Integer.MAX_VALUE} (the bottom) in that case, which randomly defeated the unread anchor.
+     * Instead we retry a bounded number of times until the divider appears, keeping {@code unreadCount}
+     * intact, and only as a last resort anchor on the arithmetic start of the unread region (never the
+     * bottom, never the very top).
+     */
+    @UiThread
+    private void jumpToFirstUnreadMessage(int attempt) {
         if (unreadCount > 0) {
             synchronized (this.messageValues) {
                 int entryCount = convListView.getCount();
-                int position = Math.min(entryCount - unreadCount, this.messageValues.size() - 1);
+                int arithmeticPosition = Math.min(entryCount - unreadCount, this.messageValues.size() - 1);
+                int position = arithmeticPosition;
                 while (position >= 0) {
                     if (this.messageValues.get(position) instanceof FirstUnreadMessageModel) {
                         break;
                     }
                     position--;
                 }
-                final int finalUnreadCount = unreadCount;
-                if (!isHidden()) {
-                    unreadCount = 0;
-                }
 
                 if (position > 0) {
+                    final int finalUnreadCount = unreadCount;
+                    if (!isHidden()) {
+                        unreadCount = 0;
+                    }
                     final int finalPosition = position;
                     logger.debug("jump to initial position {}", finalPosition);
 
@@ -3822,6 +3843,21 @@ public class ComposeMessageFragment extends Fragment implements
 
                     return;
                 }
+
+                // Divider not in the (still-populating) list yet: retry instead of jumping to the
+                // bottom, and do NOT zero unreadCount so the retry can still find it.
+                if (attempt < UNREAD_ANCHOR_MAX_RETRIES) {
+                    convListView.postDelayed(() -> jumpToFirstUnreadMessage(attempt + 1), UNREAD_ANCHOR_RETRY_DELAY_MS);
+                    return;
+                }
+
+                // Last resort: the divider never materialized. Anchor on the arithmetic start of the
+                // unread region (an O(1) list index) rather than the bottom or the very top.
+                if (!isHidden()) {
+                    unreadCount = 0;
+                }
+                convListView.setSelection(Math.max(0, arithmeticPosition));
+                return;
             }
         }
         convListView.setSelection(Integer.MAX_VALUE);

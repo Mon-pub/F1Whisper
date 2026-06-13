@@ -49,7 +49,7 @@ public class DownloadUtil {
      * @param context     the application context
      * @param downloadUrl the download URL
      */
-    public static void downloadUpdate(@NonNull Context context, @NonNull String downloadUrl) {
+    public static long downloadUpdate(@NonNull Context context, @NonNull String downloadUrl) {
         logger.info("Downloading update");
         // Derive the filename from the original URL (before the ?download query is appended).
         String fileName = fileNameFromUrl(downloadUrl);
@@ -57,7 +57,7 @@ public class DownloadUtil {
             .appendQueryParameter("download", "true")
             .build();
 
-        download(context, uri, fileName);
+        return download(context, uri, fileName);
     }
 
     /**
@@ -68,7 +68,7 @@ public class DownloadUtil {
      * @param url      the url of the apk file
      * @param fileName the local filename to save as (the GitHub asset name)
      */
-    private static void download(
+    private static long download(
         @NonNull Context context,
         @NonNull Uri url,
         @NonNull String fileName
@@ -76,12 +76,20 @@ public class DownloadUtil {
         DownloadManager.Request request = new DownloadManager.Request(url);
         request.setTitle(fileName);
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        // F1Whisper: GitHub serves the asset as application/octet-stream; pin the apk MIME type so the
+        // system "download complete" notification (and our own install intent) reliably resolve to the
+        // package installer.
+        request.setMimeType("application/vnd.android.package-archive");
+        // F1Whisper: show progress while downloading; the completion is surfaced by our own
+        // "tap to install" notification (UpdateDownloadCompleteReceiver), so no need to also keep the
+        // system completed-notification around.
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
 
         // enqueue file for download
         DownloadManager manager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         final long id = manager.enqueue(request);
         logger.info("Enqueued update download {} with id {}", fileName, id);
+        return id;
     }
 
     /**

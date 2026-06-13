@@ -1398,6 +1398,10 @@
     <string name="forward_security_notification_rejected_text_group">Bir yoki bir nechta xabarni “%1$s” ga yuborib boʻlmadi.</string>
     <string name="forward_security_notification_rejected_text_generic">Bir yoki bir nechta xabarni yuborib boʻlmadi.</string>
     <string name="self_updater_installation_failed">Yangilanishni yuklab boʻlmadi. Iltimos, yangilanishni <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> dan qoʻlda yuklab oling va oʻrnating.</string>
+    <string name="self_updater_downloading_background">Yangilanish orqa fonda yuklab olinmoqda…</string>
+    <string name="self_updater_update_ready_title">Yangilanish yuklab olindi</string>
+    <string name="self_updater_update_ready_text">Yangilanishni oʻrnatish uchun bosing</string>
+    <string name="self_updater_download_failed">Yangilanishni yuklab boʻlmadi. Uni qoʻlda yuklab olish uchun bosing.</string>
     <string name="spam_first_contact">Ushbu suhbat nomaʼlum kontaktdan</string>
     <string name="spam_report">Spam haqida xabar berish</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

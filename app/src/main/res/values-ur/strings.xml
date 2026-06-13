@@ -1357,6 +1357,10 @@
     <string name="forward_security_notification_rejected_text_group">ایک یا زیادہ پیغامات “%1$s” کو نہیں بھیجے جا سکے۔</string>
     <string name="forward_security_notification_rejected_text_generic">ایک یا زیادہ پیغامات نہیں بھیجے جا سکے۔</string>
     <string name="self_updater_installation_failed">اپ ڈیٹ کی ڈاؤن لوڈنگ ناکام ہو گئی۔ براہ کرم اپ ڈیٹ کو <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> سے دستی طور پر ڈاؤن لوڈ اور انسٹال کریں۔</string>
+    <string name="self_updater_downloading_background">اپ ڈیٹ پس منظر میں ڈاؤن لوڈ ہو رہی ہے…</string>
+    <string name="self_updater_update_ready_title">اپ ڈیٹ ڈاؤن لوڈ ہو گئی</string>
+    <string name="self_updater_update_ready_text">اپ ڈیٹ انسٹال کرنے کے لیے ٹیپ کریں</string>
+    <string name="self_updater_download_failed">اپ ڈیٹ کی ڈاؤن لوڈنگ ناکام ہو گئی۔ اسے دستی طور پر ڈاؤن لوڈ کرنے کے لیے ٹیپ کریں۔</string>
     <string name="spam_first_contact">یہ چیٹ ایک نامعلوم رابطے کی طرف سے ہے</string>
     <string name="spam_report">اسپام رپورٹ کریں</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->

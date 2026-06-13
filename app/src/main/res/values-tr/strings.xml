@@ -1359,6 +1359,10 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="forward_security_notification_rejected_text_group">Bir veya daha fazla mesaj \"%1$s\" gönderilemedi.</string>
     <string name="forward_security_notification_rejected_text_generic">Bir veya daha fazla mesaj gönderilemedi.</string>
     <string name="self_updater_installation_failed">Güncellemenin indirilmesi başarısız oldu. Lütfen güncellemeyi <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> adresinden manuel olarak indirip yükleyin.</string>
+    <string name="self_updater_downloading_background">Güncelleme arka planda indiriliyor…</string>
+    <string name="self_updater_update_ready_title">Güncelleme indirildi</string>
+    <string name="self_updater_update_ready_text">Güncellemeyi yüklemek için dokunun</string>
+    <string name="self_updater_download_failed">Güncellemenin indirilmesi başarısız oldu. Manuel olarak indirmek için dokunun.</string>
     <string name="spam_first_contact">Bu sohbet bilinmeyen bir kişiden</string>
     <string name="spam_report">Şikayet et</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
