@@ -620,6 +620,8 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="prefs_sendlog_summary">将日志发送给 ${company_name}，以便在出现问题时进行进一步分析</string>
     <string name="prefs_exportlog">导出日志文件</string>
     <string name="prefs_exportlog_summary">与其他应用分享日志文件</string>
+    <string name="prefs_connection_diagnostics">连接&amp;通知诊断</string>
+    <string name="prefs_connection_diagnostics_summary">导出连接、推送、通知和电池状态报告，帮助诊断通知丢失问题</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">如要保存或发送媒体，请允许 ${app_name} 访问存储权限。</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1888,6 +1890,11 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">取消定时消息</string>
     <string name="scheduled_message_canceled">定时消息已取消</string>
+    <string name="scheduled_message_action_send_now">立即发送</string>
+    <string name="scheduled_message_action_reschedule">重新定时</string>
+    <string name="scheduled_message_edit_title">编辑定时消息</string>
+    <string name="scheduled_message_rescheduled">消息已重新定时</string>
+    <string name="scheduled_message_updated">消息已更新</string>
     <string name="schedule_message_pick_date">选择日期</string>
     <string name="schedule_message_pick_time">选择时间</string>
     <string name="no_scheduled_messages">没有定时消息</string>

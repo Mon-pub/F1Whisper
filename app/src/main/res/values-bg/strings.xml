@@ -596,6 +596,8 @@
     <string name="prefs_sendlog_summary">Изпратете лог на ${company_name} за последващ анализ, ако имате проблеми</string>
     <string name="prefs_exportlog">Експортирайте лог</string>
     <string name="prefs_exportlog_summary">Изпратете лог-файл с друго приложение</string>
+    <string name="prefs_connection_diagnostics">Диагностика на връзката &amp; известията</string>
+    <string name="prefs_connection_diagnostics_summary">Експортирайте отчет за състоянието на връзката, push, известията и батерията, за да помогнете при диагностиката на липсващи известия</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">За да запазите или изпратите мултимедийни файлове, позволете на ${app_name} да има достъп до вътрешното хранилище.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1828,6 +1830,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Отмяна на планираното съобщение</string>
     <string name="scheduled_message_canceled">Планираното съобщение е отменено</string>
+    <string name="scheduled_message_action_send_now">Изпрати сега</string>
+    <string name="scheduled_message_action_reschedule">Препланиране</string>
+    <string name="scheduled_message_edit_title">Редактиране на планираното съобщение</string>
+    <string name="scheduled_message_rescheduled">Съобщението е препланирано</string>
+    <string name="scheduled_message_updated">Съобщението е актуализирано</string>
     <string name="schedule_message_pick_date">Изберете дата</string>
     <string name="schedule_message_pick_time">Изберете час</string>
     <string name="no_scheduled_messages">Няма планирани съобщения</string>

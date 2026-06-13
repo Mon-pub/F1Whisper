@@ -35,8 +35,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:gravity="center"
+        android:layoutDirection="ltr"
         android:orientation="horizontal">
 
+        <!--
+          ~ F1Whisper: the wheel row is forced LTR so the time always reads hour:minute (e.g. 08:59)
+          ~ in both RTL and LTR locales; otherwise RTL mirroring swaps them to minute:hour. The day /
+          ~ AM-PM labels inside each wheel still render in the locale's own script.
+        -->
         <NumberPicker
             android:id="@+id/day_picker"
             android:layout_width="0dp"

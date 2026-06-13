@@ -37,6 +37,10 @@
             android:key="@string/preferences__exportlog"
             android:summary="@string/prefs_exportlog_summary"
             android:title="@string/prefs_exportlog" />
+        <Preference
+            android:key="@string/preferences__connection_diagnostics"
+            android:summary="@string/prefs_connection_diagnostics_summary"
+            android:title="@string/prefs_connection_diagnostics" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="@string/preferences__error_reporting_category"

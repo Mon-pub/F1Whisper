@@ -46,6 +46,7 @@ import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.Filter;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -1865,10 +1866,12 @@ public class ComposeMessageFragment extends Fragment implements
             this.typingIndicatorTextWatcher.stopSending();
         }
 
-        // F1Whisper: media spoilers reveal strictly per chat-visit. Forget every revealed spoiler when
-        // leaving the conversation so re-entering shows them obscured again (tap-to-reveal each time).
-        // Bubbles re-bind on chat re-entry, so no explicit adapter refresh is needed here.
+        // F1Whisper: spoilers (media AND text) reveal strictly per chat-visit. Forget every revealed
+        // spoiler when leaving the conversation so re-entering shows them obscured again (tap-to-reveal
+        // each time). Bubbles re-bind on chat re-entry seeding each span's revealed flag from these
+        // stores, so clearing them is sufficient; no explicit adapter refresh is needed here.
         MediaSpoilerUtil.clearRevealed();
+        ch.threema.app.emojis.SpoilerRevealState.getInstance().clear();
 
         preserveListInstanceValues();
     }
@@ -4247,6 +4250,15 @@ public class ComposeMessageFragment extends Fragment implements
      * (plus an AM/PM wheel on 12-hour locales). On confirm, schedule the currently typed message.
      */
     private void showScheduleMessagePicker() {
+        showScheduleMessagePicker(null);
+    }
+
+    /**
+     * Show the day/time wheel picker. When {@code existing} is {@code null} the picker schedules the
+     * currently typed message; otherwise it reschedules the given pending message (seeded with its
+     * current fire time).
+     */
+    private void showScheduleMessagePicker(@Nullable final ScheduledMessageModel existing) {
         final Context context = getContext();
         if (messageReceiver == null || context == null) {
             return;
@@ -4264,10 +4276,28 @@ public class ComposeMessageFragment extends Fragment implements
         final NumberPicker ampmPicker = sheet.findViewById(R.id.ampm_picker);
         final MaterialButton confirmButton = sheet.findViewById(R.id.schedule_confirm_button);
 
-        final Calendar now = Calendar.getInstance();
+        // Seed the wheels from the existing fire time when rescheduling, otherwise from now.
+        final Calendar seed = Calendar.getInstance();
+        if (existing != null && existing.getScheduledAt() > System.currentTimeMillis()) {
+            seed.setTimeInMillis(existing.getScheduledAt());
+        }
+
+        // Day offset (in calendar days) of the seed relative to today, for the day wheel default.
+        final Calendar startOfToday = Calendar.getInstance();
+        startOfToday.set(Calendar.HOUR_OF_DAY, 0);
+        startOfToday.set(Calendar.MINUTE, 0);
+        startOfToday.set(Calendar.SECOND, 0);
+        startOfToday.set(Calendar.MILLISECOND, 0);
+        final long dayMillis = 24L * 60 * 60 * 1000;
+        int seedDayOffset = (int) ((seed.getTimeInMillis() - startOfToday.getTimeInMillis()) / dayMillis);
 
         // Day wheel: a year of days, labelled Today / Tomorrow / a localized weekday-date.
         final int daysAhead = 365;
+        if (seedDayOffset < 0) {
+            seedDayOffset = 0;
+        } else if (seedDayOffset > daysAhead) {
+            seedDayOffset = daysAhead;
+        }
         final String[] dayLabels = new String[daysAhead + 1];
         final Calendar dayCursor = Calendar.getInstance();
         for (int i = 0; i <= daysAhead; i++) {
@@ -4288,6 +4318,7 @@ public class ComposeMessageFragment extends Fragment implements
         dayPicker.setMaxValue(daysAhead);
         dayPicker.setDisplayedValues(dayLabels);
         dayPicker.setWrapSelectorWheel(false);
+        dayPicker.setValue(seedDayOffset);
 
         // Minute wheel: 00..59, zero-padded.
         final NumberPicker.Formatter twoDigits =
@@ -4295,7 +4326,7 @@ public class ComposeMessageFragment extends Fragment implements
         minutePicker.setMinValue(0);
         minutePicker.setMaxValue(59);
         minutePicker.setFormatter(twoDigits);
-        minutePicker.setValue(now.get(Calendar.MINUTE));
+        minutePicker.setValue(seed.get(Calendar.MINUTE));
         minutePicker.setWrapSelectorWheel(true);
 
         // Hour wheel: 0..23 on 24h locales, else 1..12 with an AM/PM wheel.
@@ -4303,19 +4334,19 @@ public class ComposeMessageFragment extends Fragment implements
             hourPicker.setMinValue(0);
             hourPicker.setMaxValue(23);
             hourPicker.setFormatter(twoDigits);
-            hourPicker.setValue(now.get(Calendar.HOUR_OF_DAY));
+            hourPicker.setValue(seed.get(Calendar.HOUR_OF_DAY));
             ampmPicker.setVisibility(View.GONE);
         } else {
             hourPicker.setMinValue(1);
             hourPicker.setMaxValue(12);
-            int hour12 = now.get(Calendar.HOUR);
+            int hour12 = seed.get(Calendar.HOUR);
             hourPicker.setValue(hour12 == 0 ? 12 : hour12);
             final String[] ampmLabels =
                 new java.text.DateFormatSymbols(java.util.Locale.getDefault()).getAmPmStrings();
             ampmPicker.setMinValue(0);
             ampmPicker.setMaxValue(1);
             ampmPicker.setDisplayedValues(ampmLabels);
-            ampmPicker.setValue(now.get(Calendar.AM_PM));
+            ampmPicker.setValue(seed.get(Calendar.AM_PM));
             ampmPicker.setWrapSelectorWheel(false);
             ampmPicker.setVisibility(View.VISIBLE);
         }
@@ -4341,7 +4372,13 @@ public class ComposeMessageFragment extends Fragment implements
                 return;
             }
             dialog.dismiss();
-            scheduleCurrentMessage(atMillis);
+            if (existing != null) {
+                ScheduledMessageService.getInstance().reschedule(existing.getId(), atMillis);
+                Toast.makeText(getActivity(), R.string.scheduled_message_rescheduled, Toast.LENGTH_SHORT).show();
+                updateScheduledMessagesBar();
+            } else {
+                scheduleCurrentMessage(atMillis);
+            }
         });
 
         dialog.show();
@@ -4461,22 +4498,102 @@ public class ComposeMessageFragment extends Fragment implements
 
                 new MaterialAlertDialogBuilder(requireContext())
                     .setTitle(R.string.scheduled_messages_title)
-                    .setItems(entries, (dialog, which) -> {
-                        ScheduledMessageModel selected = models.get(which);
+                    .setItems(entries, (dialog, which) ->
+                        showScheduledMessageActions(models.get(which)))
+                    .setNegativeButton(R.string.close, null)
+                    .show();
+            });
+        }).start();
+    }
+
+    /**
+     * Per-item action chooser for a pending scheduled message: send now, edit text, reschedule, or
+     * delete (Telegram-style scheduled-message management).
+     */
+    private void showScheduledMessageActions(@NonNull ScheduledMessageModel model) {
+        if (!isAdded()) {
+            return;
+        }
+        final CharSequence[] actions = new CharSequence[]{
+            getString(R.string.scheduled_message_action_send_now),
+            getString(R.string.edit),
+            getString(R.string.scheduled_message_action_reschedule),
+            getString(R.string.delete),
+        };
+        new MaterialAlertDialogBuilder(requireContext())
+            .setItems(actions, (d, which) -> {
+                switch (which) {
+                    case 0: // send now
+                        new Thread(() -> {
+                            ScheduledMessageService.getInstance().sendNow(model.getId());
+                            RuntimeUtil.runOnUiThread(() -> {
+                                if (!isAdded()) {
+                                    return;
+                                }
+                                Toast.makeText(getActivity(), R.string.message_sent, Toast.LENGTH_SHORT).show();
+                                updateScheduledMessagesBar();
+                            });
+                        }).start();
+                        break;
+                    case 1: // edit text
+                        showEditScheduledMessageText(model);
+                        break;
+                    case 2: // reschedule
+                        showScheduleMessagePicker(model);
+                        break;
+                    case 3: // delete
                         new MaterialAlertDialogBuilder(requireContext())
                             .setMessage(R.string.scheduled_message_cancel)
-                            .setPositiveButton(R.string.ok, (d, w) -> {
-                                ScheduledMessageService.getInstance().cancel(selected.getId());
+                            .setPositiveButton(R.string.ok, (dd, w) -> {
+                                ScheduledMessageService.getInstance().cancel(model.getId());
                                 Toast.makeText(getActivity(), R.string.scheduled_message_canceled, Toast.LENGTH_SHORT).show();
                                 updateScheduledMessagesBar();
                             })
                             .setNegativeButton(R.string.cancel, null)
                             .show();
-                    })
-                    .setNegativeButton(R.string.close, null)
-                    .show();
-            });
-        }).start();
+                        break;
+                    default:
+                        break;
+                }
+            })
+            .setNegativeButton(R.string.cancel, null)
+            .show();
+    }
+
+    /**
+     * Edit the body text of a pending scheduled message in place (fire time unchanged).
+     */
+    private void showEditScheduledMessageText(@NonNull ScheduledMessageModel model) {
+        if (!isAdded()) {
+            return;
+        }
+        final EditText input = new EditText(requireContext());
+        input.setText(model.getBody());
+        input.setSelection(input.getText().length());
+        final int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        final FrameLayout container = new FrameLayout(requireContext());
+        container.setPadding(pad, pad / 2, pad, 0);
+        container.addView(input);
+
+        new MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.scheduled_message_edit_title)
+            .setView(container)
+            .setPositiveButton(R.string.ok, (d, w) -> {
+                final String newBody = input.getText().toString();
+                if (TestUtil.isBlankOrNull(newBody)) {
+                    return;
+                }
+                new Thread(() -> {
+                    ScheduledMessageService.getInstance().updateBody(model.getId(), newBody);
+                    RuntimeUtil.runOnUiThread(() -> {
+                        if (isAdded()) {
+                            Toast.makeText(getActivity(), R.string.scheduled_message_updated, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }).start();
+            })
+            .setNegativeButton(R.string.cancel, null)
+            .show();
     }
 
     // endregion

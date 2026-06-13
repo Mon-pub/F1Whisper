@@ -440,7 +440,7 @@ android {
             stringBuildConfigField("CHAT_SERVER_PREFIX", "")
             stringBuildConfigField("CHAT_SERVER_IPV6_PREFIX", "")
             stringBuildConfigField("CHAT_SERVER_SUFFIX", null)
-            stringBuildConfigField("MEDIA_PATH", "ThreemaOnPrem")
+            stringBuildConfigField("MEDIA_PATH", "F1WhisperOnPrem")
             booleanBuildConfigField("CHAT_SERVER_GROUPS", false)
             byteArrayBuildConfigField("SERVER_PUBKEY", null)
             byteArrayBuildConfigField("SERVER_PUBKEY_ALT", null)

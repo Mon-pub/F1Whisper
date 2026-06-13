@@ -603,6 +603,8 @@ ${app_name_short} uygulamasında silerseniz, kişi senkronizasyonundan sonra tek
     <string name="prefs_sendlog_summary">Sorun olması durumunda daha ayrıntılı analiz için günlük dosyasını ${company_name}\'ya gönder</string>
     <string name="prefs_exportlog">Günlüğü dışa aktar</string>
     <string name="prefs_exportlog_summary">Günlük dosyasını başka bir uygulamayla paylaş</string>
+    <string name="prefs_connection_diagnostics">Bağlantı &amp; bildirim tanılaması</string>
+    <string name="prefs_connection_diagnostics_summary">Eksik bildirimleri tanılamaya yardımcı olmak için bağlantı, anlık iletim, bildirim ve pil durumu raporunu dışa aktarın</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Medyayı kaydetmek veya göndermek için, ${app_name}\'nın depolama alanına erişmesine izin verin.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1890,6 +1892,11 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Zamanlanmış mesajı iptal et</string>
     <string name="scheduled_message_canceled">Zamanlanmış mesaj iptal edildi</string>
+    <string name="scheduled_message_action_send_now">Şimdi gönder</string>
+    <string name="scheduled_message_action_reschedule">Yeniden zamanla</string>
+    <string name="scheduled_message_edit_title">Zamanlanmış mesajı düzenle</string>
+    <string name="scheduled_message_rescheduled">Mesaj yeniden zamanlandı</string>
+    <string name="scheduled_message_updated">Mesaj güncellendi</string>
     <string name="schedule_message_pick_date">Bir tarih seçin</string>
     <string name="schedule_message_pick_time">Bir saat seçin</string>
     <string name="no_scheduled_messages">Zamanlanmış mesaj yok</string>

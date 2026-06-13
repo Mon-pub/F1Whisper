@@ -641,6 +641,8 @@
     <string name="prefs_sendlog_summary">Send Logfile to ${company_name} for further analysis in case of problems</string>
     <string name="prefs_exportlog">Export Log</string>
     <string name="prefs_exportlog_summary">Share logfile with another app</string>
+    <string name="prefs_connection_diagnostics">Connection &amp; notification diagnostics</string>
+    <string name="prefs_connection_diagnostics_summary">Export a report of connection, push, notification and battery status to help diagnose missing notifications</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">To save or send media, allow ${app_name} permission to access storage.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1999,6 +2001,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Cancel scheduled message</string>
     <string name="scheduled_message_canceled">Scheduled message canceled</string>
+    <string name="scheduled_message_action_send_now">Send now</string>
+    <string name="scheduled_message_action_reschedule">Reschedule</string>
+    <string name="scheduled_message_edit_title">Edit scheduled message</string>
+    <string name="scheduled_message_rescheduled">Message rescheduled</string>
+    <string name="scheduled_message_updated">Message updated</string>
     <string name="schedule_message_pick_date">Choose a date</string>
     <string name="schedule_message_pick_time">Choose a time</string>
     <string name="no_scheduled_messages">No scheduled messages</string>

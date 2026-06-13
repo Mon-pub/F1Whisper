@@ -106,6 +106,76 @@ class ScheduledMessageService private constructor() {
         rescheduleNextAlarm(ThreemaApplication.getAppContext())
     }
 
+    /**
+     * Change the fire time of a pending scheduled message and re-arm the alarm.
+     */
+    fun reschedule(id: Int, atMillis: Long) {
+        try {
+            factory().updateScheduledAt(id, atMillis)
+        } catch (e: Exception) {
+            logger.error("Could not reschedule message {}", id, e)
+            return
+        }
+        rescheduleNextAlarm(ThreemaApplication.getAppContext())
+    }
+
+    /**
+     * Replace the body text of a pending scheduled message (fire time unchanged).
+     */
+    fun updateBody(id: Int, body: String) {
+        try {
+            factory().updateBody(id, body)
+        } catch (e: Exception) {
+            logger.error("Could not update scheduled message body {}", id, e)
+        }
+    }
+
+    /**
+     * Send a single pending scheduled message immediately, then remove it and re-arm the alarm.
+     * Runs the same send path as [fireDue] for one row. Must be called off the main thread.
+     */
+    @WorkerThread
+    fun sendNow(id: Int) {
+        val serviceManager = ThreemaApplication.getServiceManager()
+        if (serviceManager == null) {
+            logger.warn("ServiceManager not available, cannot send scheduled message now")
+            return
+        }
+        val factory: ScheduledMessageModelFactory
+        val messageService: MessageService
+        val model: ScheduledMessageModel?
+        try {
+            factory = serviceManager.databaseService.scheduledMessageModelFactory
+            messageService = serviceManager.messageService
+            model = factory.getById(id)
+        } catch (e: Exception) {
+            logger.error("Cannot send scheduled message {} now", id, e)
+            return
+        }
+        if (model == null) {
+            logger.warn("Scheduled message {} no longer exists", id)
+            return
+        }
+
+        val lifetimeService = serviceManager.lifetimeService
+        lifetimeService?.acquireConnection(CONNECTION_TAG)
+        try {
+            val receiver = reconstructReceiver(serviceManager, model)
+            if (receiver == null) {
+                logger.warn("Scheduled message receiver no longer exists, dropping row {}", model.id)
+                factory.deleteById(model.id)
+                return
+            }
+            messageService.sendText(model.body, receiver)
+            factory.deleteById(model.id)
+        } catch (e: Exception) {
+            logger.error("Could not send scheduled message {} now", model.id, e)
+        } finally {
+            lifetimeService?.releaseConnection(CONNECTION_TAG)
+        }
+        rescheduleNextAlarm(ThreemaApplication.getAppContext())
+    }
+
     fun getByReceiver(receiverType: Int, receiverKey: String): List<ScheduledMessageModel> =
         try {
             factory().getByReceiver(receiverType, receiverKey)

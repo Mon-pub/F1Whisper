@@ -28,8 +28,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import ch.threema.app.BuildFlavor;
 import ch.threema.app.R;
+import ch.threema.app.ThreemaApplication;
 import ch.threema.app.listeners.SMSVerificationListener;
 import ch.threema.app.managers.ListenerManager;
+import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.multidevice.MultiDeviceManager;
 import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.routines.UpdateWorkInfoRoutine;
@@ -734,6 +736,52 @@ public class UserServiceImpl implements UserService, CreateIdentityRequestDataIn
 
         // Notify listeners
         ListenerManager.profileListeners.handle(listener -> listener.onAvatarChanged(triggerSource));
+
+        // F1Whisper: proactively push the new (or removed) profile picture to every contact the
+        // user's release policy allows, instead of only distributing it lazily on the next outgoing
+        // message to each contact (upstream behaviour, which leaves contacts you do not message
+        // showing a stale/absent avatar until you manually "Send profile picture now").
+        //
+        // Only for LOCAL changes (the user actually picked/removed an avatar). SYNC/REMOTE changes
+        // are skipped to avoid re-broadcast loops across linked devices. The policy gate is still
+        // honoured (NOBODY -> no-op), the blob is uploaded at most once (7-day cache) and reused
+        // across recipients, and the per-contact blob-id dedupe in the send task keeps it idempotent.
+        if (triggerSource == TriggerSource.LOCAL) {
+            broadcastProfilePictureToAllowedContacts();
+        }
+    }
+
+    /**
+     * Schedule a profile-picture send (or delete) to every contact allowed by the user's profile
+     * picture release policy. Runs off the caller thread so saving the avatar returns promptly even
+     * for large contact lists. Each send is a tiny E2E control message referencing the once-uploaded
+     * blob; contacts already holding the current blob are skipped by the send task's own dedupe.
+     */
+    private void broadcastProfilePictureToAllowedContacts() {
+        new Thread(() -> {
+            try {
+                final ServiceManager serviceManager = ThreemaApplication.getServiceManager();
+                if (serviceManager == null) {
+                    logger.warn("Cannot broadcast profile picture: service manager not available");
+                    return;
+                }
+                final ContactService contactService = serviceManager.getContactService();
+                int scheduled = 0;
+                for (ContactModel contactModel : contactService.getAll()) {
+                    final String identity = contactModel.getIdentity();
+                    if (identity == null || ContactUtil.isEchoEchoOrGatewayContact(identity)) {
+                        continue;
+                    }
+                    if (contactService.isContactAllowedToReceiveProfilePicture(identity)) {
+                        taskCreator.scheduleProfilePictureSendTaskAsync(identity);
+                        scheduled++;
+                    }
+                }
+                logger.info("Broadcasting profile picture to {} allowed contact(s)", scheduled);
+            } catch (Exception e) {
+                logger.error("Could not broadcast profile picture to contacts", e);
+            }
+        }, "ProfilePicBroadcast").start();
     }
 
     private String getLanguage() {

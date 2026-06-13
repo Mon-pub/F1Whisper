@@ -601,6 +601,8 @@
     <string name="prefs_sendlog_summary">مسائل کی صورت میں مزید تجزیے کے لیے لاگ فائل ${company_name} کو بھیجیں</string>
     <string name="prefs_exportlog">لاگ برآمد کریں</string>
     <string name="prefs_exportlog_summary">کسی دوسری ایپ کے ساتھ لاگ فائل کا اشتراک کریں</string>
+    <string name="prefs_connection_diagnostics">کنکشن &amp; اطلاعات کی تشخیص</string>
+    <string name="prefs_connection_diagnostics_summary">غائب اطلاعات کی تشخیص میں مدد کے لیے کنکشن، پش، اطلاعات اور بیٹری کی حالت کی رپورٹ برآمد کریں</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">میڈیا محفوظ یا بھیجنے کے لیے، ${app_name} کو اسٹوریج تک رسائی کی اجازت دیں۔</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1903,6 +1905,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">شیڈول شدہ پیغام منسوخ کریں</string>
     <string name="scheduled_message_canceled">شیڈول شدہ پیغام منسوخ ہو گیا</string>
+    <string name="scheduled_message_action_send_now">ابھی بھیجیں</string>
+    <string name="scheduled_message_action_reschedule">دوبارہ شیڈول کریں</string>
+    <string name="scheduled_message_edit_title">شیڈول شدہ پیغام میں ترمیم کریں</string>
+    <string name="scheduled_message_rescheduled">پیغام دوبارہ شیڈول ہو گیا</string>
+    <string name="scheduled_message_updated">پیغام اپ ڈیٹ ہو گیا</string>
     <string name="schedule_message_pick_date">تاریخ منتخب کریں</string>
     <string name="schedule_message_pick_time">وقت منتخب کریں</string>
     <string name="no_scheduled_messages">کوئی شیڈول شدہ پیغام نہیں</string>

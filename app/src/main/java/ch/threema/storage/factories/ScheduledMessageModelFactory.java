@@ -89,6 +89,40 @@ public class ScheduledMessageModelFactory extends ModelFactory {
         ));
     }
 
+    @Nullable
+    public ScheduledMessageModel getById(int id) {
+        try (Cursor cursor = getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            ScheduledMessageModel.COLUMN_ID + "=?",
+            new String[]{String.valueOf(id)},
+            null,
+            null,
+            null
+        )) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return convert(cursor);
+            }
+        }
+        return null;
+    }
+
+    public void updateScheduledAt(int id, long atMillis) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ScheduledMessageModel.COLUMN_SCHEDULED_AT, atMillis);
+        getWritableDatabase().update(this.getTableName(), contentValues,
+            ScheduledMessageModel.COLUMN_ID + "=?",
+            new String[]{String.valueOf(id)});
+    }
+
+    public void updateBody(int id, @NonNull String body) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ScheduledMessageModel.COLUMN_BODY, body);
+        getWritableDatabase().update(this.getTableName(), contentValues,
+            ScheduledMessageModel.COLUMN_ID + "=?",
+            new String[]{String.valueOf(id)});
+    }
+
     public void deleteById(int id) {
         getWritableDatabase().delete(this.getTableName(),
             ScheduledMessageModel.COLUMN_ID + "=?",

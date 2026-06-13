@@ -204,14 +204,15 @@ public class ImageChatAdapterDecorator extends ChatAdapterDecorator {
             holder.attachmentImage.setContentDescription(holder.attachmentImage.getContext().getString(R.string.media_spoiler_badge_content_description));
             showSpoilerOverlay(holder, true);
             holder.controller.setHidden();
-            holder.attachmentImage.setOnClickListener(v -> {
-                MediaSpoilerUtil.reveal(getMessageModel().getId());
-                invalidate(holder, holder.attachmentImage.getContext(), position);
-            });
         } else {
             showSpoilerOverlay(holder, false);
-            holder.attachmentImage.setOnClickListener(null);
         }
+        // F1Whisper: the tap handler lives on the message block (reveal-if-spoiler, else open the
+        // lightbox). The attachment image must stay non-clickable so the tap reaches that handler.
+        // Note: setOnClickListener(null) forces clickable=true and would swallow the tap (breaking
+        // image open / spoiler 2nd-tap), so we also explicitly clear clickable on recycled holders.
+        holder.attachmentImage.setOnClickListener(null);
+        holder.attachmentImage.setClickable(false);
     }
 
     private void setControllerState(@NonNull ComposeMessageHolder holder, @NonNull ImageDataModel imageDataModel) {

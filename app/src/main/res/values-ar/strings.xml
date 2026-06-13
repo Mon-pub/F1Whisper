@@ -624,6 +624,8 @@
     <string name="prefs_sendlog_summary">إرسال ملف السجل إلى ${company_name} لمزيد من التحليل في حال وجود مشكلات</string>
     <string name="prefs_exportlog">تصدير السجل</string>
     <string name="prefs_exportlog_summary">مشاركة ملف السجل مع تطبيق آخر</string>
+    <string name="prefs_connection_diagnostics">تشخيص الاتصال &amp; الإشعارات</string>
+    <string name="prefs_connection_diagnostics_summary">تصدير تقرير عن حالة الاتصال والإشعارات الفورية والإشعارات والبطارية للمساعدة في تشخيص الإشعارات المفقودة</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">لحفظ أو إرسال الوسائط، امنح ${app_name} إذن الوصول إلى التخزين.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -2036,6 +2038,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">إلغاء الرسالة المجدولة</string>
     <string name="scheduled_message_canceled">تم إلغاء الرسالة المجدولة</string>
+    <string name="scheduled_message_action_send_now">إرسال الآن</string>
+    <string name="scheduled_message_action_reschedule">إعادة الجدولة</string>
+    <string name="scheduled_message_edit_title">تعديل الرسالة المجدولة</string>
+    <string name="scheduled_message_rescheduled">تمت إعادة جدولة الرسالة</string>
+    <string name="scheduled_message_updated">تم تحديث الرسالة</string>
     <string name="schedule_message_pick_date">اختر تاريخاً</string>
     <string name="schedule_message_pick_time">اختر وقتاً</string>
     <string name="no_scheduled_messages">لا توجد رسائل مجدولة</string>

@@ -638,6 +638,8 @@
     <string name="prefs_sendlog_summary">Надішліть файл журналу в ${company_name} для аналізу несправності</string>
     <string name="prefs_exportlog">Експортувати журнал</string>
     <string name="prefs_exportlog_summary">Поділіться файлом журналу в іншому додатку</string>
+    <string name="prefs_connection_diagnostics">Діагностика з\'єднання &amp; сповіщень</string>
+    <string name="prefs_connection_diagnostics_summary">Експортуйте звіт про стан з\'єднання, push, сповіщень і батареї, щоб допомогти діагностувати відсутні сповіщення</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Щоб зберігати та надсилати медіафайли, надайте ${app_name} доступ до сховища.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1975,6 +1977,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Скасувати заплановане повідомлення</string>
     <string name="scheduled_message_canceled">Заплановане повідомлення скасовано</string>
+    <string name="scheduled_message_action_send_now">Надіслати зараз</string>
+    <string name="scheduled_message_action_reschedule">Перенести</string>
+    <string name="scheduled_message_edit_title">Редагувати заплановане повідомлення</string>
+    <string name="scheduled_message_rescheduled">Повідомлення перенесено</string>
+    <string name="scheduled_message_updated">Повідомлення оновлено</string>
     <string name="schedule_message_pick_date">Виберіть дату</string>
     <string name="schedule_message_pick_time">Виберіть час</string>
     <string name="no_scheduled_messages">Немає запланованих повідомлень</string>

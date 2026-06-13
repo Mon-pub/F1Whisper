@@ -8,5 +8,5 @@
         path="/" />
     <external-path
         name="ext_files"
-        path="ThreemaOnPrem/" />
+        path="F1WhisperOnPrem/" />
 </paths>

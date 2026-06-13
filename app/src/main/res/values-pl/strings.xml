@@ -603,6 +603,8 @@ Wprowadź pytanie do swojej ankiety.</string>
     <string name="prefs_sendlog_summary">Wyślij plik dziennika do ${company_name} do dalszej analizy w razie problemów</string>
     <string name="prefs_exportlog">Eksportuj zapis</string>
     <string name="prefs_exportlog_summary">Udostępnij plik zapisu innej aplikacji</string>
+    <string name="prefs_connection_diagnostics">Diagnostyka połączenia &amp; powiadomień</string>
+    <string name="prefs_connection_diagnostics_summary">Wyeksportuj raport o stanie połączenia, powiadomień push, powiadomień i baterii, aby pomóc w diagnozowaniu brakujących powiadomień</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Aby wysłać media, zezwól ${app_name} na dostęp do pamięci.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1933,6 +1935,11 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Anuluj zaplanowaną wiadomość</string>
     <string name="scheduled_message_canceled">Zaplanowana wiadomość anulowana</string>
+    <string name="scheduled_message_action_send_now">Wyślij teraz</string>
+    <string name="scheduled_message_action_reschedule">Zmień termin</string>
+    <string name="scheduled_message_edit_title">Edytuj zaplanowaną wiadomość</string>
+    <string name="scheduled_message_rescheduled">Zmieniono termin wiadomości</string>
+    <string name="scheduled_message_updated">Zaktualizowano wiadomość</string>
     <string name="schedule_message_pick_date">Wybierz datę</string>
     <string name="schedule_message_pick_time">Wybierz godzinę</string>
     <string name="no_scheduled_messages">Brak zaplanowanych wiadomości</string>

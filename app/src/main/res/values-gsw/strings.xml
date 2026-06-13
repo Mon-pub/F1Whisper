@@ -612,6 +612,8 @@
     <string name="prefs_sendlog_summary">Logdatei für Problemanalyse a ${company_name} schicke</string>
     <string name="prefs_exportlog">Logdatei teile</string>
     <string name="prefs_exportlog_summary">Logdatei für Problemanalyse teile</string>
+    <string name="prefs_connection_diagnostics">Verbindigs- &amp; Mäldigsdiagnose</string>
+    <string name="prefs_connection_diagnostics_summary">Exportier en Bricht über Verbindig, Push, Mäldige und Batteriestatus, zum fählendi Mäldige z\'diagnostiziere</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Aktiviered Sie d’Speicher-Berächtigung für ${app_name}, zum Medie z’sichere oder z’schicke.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1889,6 +1891,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Iiplanti Nachricht abbreche</string>
     <string name="scheduled_message_canceled">Iiplanti Nachricht abbroche</string>
+    <string name="scheduled_message_action_send_now">Jetz schicke</string>
+    <string name="scheduled_message_action_reschedule">Nöi iiplane</string>
+    <string name="scheduled_message_edit_title">Iiplanti Nachricht bearbeite</string>
+    <string name="scheduled_message_rescheduled">Nachricht nöi iiplant</string>
+    <string name="scheduled_message_updated">Nachricht aktualisiert</string>
     <string name="schedule_message_pick_date">Es Datum uswähle</string>
     <string name="schedule_message_pick_time">E Ziit uswähle</string>
     <string name="no_scheduled_messages">Kei iiplante Nachrichte</string>

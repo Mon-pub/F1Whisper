@@ -613,6 +613,8 @@ Voer een vraag in voor uw poll.</string>
     <string name="prefs_sendlog_summary">Logbestand naar ${company_name} sturen voor verdere analyse</string>
     <string name="prefs_exportlog">Exportbestand</string>
     <string name="prefs_exportlog_summary">Logbestand met andere app delen</string>
+    <string name="prefs_connection_diagnostics">Verbindings- &amp; meldingsdiagnostiek</string>
+    <string name="prefs_connection_diagnostics_summary">Exporteer een rapport van verbindings-, push-, meldings- en batterijstatus om ontbrekende meldingen te helpen diagnosticeren</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Geeft ${app_name} toegang tot uw opslag om media te kunnen versturen.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1876,6 +1878,11 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Ingepland bericht annuleren</string>
     <string name="scheduled_message_canceled">Ingepland bericht geannuleerd</string>
+    <string name="scheduled_message_action_send_now">Nu verzenden</string>
+    <string name="scheduled_message_action_reschedule">Opnieuw inplannen</string>
+    <string name="scheduled_message_edit_title">Ingepland bericht bewerken</string>
+    <string name="scheduled_message_rescheduled">Bericht opnieuw ingepland</string>
+    <string name="scheduled_message_updated">Bericht bijgewerkt</string>
     <string name="schedule_message_pick_date">Kies een datum</string>
     <string name="schedule_message_pick_time">Kies een tijdstip</string>
     <string name="no_scheduled_messages">Geen ingeplande berichten</string>

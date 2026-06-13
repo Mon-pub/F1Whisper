@@ -596,6 +596,8 @@ Už ich nebude možné obnoviť.</string>
     <string name="prefs_sendlog_summary">V prípade problémov odoslať spoločnosti ${company_name} log súbor pre ďalšiu analýzu</string>
     <string name="prefs_exportlog">Exportovať log</string>
     <string name="prefs_exportlog_summary">Zdieľať log súbor s inou aplikáciou</string>
+    <string name="prefs_connection_diagnostics">Diagnostika pripojenia &amp; upozornení</string>
+    <string name="prefs_connection_diagnostics_summary">Exportovať správu o stave pripojenia, push, upozornení a batérie, ktorá pomôže diagnostikovať chýbajúce upozornenia</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Ak chcete ukladať či odosielať médiá, povolte aplikácii ${app_name} oprávnenie pristupu k úložisku.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1860,6 +1862,11 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Zrušiť naplánovanú správu</string>
     <string name="scheduled_message_canceled">Naplánovaná správa zrušená</string>
+    <string name="scheduled_message_action_send_now">Odoslať teraz</string>
+    <string name="scheduled_message_action_reschedule">Preplánovať</string>
+    <string name="scheduled_message_edit_title">Upraviť naplánovanú správu</string>
+    <string name="scheduled_message_rescheduled">Správa preplánovaná</string>
+    <string name="scheduled_message_updated">Správa aktualizovaná</string>
     <string name="schedule_message_pick_date">Vyberte dátum</string>
     <string name="schedule_message_pick_time">Vyberte čas</string>
     <string name="no_scheduled_messages">Žiadne naplánované správy</string>

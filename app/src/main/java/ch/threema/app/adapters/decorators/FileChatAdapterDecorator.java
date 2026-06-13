@@ -90,16 +90,13 @@ public class FileChatAdapterDecorator extends ChatAdapterDecorator {
             }
         }, holder.messageBlockView);
 
-        // F1Whisper: also reveal on a direct tap of the (blurred) image thumbnail.
+        // F1Whisper: the tap handler lives on the message block (reveal-if-spoiler, else open /
+        // download). The attachment image must stay non-clickable so the tap reaches that handler;
+        // setOnClickListener(null) forces clickable=true and would swallow the tap, so we also clear
+        // clickable explicitly for recycled holders.
         if (holder.attachmentImage != null) {
-            if (MediaSpoilerUtil.shouldObscure(getMessageModel())) {
-                holder.attachmentImage.setOnClickListener(v -> {
-                    MediaSpoilerUtil.reveal(getMessageModel().getId());
-                    invalidate(holder, context, position);
-                });
-            } else {
-                holder.attachmentImage.setOnClickListener(null);
-            }
+            holder.attachmentImage.setOnClickListener(null);
+            holder.attachmentImage.setClickable(false);
         }
 
         configureFileMessagePlayer(fileMessagePlayer, holder, fileData, context, position);

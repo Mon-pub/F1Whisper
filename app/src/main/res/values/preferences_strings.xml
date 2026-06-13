@@ -58,6 +58,7 @@
     <string name="preferences__voip" translatable="false">pref_key_voip</string>
     <string name="preferences__sendlog" translatable="false">pref_key_sendlog</string>
     <string name="preferences__exportlog" translatable="false">pref_key_exportlog</string>
+    <string name="preferences__connection_diagnostics" translatable="false">pref_key_connection_diagnostics</string>
     <string name="preferences__error_reporting_category" translatable="false">pref_key_error_reporting_category</string>
     <string name="preferences__error_reporting" translatable="false">pref_key_error_reporting</string>
     <string name="preferences__sentry_id" translatable="false">pref_key_sentry_id</string>

@@ -632,6 +632,8 @@
     <string name="prefs_sendlog_summary">Logdatei für Problemanalyse an ${company_name} senden</string>
     <string name="prefs_exportlog">Logdatei teilen</string>
     <string name="prefs_exportlog_summary">Logdatei für Problemanalyse teilen</string>
+    <string name="prefs_connection_diagnostics">Verbindungs- &amp; Benachrichtigungsdiagnose</string>
+    <string name="prefs_connection_diagnostics_summary">Bericht über Verbindungs-, Push-, Benachrichtigungs- und Akkustatus exportieren, um fehlende Benachrichtigungen zu diagnostizieren</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Aktivieren Sie die Speicher-Berechtigung für ${app_name}, um Medien zu sichern oder zu senden.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1923,6 +1925,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Geplante Nachricht abbrechen</string>
     <string name="scheduled_message_canceled">Geplante Nachricht abgebrochen</string>
+    <string name="scheduled_message_action_send_now">Jetzt senden</string>
+    <string name="scheduled_message_action_reschedule">Neu planen</string>
+    <string name="scheduled_message_edit_title">Geplante Nachricht bearbeiten</string>
+    <string name="scheduled_message_rescheduled">Nachricht neu geplant</string>
+    <string name="scheduled_message_updated">Nachricht aktualisiert</string>
     <string name="schedule_message_pick_date">Datum auswählen</string>
     <string name="schedule_message_pick_time">Uhrzeit auswählen</string>
     <string name="no_scheduled_messages">Keine geplanten Nachrichten</string>

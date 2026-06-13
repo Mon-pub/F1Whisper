@@ -593,6 +593,8 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="prefs_sendlog_summary">問題を分析するためにログファイルを${company_name}に送信します</string>
     <string name="prefs_exportlog">ログを出力する</string>
     <string name="prefs_exportlog_summary">ログファイルを他のアプリで共有</string>
+    <string name="prefs_connection_diagnostics">接続 &amp; 通知の診断</string>
+    <string name="prefs_connection_diagnostics_summary">通知が届かない問題の診断に役立つ、接続・プッシュ・通知・バッテリーの状態レポートをエクスポートします</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">メディアを保存したり送信したりするには、${app_name}にストレージへのアクセス許可をしてください。</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1640,6 +1642,11 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">予約したメッセージをキャンセル</string>
     <string name="scheduled_message_canceled">予約したメッセージをキャンセルしました</string>
+    <string name="scheduled_message_action_send_now">今すぐ送信</string>
+    <string name="scheduled_message_action_reschedule">再スケジュール</string>
+    <string name="scheduled_message_edit_title">予約メッセージを編集</string>
+    <string name="scheduled_message_rescheduled">メッセージを再スケジュールしました</string>
+    <string name="scheduled_message_updated">メッセージを更新しました</string>
     <string name="schedule_message_pick_date">日付を選択</string>
     <string name="schedule_message_pick_time">時刻を選択</string>
     <string name="no_scheduled_messages">予約したメッセージはありません</string>

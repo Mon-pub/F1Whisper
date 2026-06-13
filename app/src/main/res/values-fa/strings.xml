@@ -601,6 +601,8 @@
     <string name="prefs_sendlog_summary">ارسال فایل گزارش به ${company_name} برای بررسی بیشتر در صورت بروز مشکل</string>
     <string name="prefs_exportlog">صدور گزارش</string>
     <string name="prefs_exportlog_summary">هم‌رسانی فایل گزارش با برنامه‌ای دیگر</string>
+    <string name="prefs_connection_diagnostics">عیب‌یابی اتصال &amp; اعلان‌ها</string>
+    <string name="prefs_connection_diagnostics_summary">گزارشی از وضعیت اتصال، اعلان فشاری، اعلان‌ها و باتری را برای کمک به عیب‌یابی اعلان‌های دریافت‌نشده صادر کنید</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">برای ذخیره یا ارسال رسانه، به ${app_name} اجازه دسترسی به حافظه را بدهید.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1904,6 +1906,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">لغو پیام زمان‌بندی‌شده</string>
     <string name="scheduled_message_canceled">پیام زمان‌بندی‌شده لغو شد</string>
+    <string name="scheduled_message_action_send_now">اکنون ارسال شود</string>
+    <string name="scheduled_message_action_reschedule">زمان‌بندی مجدد</string>
+    <string name="scheduled_message_edit_title">ویرایش پیام زمان‌بندی‌شده</string>
+    <string name="scheduled_message_rescheduled">پیام دوباره زمان‌بندی شد</string>
+    <string name="scheduled_message_updated">پیام به‌روزرسانی شد</string>
     <string name="schedule_message_pick_date">یک تاریخ انتخاب کنید</string>
     <string name="schedule_message_pick_time">یک زمان انتخاب کنید</string>
     <string name="no_scheduled_messages">هیچ پیام زمان‌بندی‌شده‌ای نیست</string>

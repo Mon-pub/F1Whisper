@@ -632,6 +632,8 @@
     <string name="prefs_sendlog_summary">সমস্যা হলে আরও বিশ্লেষণের জন্য ${company_name}-কে লগফাইল পাঠান</string>
     <string name="prefs_exportlog">লগ রপ্তানি করুন</string>
     <string name="prefs_exportlog_summary">অন্য একটি অ্যাপের সাথে লগফাইল শেয়ার করুন</string>
+    <string name="prefs_connection_diagnostics">সংযোগ &amp; নোটিফিকেশন ডায়াগনস্টিকস</string>
+    <string name="prefs_connection_diagnostics_summary">নোটিফিকেশন না আসার সমস্যা নির্ণয়ে সাহায্য করতে সংযোগ, পুশ, নোটিফিকেশন ও ব্যাটারির অবস্থার একটি রিপোর্ট এক্সপোর্ট করুন</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">মিডিয়া সংরক্ষণ বা পাঠাতে, ${app_name}-কে স্টোরেজ অ্যাক্সেসের অনুমতি দিন।</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1941,6 +1943,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">নির্ধারিত বার্তা বাতিল করুন</string>
     <string name="scheduled_message_canceled">নির্ধারিত বার্তা বাতিল করা হয়েছে</string>
+    <string name="scheduled_message_action_send_now">এখনই পাঠান</string>
+    <string name="scheduled_message_action_reschedule">পুনরায় নির্ধারণ করুন</string>
+    <string name="scheduled_message_edit_title">নির্ধারিত বার্তা সম্পাদনা করুন</string>
+    <string name="scheduled_message_rescheduled">বার্তা পুনরায় নির্ধারণ করা হয়েছে</string>
+    <string name="scheduled_message_updated">বার্তা আপডেট করা হয়েছে</string>
     <string name="schedule_message_pick_date">একটি তারিখ বেছে নিন</string>
     <string name="schedule_message_pick_time">একটি সময় বেছে নিন</string>
     <string name="no_scheduled_messages">কোনো নির্ধারিত বার্তা নেই</string>

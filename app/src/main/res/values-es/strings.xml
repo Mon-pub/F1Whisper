@@ -608,6 +608,8 @@ almacenado.</string>
     <string name="prefs_sendlog_summary">Envíe un archivo de registro a ${company_name} para su posterior análisis en caso de problemas</string>
     <string name="prefs_exportlog">Exportar registro</string>
     <string name="prefs_exportlog_summary">Compartir archivo de registro con otra app</string>
+    <string name="prefs_connection_diagnostics">Diagnóstico de conexión &amp; notificaciones</string>
+    <string name="prefs_connection_diagnostics_summary">Exporta un informe del estado de la conexión, las notificaciones push, las notificaciones y la batería para ayudar a diagnosticar notificaciones que no llegan</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Para enviar archivos multimedia, permita a ${app_name} acceder a su almacenamiento.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1894,6 +1896,11 @@ almacenado.</string>
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Cancelar mensaje programado</string>
     <string name="scheduled_message_canceled">Mensaje programado cancelado</string>
+    <string name="scheduled_message_action_send_now">Enviar ahora</string>
+    <string name="scheduled_message_action_reschedule">Reprogramar</string>
+    <string name="scheduled_message_edit_title">Editar mensaje programado</string>
+    <string name="scheduled_message_rescheduled">Mensaje reprogramado</string>
+    <string name="scheduled_message_updated">Mensaje actualizado</string>
     <string name="schedule_message_pick_date">Elige una fecha</string>
     <string name="schedule_message_pick_time">Elige una hora</string>
     <string name="no_scheduled_messages">No hay mensajes programados</string>

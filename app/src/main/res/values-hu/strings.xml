@@ -570,6 +570,8 @@
     <string name="prefs_sendlog">Naplófájl küldése</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="prefs_sendlog_summary">Naplófájl elküldése a ${company_name} számára a problémaelemzéshez.</string>
+    <string name="prefs_connection_diagnostics">Kapcsolati &amp; értesítési diagnosztika</string>
+    <string name="prefs_connection_diagnostics_summary">Jelentés exportálása a kapcsolat, push, értesítések és akkumulátor állapotáról a hiányzó értesítések diagnosztizálásához</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1349,6 +1351,11 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Időzített üzenet törlése</string>
     <string name="scheduled_message_canceled">Időzített üzenet törölve</string>
+    <string name="scheduled_message_action_send_now">Küldés most</string>
+    <string name="scheduled_message_action_reschedule">Átütemezés</string>
+    <string name="scheduled_message_edit_title">Időzített üzenet szerkesztése</string>
+    <string name="scheduled_message_rescheduled">Üzenet átütemezve</string>
+    <string name="scheduled_message_updated">Üzenet frissítve</string>
     <string name="schedule_message_pick_date">Válasszon dátumot</string>
     <string name="schedule_message_pick_time">Válasszon időpontot</string>
     <string name="no_scheduled_messages">Nincsenek időzített üzenetek</string>

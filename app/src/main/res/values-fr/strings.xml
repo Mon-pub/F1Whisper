@@ -614,6 +614,8 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="prefs_sendlog_summary">Envoyer le fichier journal à ${company_name} pour une analyse approfondie en cas de problèmes</string>
     <string name="prefs_exportlog">Exporter le journal</string>
     <string name="prefs_exportlog_summary">Partager le fichier journal avec une autre application</string>
+    <string name="prefs_connection_diagnostics">Diagnostic de connexion &amp; de notifications</string>
+    <string name="prefs_connection_diagnostics_summary">Exporter un rapport sur l\'état de la connexion, des notifications push, des notifications et de la batterie pour aider à diagnostiquer les notifications manquantes</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Pour envoyer des médias, autorisez ${app_name} à accéder à l\'espace de stockage.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1893,6 +1895,11 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Annuler le message programmé</string>
     <string name="scheduled_message_canceled">Message programmé annulé</string>
+    <string name="scheduled_message_action_send_now">Envoyer maintenant</string>
+    <string name="scheduled_message_action_reschedule">Reprogrammer</string>
+    <string name="scheduled_message_edit_title">Modifier le message programmé</string>
+    <string name="scheduled_message_rescheduled">Message reprogrammé</string>
+    <string name="scheduled_message_updated">Message mis à jour</string>
     <string name="schedule_message_pick_date">Choisir une date</string>
     <string name="schedule_message_pick_time">Choisir une heure</string>
     <string name="no_scheduled_messages">Aucun message programmé</string>

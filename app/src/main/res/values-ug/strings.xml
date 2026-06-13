@@ -624,6 +624,8 @@
     <string name="prefs_sendlog_summary">مەسىلە كۆرۈلگەندە تەھلىل قىلىش ئۈچۈن خاتىرە ھۆججىتىنى ${company_name} غا ئەۋەتىش</string>
     <string name="prefs_exportlog">خاتىرە چىقىرىش</string>
     <string name="prefs_exportlog_summary">خاتىرە ھۆججىتىنى باشقا دېتال بىلەن ھەمبەھىرلەش</string>
+    <string name="prefs_connection_diagnostics">ئۇلىنىش &amp; ئۇقتۇرۇش دىئاگنوزى</string>
+    <string name="prefs_connection_diagnostics_summary">كەم ئۇقتۇرۇشلارنى دىئاگنوز قىلىشقا ياردەم بېرىش ئۈچۈن ئۇلىنىش، ئىتتىرىش، ئۇقتۇرۇش ۋە توك ھالىتى دوكلاتىنى چىقىرىش</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">ۋاسىتە ساقلاش ياكى ئەۋەتىش ئۈچۈن ${app_name} غا ساقلىغۇچقا يېتىش ئىجازىتى بېرىڭ.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1940,6 +1942,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">پىلانلانغان ئۇچۇرنى بىكار قىلىش</string>
     <string name="scheduled_message_canceled">پىلانلانغان ئۇچۇر بىكار قىلىندى</string>
+    <string name="scheduled_message_action_send_now">ھازىر ئەۋەتىش</string>
+    <string name="scheduled_message_action_reschedule">قايتا پىلانلاش</string>
+    <string name="scheduled_message_edit_title">پىلانلانغان ئۇچۇرنى تەھرىرلەش</string>
+    <string name="scheduled_message_rescheduled">ئۇچۇر قايتا پىلانلاندى</string>
+    <string name="scheduled_message_updated">ئۇچۇر يېڭىلاندى</string>
     <string name="schedule_message_pick_date">چېسلا تاللاڭ</string>
     <string name="schedule_message_pick_time">ۋاقىت تاللاڭ</string>
     <string name="no_scheduled_messages">پىلانلانغان ئۇچۇر يوق</string>

@@ -609,6 +609,8 @@
     <string name="prefs_sendlog_summary">समस्याओं की स्थिति में आगे के विश्लेषण के लिए लॉगफ़ाइल ${company_name} को भेजें</string>
     <string name="prefs_exportlog">लॉग निर्यात करें</string>
     <string name="prefs_exportlog_summary">लॉगफ़ाइल को किसी अन्य ऐप के साथ साझा करें</string>
+    <string name="prefs_connection_diagnostics">कनेक्शन &amp; सूचना डायग्नोस्टिक्स</string>
+    <string name="prefs_connection_diagnostics_summary">छूटी हुई सूचनाओं का निदान करने में मदद के लिए कनेक्शन, पुश, सूचना और बैटरी स्थिति की रिपोर्ट निर्यात करें</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">मीडिया सहेजने या भेजने के लिए, ${app_name} को संग्रहण तक पहुँचने की अनुमति दें।</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1952,6 +1954,11 @@
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">शेड्यूल किया गया संदेश रद्द करें</string>
     <string name="scheduled_message_canceled">शेड्यूल किया गया संदेश रद्द कर दिया गया</string>
+    <string name="scheduled_message_action_send_now">अभी भेजें</string>
+    <string name="scheduled_message_action_reschedule">पुनर्निर्धारित करें</string>
+    <string name="scheduled_message_edit_title">शेड्यूल किया गया संदेश संपादित करें</string>
+    <string name="scheduled_message_rescheduled">संदेश पुनर्निर्धारित किया गया</string>
+    <string name="scheduled_message_updated">संदेश अपडेट किया गया</string>
     <string name="schedule_message_pick_date">तारीख चुनें</string>
     <string name="schedule_message_pick_time">समय चुनें</string>
     <string name="no_scheduled_messages">कोई शेड्यूल किया गया संदेश नहीं</string>

@@ -65,6 +65,7 @@ import ch.threema.app.services.UserService
 import ch.threema.app.services.WallpaperService
 import ch.threema.app.services.notification.NotificationService
 import ch.threema.app.ui.MediaItem
+import ch.threema.app.usecases.ExportConnectionDiagnosticsUseCase
 import ch.threema.app.usecases.ExportDebugLogUseCase
 import ch.threema.app.usecases.ShareDebugLogUseCase
 import ch.threema.app.utils.ConfigUtils
@@ -74,6 +75,7 @@ import ch.threema.app.utils.HibernationUtil
 import ch.threema.app.utils.MimeUtil
 import ch.threema.app.utils.PowermanagerUtil
 import ch.threema.app.utils.PushUtil
+import ch.threema.app.utils.ShareUtil
 import ch.threema.app.utils.executor.BackgroundExecutor
 import ch.threema.app.utils.logScreenVisibility
 import ch.threema.app.voip.activities.WebRTCDebugActivity
@@ -136,6 +138,7 @@ class SettingsAdvancedOptionsFragment :
     private lateinit var debugLogPreference: TwoStatePreference
     private lateinit var sendLogPreference: Preference
     private lateinit var exportLogPreference: Preference
+    private lateinit var connectionDiagnosticsPreference: Preference
     private lateinit var ipv6Preferences: TwoStatePreference
     private lateinit var sentryIdPreference: Preference
 
@@ -206,6 +209,7 @@ class SettingsAdvancedOptionsFragment :
         debugLogPreference = getPref(R.string.preferences__debug_log_switch)
         sendLogPreference = getPref(R.string.preferences__sendlog)
         exportLogPreference = getPref(R.string.preferences__exportlog)
+        connectionDiagnosticsPreference = getPref(R.string.preferences__connection_diagnostics)
         updateDebugLogPreferences()
         debugLogPreference.onChange<Boolean> { isEnabled ->
             debugLogHelper.setEnabled(isEnabled)
@@ -249,6 +253,32 @@ class SettingsAdvancedOptionsFragment :
                 } catch (e: Exception) {
                     showToast(R.string.an_error_occurred)
                     logger.error("Failed to share debug log", e)
+                } finally {
+                    DialogUtil.dismissDialog(parentFragmentManager, DIALOG_TAG_SHARE_LOG, true)
+                }
+            }
+        }
+
+        // F1Whisper: one-tap connection & notification diagnostics export. Independent of the debug
+        // log toggle (it snapshots live runtime state), so it stays enabled at all times. The report
+        // is zipped exactly like the debug-log export and shared via the same flow.
+        connectionDiagnosticsPreference.onClick {
+            logger.info("Preparing connection diagnostics")
+            lifecycleScope.launch {
+                GenericProgressDialog.newInstance(R.string.preparing_messages, R.string.please_wait)
+                    .show(parentFragmentManager, DIALOG_TAG_SHARE_LOG)
+                try {
+                    val zipFile = ExportConnectionDiagnosticsUseCase(
+                        requireContext().applicationContext,
+                        dispatcherProvider,
+                        sharedPreferences,
+                        preferenceService,
+                        timeProvider,
+                    ).call()
+                    ShareUtil.shareFile(requireContext(), zipFile, "connection_diagnostics.zip", "application/zip")
+                } catch (e: Exception) {
+                    showToast(R.string.an_error_occurred)
+                    logger.error("Failed to export connection diagnostics", e)
                 } finally {
                     DialogUtil.dismissDialog(parentFragmentManager, DIALOG_TAG_SHARE_LOG, true)
                 }

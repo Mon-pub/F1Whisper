@@ -568,6 +568,8 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <string name="prefs_sendlog_summary">Send loggfil til ${company_name} for videre analyse, i tilfelle du har problemer</string>
     <string name="prefs_exportlog">Eksport loggfil</string>
     <string name="prefs_exportlog_summary">Del loggfil med en annen app</string>
+    <string name="prefs_connection_diagnostics">Diagnostikk for tilkobling &amp; varsler</string>
+    <string name="prefs_connection_diagnostics_summary">Eksporter en rapport over status for tilkobling, push, varsler og batteri for å hjelpe med å diagnostisere manglende varsler</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">For å lagre eller sende media, gi ${app_name} tilgang til lagring på enheten.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1608,6 +1610,11 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Avbryt planlagt melding</string>
     <string name="scheduled_message_canceled">Planlagt melding avbrutt</string>
+    <string name="scheduled_message_action_send_now">Send nå</string>
+    <string name="scheduled_message_action_reschedule">Planlegg på nytt</string>
+    <string name="scheduled_message_edit_title">Rediger planlagt melding</string>
+    <string name="scheduled_message_rescheduled">Melding planlagt på nytt</string>
+    <string name="scheduled_message_updated">Melding oppdatert</string>
     <string name="schedule_message_pick_date">Velg en dato</string>
     <string name="schedule_message_pick_time">Velg et tidspunkt</string>
     <string name="no_scheduled_messages">Ingen planlagte meldinger</string>

@@ -556,6 +556,8 @@ de contacte</string>
     <string name="prefs_sendlog">Enviar registre</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="prefs_sendlog_summary">Enviar el fitxer de registre a ${company_name} per una anàlisi posterior en cas de problemes</string>
+    <string name="prefs_connection_diagnostics">Diagnòstic de connexió i notificacions</string>
+    <string name="prefs_connection_diagnostics_summary">Exporta un informe de l\'estat de la connexió, les notificacions push, les notificacions i la bateria per ajudar a diagnosticar les notificacions que falten</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Per desar o enviar multimèdia, doneu a ${app_name} permís per accedir a l\'emmagatzematge.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1366,6 +1368,11 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Cancel·la el missatge programat</string>
     <string name="scheduled_message_canceled">Missatge programat cancel·lat</string>
+    <string name="scheduled_message_action_send_now">Envia ara</string>
+    <string name="scheduled_message_action_reschedule">Reprograma</string>
+    <string name="scheduled_message_edit_title">Edita el missatge programat</string>
+    <string name="scheduled_message_rescheduled">Missatge reprogramat</string>
+    <string name="scheduled_message_updated">Missatge actualitzat</string>
     <string name="schedule_message_pick_date">Trieu una data</string>
     <string name="schedule_message_pick_time">Trieu una hora</string>
     <string name="no_scheduled_messages">No hi ha cap missatge programat</string>

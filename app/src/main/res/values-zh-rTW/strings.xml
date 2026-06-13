@@ -620,6 +620,8 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="prefs_sendlog_summary">將日誌傳送至 ${company_name}，以便在出現問題時進行進一步分析</string>
     <string name="prefs_exportlog">匯出紀錄檔案</string>
     <string name="prefs_exportlog_summary">與其他應用程式分享紀錄檔案</string>
+    <string name="prefs_connection_diagnostics">連線與通知診斷</string>
+    <string name="prefs_connection_diagnostics_summary">匯出連線、推播、通知及電池狀態的報告，協助診斷遺漏的通知</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">如要儲存或傳送媒體，請允許 ${app_name} 取用儲存權限。</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1888,6 +1890,11 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">取消已排程的訊息</string>
     <string name="scheduled_message_canceled">已取消排程的訊息</string>
+    <string name="scheduled_message_action_send_now">立即傳送</string>
+    <string name="scheduled_message_action_reschedule">重新排程</string>
+    <string name="scheduled_message_edit_title">編輯排程訊息</string>
+    <string name="scheduled_message_rescheduled">已重新排程訊息</string>
+    <string name="scheduled_message_updated">已更新訊息</string>
     <string name="schedule_message_pick_date">選擇日期</string>
     <string name="schedule_message_pick_time">選擇時間</string>
     <string name="no_scheduled_messages">沒有已排程的訊息</string>

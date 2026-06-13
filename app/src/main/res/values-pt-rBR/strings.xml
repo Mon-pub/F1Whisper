@@ -603,6 +603,8 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="prefs_sendlog_summary">Enviar arquivo de log para o ${company_name} para uma análise mais aprofundada em caso de problemas</string>
     <string name="prefs_exportlog">Exportar Log</string>
     <string name="prefs_exportlog_summary">Compartilhe o arquivo de log com outro aplicativo</string>
+    <string name="prefs_connection_diagnostics">Diagnóstico de conexão &amp; notificações</string>
+    <string name="prefs_connection_diagnostics_summary">Exporte um relatório do status de conexão, push, notificações e bateria para ajudar a diagnosticar notificações ausentes</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Para enviar mídia, permita que o ${app_name} acesse o armazenamento.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1872,6 +1874,11 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="scheduled_message_send_at">%1$s · %2$s</string>
     <string name="scheduled_message_cancel">Cancelar mensagem agendada</string>
     <string name="scheduled_message_canceled">Mensagem agendada cancelada</string>
+    <string name="scheduled_message_action_send_now">Enviar agora</string>
+    <string name="scheduled_message_action_reschedule">Reagendar</string>
+    <string name="scheduled_message_edit_title">Editar mensagem agendada</string>
+    <string name="scheduled_message_rescheduled">Mensagem reagendada</string>
+    <string name="scheduled_message_updated">Mensagem atualizada</string>
     <string name="schedule_message_pick_date">Escolha uma data</string>
     <string name="schedule_message_pick_time">Escolha um horário</string>
     <string name="no_scheduled_messages">Nenhuma mensagem agendada</string>
