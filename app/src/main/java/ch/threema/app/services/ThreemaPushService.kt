@@ -19,7 +19,6 @@ import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import ch.threema.app.R
 import ch.threema.app.ThreemaApplication
-import ch.threema.app.activities.DummyActivity
 import ch.threema.app.activities.ThreemaPushNotificationInfoActivity
 import ch.threema.app.notifications.NotificationChannels
 import ch.threema.app.receivers.ThreemaPushReviveReceiver
@@ -177,11 +176,12 @@ class ThreemaPushService : Service() {
 
     override fun onTaskRemoved(rootIntent: Intent) {
         logger.info("onTaskRemoved")
-        // F1Whisper: also re-arm on swipe-away so push survives the user clearing the task.
+        // F1Whisper: re-arm on swipe-away so push survives the user clearing the task. We deliberately
+        // do NOT relaunch an activity here: the upstream startActivity(DummyActivity) "keep process
+        // alive" hack (Google bug #53313) is a background activity launch, which Android 12+ blocks and
+        // which crashes on some OEMs (NPE in ConfigurationContainer.inPinnedWindowingMode). The
+        // AlarmManager revive below + START_STICKY already bring the push service back.
         scheduleRevive(applicationContext, REVIVE_DELAY_MS)
-        val intent = Intent(this, DummyActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        startActivity(intent)
     }
 
     /**

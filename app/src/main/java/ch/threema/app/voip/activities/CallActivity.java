@@ -288,6 +288,21 @@ public class CallActivity extends ThreemaActivity implements
             }
         });
 
+    // F1Whisper: dedicated permission launcher for the *answer* flow. The microphone permission must
+    // be requested at the moment the user answers (mirroring Signal's handleAnswerWithAudio -> request
+    // RECORD_AUDIO -> accept/deny), because the normal post-restart request in onCreate()/onNewIntent()
+    // runs while the call UI is shown over the lock screen, where Android suppresses the runtime
+    // permission dialog. On grant we proceed into the active call; on denial we reject it cleanly.
+    private final ActivityResultLauncher<Intent> answerPermissionLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                proceedAnswerCall();
+            } else {
+                rejectOrCancelCall(VoipCallAnswerData.RejectReason.DISABLED);
+            }
+        });
+
     /**
      * Helper: Find a view and ensure it's not null.
      */
@@ -1711,6 +1726,19 @@ public class CallActivity extends ThreemaActivity implements
     @UiThread
     private void answerCall() {
         logger.info("Answer call");
+        // F1Whisper: gate the answer on the microphone permission, requested right now (the user just
+        // tapped answer, so the activity is foreground with FLAG_DISMISS_KEYGUARD and the dialog can
+        // show). Reuses the app's own call-permission flow (mic = required); proceeds only on grant.
+        // Without this, a never-granted/"ask every time" mic would silently yield a call with no audio,
+        // because the request that runs after the activity restart is suppressed over the lock screen.
+        PermissionUtilsKt.requestCallPermissions(this, answerPermissionLauncher, () -> {
+            proceedAnswerCall();
+            return Unit.INSTANCE;
+        });
+    }
+
+    @UiThread
+    private void proceedAnswerCall() {
         this.activityMode = MODE_ANSWERED_CALL;
 
         // Recreate activity with correct activity mode and with EXTRA_ACCEPT_INCOMING_CALL

@@ -68,6 +68,7 @@ import ch.threema.annotation.SameThread;
 import ch.threema.app.BuildConfig;
 import ch.threema.app.R;
 import ch.threema.app.apptaskexecutor.AppTaskExecutor;
+import ch.threema.app.di.DIJavaCompat;
 import ch.threema.app.di.DependencyContainer;
 import ch.threema.app.listeners.VoipCallListener;
 import ch.threema.app.managers.ListenerManager;
@@ -597,6 +598,16 @@ public class VoipCallService extends LifecycleService implements PeerConnectionC
         super.onStartCommand(intent, flags, startId);
         logger.info("onStartCommand");
 
+        // F1Whisper: same cold-start guard as onCreate() — every branch below touches session-scoped
+        // dependencies (getGroupCallManager(), handleNewCall -> getVoipStateService()), which are
+        // unresolvable before the master key is unlocked. Stop instead of crashing; the offer is
+        // reprocessed once the session is ready.
+        if (!DIJavaCompat.isSessionScopeReady()) {
+            logger.warn("Session scope not ready in onStartCommand; stopping VoipCallService");
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
         // Start flag, to configure whether and how the service is restarted after being killed
         // by the system. For more details, see https://developer.android.com/reference/android/app/Service.html#constants_1
         //
@@ -659,6 +670,18 @@ public class VoipCallService extends LifecycleService implements PeerConnectionC
     public void onCreate() {
         logger.info("onCreate");
         super.onCreate();
+
+        // F1Whisper: on a cold-start incoming call the process can be woken (via F1 push / the call
+        // notification) before the session scope is live (ServiceManager is only bound on master-key
+        // unlock). The session-scoped VoipStateService is then unresolvable and accessing it below
+        // crashes with a Koin NoDefinitionFoundException. Bail out until the session is ready; the
+        // call offer is reprocessed once the app has finished initializing. Mirrors the guard that
+        // CallActivity already applies via finishAndRestartLaterIfNotReady()/isSessionScopeReady().
+        if (!DIJavaCompat.isSessionScopeReady()) {
+            logger.warn("Session scope not ready on cold-start incoming call; stopping VoipCallService");
+            stopSelf();
+            return;
+        }
 
         isRunning = true;
 
