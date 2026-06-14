@@ -1862,6 +1862,8 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="listen_once_badge_content_description">Eenmalig te beluisteren spraakbericht</string>
     <string name="listen_once_already_listened">Beluisterd</string>
     <string name="listen_once_sent">Eenmalig te beluisteren spraakbericht</string>
+    <string name="listen_once_cannot_forward">Berichten voor eenmalig beluisteren kunnen niet worden doorgestuurd</string>
+    <string name="listen_once_expired">Spraakbericht verlopen</string>
     <string name="group_one_typing">%s is aan het typen…</string>
     <string name="group_two_typing">%1$s en %2$s zijn aan het typen…</string>
     <string name="group_many_typing">%1$s en %2$d anderen zijn aan het typen…</string>

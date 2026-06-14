@@ -1889,6 +1889,8 @@
     <string name="listen_once_badge_content_description">ایک بار سننے والا صوتی پیغام</string>
     <string name="listen_once_already_listened">سن لیا گیا</string>
     <string name="listen_once_sent">ایک بار سننے والا صوتی پیغام</string>
+    <string name="listen_once_cannot_forward">ایک بار سننے والے پیغامات فارورڈ نہیں کیے جا سکتے</string>
+    <string name="listen_once_expired">صوتی پیغام کی میعاد ختم</string>
     <string name="group_one_typing">%s ٹائپ کر رہا ہے…</string>
     <string name="group_two_typing">%1$s اور %2$s ٹائپ کر رہے ہیں…</string>
     <string name="group_many_typing">%1$s اور %2$d دیگر ٹائپ کر رہے ہیں…</string>

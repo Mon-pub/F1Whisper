@@ -1875,6 +1875,8 @@
     <string name="listen_once_badge_content_description">Sprachnachricht zum eimal Aalose</string>
     <string name="listen_once_already_listened">Aaglost</string>
     <string name="listen_once_sent">Sprachnachricht zum eimal Aalose</string>
+    <string name="listen_once_cannot_forward">Einisch-aalose-Nachrichte chönd nöd witergleitet werde</string>
+    <string name="listen_once_expired">Sprachnachricht abgloffe</string>
     <string name="group_one_typing">%s schriibt grad…</string>
     <string name="group_two_typing">%1$s und %2$s schriibed grad…</string>
     <string name="group_many_typing">%1$s und %2$d anderi schriibed grad…</string>

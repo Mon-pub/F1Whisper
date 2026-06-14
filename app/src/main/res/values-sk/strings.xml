@@ -1846,6 +1846,8 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="listen_once_badge_content_description">Hlasová správa na jedno prehratie</string>
     <string name="listen_once_already_listened">Prehraté</string>
     <string name="listen_once_sent">Hlasová správa na jedno prehratie</string>
+    <string name="listen_once_cannot_forward">Správy na jednorazové vypočutie nemožno preposlať</string>
+    <string name="listen_once_expired">Platnosť hlasovej správy vypršala</string>
     <string name="group_one_typing">%s píše…</string>
     <string name="group_two_typing">%1$s a %2$s píšu…</string>
     <string name="group_many_typing">%1$s a %2$d ďalší píšu…</string>

@@ -2022,6 +2022,8 @@
     <string name="listen_once_badge_content_description">رسالة صوتية للاستماع مرة واحدة</string>
     <string name="listen_once_already_listened">تم الاستماع</string>
     <string name="listen_once_sent">رسالة صوتية للاستماع مرة واحدة</string>
+    <string name="listen_once_cannot_forward">لا يمكن إعادة توجيه رسائل الاستماع لمرة واحدة</string>
+    <string name="listen_once_expired">انتهت صلاحية الرسالة الصوتية</string>
     <string name="group_one_typing">%s يكتب الآن…</string>
     <string name="group_two_typing">%1$s و%2$s يكتبان الآن…</string>
     <string name="group_many_typing">%1$s و%2$d آخرون يكتبون الآن…</string>

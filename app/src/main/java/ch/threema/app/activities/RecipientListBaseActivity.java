@@ -907,6 +907,23 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
 
     void forwardSingleMessage(final MessageReceiver[] messageReceivers, final int i, final Intent intent, final boolean keepOriginalCaptions) {
         final AbstractMessageModel messageModel = originalMessageModels.get(i);
+
+        // F1Whisper: defense-in-depth. A listen-once voice message must never be forwarded (the
+        // action-mode menu already hides Forward for these). Skip it, toast once, and continue with
+        // the rest of the batch so a mixed selection still forwards the non-listen-once messages.
+        if (messageModel.getFileData() != null && messageModel.getFileData().isListenOnce()) {
+            logger.warn("Refusing to forward listen-once message {}", messageModel.getId());
+            RuntimeUtil.runOnUiThread(() ->
+                SingleToast.getInstance().showLongText(getString(R.string.listen_once_cannot_forward)));
+            if (i < originalMessageModels.size() - 1) {
+                forwardSingleMessage(messageReceivers, i + 1, intent, keepOriginalCaptions);
+            } else {
+                RuntimeUtil.runOnUiThread(() -> DialogUtil.dismissDialog(getSupportFragmentManager(), DIALOG_TAG_MULTISEND, true));
+                startComposeActivity(intent);
+            }
+            return;
+        }
+
         dependencies.getFileService().loadDecryptedMessageFile(messageModel, new FileService.OnDecryptedFileComplete() {
             @Override
             public void complete(File decryptedFile) {

@@ -1331,6 +1331,8 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="listen_once_badge_content_description">Egyszer meghallgatható hangüzenet</string>
     <string name="listen_once_already_listened">Meghallgatva</string>
     <string name="listen_once_sent">Egyszer meghallgatható hangüzenet</string>
+    <string name="listen_once_cannot_forward">Az egyszer meghallgatható üzenetek nem továbbíthatók</string>
+    <string name="listen_once_expired">A hangüzenet lejárt</string>
     <string name="group_one_typing">%s ír…</string>
     <string name="group_two_typing">%1$s és %2$s ír…</string>
     <string name="group_many_typing">%1$s és további %2$d személy ír…</string>

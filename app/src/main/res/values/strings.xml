@@ -1191,6 +1191,8 @@
     <string name="listen_once_badge_content_description">Listen once voice message</string>
     <string name="listen_once_already_listened">Listened</string>
     <string name="listen_once_sent">Listen-once voice message</string>
+    <string name="listen_once_cannot_forward">Listen-once messages cannot be forwarded</string>
+    <string name="listen_once_expired">Voice message expired</string>
     <!-- F1Whisper: image/video spoiler -->
     <string name="media_spoiler">Spoiler</string>
     <string name="media_spoiler_reveal">Tap to reveal</string>

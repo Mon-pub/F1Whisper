@@ -511,6 +511,11 @@ public class AudioMessagePlayer extends MessagePlayer {
                 messageModel.setFileData(fileDataModel);
                 messageService.save(messageModel);
 
+                // F1Whisper: signal that this message JUST burned so the bubble plays the one-shot
+                // burn animation exactly once on the re-render below (consumed by the decorator; not
+                // replayed on chat reopen). Recipient path only — the sender never plays it back.
+                ListenOnceBurnRegistry.markForBurnAnimation(messageModel.getId());
+
                 // Refresh any visible bubble for this message
                 ListenerManager.messageListeners.handle(listener -> listener.onModified(java.util.List.of(messageModel)));
             } catch (Exception e) {

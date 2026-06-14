@@ -1919,6 +1919,8 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="listen_once_badge_content_description">Wiadomość głosowa do jednorazowego odtworzenia</string>
     <string name="listen_once_already_listened">Odtworzono</string>
     <string name="listen_once_sent">Jednorazowa wiadomość głosowa</string>
+    <string name="listen_once_cannot_forward">Wiadomości do jednorazowego odsłuchania nie można przesłać dalej</string>
+    <string name="listen_once_expired">Wiadomość głosowa wygasła</string>
     <string name="group_one_typing">%s pisze…</string>
     <string name="group_two_typing">%1$s i %2$s piszą…</string>
     <string name="group_many_typing">%1$s i %2$d innych pisze…</string>

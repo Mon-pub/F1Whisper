@@ -1890,6 +1890,8 @@
     <string name="listen_once_badge_content_description">پیام صوتی پخش یک‌بار</string>
     <string name="listen_once_already_listened">پخش‌شده</string>
     <string name="listen_once_sent">پیام صوتی پخش یک‌بار</string>
+    <string name="listen_once_cannot_forward">پیام‌های یک‌بار شنیدن قابل بازارسال نیستند</string>
+    <string name="listen_once_expired">پیام صوتی منقضی شد</string>
     <string name="group_one_typing">%s در حال نوشتن است…</string>
     <string name="group_two_typing">%1$s و %2$s در حال نوشتن هستند…</string>
     <string name="group_many_typing">%1$s و %2$d نفر دیگر در حال نوشتن هستند…</string>

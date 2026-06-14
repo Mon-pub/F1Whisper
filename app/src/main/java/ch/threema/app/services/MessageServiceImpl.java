@@ -73,6 +73,7 @@ import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.routines.MarkAsReadRoutine;
 import ch.threema.app.services.ballot.BallotService;
 import ch.threema.app.services.ballot.BallotUpdateResult;
+import ch.threema.app.services.messageplayer.ListenOnceBurnRegistry;
 import ch.threema.app.services.messageplayer.MessagePlayerService;
 import ch.threema.app.services.notification.NotificationService;
 import ch.threema.app.ui.MediaItem;
@@ -1385,6 +1386,9 @@ public class MessageServiceImpl implements MessageService {
             fileDataModel.isDownloaded(false);
             messageModel.setFileData(fileDataModel);
             save(messageModel);
+            // F1Whisper: play the one-shot burn animation on the sender's own bubble too (once, on
+            // the re-render below). Consumed by the decorator; not replayed on chat reopen.
+            ListenOnceBurnRegistry.markForBurnAnimation(messageModel.getId());
             fireOnModifiedMessage(messageModel);
         } catch (Exception e) {
             logger.error("Failed to burn sent listen-once voice message", e);

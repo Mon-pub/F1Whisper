@@ -1880,6 +1880,8 @@ almacenado.</string>
     <string name="listen_once_badge_content_description">Mensaje de voz de escucha única</string>
     <string name="listen_once_already_listened">Escuchado</string>
     <string name="listen_once_sent">Mensaje de voz de escucha única</string>
+    <string name="listen_once_cannot_forward">Los mensajes de escucha única no se pueden reenviar</string>
+    <string name="listen_once_expired">El mensaje de voz ha caducado</string>
     <string name="group_one_typing">%s está escribiendo…</string>
     <string name="group_two_typing">%1$s y %2$s están escribiendo…</string>
     <string name="group_many_typing">%1$s y otras %2$d personas están escribiendo…</string>

@@ -1,11 +1,17 @@
 package ch.threema.app.adapters.decorators;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.Toast;
+
+import java.util.Collections;
 
 import org.slf4j.Logger;
 
@@ -14,9 +20,12 @@ import java.io.File;
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import ch.threema.app.R;
+import ch.threema.app.managers.ListenerManager;
+import ch.threema.app.services.messageplayer.ListenOnceBurnRegistry;
 import ch.threema.app.services.messageplayer.MessagePlayer;
 import ch.threema.app.ui.AudioProgressBarView;
 import ch.threema.app.ui.ControllerView;
+import ch.threema.app.ui.ListenOnceBurnDrawable;
 import ch.threema.app.ui.listitemholder.ComposeMessageHolder;
 import ch.threema.app.utils.ConfigUtils;
 import ch.threema.app.utils.ElapsedTimeFormatter;
@@ -76,6 +85,102 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         viewHolder.audioMessageIcon.setImageTintList(getUiContentColor(getMessageModel(), viewHolder.audioMessageIcon.getContext()));
     }
 
+    /**
+     * F1Whisper: freeze the audio row at full width (full waveform, no controls/icon) so the ember
+     * burst has the whole bubble to consume before it collapses to the small note.
+     */
+    private void showBurningRow(@NonNull ComposeMessageHolder holder) {
+        holder.controller.setHidden();
+        holder.readOnButton.setVisibility(View.GONE);
+        holder.audioMessageIcon.setVisibility(View.GONE);
+        if (holder.seekBar != null) {
+            holder.seekBar.setEnabled(false);
+            holder.seekBar.setProgress(holder.seekBar.getMax());
+        }
+        if (holder.size != null) {
+            holder.size.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * F1Whisper: restore the audio row (its include root = the controller's parent, plus the seek
+     * bar / time / icon) to the default visible state. Called on every bind so a recycled holder
+     * never keeps a previous message's collapsed/hidden burned state (which renders blank).
+     */
+    private void restoreAudioRow(@NonNull ComposeMessageHolder holder) {
+        if (holder.controller != null && holder.controller.getParent() instanceof View) {
+            ((View) holder.controller.getParent()).setVisibility(View.VISIBLE);
+        }
+        if (holder.seekBar != null) {
+            holder.seekBar.setVisibility(View.VISIBLE);
+        }
+        if (holder.size != null) {
+            holder.size.setVisibility(View.VISIBLE);
+        }
+        holder.audioMessageIcon.setVisibility(View.VISIBLE);
+        holder.audioMessageIcon.setAlpha(1f);
+    }
+
+    /**
+     * F1Whisper: collapse the whole audio bubble to just the small "voice message expired" note by
+     * hiding the entire audio row (the include's root view = the controller's parent) and shrinking
+     * the bubble to wrap the note. The note text itself is supplied by {@code configureBodyText}.
+     */
+    private void collapseToExpiredNote(@NonNull ComposeMessageHolder holder) {
+        if (holder.controller != null && holder.controller.getParent() instanceof View) {
+            ((View) holder.controller.getParent()).setVisibility(View.GONE);
+        }
+        if (holder.contentView != null) {
+            holder.contentView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            holder.contentView.requestLayout();
+        }
+    }
+
+    /**
+     * F1Whisper: play the one-shot ember-burst over the bubble card while it is still full size, then
+     * collapse to the small note. The burst is a {@link ListenOnceBurnDrawable} on the card's
+     * {@link android.view.ViewOverlay} driven by a {@link ValueAnimator} — drawn reliably without a
+     * layout pass (a mid-bind {@code addView} child would never get laid out inside a recycled list
+     * item, which is why earlier overlay-View attempts never animated). When the burst ends we fire a
+     * normal {@code onModified} re-render so the CORRECT (possibly re-bound) holder collapses — never
+     * a stale captured holder.
+     */
+    private void playBurnAnimation(@NonNull ComposeMessageHolder holder, final int burnId) {
+        final ViewGroup card = holder.messageBlockView;
+        final AbstractMessageModel model = getMessageModel();
+        // Run inline: at the burned bind the card was just visible during playback, so it is already
+        // laid out (getWidth()/getHeight() valid). We deliberately do NOT defer via post() — a posted
+        // runnable that never runs (view detached right after bind) would strand the "burning" state
+        // and the bubble would never collapse. If the card is missing or unmeasured, just collapse.
+        final int w = card != null ? card.getWidth() : 0;
+        final int h = card != null ? card.getHeight() : 0;
+        if (card == null || w <= 0 || h <= 0) {
+            ListenOnceBurnRegistry.clearBurning(burnId);
+            collapseToExpiredNote(holder);
+            return;
+        }
+
+        final ListenOnceBurnDrawable burn =
+            new ListenOnceBurnDrawable(card.getResources().getDisplayMetrics().density);
+        burn.setBounds(0, 0, w, h);
+        card.getOverlay().add(burn);
+
+        final ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+        animator.setDuration(ListenOnceBurnDrawable.DURATION_MS);
+        animator.addUpdateListener(va -> burn.setProgress((float) va.getAnimatedValue()));
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                card.getOverlay().remove(burn);
+                ListenOnceBurnRegistry.clearBurning(burnId);
+                // Collapse via a normal re-render (now no longer burning) so whichever holder
+                // currently shows this message collapses correctly.
+                ListenerManager.messageListeners.handle(listener -> listener.onModified(Collections.singletonList(model)));
+            }
+        });
+        animator.start();
+    }
+
     @Override
     protected void configureChatMessage(final ComposeMessageHolder holder, Context context, final int position) {
 
@@ -102,14 +207,14 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         final boolean isListenOnce = !getMessageModel().isOutbox()
             && fileDataModel != null
             && fileDataModel.isListenOnce();
-        // A listen-once voice message is "burned" once it can no longer be played: on the RECIPIENT
-        // after they play it once, and on the SENDER once it has been sent (so neither side can
-        // replay it, matching Telegram/WhatsApp view-once). We trust the persistent file-metadata
-        // flag first (survives reopen, immune to later state changes) and fall back to the CONSUMED
-        // message state for recipient messages burned before this flag existed.
-        final boolean alreadyListened =
-            (fileDataModel != null && fileDataModel.isListenOnce() && fileDataModel.isListenOnceConsumed())
-                || (isListenOnce && getMessageModel().getState() == MessageState.CONSUMED);
+        // A listen-once voice message is "burned" ONLY once its persistent "loc" metadata flag is set
+        // (after the single playback completes, in AudioMessagePlayer.enforceListenOnceIfNeeded). We
+        // must NOT key off MessageState.CONSUMED: a voice message moves to CONSUMED at playback START
+        // (markAsConsumed on STATE_READY), which would otherwise expire the bubble the instant it
+        // begins playing — hiding the controls and progress mid-play.
+        final boolean alreadyListened = fileDataModel != null
+            && fileDataModel.isListenOnce()
+            && fileDataModel.isListenOnceConsumed();
 
         MessagePlayer audioMessagePlayer = messagePlayerFactory.create(getMessageModel(), helper.getMediaControllerFuture());
 
@@ -129,6 +234,10 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         holder.seekBar.setEnabled(false);
         holder.readOnButton.setVisibility(View.GONE);
         holder.audioMessageIcon.setVisibility(View.VISIBLE);
+        // F1Whisper: a recycled holder may carry a collapsed/burned listen-once state from a previous
+        // message (audio row hidden). Restore the row to its default visible state on every bind so a
+        // fresh/unplayed voice never renders blank.
+        restoreAudioRow(holder);
         // F1Whisper: show the "1" (listen once) badge in place of the microphone icon for incoming
         // listen-once voice messages.
         if (isListenOnce) {
@@ -178,15 +287,22 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
             updateProgressCount(holder, 0);
 
             if (alreadyListened) {
-                // F1Whisper: media has been played once and deleted. No play/download/replay.
-                // Show a "burned" flame icon (Telegram-style) instead of the "1" once badge.
-                holder.controller.setHidden();
-                if (holder.seekBar != null) {
-                    holder.seekBar.setEnabled(false);
+                // F1Whisper: a played-once (burned) listen-once voice message collapses to a small
+                // localized "voice message expired" note (Telegram-style), NOT a flame bubble. If it
+                // JUST burned, the ember burst first plays over the full bubble and THEN it collapses;
+                // on reopen/scroll the registry is empty so the collapsed note shows with no animation.
+                final int burnId = getMessageModel().getId();
+                if (ListenOnceBurnRegistry.isBurning(burnId)) {
+                    // Burst already running over this bubble; keep it full (do NOT collapse, do NOT
+                    // restart) so the extra re-renders the burn fires cannot collapse it mid-burst.
+                    showBurningRow(holder);
+                } else if (ListenOnceBurnRegistry.consumeBurnAnimation(burnId)) {
+                    ListenOnceBurnRegistry.setBurning(burnId);
+                    showBurningRow(holder);
+                    playBurnAnimation(holder, burnId);
+                } else {
+                    collapseToExpiredNote(holder);
                 }
-                holder.audioMessageIcon.setImageResource(R.drawable.ic_listen_once_burned);
-                holder.audioMessageIcon.setContentDescription(context.getString(R.string.listen_once_already_listened));
-                holder.audioMessageIcon.setVisibility(View.VISIBLE);
                 return;
             }
 
@@ -407,16 +523,24 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         }
 
         if (holder.contentView != null) {
-            //one size fits all :-)
-            holder.contentView.getLayoutParams().width = ConfigUtils.getPreferredAudioMessageWidth(context, false);
+            // F1Whisper: a fully-collapsed burned bubble (audio row hidden) wraps the small note;
+            // every other audio bubble (including one mid-burn, whose row is still visible) uses the
+            // fixed preferred audio width.
+            final boolean burnedCollapsed = holder.controller != null
+                && holder.controller.getParent() instanceof View
+                && ((View) holder.controller.getParent()).getVisibility() == View.GONE;
+            holder.contentView.getLayoutParams().width = burnedCollapsed
+                ? ViewGroup.LayoutParams.WRAP_CONTENT
+                : ConfigUtils.getPreferredAudioMessageWidth(context, false);
         }
 
         if (alreadyListened) {
-            // F1Whisper: replace the caption with a burned placeholder. The recipient sees "Listened";
-            // the sender (who never plays it back) sees a neutral "Listen-once voice message".
+            // F1Whisper: the burned bubble collapses to a small localized note (Telegram-style). The
+            // recipient sees "Voice message expired"; the SENDER (whose copy burns on send, before the
+            // recipient has listened) sees the neutral "Listen-once voice message" instead.
             caption = context.getString(getMessageModel().isOutbox()
                 ? R.string.listen_once_sent
-                : R.string.listen_once_already_listened);
+                : R.string.listen_once_expired);
         }
 
         configureBodyText(holder, caption);

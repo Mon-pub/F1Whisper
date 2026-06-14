@@ -1352,6 +1352,8 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="listen_once_badge_content_description">Missatge de veu per escoltar una vegada</string>
     <string name="listen_once_already_listened">Escoltat</string>
     <string name="listen_once_sent">Missatge de veu per escoltar una vegada</string>
+    <string name="listen_once_cannot_forward">Els missatges d\'escolta única no es poden reenviar</string>
+    <string name="listen_once_expired">El missatge de veu ha caducat</string>
     <string name="group_one_typing">%s està escrivint…</string>
     <string name="group_two_typing">%1$s i %2$s estan escrivint…</string>
     <string name="group_many_typing">%1$s i %2$d més estan escrivint…</string>

@@ -1879,6 +1879,8 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="listen_once_badge_content_description">Message vocal à écoute unique</string>
     <string name="listen_once_already_listened">Écouté</string>
     <string name="listen_once_sent">Message vocal à écoute unique</string>
+    <string name="listen_once_cannot_forward">Les messages à écoute unique ne peuvent pas être transférés</string>
+    <string name="listen_once_expired">Message vocal expiré</string>
     <string name="group_one_typing">%s écrit…</string>
     <string name="group_two_typing">%1$s et %2$s écrivent…</string>
     <string name="group_many_typing">%1$s et %2$d autres écrivent…</string>

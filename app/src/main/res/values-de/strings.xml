@@ -1909,6 +1909,8 @@
     <string name="listen_once_badge_content_description">Einmal abspielbare Sprachnachricht</string>
     <string name="listen_once_already_listened">Angehört</string>
     <string name="listen_once_sent">Einmal abspielbare Sprachnachricht</string>
+    <string name="listen_once_cannot_forward">Einmal-anhören-Nachrichten können nicht weitergeleitet werden</string>
+    <string name="listen_once_expired">Sprachnachricht abgelaufen</string>
     <string name="group_one_typing">%s schreibt…</string>
     <string name="group_two_typing">%1$s und %2$s schreiben…</string>
     <string name="group_many_typing">%1$s und %2$d weitere schreiben…</string>

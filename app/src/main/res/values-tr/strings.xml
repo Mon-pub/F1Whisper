@@ -1876,6 +1876,8 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="listen_once_badge_content_description">Bir kez dinlenen sesli mesaj</string>
     <string name="listen_once_already_listened">Dinlendi</string>
     <string name="listen_once_sent">Bir kez dinlenen sesli mesaj</string>
+    <string name="listen_once_cannot_forward">Bir kez dinlenen mesajlar iletilemez</string>
+    <string name="listen_once_expired">Sesli mesajın süresi doldu</string>
     <string name="group_one_typing">%s yazıyor…</string>
     <string name="group_two_typing">%1$s ve %2$s yazıyor…</string>
     <string name="group_many_typing">%1$s ve %2$d kişi daha yazıyor…</string>

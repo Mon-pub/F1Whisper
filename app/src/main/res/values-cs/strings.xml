@@ -1925,6 +1925,8 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="listen_once_badge_content_description">Hlasová zpráva k jednorázovému přehrání</string>
     <string name="listen_once_already_listened">Přehráno</string>
     <string name="listen_once_sent">Hlasová zpráva k jednorázovému přehrání</string>
+    <string name="listen_once_cannot_forward">Zprávy k jednorázovému poslechu nelze přeposlat</string>
+    <string name="listen_once_expired">Platnost hlasové zprávy vypršela</string>
     <string name="group_one_typing">%s píše…</string>
     <string name="group_two_typing">%1$s a %2$s píšou…</string>
     <string name="group_many_typing">%1$s a %2$d další píšou…</string>

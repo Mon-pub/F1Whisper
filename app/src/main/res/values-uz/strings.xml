@@ -1926,6 +1926,8 @@
     <string name="listen_once_badge_content_description">Bir marta tinglanadigan ovozli xabar</string>
     <string name="listen_once_already_listened">Tinglandi</string>
     <string name="listen_once_sent">Bir marta tinglanadigan ovozli xabar</string>
+    <string name="listen_once_cannot_forward">Bir marta tinglanadigan xabarlarni uzatib bo‘lmaydi</string>
+    <string name="listen_once_expired">Ovozli xabar muddati tugadi</string>
     <string name="group_one_typing">%s yozmoqda…</string>
     <string name="group_two_typing">%1$s va %2$s yozmoqda…</string>
     <string name="group_many_typing">%1$s va yana %2$d kishi yozmoqda…</string>

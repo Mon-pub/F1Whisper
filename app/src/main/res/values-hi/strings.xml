@@ -1938,6 +1938,8 @@
     <string name="listen_once_badge_content_description">एक बार सुनने वाला वॉइस संदेश</string>
     <string name="listen_once_already_listened">सुना गया</string>
     <string name="listen_once_sent">एक बार सुनने वाला वॉइस संदेश</string>
+    <string name="listen_once_cannot_forward">एक-बार सुनने वाले संदेश फ़ॉरवर्ड नहीं किए जा सकते</string>
+    <string name="listen_once_expired">वॉइस मैसेज की समय-सीमा समाप्त</string>
     <string name="group_one_typing">%s टाइप कर रहे हैं…</string>
     <string name="group_two_typing">%1$s और %2$s टाइप कर रहे हैं…</string>
     <string name="group_many_typing">%1$s और %2$d अन्य टाइप कर रहे हैं…</string>

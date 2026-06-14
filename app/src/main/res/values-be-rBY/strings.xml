@@ -1932,6 +1932,8 @@
     <string name="listen_once_badge_content_description">Галасавое паведамленне для аднаразовага праслухоўвання</string>
     <string name="listen_once_already_listened">Праслухана</string>
     <string name="listen_once_sent">Галасавое паведамленне для аднаразовага праслухоўвання</string>
+    <string name="listen_once_cannot_forward">Паведамленні з аднаразовым праслухоўваннем нельга пераслаць</string>
+    <string name="listen_once_expired">Тэрмін дзеяння галасавога паведамлення скончыўся</string>
     <string name="group_one_typing">%s друкуе…</string>
     <string name="group_two_typing">%1$s і %2$s друкуюць…</string>
     <string name="group_many_typing">%1$s і яшчэ %2$d іншых друкуюць…</string>

@@ -1858,6 +1858,8 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="listen_once_badge_content_description">Mensagem de voz para ouvir uma vez</string>
     <string name="listen_once_already_listened">Ouvida</string>
     <string name="listen_once_sent">Mensagem de voz para ouvir uma vez</string>
+    <string name="listen_once_cannot_forward">Mensagens para ouvir uma vez não podem ser encaminhadas</string>
+    <string name="listen_once_expired">Mensagem de voz expirada</string>
     <string name="group_one_typing">%s está digitando…</string>
     <string name="group_two_typing">%1$s e %2$s estão digitando…</string>
     <string name="group_many_typing">%1$s e mais %2$d estão digitando…</string>

@@ -1874,6 +1874,8 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="listen_once_badge_content_description">仅播放一次的语音消息</string>
     <string name="listen_once_already_listened">已播放</string>
     <string name="listen_once_sent">仅播放一次的语音消息</string>
+    <string name="listen_once_cannot_forward">仅听一次的消息无法转发</string>
+    <string name="listen_once_expired">语音消息已过期</string>
     <string name="group_one_typing">%s 正在输入…</string>
     <string name="group_two_typing">%1$s 和 %2$s 正在输入…</string>
     <string name="group_many_typing">%1$s 和另外 %2$d 人正在输入…</string>

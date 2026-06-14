@@ -1594,6 +1594,8 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="listen_once_badge_content_description">Talemelding for engangslytting</string>
     <string name="listen_once_already_listened">Lyttet</string>
     <string name="listen_once_sent">Talemelding for engangslytting</string>
+    <string name="listen_once_cannot_forward">Meldinger for engangsavspilling kan ikke videresendes</string>
+    <string name="listen_once_expired">Talemeldingen er utløpt</string>
     <string name="group_one_typing">%s skriver…</string>
     <string name="group_two_typing">%1$s og %2$s skriver…</string>
     <string name="group_many_typing">%1$s og %2$d andre skriver…</string>

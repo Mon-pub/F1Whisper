@@ -5842,7 +5842,21 @@ public class ComposeMessageFragment extends Fragment implements
             return isValidReceiver && QuoteUtil.isQuoteable(message);
         }
 
+        /**
+         * F1Whisper: a "listen once" voice message must not be forwarded, saved or shared. Otherwise
+         * the recipient could exfiltrate it (or replay it) before playing it once, defeating the
+         * single-playback guarantee. Mirrors Telegram, whose {@code canForwardMessage()} returns
+         * false for view-once messages. Gated on the {@code "lo"} flag itself (set on incoming AND
+         * the sender's own copy), independent of whether it has already burned.
+         */
+        private boolean isListenOnce(@NonNull AbstractMessageModel message) {
+            return message.getFileData() != null && message.getFileData().isListenOnce();
+        }
+
         private boolean isForwardable(@NonNull AbstractMessageModel message) {
+            if (isListenOnce(message)) {                                // F1Whisper: never forward a listen-once message
+                return false;
+            }
             return message.isAvailable()                                // if the media is downloaded
                 && !message.isStatusMessage()                           // and the message is not status message (unread or status)
                 && message.getType() != MessageType.BALLOT              // and not a ballot
@@ -5851,6 +5865,9 @@ public class ComposeMessageFragment extends Fragment implements
         }
 
         private boolean isSaveable(@NonNull AbstractMessageModel message) {
+            if (isListenOnce(message)) {                            // F1Whisper: never save a listen-once message
+                return false;
+            }
             return message.isAvailable()                            // if the message is available
                 && (message.getType() == MessageType.IMAGE          // and it is an image
                 || message.getType() == MessageType.VOICEMESSAGE    // or voice message
@@ -5859,6 +5876,9 @@ public class ComposeMessageFragment extends Fragment implements
         }
 
         private boolean isShareable(@NonNull AbstractMessageModel message) {
+            if (isListenOnce(message)) {                    // F1Whisper: never share a listen-once message
+                return false;
+            }
             return message.isAvailable()                    // if the message is available
                 && (message.getType() == MessageType.IMAGE  // and message is an image
                 || message.getType() == MessageType.VIDEO   // or video

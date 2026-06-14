@@ -1814,6 +1814,8 @@
     <string name="listen_once_badge_content_description">Гласово съобщение за еднократно слушане</string>
     <string name="listen_once_already_listened">Прослушано</string>
     <string name="listen_once_sent">Гласово съобщение за еднократно слушане</string>
+    <string name="listen_once_cannot_forward">Съобщенията за еднократно слушане не могат да се препращат</string>
+    <string name="listen_once_expired">Гласовото съобщение изтече</string>
     <string name="group_one_typing">%s пише…</string>
     <string name="group_two_typing">%1$s и %2$s пишат…</string>
     <string name="group_many_typing">%1$s и още %2$d пишат…</string>

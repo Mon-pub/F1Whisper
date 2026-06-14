@@ -1927,6 +1927,8 @@
     <string name="listen_once_badge_content_description">একবার শোনার ভয়েস বার্তা</string>
     <string name="listen_once_already_listened">শোনা হয়েছে</string>
     <string name="listen_once_sent">একবারের ভয়েস বার্তা</string>
+    <string name="listen_once_cannot_forward">একবার-শোনা বার্তা ফরোয়ার্ড করা যায় না</string>
+    <string name="listen_once_expired">ভয়েস মেসেজের মেয়াদ শেষ</string>
     <string name="group_one_typing">%s টাইপ করছেন…</string>
     <string name="group_two_typing">%1$s এবং %2$s টাইপ করছেন…</string>
     <string name="group_many_typing">%1$s এবং আরও %2$dজন টাইপ করছেন…</string>
