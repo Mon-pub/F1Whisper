@@ -1925,6 +1925,7 @@
     <string name="listen_once_enabled">Прослушать один раз: вкл.</string>
     <string name="listen_once_disabled">Прослушать один раз: выкл.</string>
     <string name="listen_once_badge_content_description">Голосовое сообщение для однократного прослушивания</string>
+    <string name="forwarded_message_label">Переслано</string>
     <string name="listen_once_already_listened">Прослушано</string>
     <string name="listen_once_sent">Одноразовое голосовое сообщение</string>
     <string name="listen_once_cannot_forward">Сообщения для однократного прослушивания нельзя переслать</string>
@@ -1975,4 +1976,7 @@
     <string name="folder_empty">В этой папке нет чатов</string>
     <string name="schedule_today">Сегодня</string>
     <string name="schedule_tomorrow">Завтра</string>
+    <string name="prefs_refresh_onprem_config">Обновить конфигурацию сервера</string>
+    <string name="prefs_refresh_onprem_config_summary">Повторно загрузить конфигурацию сервера сейчас. Полезно после того, как сервер добавит новые функции, например привязку компьютера.</string>
+    <string name="onprem_config_refreshed">Конфигурация сервера обновлена</string>
 </resources>

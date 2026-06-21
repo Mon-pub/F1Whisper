@@ -1873,6 +1873,7 @@
     <string name="listen_once_enabled">Eimal aalose: ii</string>
     <string name="listen_once_disabled">Eimal aalose: us</string>
     <string name="listen_once_badge_content_description">Sprachnachricht zum eimal Aalose</string>
+    <string name="forwarded_message_label">Wytergleitet</string>
     <string name="listen_once_already_listened">Aaglost</string>
     <string name="listen_once_sent">Sprachnachricht zum eimal Aalose</string>
     <string name="listen_once_cannot_forward">Einisch-aalose-Nachrichte chönd nöd witergleitet werde</string>
@@ -1923,4 +1924,7 @@
     <string name="folder_empty">Kei Chats i dem Ordner</string>
     <string name="schedule_today">Hüt</string>
     <string name="schedule_tomorrow">Morn</string>
+    <string name="prefs_refresh_onprem_config">Server-Konfiguration aktualisiere</string>
+    <string name="prefs_refresh_onprem_config_summary">D Server-Konfiguration jetz nomol abelade. Nützlich, wenn de Server neui Funktione wie d Desktop-Verbindig dezuegfüegt het.</string>
+    <string name="onprem_config_refreshed">Server-Konfiguration aktualisiert</string>
 </resources>

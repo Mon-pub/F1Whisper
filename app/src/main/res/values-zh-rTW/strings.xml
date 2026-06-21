@@ -1872,6 +1872,7 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="listen_once_enabled">僅聽一次：開啟</string>
     <string name="listen_once_disabled">僅聽一次：關閉</string>
     <string name="listen_once_badge_content_description">僅聽一次語音訊息</string>
+    <string name="forwarded_message_label">已轉發</string>
     <string name="listen_once_already_listened">已聽取</string>
     <string name="listen_once_sent">僅聽一次語音訊息</string>
     <string name="listen_once_cannot_forward">僅聽一次的訊息無法轉發</string>
@@ -1922,4 +1923,7 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="folder_empty">這個資料夾中沒有對話</string>
     <string name="schedule_today">今天</string>
     <string name="schedule_tomorrow">明天</string>
+    <string name="prefs_refresh_onprem_config">重新整理伺服器設定</string>
+    <string name="prefs_refresh_onprem_config_summary">立即重新下載伺服器設定。在伺服器新增桌面連結等新功能後很有用。</string>
+    <string name="onprem_config_refreshed">伺服器設定已重新整理</string>
 </resources>

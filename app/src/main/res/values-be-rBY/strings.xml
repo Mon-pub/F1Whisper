@@ -1930,6 +1930,7 @@
     <string name="listen_once_enabled">Праслухаць адзін раз: укл.</string>
     <string name="listen_once_disabled">Праслухаць адзін раз: выкл.</string>
     <string name="listen_once_badge_content_description">Галасавое паведамленне для аднаразовага праслухоўвання</string>
+    <string name="forwarded_message_label">Пераслана</string>
     <string name="listen_once_already_listened">Праслухана</string>
     <string name="listen_once_sent">Галасавое паведамленне для аднаразовага праслухоўвання</string>
     <string name="listen_once_cannot_forward">Паведамленні з аднаразовым праслухоўваннем нельга пераслаць</string>
@@ -1980,4 +1981,7 @@
     <string name="folder_empty">У гэтай папцы няма чатаў</string>
     <string name="schedule_today">Сёння</string>
     <string name="schedule_tomorrow">Заўтра</string>
+    <string name="prefs_refresh_onprem_config">Абнавіць канфігурацыю сервера</string>
+    <string name="prefs_refresh_onprem_config_summary">Зноў спампаваць канфігурацыю сервера зараз. Карысна пасля таго, як сервер дадасць новыя функцыі, напрыклад прывязку камп’ютара.</string>
+    <string name="onprem_config_refreshed">Канфігурацыя сервера абноўлена</string>
 </resources>

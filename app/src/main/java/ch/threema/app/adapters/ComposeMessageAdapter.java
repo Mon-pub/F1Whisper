@@ -530,6 +530,7 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 if (isUserMessage(itemType)) {
                     holder.senderView = itemView.findViewById(R.id.group_sender_view);
                     holder.senderName = itemView.findViewById(R.id.group_sender_name);
+                    holder.forwardedLabelView = itemView.findViewById(R.id.forwarded_label_view);
                     holder.deliveredIndicator = itemView.findViewById(R.id.delivered_indicator);
                     holder.attachmentImage = itemView.findViewById(R.id.attachment_image_view);
                     holder.avatarView = itemView.findViewById(R.id.avatar_view);
@@ -1171,6 +1172,13 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 nextMessage != null &&
                     nextMessage.getId() != messageModel.getId() &&
                     nextMessage.isDownloadedVoiceMessage() &&
+                    // F1Whisper: a "listen once" voice message must NEVER be auto-played by the
+                    // consecutive-voice auto-play chain. Auto-playing it would consume + burn it
+                    // without the user ever choosing to listen (the chain plays the next voice when
+                    // the previous one ends). This is especially visible in groups, where many
+                    // consecutive voice messages make the chain reach a listen-once and expire it
+                    // instantly. Stop the chain here so a listen-once only burns on an explicit tap.
+                    !(nextMessage.getFileData() != null && nextMessage.getFileData().isListenOnce()) &&
                     messageModel.isOutbox() == nextMessage.isOutbox() &&
                     messageModel.isAvailable()
             ) {

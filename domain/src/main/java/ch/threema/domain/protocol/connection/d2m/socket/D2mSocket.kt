@@ -4,6 +4,7 @@ import ch.threema.domain.protocol.connection.socket.BaseSocket
 import ch.threema.domain.protocol.connection.socket.ServerSocketCloseReason
 import ch.threema.domain.protocol.connection.util.ConnectionLoggingUtil
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import okhttp3.OkHttpClient
@@ -15,6 +16,18 @@ import okio.ByteString
 import okio.ByteString.Companion.toByteString
 
 private val logger = ConnectionLoggingUtil.getConnectionLogger("D2mSocket")
+
+/**
+ * Keepalive for the D2M WebSocket. OkHttp sends a WS ping every interval and FAILS the connection
+ * (-> [WebSocketListener.onFailure] -> reconnect) if no pong arrives before the next one is due.
+ *
+ * Without this, the D2M socket has no dead-link detection at all (unlike the CSP path, which arms a
+ * post-auth read timeout): a TCP half-open socket is held open forever, so a phone whose link
+ * dropped is never told the connection died, shows "connected" but cannot send/receive, and never
+ * reconnects (the multi-device "stuck connected / A connection is already active" wedge). The
+ * mediator auto-pongs these pings, so a healthy connection is unaffected.
+ */
+private val D2M_WEBSOCKET_PING_INTERVAL = 20.seconds
 
 internal class D2mSocket(
     private val okHttpClient: OkHttpClient,
@@ -51,7 +64,15 @@ internal class D2mSocket(
             logger.warn("WebSocket failure", t)
             readJob?.cancel()
             writeJob?.cancel()
+            val wasConnected = connectedSignal.isCompleted
             connectedSignal.completeExceptionally(t)
+            // If an ESTABLISHED socket fails (e.g. a pingInterval pong-timeout on a half-open link),
+            // propagate a stopped-IO signal so BaseServerConnection's reconnect loop fires. Otherwise
+            // the connection can be left dead-but-"connected" with no reconnect (the MD wedge). A
+            // connect-time failure keeps the existing behaviour (connectedSignal already failed).
+            if (wasConnected && !ioProcessingStoppedSignal.isCompleted) {
+                ioProcessingStoppedSignal.completeExceptionally(t)
+            }
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
@@ -84,7 +105,12 @@ internal class D2mSocket(
             .url(url)
             .build()
 
-        webSocket = okHttpClient.newWebSocket(request, webSocketListener)
+        // Scope the WS keepalive to the D2M socket (not the shared HTTP client) so a half-open
+        // connection is detected and fails fast into a reconnect.
+        webSocket = okHttpClient.newBuilder()
+            .pingInterval(D2M_WEBSOCKET_PING_INTERVAL)
+            .build()
+            .newWebSocket(request, webSocketListener)
         connectedSignal.await()
     }
 

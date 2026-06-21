@@ -1112,6 +1112,12 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
                                     mimeType,
                                     originalMessageModel.getCaption()
                                 );
+                                // F1Whisper: this image/video is being forwarded (via the SendMedia
+                                // preview). Tag the MediaItem so the sent copy carries the "fwd" flag
+                                // and renders the "Forwarded" header. The flag survives parceling into
+                                // SendMediaActivity and the adapter, which reuses these MediaItem
+                                // objects when sending.
+                                mediaItem.setForwarded(true);
 
                                 final @Nullable String existingFilename = originalMessageModel.getFileData().getFileName();
                                 if (!TestUtil.isBlankOrNull(existingFilename)) {
@@ -1533,6 +1539,9 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
     @AnyThread
     private void sendForwardedMedia(final MessageReceiver[] messageReceivers, final Uri uri, final String caption, final int type, @Nullable final String mimeType, @FileData.RenderingType final int renderingType, final String filename, long durationMs) {
         final MediaItem mediaItem = new MediaItem(uri, type);
+        // F1Whisper: this media is a forward of an existing message; tag it so the sent copy carries
+        // the "forwarded" metadata flag and renders a "Forwarded" header on both ends.
+        mediaItem.setForwarded(true);
         if (mimeType != null) {
             mediaItem.setMimeType(mimeType);
         }

@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
@@ -142,19 +143,13 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
 
         wasRecreated = savedInstanceState != null
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (
-                !ConfigUtils.requestBluetoothConnectPermissions(
-                    this,
-                    null,
-                    PERMISSION_REQUEST_CODE_BLUETOOTH_CONNECT,
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, permission.BLUETOOTH_CONNECT),
-                )
-            ) {
-                return
-            }
-        }
-
+        // F1Whisper: do NOT prompt for BLUETOOTH_CONNECT (the "Nearby devices" permission) just to
+        // record a voice message. It is only needed to route recording through a connected Bluetooth
+        // headset (SCO); recording works fine with the built-in mic without it. Signal records voice
+        // notes the same way - no BLUETOOTH_CONNECT request, no SCO. The Bluetooth toggle / SCO path
+        // here is already gated on checkSelfPermission(BLUETOOTH_CONNECT) (see checkIsBluetoothEnabled
+        // / hasBluetoothConnectPermission), so a user who has granted the permission manually still
+        // gets the toggle; everyone else just records on the phone mic with no annoying prompt.
         postPermissionOnCreate(wasRecreated = wasRecreated)
     }
 
@@ -428,13 +423,23 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
             },
         )
 
-        // F1Whisper: reflect the "listen once" toggle state. Highlighted (primary color) when active.
+        // F1Whisper: reflect the "listen once" toggle state. When ACTIVE the toggle becomes a solid
+        // primary-colored filled circle with a contrasting "1" (colorOnPrimary), an unmistakable
+        // highlighted-chip look; when inactive it is the plain borderless button with a colorOnSurface
+        // "1". The previous active state only swapped the tint (primary vs onSurface), which was barely
+        // distinguishable on most themes.
         if (screenState.listenOnce) {
-            listenOnceToggle.setColorFilter(
+            listenOnceToggle.setBackgroundResource(R.drawable.bg_listen_once_active)
+            listenOnceToggle.backgroundTintList = ColorStateList.valueOf(
                 ConfigUtils.getColorFromAttribute(this, R.attr.colorPrimary),
+            )
+            listenOnceToggle.setColorFilter(
+                ConfigUtils.getColorFromAttribute(this, R.attr.colorOnPrimary),
                 PorterDuff.Mode.SRC_IN,
             )
         } else {
+            listenOnceToggle.setBackgroundResource(R.drawable.selector_compose_button)
+            listenOnceToggle.backgroundTintList = null
             listenOnceToggle.setColorFilter(
                 ConfigUtils.getColorFromAttribute(this, R.attr.colorOnSurface),
                 PorterDuff.Mode.SRC_IN,

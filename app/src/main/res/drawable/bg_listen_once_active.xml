@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ F1Whisper: solid filled circle used as the background of the voice-recorder "listen once"
+  ~ toggle when it is ACTIVE. The fill is white so it can be tinted to the theme's primary color
+  ~ programmatically (backgroundTintList), giving the active toggle an unmistakable highlighted
+  ~ chip look (solid primary circle + contrasting "1") instead of a barely-visible tint change.
+  -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@android:color/white" />
+</shape>

@@ -1936,6 +1936,7 @@
     <string name="listen_once_enabled">एक बार सुनें: चालू</string>
     <string name="listen_once_disabled">एक बार सुनें: बंद</string>
     <string name="listen_once_badge_content_description">एक बार सुनने वाला वॉइस संदेश</string>
+    <string name="forwarded_message_label">अग्रेषित</string>
     <string name="listen_once_already_listened">सुना गया</string>
     <string name="listen_once_sent">एक बार सुनने वाला वॉइस संदेश</string>
     <string name="listen_once_cannot_forward">एक-बार सुनने वाले संदेश फ़ॉरवर्ड नहीं किए जा सकते</string>
@@ -1986,4 +1987,7 @@
     <string name="folder_empty">इस फ़ोल्डर में कोई चैट नहीं</string>
     <string name="schedule_today">आज</string>
     <string name="schedule_tomorrow">कल</string>
+    <string name="prefs_refresh_onprem_config">सर्वर कॉन्फ़िगरेशन ताज़ा करें</string>
+    <string name="prefs_refresh_onprem_config_summary">सर्वर कॉन्फ़िगरेशन अभी फिर से डाउनलोड करें। सर्वर द्वारा डेस्कटॉप लिंकिंग जैसी नई सुविधाएँ जोड़ने के बाद उपयोगी।</string>
+    <string name="onprem_config_refreshed">सर्वर कॉन्फ़िगरेशन ताज़ा किया गया</string>
 </resources>

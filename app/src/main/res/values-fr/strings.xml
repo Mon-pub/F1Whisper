@@ -1877,6 +1877,7 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="listen_once_enabled">Écoute unique : activée</string>
     <string name="listen_once_disabled">Écoute unique : désactivée</string>
     <string name="listen_once_badge_content_description">Message vocal à écoute unique</string>
+    <string name="forwarded_message_label">Transféré</string>
     <string name="listen_once_already_listened">Écouté</string>
     <string name="listen_once_sent">Message vocal à écoute unique</string>
     <string name="listen_once_cannot_forward">Les messages à écoute unique ne peuvent pas être transférés</string>
@@ -1927,4 +1928,7 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="folder_empty">Aucune discussion dans ce dossier</string>
     <string name="schedule_today">Aujourd\'hui</string>
     <string name="schedule_tomorrow">Demain</string>
+    <string name="prefs_refresh_onprem_config">Actualiser la configuration du serveur</string>
+    <string name="prefs_refresh_onprem_config_summary">Retélécharger la configuration du serveur maintenant. Utile après que le serveur a ajouté de nouvelles fonctionnalités comme la liaison avec l’ordinateur.</string>
+    <string name="onprem_config_refreshed">Configuration du serveur actualisée</string>
 </resources>

@@ -1924,6 +1924,7 @@
     <string name="listen_once_enabled">Bir marta tinglash: yoqilgan</string>
     <string name="listen_once_disabled">Bir marta tinglash: oʻchirilgan</string>
     <string name="listen_once_badge_content_description">Bir marta tinglanadigan ovozli xabar</string>
+    <string name="forwarded_message_label">Yoʻnaltirilgan</string>
     <string name="listen_once_already_listened">Tinglandi</string>
     <string name="listen_once_sent">Bir marta tinglanadigan ovozli xabar</string>
     <string name="listen_once_cannot_forward">Bir marta tinglanadigan xabarlarni uzatib bo‘lmaydi</string>
@@ -1974,4 +1975,7 @@
     <string name="folder_empty">Bu papkada suhbatlar yoʻq</string>
     <string name="schedule_today">Bugun</string>
     <string name="schedule_tomorrow">Ertaga</string>
+    <string name="prefs_refresh_onprem_config">Server konfiguratsiyasini yangilash</string>
+    <string name="prefs_refresh_onprem_config_summary">Server konfiguratsiyasini hozir qayta yuklab oling. Server ish stoli ulanishi kabi yangi funksiyalarni qoʻshgandan keyin foydali.</string>
+    <string name="onprem_config_refreshed">Server konfiguratsiyasi yangilandi</string>
 </resources>

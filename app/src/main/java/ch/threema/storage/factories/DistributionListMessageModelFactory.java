@@ -172,8 +172,10 @@ public class DistributionListMessageModelFactory extends AbstractMessageModelFac
     public List<DistributionListMessageModel> find(long distributionListId, MessageService.MessageFilter filter) {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        //sort by id!
-        String orderBy = DistributionListMessageModel.COLUMN_ID + " DESC";
+        // F1Whisper: sort by server send-time (postedAtUtc) with a createdAtUtc fallback for legacy
+        // rows, then id for stability (see MessageModelFactory.find for the rationale).
+        String orderBy = "COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
+            + AbstractMessageModel.COLUMN_CREATED_AT + ") DESC, " + DistributionListMessageModel.COLUMN_ID + " DESC";
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(DistributionListMessageModel.COLUMN_DISTRIBUTION_LIST_ID + "=?");

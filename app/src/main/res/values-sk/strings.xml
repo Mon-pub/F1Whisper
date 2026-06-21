@@ -1844,6 +1844,7 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="listen_once_enabled">Prehrať raz: zapnuté</string>
     <string name="listen_once_disabled">Prehrať raz: vypnuté</string>
     <string name="listen_once_badge_content_description">Hlasová správa na jedno prehratie</string>
+    <string name="forwarded_message_label">Preposlané</string>
     <string name="listen_once_already_listened">Prehraté</string>
     <string name="listen_once_sent">Hlasová správa na jedno prehratie</string>
     <string name="listen_once_cannot_forward">Správy na jednorazové vypočutie nemožno preposlať</string>
@@ -1894,4 +1895,7 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="folder_empty">V tomto priečinku nie sú žiadne konverzácie</string>
     <string name="schedule_today">Dnes</string>
     <string name="schedule_tomorrow">Zajtra</string>
+    <string name="prefs_refresh_onprem_config">Obnoviť konfiguráciu servera</string>
+    <string name="prefs_refresh_onprem_config_summary">Znova stiahnuť konfiguráciu servera. Užitočné po tom, čo server pridá nové funkcie, ako je prepojenie s počítačom.</string>
+    <string name="onprem_config_refreshed">Konfigurácia servera bola obnovená</string>
 </resources>

@@ -1860,6 +1860,7 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="listen_once_enabled">Eenmalig beluisteren: aan</string>
     <string name="listen_once_disabled">Eenmalig beluisteren: uit</string>
     <string name="listen_once_badge_content_description">Eenmalig te beluisteren spraakbericht</string>
+    <string name="forwarded_message_label">Doorgestuurd</string>
     <string name="listen_once_already_listened">Beluisterd</string>
     <string name="listen_once_sent">Eenmalig te beluisteren spraakbericht</string>
     <string name="listen_once_cannot_forward">Berichten voor eenmalig beluisteren kunnen niet worden doorgestuurd</string>
@@ -1910,4 +1911,7 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="folder_empty">Geen chats in deze map</string>
     <string name="schedule_today">Vandaag</string>
     <string name="schedule_tomorrow">Morgen</string>
+    <string name="prefs_refresh_onprem_config">Serverconfiguratie vernieuwen</string>
+    <string name="prefs_refresh_onprem_config_summary">Download de serverconfiguratie nu opnieuw. Handig nadat de server nieuwe functies heeft toegevoegd, zoals desktopkoppeling.</string>
+    <string name="onprem_config_refreshed">Serverconfiguratie vernieuwd</string>
 </resources>

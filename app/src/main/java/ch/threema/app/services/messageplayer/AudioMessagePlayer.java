@@ -52,6 +52,11 @@ public class AudioMessagePlayer extends MessagePlayer {
     private Uri decryptedFileUri = null;
     private int duration = 0; // duration in milliseconds
     private int position = 0; // position in milliseconds
+    // F1Whisper: set true once this player has actually started audible playback (onIsPlayingChanged
+    // true). A listen-once message must NEVER be burned by a STATE_ENDED that arrives WITHOUT real
+    // playback (broken/zero-length media, a spurious end event, or a prepare-only open) - otherwise
+    // it "expires before being listened". Reset on every open().
+    private boolean hasPlayed = false;
     private Thread mediaPositionListener;
     private final PreferenceService preferenceService;
     @NonNull
@@ -120,6 +125,9 @@ public class AudioMessagePlayer extends MessagePlayer {
             if (mediaController != null) {
                 if (isPlaying) {
                     logger.info("onPlay");
+                    // F1Whisper: record that audible playback actually began, so a listen-once is only
+                    // burned after it was genuinely played (see hasPlayed / enforceListenOnceIfNeeded).
+                    hasPlayed = true;
                     makeResume(SOURCE_UI_TOGGLE);
                 } else if (mediaController.getPlaybackState() != Player.STATE_ENDED && playerMediaMatchesControllerMedia()) {
                     logger.info("onPause");
@@ -133,8 +141,12 @@ public class AudioMessagePlayer extends MessagePlayer {
             if (playbackState == Player.STATE_ENDED) {
                 logger.info("onStopped");
                 // F1Whisper: a "listen once" voice message is deleted once playback completes, so it
-                // can never be replayed (best-effort, client-side enforcement).
-                enforceListenOnceIfNeeded();
+                // can never be replayed (best-effort, client-side enforcement). Gate on hasPlayed +
+                // matching media so a STATE_ENDED that arrives without real, audible playback of THIS
+                // message never burns it ("expires before being listened").
+                if (hasPlayed && playerMediaMatchesControllerMedia()) {
+                    enforceListenOnceIfNeeded();
+                }
                 AudioMessagePlayer.super.stop();
                 ListenerManager.messagePlayerListener.handle(listener -> listener.onAudioPlayEnded(getMessageModel(), mediaControllerFuture));
             } else if (playbackState == Player.STATE_READY) {
@@ -184,6 +196,7 @@ public class AudioMessagePlayer extends MessagePlayer {
         this.decryptedFileUri = fileService.getShareFileUri(decryptedFile, null);
         this.position = 0;
         this.duration = 0;
+        this.hasPlayed = false; // F1Whisper: new playback session; don't burn until audio actually plays
 
         logger.info("Open voice message file {}", decryptedFileUri);
 

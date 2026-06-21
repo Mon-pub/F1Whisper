@@ -1888,6 +1888,7 @@
     <string name="listen_once_enabled">پخش یک‌بار: روشن</string>
     <string name="listen_once_disabled">پخش یک‌بار: خاموش</string>
     <string name="listen_once_badge_content_description">پیام صوتی پخش یک‌بار</string>
+    <string name="forwarded_message_label">هدایت‌شده</string>
     <string name="listen_once_already_listened">پخش‌شده</string>
     <string name="listen_once_sent">پیام صوتی پخش یک‌بار</string>
     <string name="listen_once_cannot_forward">پیام‌های یک‌بار شنیدن قابل بازارسال نیستند</string>
@@ -1938,4 +1939,7 @@
     <string name="folder_empty">هیچ گفت‌وگویی در این پوشه نیست</string>
     <string name="schedule_today">امروز</string>
     <string name="schedule_tomorrow">فردا</string>
+    <string name="prefs_refresh_onprem_config">به‌روزرسانی پیکربندی سرور</string>
+    <string name="prefs_refresh_onprem_config_summary">اکنون پیکربندی سرور را دوباره دانلود کنید. پس از افزودن قابلیت‌های جدید مانند اتصال دسکتاپ به سرور مفید است.</string>
+    <string name="onprem_config_refreshed">پیکربندی سرور به‌روزرسانی شد</string>
 </resources>

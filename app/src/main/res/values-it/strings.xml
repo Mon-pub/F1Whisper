@@ -1894,6 +1894,7 @@
     <string name="listen_once_enabled">Ascolta una volta: attivo</string>
     <string name="listen_once_disabled">Ascolta una volta: disattivo</string>
     <string name="listen_once_badge_content_description">Messaggio vocale ascoltabile una volta</string>
+    <string name="forwarded_message_label">Inoltrato</string>
     <string name="listen_once_already_listened">Ascoltato</string>
     <string name="listen_once_sent">Messaggio vocale ascoltabile una volta</string>
     <string name="listen_once_cannot_forward">I messaggi da ascoltare una sola volta non possono essere inoltrati</string>
@@ -1944,4 +1945,7 @@
     <string name="folder_empty">Nessuna chat in questa cartella</string>
     <string name="schedule_today">Oggi</string>
     <string name="schedule_tomorrow">Domani</string>
+    <string name="prefs_refresh_onprem_config">Aggiorna la configurazione del server</string>
+    <string name="prefs_refresh_onprem_config_summary">Scarica di nuovo la configurazione del server ora. Utile dopo che il server ha aggiunto nuove funzioni come il collegamento del desktop.</string>
+    <string name="onprem_config_refreshed">Configurazione del server aggiornata</string>
 </resources>

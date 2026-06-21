@@ -23,6 +23,7 @@ public class ComposeMessageHolder extends AvatarListItemHolder {
     public TextView senderName;
     public TextView dateView;
     public View senderView;
+    public View forwardedLabelView; // F1Whisper: "Forwarded" header row (media/file/voice)
     public ImageView deliveredIndicator, datePrefixIcon, starredIcon;
     public ImageView attachmentImage;
     public MaterialCardView messageBlockView;

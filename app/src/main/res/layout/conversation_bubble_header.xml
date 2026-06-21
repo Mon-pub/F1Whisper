@@ -1,28 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ F1Whisper: the bubble header now stacks an optional "Forwarded" row on top of the existing
+  ~ group-sender row. The forwarded row is shown (by the decorator) for media/file/voice messages
+  ~ that carry the "fwd" metadata flag, in both 1:1 and group chats. The inner group_sender_view /
+  ~ group_sender_name ids are unchanged so existing code keeps working.
+  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/group_sender_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="start|top"
-    android:layout_marginTop="-2dp"
-    android:layout_marginBottom="3dp"
-    android:gravity="center_vertical"
-    android:minHeight="16sp"
-    android:paddingStart="@dimen/chat_bubble_margin_start"
-    android:paddingEnd="@dimen/chat_bubble_margin_end"
-    android:visibility="gone"
-    tools:visibility="visible">
+    android:orientation="vertical">
 
-    <ch.threema.app.emojis.EmojiTextView
-        android:id="@+id/group_sender_name"
-        style="@style/Threema.Bubble.Text.Footer"
+    <LinearLayout
+        android:id="@+id/forwarded_label_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textStyle="bold"
-        tools:text="@tools:sample/full_names" />
+        android:layout_gravity="start|top"
+        android:layout_marginBottom="2dp"
+        android:gravity="center_vertical"
+        android:minHeight="16sp"
+        android:paddingStart="@dimen/chat_bubble_margin_start"
+        android:paddingEnd="@dimen/chat_bubble_margin_end"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/forwarded_icon"
+            android:layout_width="14sp"
+            android:layout_height="14sp"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="@null"
+            android:scaleX="-1"
+            app:srcCompat="@drawable/ic_arrow_forward_outline"
+            app:tint="?attr/colorPrimary" />
+
+        <ch.threema.app.emojis.EmojiTextView
+            android:id="@+id/forwarded_label"
+            style="@style/Threema.Bubble.Text.Footer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/forwarded_message_label"
+            android:textColor="?attr/colorPrimary"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/group_sender_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:layout_marginTop="-2dp"
+        android:layout_marginBottom="3dp"
+        android:gravity="center_vertical"
+        android:minHeight="16sp"
+        android:paddingStart="@dimen/chat_bubble_margin_start"
+        android:paddingEnd="@dimen/chat_bubble_margin_end"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ch.threema.app.emojis.EmojiTextView
+            android:id="@+id/group_sender_name"
+            style="@style/Threema.Bubble.Text.Footer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textStyle="bold"
+            tools:text="@tools:sample/full_names" />
+
+    </LinearLayout>
 
 </LinearLayout>

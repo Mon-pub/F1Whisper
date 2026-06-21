@@ -2020,6 +2020,7 @@
     <string name="listen_once_enabled">الاستماع مرة واحدة: مُفعّل</string>
     <string name="listen_once_disabled">الاستماع مرة واحدة: مُعطّل</string>
     <string name="listen_once_badge_content_description">رسالة صوتية للاستماع مرة واحدة</string>
+    <string name="forwarded_message_label">مُعاد توجيهه</string>
     <string name="listen_once_already_listened">تم الاستماع</string>
     <string name="listen_once_sent">رسالة صوتية للاستماع مرة واحدة</string>
     <string name="listen_once_cannot_forward">لا يمكن إعادة توجيه رسائل الاستماع لمرة واحدة</string>
@@ -2070,4 +2071,7 @@
     <string name="folder_empty">لا توجد محادثات في هذا المجلد</string>
     <string name="schedule_today">اليوم</string>
     <string name="schedule_tomorrow">غدًا</string>
+    <string name="prefs_refresh_onprem_config">تحديث إعدادات الخادم</string>
+    <string name="prefs_refresh_onprem_config_summary">أعد تنزيل إعدادات الخادم الآن. مفيد بعد أن يضيف الخادم ميزات جديدة مثل ربط سطح المكتب.</string>
+    <string name="onprem_config_refreshed">تم تحديث إعدادات الخادم</string>
 </resources>

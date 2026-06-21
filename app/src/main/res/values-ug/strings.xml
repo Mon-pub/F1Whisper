@@ -1924,6 +1924,7 @@
     <string name="listen_once_enabled">بىر قېتىم ئاڭلاش: ئوچۇق</string>
     <string name="listen_once_disabled">بىر قېتىم ئاڭلاش: ئېتىك</string>
     <string name="listen_once_badge_content_description">بىر قېتىملا ئاڭلايدىغان ئاۋازلىق ئۇچۇر</string>
+    <string name="forwarded_message_label">يۆتكەلگەن</string>
     <string name="listen_once_already_listened">ئاڭلاندى</string>
     <string name="listen_once_sent">بىر قېتىملا ئاڭلايدىغان ئاۋازلىق ئۇچۇر</string>
     <string name="listen_once_cannot_forward">بىر قېتىملىق ئاڭلايدىغان ئۇچۇرلارنى يوللىغىلى بولمايدۇ</string>
@@ -1974,4 +1975,7 @@
     <string name="folder_empty">بۇ قىسقۇچتا ئەڭگىمە يوق</string>
     <string name="schedule_today">بۈگۈن</string>
     <string name="schedule_tomorrow">ئەتە</string>
+    <string name="prefs_refresh_onprem_config">مۇلازىمېتىر سەپلىمىسىنى يېڭىلاش</string>
+    <string name="prefs_refresh_onprem_config_summary">مۇلازىمېتىر سەپلىمىسىنى ھازىر قايتا چۈشۈرۈڭ. مۇلازىمېتىر ئۈستەلئۈستى ئۇلاش قاتارلىق يېڭى ئىقتىدارلارنى قوشقاندىن كېيىن پايدىلىق.</string>
+    <string name="onprem_config_refreshed">مۇلازىمېتىر سەپلىمىسى يېڭىلاندى</string>
 </resources>

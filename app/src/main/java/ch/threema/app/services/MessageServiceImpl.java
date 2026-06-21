@@ -4013,7 +4013,21 @@ public class MessageServiceImpl implements MessageService {
                 final Map<String, Object> metaData = new HashMap<>();
                 final byte[] contentData = generateContentData(mediaItem, resolvedReceivers, messageModels, fileDataModel, metaData);
                 final byte[] thumbnailData = generateThumbnailData(mediaItem, fileDataModel, metaData);
+                // F1Whisper: tag forwarded media/file/voice so both the sender's copy and a receiving
+                // F1Whisper client render the "Forwarded" header (rides the E2E file metadata).
+                if (mediaItem.isForwarded()) {
+                    metaData.put(FileDataModel.METADATA_KEY_FORWARDED, true);
+                }
                 fileDataModel.setMetaData(metaData);
+
+                // F1Whisper: the per-receiver models were serialized (setFileData) in
+                // createFileMessagesAndSetPending BEFORE this metadata existed, so their persisted
+                // `body` lacks it (e.g. the "fwd" forwarded flag), and the header would vanish on the
+                // next reload of the sender's own copy. Re-apply the now-complete fileData so each
+                // model's body is reserialized with the full metadata before it is saved/sent.
+                for (AbstractMessageModel messageModel : messageModels.values()) {
+                    messageModel.setFileData(fileDataModel);
+                }
 
                 if (thumbnailData != null) {
                     writeThumbnails(messageModels, resolvedReceivers, thumbnailData);

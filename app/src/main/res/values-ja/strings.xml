@@ -1624,6 +1624,7 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="listen_once_enabled">1回のみ再生：オン</string>
     <string name="listen_once_disabled">1回のみ再生：オフ</string>
     <string name="listen_once_badge_content_description">1回のみ再生のボイスメッセージ</string>
+    <string name="forwarded_message_label">転送</string>
     <string name="listen_once_already_listened">再生済み</string>
     <string name="listen_once_sent">1回のみ再生のボイスメッセージ</string>
     <string name="listen_once_cannot_forward">一度だけ再生できるメッセージは転送できません</string>
@@ -1674,4 +1675,7 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="folder_empty">このフォルダにトークはありません</string>
     <string name="schedule_today">今日</string>
     <string name="schedule_tomorrow">明日</string>
+    <string name="prefs_refresh_onprem_config">サーバー設定を更新</string>
+    <string name="prefs_refresh_onprem_config_summary">サーバー設定を今すぐ再ダウンロードします。サーバーがデスクトップ連携などの新機能を追加した後に便利です。</string>
+    <string name="onprem_config_refreshed">サーバー設定を更新しました</string>
 </resources>

@@ -344,8 +344,15 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
     public List<MessageModel> find(String identity, MessageService.MessageFilter filter) {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        //sort by id!
-        String orderBy = MessageModel.COLUMN_ID + " DESC";
+        // F1Whisper: sort by the server send-time (postedAtUtc), falling back to the local
+        // received/created time (createdAtUtc) for legacy rows that predate postedAt, then by id to
+        // keep same-timestamp messages stable. Upstream sorted purely by insertion id, which for a
+        // reconnect backlog equals PROCESSING order, not send order: a large blob (e.g. a video)
+        // finishes processing after the small text messages queued behind it, so it showed up below
+        // its own replies. postedAtUtc carries the real server timestamp for both incoming and
+        // outgoing messages, restoring true chronological order.
+        String orderBy = "COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
+            + AbstractMessageModel.COLUMN_CREATED_AT + ") DESC, " + MessageModel.COLUMN_ID + " DESC";
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(MessageModel.COLUMN_IDENTITY + "=?");

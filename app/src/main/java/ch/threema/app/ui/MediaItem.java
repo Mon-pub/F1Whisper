@@ -60,6 +60,7 @@ public class MediaItem implements Parcelable {
     private boolean muted;
     private boolean listenOnce;
     private boolean spoiler;
+    private boolean forwarded; // F1Whisper: this media is being forwarded from another message
 
     private static final Logger logger = getThreemaLogger("MediaItem");
 
@@ -278,6 +279,7 @@ public class MediaItem implements Parcelable {
         isEdited = false;
         this.listenOnce = false;
         this.spoiler = false;
+        this.forwarded = false;
     }
 
 
@@ -303,6 +305,7 @@ public class MediaItem implements Parcelable {
         isEdited = in.readInt() != 0;
         listenOnce = in.readInt() != 0;
         spoiler = in.readInt() != 0;
+        forwarded = in.readInt() != 0;
     }
 
     @Override
@@ -327,6 +330,7 @@ public class MediaItem implements Parcelable {
         dest.writeInt(isEdited ? 1 : 0);
         dest.writeInt(listenOnce ? 1 : 0);
         dest.writeInt(spoiler ? 1 : 0);
+        dest.writeInt(forwarded ? 1 : 0);
     }
 
     @Override
@@ -579,6 +583,21 @@ public class MediaItem implements Parcelable {
      */
     public void setListenOnce(boolean listenOnce) {
         this.listenOnce = listenOnce;
+    }
+
+    /**
+     * F1Whisper: return true if this media is being forwarded from an existing message (so the sent
+     * copy is tagged with the "forwarded" metadata flag).
+     */
+    public boolean isForwarded() {
+        return forwarded;
+    }
+
+    /**
+     * F1Whisper: mark this media item as a forward of an existing message.
+     */
+    public void setForwarded(boolean forwarded) {
+        this.forwarded = forwarded;
     }
 
     /**

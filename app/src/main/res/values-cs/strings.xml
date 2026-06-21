@@ -1923,6 +1923,7 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="listen_once_enabled">Přehrát jen jednou: zapnuto</string>
     <string name="listen_once_disabled">Přehrát jen jednou: vypnuto</string>
     <string name="listen_once_badge_content_description">Hlasová zpráva k jednorázovému přehrání</string>
+    <string name="forwarded_message_label">Přeposláno</string>
     <string name="listen_once_already_listened">Přehráno</string>
     <string name="listen_once_sent">Hlasová zpráva k jednorázovému přehrání</string>
     <string name="listen_once_cannot_forward">Zprávy k jednorázovému poslechu nelze přeposlat</string>
@@ -1973,4 +1974,7 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="folder_empty">V této složce nejsou žádné konverzace</string>
     <string name="schedule_today">Dnes</string>
     <string name="schedule_tomorrow">Zítra</string>
+    <string name="prefs_refresh_onprem_config">Obnovit konfiguraci serveru</string>
+    <string name="prefs_refresh_onprem_config_summary">Znovu stáhnout konfiguraci serveru. Užitečné poté, co server přidá nové funkce, jako je propojení s počítačem.</string>
+    <string name="onprem_config_refreshed">Konfigurace serveru byla obnovena</string>
 </resources>

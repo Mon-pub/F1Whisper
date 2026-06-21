@@ -1812,6 +1812,7 @@
     <string name="listen_once_enabled">Еднократно слушане: вкл.</string>
     <string name="listen_once_disabled">Еднократно слушане: изкл.</string>
     <string name="listen_once_badge_content_description">Гласово съобщение за еднократно слушане</string>
+    <string name="forwarded_message_label">Препратено</string>
     <string name="listen_once_already_listened">Прослушано</string>
     <string name="listen_once_sent">Гласово съобщение за еднократно слушане</string>
     <string name="listen_once_cannot_forward">Съобщенията за еднократно слушане не могат да се препращат</string>
@@ -1862,4 +1863,7 @@
     <string name="folder_empty">Няма чатове в тази папка</string>
     <string name="schedule_today">Днес</string>
     <string name="schedule_tomorrow">Утре</string>
+    <string name="prefs_refresh_onprem_config">Обновяване на конфигурацията на сървъра</string>
+    <string name="prefs_refresh_onprem_config_summary">Изтеглете отново конфигурацията на сървъра сега. Полезно, след като сървърът добави нови функции като свързване с настолно устройство.</string>
+    <string name="onprem_config_refreshed">Конфигурацията на сървъра е обновена</string>
 </resources>

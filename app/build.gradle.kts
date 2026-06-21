@@ -255,9 +255,19 @@ android {
     // APK) to arm64-v8a, dropping the x86/x86_64/armeabi-v7a .so payloads (~32 MB compressed) for an
     // arm64-majority audience, and pairs with the Rust `targets` gate below to cross-compile a single
     // target (much faster CI). Reversible: omit the property to ship the full 4-ABI universal APK.
+    //
+    // -ParmMobile is the shipped release mode: it packages BOTH arm64-v8a and armeabi-v7a (dropping
+    // only the x86/x86_64 emulator payloads). The armeabi-v7a slice is needed by arm64 SoCs that
+    // expose a 32-bit-only userspace (low-RAM "A64 / arm32-binder64" Android Go devices), which
+    // cannot load arm64 .so. arm32 .so are smaller than arm64, so the universal APK grows only
+    // ~8 MB compressed. arm64Only takes precedence if both are set.
     if (project.hasProperty("arm64Only")) {
         defaultConfig.ndk.abiFilters.clear()
         defaultConfig.ndk.abiFilters.add("arm64-v8a")
+    } else if (project.hasProperty("armMobile")) {
+        defaultConfig.ndk.abiFilters.clear()
+        defaultConfig.ndk.abiFilters.add("arm64-v8a")
+        defaultConfig.ndk.abiFilters.add("armeabi-v7a")
     }
 
     // Assign different version code for each output
@@ -1172,12 +1182,17 @@ cargo {
     libname = "libthreema" // must match the Cargo.toml's package name
     profile = "release"
     pythonCommand = "python3"
-    // F1Whisper: gate the Rust cross-compile on -Prust.targets (comma-separated) or -Parm64Only.
-    // Default = all 4 ABIs. -Parm64Only (or -Prust.targets=arm64) builds only the arm64 target,
-    // which is the bulk of the CI time saved alongside the arm64-v8a abiFilter above.
+    // F1Whisper: gate the Rust cross-compile on -Prust.targets (comma-separated), -ParmMobile or
+    // -Parm64Only. Default = all 4 ABIs. -Parm64Only builds only arm64; -ParmMobile builds arm64 +
+    // arm (matching the armeabi-v7a abiFilter above for 32-bit-only arm64 devices). An explicit
+    // -Prust.targets always wins.
     targets = (project.findProperty("rust.targets") as String?)
         ?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }
-        ?: if (project.hasProperty("arm64Only")) listOf("arm64") else listOf("x86_64", "arm64", "arm", "x86")
+        ?: when {
+            project.hasProperty("arm64Only") -> listOf("arm64")
+            project.hasProperty("armMobile") -> listOf("arm64", "arm")
+            else -> listOf("x86_64", "arm64", "arm", "x86")
+        }
     features {
         defaultAnd(arrayOf("uniffi"))
     }

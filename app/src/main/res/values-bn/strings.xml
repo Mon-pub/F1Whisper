@@ -1925,6 +1925,7 @@
     <string name="listen_once_enabled">একবার শুনুন: চালু</string>
     <string name="listen_once_disabled">একবার শুনুন: বন্ধ</string>
     <string name="listen_once_badge_content_description">একবার শোনার ভয়েস বার্তা</string>
+    <string name="forwarded_message_label">ফরওয়ার্ড করা হয়েছে</string>
     <string name="listen_once_already_listened">শোনা হয়েছে</string>
     <string name="listen_once_sent">একবারের ভয়েস বার্তা</string>
     <string name="listen_once_cannot_forward">একবার-শোনা বার্তা ফরোয়ার্ড করা যায় না</string>
@@ -1975,4 +1976,7 @@
     <string name="folder_empty">এই ফোল্ডারে কোনো চ্যাট নেই</string>
     <string name="schedule_today">আজ</string>
     <string name="schedule_tomorrow">আগামীকাল</string>
+    <string name="prefs_refresh_onprem_config">সার্ভার কনফিগারেশন রিফ্রেশ করুন</string>
+    <string name="prefs_refresh_onprem_config_summary">এখনই সার্ভার কনফিগারেশন পুনরায় ডাউনলোড করুন। সার্ভার ডেস্কটপ লিঙ্কিংয়ের মতো নতুন বৈশিষ্ট্য যোগ করার পরে কার্যকর।</string>
+    <string name="onprem_config_refreshed">সার্ভার কনফিগারেশন রিফ্রেশ করা হয়েছে</string>
 </resources>

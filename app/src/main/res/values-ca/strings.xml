@@ -1350,6 +1350,7 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="listen_once_enabled">Escoltar una vegada: activat</string>
     <string name="listen_once_disabled">Escoltar una vegada: desactivat</string>
     <string name="listen_once_badge_content_description">Missatge de veu per escoltar una vegada</string>
+    <string name="forwarded_message_label">Reenviat</string>
     <string name="listen_once_already_listened">Escoltat</string>
     <string name="listen_once_sent">Missatge de veu per escoltar una vegada</string>
     <string name="listen_once_cannot_forward">Els missatges d\'escolta única no es poden reenviar</string>
@@ -1400,4 +1401,7 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="folder_empty">No hi ha cap xat en aquesta carpeta</string>
     <string name="schedule_today">Avui</string>
     <string name="schedule_tomorrow">Demà</string>
+    <string name="prefs_refresh_onprem_config">Actualitza la configuració del servidor</string>
+    <string name="prefs_refresh_onprem_config_summary">Torna a baixar la configuració del servidor ara. Útil després que el servidor afegeixi funcions noves com la vinculació d’escriptori.</string>
+    <string name="onprem_config_refreshed">S’ha actualitzat la configuració del servidor</string>
 </resources>

@@ -64,9 +64,10 @@ jobs:
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
           toolchain: ${{ env.RUST_VERSION }}
-          # arm64-only release (see -Parm64Only below): only the aarch64 Android target is needed.
-          # To restore the full 4-ABI build, add back armv7-linux-androideabi,i686-linux-android,x86_64-linux-android.
-          targets: aarch64-linux-android
+          # arm-mobile release (see -ParmMobile below): aarch64 + armv7 Android targets. The armv7
+          # slice serves arm64 SoCs with a 32-bit-only userspace (low-RAM Android Go devices).
+          # To restore the full 4-ABI build, add back i686-linux-android,x86_64-linux-android.
+          targets: aarch64-linux-android,armv7-linux-androideabi
 
       - name: Cache Gradle
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -109,7 +110,7 @@ jobs:
           ./gradlew assembleOnpremRelease \
             --no-daemon \
             -PnoAbiSplits \
-            -Parm64Only \
+            -ParmMobile \
             -Pf1wReleaseName="${GITHUB_REF_NAME}" \
             --no-parallel \
             --stacktrace

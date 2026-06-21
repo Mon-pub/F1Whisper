@@ -322,6 +322,17 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
         //configure the chat message
         configureChatMessage(viewHolder, context, position);
 
+        // F1Whisper: show the "Forwarded" header for media/file/voice messages carrying the "fwd"
+        // metadata flag (set on forward; rides the E2E file metadata so the recipient sees it too).
+        // Plain text/location have no metadata carrier and are never marked. Toggled here in the base
+        // so every file-type bubble gets it without per-decorator duplication.
+        if (viewHolder.forwardedLabelView != null) {
+            final boolean isForwarded = getMessageModel().getType() == MessageType.FILE
+                && getMessageModel().getFileData() != null
+                && getMessageModel().getFileData().isForwarded();
+            viewHolder.forwardedLabelView.setVisibility(isForwarded ? View.VISIBLE : View.GONE);
+        }
+
         if (isUserMessage) {
             if (!messageModel.isOutbox() && groupId > 0) {
 

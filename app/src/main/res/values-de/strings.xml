@@ -1907,6 +1907,7 @@
     <string name="listen_once_enabled">Einmal anhören: an</string>
     <string name="listen_once_disabled">Einmal anhören: aus</string>
     <string name="listen_once_badge_content_description">Einmal abspielbare Sprachnachricht</string>
+    <string name="forwarded_message_label">Weitergeleitet</string>
     <string name="listen_once_already_listened">Angehört</string>
     <string name="listen_once_sent">Einmal abspielbare Sprachnachricht</string>
     <string name="listen_once_cannot_forward">Einmal-anhören-Nachrichten können nicht weitergeleitet werden</string>
@@ -1957,4 +1958,7 @@
     <string name="folder_empty">Keine Chats in diesem Ordner</string>
     <string name="schedule_today">Heute</string>
     <string name="schedule_tomorrow">Morgen</string>
+    <string name="prefs_refresh_onprem_config">Serverkonfiguration aktualisieren</string>
+    <string name="prefs_refresh_onprem_config_summary">Serverkonfiguration jetzt erneut herunterladen. Nützlich, nachdem der Server neue Funktionen wie die Desktop-Verknüpfung hinzugefügt hat.</string>
+    <string name="onprem_config_refreshed">Serverkonfiguration aktualisiert</string>
 </resources>

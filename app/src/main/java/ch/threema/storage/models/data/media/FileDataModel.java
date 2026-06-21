@@ -57,6 +57,14 @@ public class FileDataModel implements MediaMessageDataInterface {
      */
     public static final String METADATA_KEY_SPOILER = "sp";
 
+    /**
+     * Custom (F1Whisper) metadata flag marking a forwarded media/file/voice message. Set on the
+     * forwarded copy at send time and carried inside the E2E-encrypted file metadata map ("x"), so a
+     * receiving F1Whisper client also sees the "Forwarded" header (invisible to the server). Plain
+     * text/location messages have no metadata carrier and are therefore not marked.
+     */
+    public static final String METADATA_KEY_FORWARDED = "fwd";
+
     private byte[] fileBlobId;
     private byte[] encryptionKey;
     private String mimeType;
@@ -303,6 +311,14 @@ public class FileDataModel implements MediaMessageDataInterface {
             this.metaData = new HashMap<>();
         }
         this.metaData.put(METADATA_KEY_LISTEN_ONCE_CONSUMED, Boolean.TRUE);
+    }
+
+    /**
+     * @return {@code true} if this media/file/voice message was forwarded (carries the "fwd"
+     * metadata flag). Safe to call on any file message; returns {@code false} when absent.
+     */
+    public boolean isForwarded() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_FORWARDED));
     }
 
     /**

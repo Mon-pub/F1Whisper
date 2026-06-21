@@ -1329,6 +1329,7 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="listen_once_enabled">Egyszeri meghallgatás: be</string>
     <string name="listen_once_disabled">Egyszeri meghallgatás: ki</string>
     <string name="listen_once_badge_content_description">Egyszer meghallgatható hangüzenet</string>
+    <string name="forwarded_message_label">Továbbítva</string>
     <string name="listen_once_already_listened">Meghallgatva</string>
     <string name="listen_once_sent">Egyszer meghallgatható hangüzenet</string>
     <string name="listen_once_cannot_forward">Az egyszer meghallgatható üzenetek nem továbbíthatók</string>
@@ -1383,4 +1384,7 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="self_updater_update_ready_title">Frissítés letöltve</string>
     <string name="self_updater_update_ready_text">Koppintson a frissítés telepítéséhez</string>
     <string name="self_updater_download_failed">A frissítés letöltése sikertelen. Koppintson a kézi letöltéshez.</string>
+    <string name="prefs_refresh_onprem_config">Kiszolgálókonfiguráció frissítése</string>
+    <string name="prefs_refresh_onprem_config_summary">Töltse le újra a kiszolgáló konfigurációját. Hasznos, miután a kiszolgáló új funkciókat adott hozzá, például az asztali eszköz összekapcsolását.</string>
+    <string name="onprem_config_refreshed">A kiszolgáló konfigurációja frissítve</string>
 </resources>

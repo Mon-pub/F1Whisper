@@ -121,6 +121,13 @@
             android:key="@string/preferences__webclient_debug"
             android:summary="@string/webclient_prefs_debug_tool_summary"
             android:title="@string/webclient_diagnostics" />
+        <!-- F1Whisper: force a re-fetch of the signed OnPrem config (OPPF). Only shown on OnPrem
+             builds; lets existing users pick up new server features (e.g. desktop linking) without
+             reinstalling. The OPPF is Ed25519-signature-verified on every fetch. -->
+        <Preference
+            android:key="@string/preferences__refresh_onprem_config"
+            android:summary="@string/prefs_refresh_onprem_config_summary"
+            android:title="@string/prefs_refresh_onprem_config" />
     </PreferenceCategory>
     <PreferenceCategory
         android:key="pref_key_reset"

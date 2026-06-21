@@ -1592,6 +1592,7 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="listen_once_enabled">Lytt én gang: på</string>
     <string name="listen_once_disabled">Lytt én gang: av</string>
     <string name="listen_once_badge_content_description">Talemelding for engangslytting</string>
+    <string name="forwarded_message_label">Videresendt</string>
     <string name="listen_once_already_listened">Lyttet</string>
     <string name="listen_once_sent">Talemelding for engangslytting</string>
     <string name="listen_once_cannot_forward">Meldinger for engangsavspilling kan ikke videresendes</string>
@@ -1642,4 +1643,7 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="folder_empty">Ingen samtaler i denne mappen</string>
     <string name="schedule_today">I dag</string>
     <string name="schedule_tomorrow">I morgen</string>
+    <string name="prefs_refresh_onprem_config">Oppdater serverkonfigurasjon</string>
+    <string name="prefs_refresh_onprem_config_summary">Last ned serverkonfigurasjonen på nytt nå. Nyttig etter at serveren har lagt til nye funksjoner som skrivebordstilkobling.</string>
+    <string name="onprem_config_refreshed">Serverkonfigurasjon oppdatert</string>
 </resources>

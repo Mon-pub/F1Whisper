@@ -36,6 +36,7 @@ import ch.threema.app.AppConstants
 import ch.threema.app.BuildConfig
 import ch.threema.app.BuildFlavor
 import ch.threema.app.R
+import ch.threema.app.ThreemaApplication
 import ch.threema.app.activities.DisableBatteryOptimizationsActivity
 import ch.threema.app.asynctasks.SendToSupportBackgroundTask
 import ch.threema.app.asynctasks.SendToSupportResult
@@ -193,6 +194,7 @@ class SettingsAdvancedOptionsFragment :
         initIpV6Prefs()
         initPowerRestrictionPrefs()
         initWebClientDebugPrefs()
+        initOnPremConfigRefreshPrefs()
         initEchoCancelPrefs()
         initWebRtcDebugPrefs()
         initVideoCodecPrefs()
@@ -496,6 +498,44 @@ class SettingsAdvancedOptionsFragment :
     private fun initWebClientDebugPrefs() {
         getPref<Preference>(R.string.preferences__webclient_debug).onClick {
             startActivity(WebDiagnosticsActivity.createIntent(requireContext()))
+        }
+    }
+
+    /**
+     * F1Whisper: force a re-fetch of the signed OnPrem config (OPPF). Only meaningful on OnPrem
+     * builds. Lets existing users pick up server features added after they set up (e.g. desktop
+     * linking, which needs the new `mediator` block in the OPPF) without reinstalling or re-running
+     * setup. Security: the OPPF is Ed25519-signature-verified against the trusted key on every
+     * fetch, so a forced re-fetch cannot inject a malicious config — it is the same verified fetch
+     * the refresh interval would eventually trigger, just on demand.
+     */
+    private fun initOnPremConfigRefreshPrefs() {
+        val refreshPref = getPref<Preference>(R.string.preferences__refresh_onprem_config)
+        if (!BuildFlavor.current.isOnPrem) {
+            refreshPref.isVisible = false
+            return
+        }
+        refreshPref.onClick {
+            logger.info("Forcing OnPrem config (OPPF) refresh")
+            lifecycleScope.launch {
+                GenericProgressDialog.newInstance(R.string.prefs_refresh_onprem_config, R.string.please_wait)
+                    .show(parentFragmentManager, DIALOG_TAG_REFRESH_ONPREM)
+                val success = withContext(dispatcherProvider.io) {
+                    try {
+                        val provider = ThreemaApplication.requireServiceManager().onPremConfigFetcherProvider
+                        // Discard the cached fetcher so it rebuilds with an empty in-memory cache,
+                        // then fetch — this re-downloads + re-verifies the signed OPPF immediately.
+                        provider.reset()
+                        provider.getOnPremConfigFetcher().getOrFetch()
+                        true
+                    } catch (e: Exception) {
+                        logger.error("Failed to refresh OnPrem config", e)
+                        false
+                    }
+                }
+                DialogUtil.dismissDialog(parentFragmentManager, DIALOG_TAG_REFRESH_ONPREM, true)
+                showToast(if (success) R.string.onprem_config_refreshed else R.string.an_error_occurred)
+            }
         }
     }
 
@@ -871,5 +911,6 @@ class SettingsAdvancedOptionsFragment :
         private const val DIALOG_TAG_REALLY_ENABLE_THREEMA_PUSH = "enp"
         private const val DIALOG_TAG_SHARE_LOG = "shl"
         private const val DIALOG_TAG_SEND_LOG = "sl"
+        private const val DIALOG_TAG_REFRESH_ONPREM = "refOnPrem"
     }
 }

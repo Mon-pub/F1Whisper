@@ -1959,6 +1959,7 @@
     <string name="listen_once_enabled">Прослухати один раз: увімкнено</string>
     <string name="listen_once_disabled">Прослухати один раз: вимкнено</string>
     <string name="listen_once_badge_content_description">Голосове повідомлення для одноразового прослуховування</string>
+    <string name="forwarded_message_label">Переслано</string>
     <string name="listen_once_already_listened">Прослухано</string>
     <string name="listen_once_sent">Голосове повідомлення для одноразового прослуховування</string>
     <string name="listen_once_cannot_forward">Повідомлення для одноразового прослуховування не можна переслати</string>
@@ -2009,4 +2010,7 @@
     <string name="folder_empty">У цій папці немає чатів</string>
     <string name="schedule_today">Сьогодні</string>
     <string name="schedule_tomorrow">Завтра</string>
+    <string name="prefs_refresh_onprem_config">Оновити конфігурацію сервера</string>
+    <string name="prefs_refresh_onprem_config_summary">Повторно завантажити конфігурацію сервера зараз. Корисно після того, як сервер додасть нові функції, як-от прив’язку комп’ютера.</string>
+    <string name="onprem_config_refreshed">Конфігурацію сервера оновлено</string>
 </resources>

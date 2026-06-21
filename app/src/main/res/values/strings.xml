@@ -643,6 +643,10 @@
     <string name="prefs_exportlog_summary">Share logfile with another app</string>
     <string name="prefs_connection_diagnostics">Connection &amp; notification diagnostics</string>
     <string name="prefs_connection_diagnostics_summary">Export a report of connection, push, notification and battery status to help diagnose missing notifications</string>
+    <string name="preferences__refresh_onprem_config" translatable="false">preferences__refresh_onprem_config</string>
+    <string name="prefs_refresh_onprem_config">Refresh server configuration</string>
+    <string name="prefs_refresh_onprem_config_summary">Re-download the server configuration now. Useful after the server adds new features such as desktop linking.</string>
+    <string name="onprem_config_refreshed">Server configuration refreshed</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">To save or send media, allow ${app_name} permission to access storage.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1189,6 +1193,7 @@
     <string name="listen_once_enabled">Listen once: on</string>
     <string name="listen_once_disabled">Listen once: off</string>
     <string name="listen_once_badge_content_description">Listen once voice message</string>
+    <string name="forwarded_message_label">Forwarded</string>
     <string name="listen_once_already_listened">Listened</string>
     <string name="listen_once_sent">Listen-once voice message</string>
     <string name="listen_once_cannot_forward">Listen-once messages cannot be forwarded</string>

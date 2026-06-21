@@ -1874,6 +1874,7 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="listen_once_enabled">Bir kez dinle: açık</string>
     <string name="listen_once_disabled">Bir kez dinle: kapalı</string>
     <string name="listen_once_badge_content_description">Bir kez dinlenen sesli mesaj</string>
+    <string name="forwarded_message_label">İletildi</string>
     <string name="listen_once_already_listened">Dinlendi</string>
     <string name="listen_once_sent">Bir kez dinlenen sesli mesaj</string>
     <string name="listen_once_cannot_forward">Bir kez dinlenen mesajlar iletilemez</string>
@@ -1924,4 +1925,7 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="folder_empty">Bu klasörde sohbet yok</string>
     <string name="schedule_today">Bugün</string>
     <string name="schedule_tomorrow">Yarın</string>
+    <string name="prefs_refresh_onprem_config">Sunucu yapılandırmasını yenile</string>
+    <string name="prefs_refresh_onprem_config_summary">Sunucu yapılandırmasını şimdi yeniden indirin. Sunucu masaüstü bağlama gibi yeni özellikler ekledikten sonra kullanışlıdır.</string>
+    <string name="onprem_config_refreshed">Sunucu yapılandırması yenilendi</string>
 </resources>
