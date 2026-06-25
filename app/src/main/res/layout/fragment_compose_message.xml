@@ -230,6 +230,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
+                <include layout="@layout/compose_link_preview_chip" />
+
                 <FrameLayout
                     android:id="@+id/bottom_panel"
                     android:layout_width="match_parent"

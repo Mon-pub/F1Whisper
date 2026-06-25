@@ -2013,4 +2013,7 @@
     <string name="prefs_refresh_onprem_config">Оновити конфігурацію сервера</string>
     <string name="prefs_refresh_onprem_config_summary">Повторно завантажити конфігурацію сервера зараз. Корисно після того, як сервер додасть нові функції, як-от прив’язку комп’ютера.</string>
     <string name="onprem_config_refreshed">Конфігурацію сервера оновлено</string>
+    <string name="prefs_title_link_previews">Створювати попередній перегляд посилань</string>
+    <string name="prefs_sum_link_previews">Отримувати попередній перегляд посилань у повідомленнях, які ви надсилаєте. Попередній перегляд надсилається з наскрізним шифруванням; пристрій отримувача ніколи не з\'єднується з вебсайтом.</string>
+    <string name="link_preview_remove">Вилучити попередній перегляд посилання</string>
 </resources>

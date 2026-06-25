@@ -1979,4 +1979,7 @@
     <string name="prefs_refresh_onprem_config">সার্ভার কনফিগারেশন রিফ্রেশ করুন</string>
     <string name="prefs_refresh_onprem_config_summary">এখনই সার্ভার কনফিগারেশন পুনরায় ডাউনলোড করুন। সার্ভার ডেস্কটপ লিঙ্কিংয়ের মতো নতুন বৈশিষ্ট্য যোগ করার পরে কার্যকর।</string>
     <string name="onprem_config_refreshed">সার্ভার কনফিগারেশন রিফ্রেশ করা হয়েছে</string>
+    <string name="prefs_title_link_previews">লিংক প্রিভিউ তৈরি করুন</string>
+    <string name="prefs_sum_link_previews">আপনি যে বার্তাগুলি পাঠান তাতে থাকা লিংকের প্রিভিউ আনুন। প্রিভিউ এন্ড-টু-এন্ড এনক্রিপ্ট করে পাঠানো হয়; প্রাপকের ডিভাইস কখনও ওয়েবসাইটে সংযোগ করে না।</string>
+    <string name="link_preview_remove">লিংক প্রিভিউ সরান</string>
 </resources>

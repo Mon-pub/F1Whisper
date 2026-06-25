@@ -2074,4 +2074,7 @@
     <string name="prefs_refresh_onprem_config">تحديث إعدادات الخادم</string>
     <string name="prefs_refresh_onprem_config_summary">أعد تنزيل إعدادات الخادم الآن. مفيد بعد أن يضيف الخادم ميزات جديدة مثل ربط سطح المكتب.</string>
     <string name="onprem_config_refreshed">تم تحديث إعدادات الخادم</string>
+    <string name="prefs_title_link_previews">إنشاء معاينات الروابط</string>
+    <string name="prefs_sum_link_previews">جلب معاينات للروابط في الرسائل التي ترسلها. تُرسَل المعاينات مشفّرة من طرف إلى طرف؛ جهاز المستلِم لا يتّصل بالموقع أبدًا.</string>
+    <string name="link_preview_remove">إزالة معاينة الرابط</string>
 </resources>

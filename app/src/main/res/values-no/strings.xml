@@ -1646,4 +1646,7 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="prefs_refresh_onprem_config">Oppdater serverkonfigurasjon</string>
     <string name="prefs_refresh_onprem_config_summary">Last ned serverkonfigurasjonen på nytt nå. Nyttig etter at serveren har lagt til nye funksjoner som skrivebordstilkobling.</string>
     <string name="onprem_config_refreshed">Serverkonfigurasjon oppdatert</string>
+    <string name="prefs_title_link_previews">Generer lenkeforhåndsvisninger</string>
+    <string name="prefs_sum_link_previews">Hent forhåndsvisninger for lenker i meldinger du sender. Forhåndsvisninger sendes ende-til-ende-kryptert; mottakerens enhet kontakter aldri nettstedet.</string>
+    <string name="link_preview_remove">Fjern lenkeforhåndsvisning</string>
 </resources>

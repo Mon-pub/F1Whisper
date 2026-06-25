@@ -233,6 +233,9 @@ import ch.threema.app.ui.BottomSheetItem;
 import ch.threema.app.ui.ContentCommitComposeEditText;
 import ch.threema.app.ui.ConversationListView;
 import ch.threema.app.ui.DebouncedOnClickListener;
+import ch.threema.app.linkpreview.ComposeLinkPreviewController;
+import ch.threema.app.linkpreview.LinkPreviewImageFactory;
+import ch.threema.app.linkpreview.LinkPreviewResult;
 import ch.threema.app.ui.ListViewTouchSwipeListener;
 import ch.threema.app.ui.LongToast;
 import ch.threema.app.ui.MediaItem;
@@ -272,6 +275,7 @@ import ch.threema.app.utils.NameUtil;
 import ch.threema.app.utils.MessageUtilKt;
 import ch.threema.app.utils.NavigationUtil;
 import ch.threema.app.utils.QuoteUtil;
+import ch.threema.app.utils.MimeUtil;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.utils.ShortcutUtil;
 import ch.threema.app.utils.SoundEffectPlayer;
@@ -443,6 +447,7 @@ public class ComposeMessageFragment extends Fragment implements
     private ActionMode editMessageActionMode = null;
     private FrameLayout dateView = null;
     private FrameLayout bottomPanel = null;
+    private ComposeLinkPreviewController linkPreviewController = null; // F1Whisper: link-preview chip
     private String identity;
     private Long groupDbId = 0L;
     private Long distributionListId = 0L;
@@ -1381,6 +1386,11 @@ public class ComposeMessageFragment extends Fragment implements
             this.dimBackground = this.fragmentView.findViewById(R.id.dim_background);
 
             this.bottomPanel = this.fragmentView.findViewById(R.id.bottom_panel);
+            // F1Whisper: Signal-style link-preview chip above the input (sender-only fetch).
+            final View linkPreviewChip = this.fragmentView.findViewById(R.id.compose_link_preview_chip);
+            if (linkPreviewChip != null && this.preferenceService != null) {
+                this.linkPreviewController = new ComposeLinkPreviewController(linkPreviewChip, this.preferenceService);
+            }
             this.openBallotNoticeView = this.fragmentView.findViewById(R.id.open_ballots_layout);
             this.reportSpamView = this.fragmentView.findViewById(R.id.report_spam_layout);
             this.reportSpamView.setListener(this);
@@ -1910,6 +1920,10 @@ public class ComposeMessageFragment extends Fragment implements
     public void onDestroyView() {
         super.onDestroyView();
         removeGroupCallObserver();
+        if (linkPreviewController != null) {
+            linkPreviewController.destroy();
+            linkPreviewController = null;
+        }
     }
 
     @Override
@@ -2273,6 +2287,12 @@ public class ComposeMessageFragment extends Fragment implements
             public void onTextChanged(@NonNull CharSequence text, int start, int before, int count) {
                 ActivityService.activityUserInteract(activity);
                 updateSendButton(text);
+                // F1Whisper: drive the link-preview chip (no chip while editing/quoting).
+                if (linkPreviewController != null && editMessageActionMode == null && !isQuotePopupShown()) {
+                    linkPreviewController.onTextChanged(text);
+                } else if (linkPreviewController != null) {
+                    linkPreviewController.reset();
+                }
             }
 
             @Override
@@ -4257,8 +4277,9 @@ public class ComposeMessageFragment extends Fragment implements
 
     private void prepareSendTextMessage() {
         final CharSequence message;
+        final boolean isQuote = isQuotePopupShown();
 
-        if (isQuotePopupShown()) {
+        if (isQuote) {
             QuotePopup.QuoteInfo quoteInfo = quotePopup.getQuoteInfo();
             message = QuoteUtil.quote(
                 this.messageText.getText().toString(),
@@ -4273,10 +4294,70 @@ public class ComposeMessageFragment extends Fragment implements
         }
 
         if (!TestUtil.isBlankOrNull(message)) {
-            sendTextMessage(message);
+            // F1Whisper: if a link preview was prepared for this (non-quoted) text, send it as a
+            // Signal-style preview media message (og:image + caption + E2E metadata) instead of a
+            // plain text message. The preview was fetched on THIS device only.
+            final LinkPreviewResult preview = (linkPreviewController != null && !isQuote)
+                ? linkPreviewController.consume(message.toString())
+                : null;
+            if (preview != null) {
+                sendLinkPreviewMessage(preview, message.toString());
+            } else {
+                sendTextMessage(message);
+            }
         } else {
             logger.warn("Message text is empty");
         }
+    }
+
+    /**
+     * F1Whisper: send a Signal-style link preview as an image media message. The og:image (or a
+     * generated placeholder when the page had none) becomes the image blob, the user's text becomes
+     * the caption, and the preview url/title/description ride in the E2E file metadata so a receiving
+     * F1Whisper client renders the card without ever contacting the URL.
+     */
+    private void sendLinkPreviewMessage(@NonNull LinkPreviewResult preview, @NonNull String text) {
+        // Clear the input immediately, like a normal text send.
+        this.messageText.setText("");
+        if (typingIndicatorTextWatcher != null) {
+            typingIndicatorTextWatcher.stopSending();
+        }
+        if (messageReceiver == null) {
+            return;
+        }
+
+        final MessageReceiver receiver = messageReceiver;
+        new Thread(() -> {
+            try {
+                byte[] imageBytes = preview.getImageBytes();
+                if (imageBytes == null || imageBytes.length == 0) {
+                    imageBytes = LinkPreviewImageFactory.createPlaceholder(getContext(), preview.getUrl());
+                }
+                if (imageBytes == null) {
+                    // No image at all -> fall back to a plain text message so we still send something.
+                    RuntimeUtil.runOnUiThread(() -> sendTextMessage(text));
+                    return;
+                }
+
+                final Uri uri = LinkPreviewImageFactory.writeTempImage(getContext(), imageBytes);
+                if (uri == null) {
+                    RuntimeUtil.runOnUiThread(() -> sendTextMessage(text));
+                    return;
+                }
+
+                final MediaItem mediaItem = new MediaItem(uri, MediaItem.TYPE_IMAGE, MimeUtil.MIME_TYPE_IMAGE_JPEG, text);
+                mediaItem.setFilename("preview.jpg");
+                mediaItem.setDeleteAfterUse(true);
+                mediaItem.setLinkPreview(preview.getUrl(), preview.getTitle(), preview.getDescription());
+
+                messageService.sendMediaAsync(
+                    Collections.singletonList(mediaItem),
+                    Collections.singletonList(receiver));
+            } catch (Exception e) {
+                logger.error("Failed to send link preview", e);
+                RuntimeUtil.runOnUiThread(() -> sendTextMessage(text));
+            }
+        }).start();
     }
 
     // region F1Whisper scheduled messages

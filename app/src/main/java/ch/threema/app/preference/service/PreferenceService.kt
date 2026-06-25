@@ -246,6 +246,13 @@ interface PreferenceService {
 
     fun isShowImageAttachPreviewsEnabled(): Boolean
 
+    /**
+     * F1Whisper: whether to generate Signal-style link previews when sending a message containing a
+     * URL. Sender-only: the preview is fetched on this device and transmitted E2E, the recipient
+     * never contacts the URL. Default on (matches Signal).
+     */
+    fun isLinkPreviewsEnabled(): Boolean
+
     fun isDirectShare(): Boolean
 
     fun setMessageDrafts(messageDrafts: Map<String, String?>?)

@@ -1926,4 +1926,7 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="prefs_refresh_onprem_config">重新整理伺服器設定</string>
     <string name="prefs_refresh_onprem_config_summary">立即重新下載伺服器設定。在伺服器新增桌面連結等新功能後很有用。</string>
     <string name="onprem_config_refreshed">伺服器設定已重新整理</string>
+    <string name="prefs_title_link_previews">產生連結預覽</string>
+    <string name="prefs_sum_link_previews">為您傳送的訊息中的連結取得預覽。預覽以端對端加密方式傳送；收件者的裝置絕不會連線到該網站。</string>
+    <string name="link_preview_remove">移除連結預覽</string>
 </resources>

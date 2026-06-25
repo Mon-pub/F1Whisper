@@ -467,6 +467,11 @@ class PreferenceServiceImpl(
     override fun isShowImageAttachPreviewsEnabled(): Boolean =
         preferenceStore.getBoolean(getKeyName(R.string.preferences__image_attach_previews))
 
+    // F1Whisper: default true even before the Chats settings screen is first opened (matches Signal's
+    // default-on), so the 2-arg getBoolean supplies the default when the key is still absent.
+    override fun isLinkPreviewsEnabled(): Boolean =
+        preferenceStore.getBoolean(getKeyName(R.string.preferences__link_previews), true)
+
     override fun isDirectShare(): Boolean =
         preferenceStore.getBoolean(getKeyName(R.string.preferences__direct_share))
 

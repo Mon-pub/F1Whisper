@@ -1931,4 +1931,7 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="prefs_refresh_onprem_config">Actualiser la configuration du serveur</string>
     <string name="prefs_refresh_onprem_config_summary">Retélécharger la configuration du serveur maintenant. Utile après que le serveur a ajouté de nouvelles fonctionnalités comme la liaison avec l’ordinateur.</string>
     <string name="onprem_config_refreshed">Configuration du serveur actualisée</string>
+    <string name="prefs_title_link_previews">Générer des aperçus de liens</string>
+    <string name="prefs_sum_link_previews">Récupérer des aperçus pour les liens dans les messages que vous envoyez. Les aperçus sont envoyés chiffrés de bout en bout ; l\'appareil du destinataire ne contacte jamais le site web.</string>
+    <string name="link_preview_remove">Supprimer l\'aperçu du lien</string>
 </resources>

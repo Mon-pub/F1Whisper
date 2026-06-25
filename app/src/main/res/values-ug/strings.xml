@@ -1978,4 +1978,7 @@
     <string name="prefs_refresh_onprem_config">مۇلازىمېتىر سەپلىمىسىنى يېڭىلاش</string>
     <string name="prefs_refresh_onprem_config_summary">مۇلازىمېتىر سەپلىمىسىنى ھازىر قايتا چۈشۈرۈڭ. مۇلازىمېتىر ئۈستەلئۈستى ئۇلاش قاتارلىق يېڭى ئىقتىدارلارنى قوشقاندىن كېيىن پايدىلىق.</string>
     <string name="onprem_config_refreshed">مۇلازىمېتىر سەپلىمىسى يېڭىلاندى</string>
+    <string name="prefs_title_link_previews">ئۇلانما ئالدىن كۆرۈشنى ھاسىل قىلىش</string>
+    <string name="prefs_sum_link_previews">ئەۋەتىدىغان ئۇچۇرلىرىڭىزدىكى ئۇلانمىلارنىڭ ئالدىن كۆرۈشىنى ئېلىڭ. ئالدىن كۆرۈش ئۇچ-ئۇچىغا شىفىرلىنىپ ئەۋەتىلىدۇ؛ تاپشۇرۇۋالغۇچىنىڭ ئۈسكۈنىسى تور بېكەتكە ھەرگىز باغلانمايدۇ.</string>
+    <string name="link_preview_remove">ئۇلانما ئالدىن كۆرۈشنى ئۆچۈرۈش</string>
 </resources>

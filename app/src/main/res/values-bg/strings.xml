@@ -1866,4 +1866,7 @@
     <string name="prefs_refresh_onprem_config">Обновяване на конфигурацията на сървъра</string>
     <string name="prefs_refresh_onprem_config_summary">Изтеглете отново конфигурацията на сървъра сега. Полезно, след като сървърът добави нови функции като свързване с настолно устройство.</string>
     <string name="onprem_config_refreshed">Конфигурацията на сървъра е обновена</string>
+    <string name="prefs_title_link_previews">Генериране на визуализации на връзки</string>
+    <string name="prefs_sum_link_previews">Извличане на визуализации за връзките в съобщенията, които изпращате. Визуализациите се изпращат със сквозно шифроване; устройството на получателя никога не се свързва с уебсайта.</string>
+    <string name="link_preview_remove">Премахване на визуализацията на връзката</string>
 </resources>

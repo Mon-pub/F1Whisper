@@ -1948,4 +1948,7 @@
     <string name="prefs_refresh_onprem_config">Aggiorna la configurazione del server</string>
     <string name="prefs_refresh_onprem_config_summary">Scarica di nuovo la configurazione del server ora. Utile dopo che il server ha aggiunto nuove funzioni come il collegamento del desktop.</string>
     <string name="onprem_config_refreshed">Configurazione del server aggiornata</string>
+    <string name="prefs_title_link_previews">Genera anteprime dei link</string>
+    <string name="prefs_sum_link_previews">Recupera le anteprime dei link nei messaggi che invii. Le anteprime vengono inviate cifrate end-to-end; il dispositivo del destinatario non contatta mai il sito web.</string>
+    <string name="link_preview_remove">Rimuovi anteprima del link</string>
 </resources>

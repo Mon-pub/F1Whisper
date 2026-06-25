@@ -1898,4 +1898,7 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="prefs_refresh_onprem_config">Obnoviť konfiguráciu servera</string>
     <string name="prefs_refresh_onprem_config_summary">Znova stiahnuť konfiguráciu servera. Užitočné po tom, čo server pridá nové funkcie, ako je prepojenie s počítačom.</string>
     <string name="onprem_config_refreshed">Konfigurácia servera bola obnovená</string>
+    <string name="prefs_title_link_previews">Vytvárať náhľady odkazov</string>
+    <string name="prefs_sum_link_previews">Načítavať náhľady odkazov v správach, ktoré odosielate. Náhľady sa odosielajú koncovo šifrované; zariadenie príjemcu nikdy nekontaktuje webovú stránku.</string>
+    <string name="link_preview_remove">Odstrániť náhľad odkazu</string>
 </resources>

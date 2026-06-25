@@ -11,6 +11,7 @@ import java.io.File;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import ch.threema.app.R;
+import ch.threema.app.linkpreview.LinkPreviewValidator;
 import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.services.messageplayer.FileMessagePlayer;
 import ch.threema.app.services.messageplayer.MessagePlayer;
@@ -105,6 +106,88 @@ public class FileChatAdapterDecorator extends ChatAdapterDecorator {
         configureSecondaryText(holder, fileData);
         configureSizeText(holder, fileData);
         configureDateView(holder, fileData);
+        configureLinkPreview(holder, fileData, context);
+    }
+
+    /**
+     * F1Whisper: render the Signal-style link-preview text block (title / description / domain) under
+     * the og:image of a previewed message, and route a tap on the bubble to the URL instead of the
+     * media viewer. The card is only shown when the message carries a valid preview URL that also
+     * appears in the caption (receiver-side re-validation: blocks a spoofed/injected card for a URL
+     * the user never sent). For non-preview file messages the block stays hidden.
+     */
+    private void configureLinkPreview(
+        @NonNull ComposeMessageHolder holder,
+        @NonNull FileDataModel fileData,
+        Context context
+    ) {
+        if (holder.linkPreviewInfo == null) {
+            // Not a media item layout (the card views only exist there).
+            return;
+        }
+
+        final String url = fileData.getLinkPreviewUrl();
+        final String caption = fileData.getCaption();
+        final boolean valid = fileData.isLinkPreview()
+            && LinkPreviewValidator.isValidPreviewUrl(url)
+            && captionReferencesUrl(caption, url);
+
+        if (!valid) {
+            holder.linkPreviewInfo.setVisibility(View.GONE);
+            return;
+        }
+
+        holder.linkPreviewInfo.setVisibility(View.VISIBLE);
+
+        if (holder.linkPreviewTitle != null) {
+            final String title = fileData.getLinkPreviewTitle();
+            if (title != null && !title.isBlank()) {
+                holder.linkPreviewTitle.setText(title);
+                holder.linkPreviewTitle.setVisibility(View.VISIBLE);
+            } else {
+                holder.linkPreviewTitle.setVisibility(View.GONE);
+            }
+        }
+
+        if (holder.linkPreviewDescription != null) {
+            final String description = fileData.getLinkPreviewDescription();
+            if (description != null && !description.isBlank()) {
+                holder.linkPreviewDescription.setText(description);
+                holder.linkPreviewDescription.setVisibility(View.VISIBLE);
+            } else {
+                holder.linkPreviewDescription.setVisibility(View.GONE);
+            }
+        }
+
+        if (holder.linkPreviewDomain != null) {
+            final String host = android.net.Uri.parse(url).getHost();
+            holder.linkPreviewDomain.setText(host != null ? host : url);
+        }
+
+        // Tap anywhere on the card opens the link (via the safe opener), not the image viewer.
+        final LinkifyUtil linkifyUtil = LinkifyUtil.getInstance();
+        setOnClickListener(view -> linkifyUtil.openLink(android.net.Uri.parse(url), context, null),
+            holder.messageBlockView);
+        if (holder.controller != null) {
+            holder.controller.setHidden();
+        }
+    }
+
+    /**
+     * @return {@code true} if the visible caption text references the preview URL (the URL string or
+     * at least its host appears in the caption). Mirrors Signal's "URL present in body" receiver
+     * check so a sender cannot attach a preview for a URL the recipient never saw.
+     */
+    private static boolean captionReferencesUrl(@Nullable String caption, @NonNull String url) {
+        if (caption == null || caption.isEmpty()) {
+            return false;
+        }
+        final String haystack = caption.toLowerCase();
+        if (haystack.contains(url.toLowerCase())) {
+            return true;
+        }
+        final String host = android.net.Uri.parse(url).getHost();
+        return host != null && !host.isEmpty() && haystack.contains(host.toLowerCase());
     }
 
     private void configureDateView(

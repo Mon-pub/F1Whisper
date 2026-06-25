@@ -531,6 +531,12 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                     holder.senderView = itemView.findViewById(R.id.group_sender_view);
                     holder.senderName = itemView.findViewById(R.id.group_sender_name);
                     holder.forwardedLabelView = itemView.findViewById(R.id.forwarded_label_view);
+                    // F1Whisper: link-preview card views (present only in the media item layouts;
+                    // findViewById returns null elsewhere, which the decorator null-checks).
+                    holder.linkPreviewInfo = itemView.findViewById(R.id.link_preview_info);
+                    holder.linkPreviewTitle = itemView.findViewById(R.id.link_preview_title);
+                    holder.linkPreviewDescription = itemView.findViewById(R.id.link_preview_description);
+                    holder.linkPreviewDomain = itemView.findViewById(R.id.link_preview_domain);
                     holder.deliveredIndicator = itemView.findViewById(R.id.delivered_indicator);
                     holder.attachmentImage = itemView.findViewById(R.id.attachment_image_view);
                     holder.avatarView = itemView.findViewById(R.id.avatar_view);

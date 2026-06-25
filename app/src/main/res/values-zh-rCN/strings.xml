@@ -1926,4 +1926,7 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="prefs_refresh_onprem_config">刷新服务器配置</string>
     <string name="prefs_refresh_onprem_config_summary">立即重新下载服务器配置。在服务器添加桌面关联等新功能后很有用。</string>
     <string name="onprem_config_refreshed">服务器配置已刷新</string>
+    <string name="prefs_title_link_previews">生成链接预览</string>
+    <string name="prefs_sum_link_previews">为您发送的消息中的链接获取预览。预览以端到端加密方式发送；收件人的设备绝不会联系该网站。</string>
+    <string name="link_preview_remove">移除链接预览</string>
 </resources>

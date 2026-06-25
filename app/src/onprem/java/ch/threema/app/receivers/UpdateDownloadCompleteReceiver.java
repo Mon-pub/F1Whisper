@@ -12,6 +12,7 @@ import android.preference.PreferenceManager;
 
 import org.slf4j.Logger;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -53,15 +54,30 @@ public class UpdateDownloadCompleteReceiver extends BroadcastReceiver {
         prefs.edit().remove(DownloadApkActivity.PREF_DOWNLOAD_ID).apply();
 
         int status = DownloadManager.STATUS_FAILED;
+        int reason = -1;
+        long bytesDownloaded = -1;
+        long bytesTotal = -1;
         final DownloadManager downloadManager = (DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
         if (downloadManager != null) {
             final DownloadManager.Query query = new DownloadManager.Query();
             query.setFilterById(referenceId);
             try (Cursor cursor = downloadManager.query(query)) {
                 if (cursor != null && cursor.moveToFirst()) {
-                    final int idx = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                    if (idx >= 0) {
-                        status = cursor.getInt(idx);
+                    final int statusIdx = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+                    if (statusIdx >= 0) {
+                        status = cursor.getInt(statusIdx);
+                    }
+                    final int reasonIdx = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+                    if (reasonIdx >= 0) {
+                        reason = cursor.getInt(reasonIdx);
+                    }
+                    final int downloadedIdx = cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR);
+                    if (downloadedIdx >= 0) {
+                        bytesDownloaded = cursor.getLong(downloadedIdx);
+                    }
+                    final int totalIdx = cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES);
+                    if (totalIdx >= 0) {
+                        bytesTotal = cursor.getLong(totalIdx);
                     }
                 }
             } catch (Exception e) {
@@ -71,9 +87,49 @@ public class UpdateDownloadCompleteReceiver extends BroadcastReceiver {
 
         final boolean success = status == DownloadManager.STATUS_SUCCESSFUL;
         if (!success) {
-            logger.warn("Self-update download failed, status {}", status);
+            // F1Whisper: status alone (16 = STATUS_FAILED) is not actionable; log the COLUMN_REASON and
+            // the byte progress so a failure report tells us exactly why (HTTP error, insufficient
+            // space, file-already-exists, cannot-resume, etc.) and how far it got.
+            logger.warn(
+                "Self-update download failed, status {} reason {} ({}), {} / {} bytes",
+                status, reason, describeReason(reason), bytesDownloaded, bytesTotal);
         }
         postNotification(context, referenceId, success);
+    }
+
+    /**
+     * F1Whisper: map a {@link DownloadManager} {@code COLUMN_REASON} to a short human-readable string
+     * for diagnostics. For failed downloads the reason is one of the {@code DownloadManager.ERROR_*}
+     * constants; for paused downloads it is a {@code PAUSED_*} constant; an HTTP status code (400-599)
+     * may also be reported directly.
+     */
+    @NonNull
+    private static String describeReason(int reason) {
+        switch (reason) {
+            case DownloadManager.ERROR_CANNOT_RESUME:
+                return "cannot resume";
+            case DownloadManager.ERROR_DEVICE_NOT_FOUND:
+                return "external storage missing";
+            case DownloadManager.ERROR_FILE_ALREADY_EXISTS:
+                return "file already exists";
+            case DownloadManager.ERROR_FILE_ERROR:
+                return "file/storage error";
+            case DownloadManager.ERROR_HTTP_DATA_ERROR:
+                return "http data error";
+            case DownloadManager.ERROR_INSUFFICIENT_SPACE:
+                return "insufficient space";
+            case DownloadManager.ERROR_TOO_MANY_REDIRECTS:
+                return "too many redirects";
+            case DownloadManager.ERROR_UNHANDLED_HTTP_CODE:
+                return "unhandled http code";
+            case DownloadManager.ERROR_UNKNOWN:
+                return "unknown error";
+            default:
+                if (reason >= 400 && reason < 600) {
+                    return "http " + reason;
+                }
+                return "reason " + reason;
+        }
     }
 
     private void postNotification(Context context, long downloadId, boolean success) {

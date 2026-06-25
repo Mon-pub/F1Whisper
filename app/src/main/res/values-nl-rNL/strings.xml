@@ -1914,4 +1914,7 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="prefs_refresh_onprem_config">Serverconfiguratie vernieuwen</string>
     <string name="prefs_refresh_onprem_config_summary">Download de serverconfiguratie nu opnieuw. Handig nadat de server nieuwe functies heeft toegevoegd, zoals desktopkoppeling.</string>
     <string name="onprem_config_refreshed">Serverconfiguratie vernieuwd</string>
+    <string name="prefs_title_link_previews">Linkvoorbeelden genereren</string>
+    <string name="prefs_sum_link_previews">Voorbeelden ophalen voor links in berichten die je verstuurt. Voorbeelden worden end-to-end versleuteld verzonden; het apparaat van de ontvanger neemt nooit contact op met de website.</string>
+    <string name="link_preview_remove">Linkvoorbeeld verwijderen</string>
 </resources>

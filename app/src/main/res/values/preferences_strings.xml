@@ -80,6 +80,7 @@
     <string name="preferences__lock_mechanism" translatable="false">pref_lock_options</string>
     <string name="preferences__lock_ui_switch" translatable="false">pref_lock_ui</string>
     <string name="preferences__image_attach_previews" translatable="false">pref_image_attach_previews</string>
+    <string name="preferences__link_previews" translatable="false">pref_link_previews</string>
     <string name="preferences__direct_share" translatable="false">pref_direct_share</string>
     <string name="preferences__message_drafts" translatable="false">pref_message_drafts</string>
     <string name="preferences__bigger_single_emojis" translatable="false">pref_bigger_single_emojis</string>

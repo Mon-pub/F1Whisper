@@ -1387,4 +1387,7 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="prefs_refresh_onprem_config">Kiszolgálókonfiguráció frissítése</string>
     <string name="prefs_refresh_onprem_config_summary">Töltse le újra a kiszolgáló konfigurációját. Hasznos, miután a kiszolgáló új funkciókat adott hozzá, például az asztali eszköz összekapcsolását.</string>
     <string name="onprem_config_refreshed">A kiszolgáló konfigurációja frissítve</string>
+    <string name="prefs_title_link_previews">Hivatkozás-előnézetek létrehozása</string>
+    <string name="prefs_sum_link_previews">Előnézetek lekérése az elküldött üzenetekben lévő hivatkozásokhoz. Az előnézetek végpontok közötti titkosítással kerülnek elküldésre; a címzett eszköze soha nem lép kapcsolatba a weboldallal.</string>
+    <string name="link_preview_remove">Hivatkozás előnézetének eltávolítása</string>
 </resources>

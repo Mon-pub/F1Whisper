@@ -1942,4 +1942,7 @@
     <string name="prefs_refresh_onprem_config">به‌روزرسانی پیکربندی سرور</string>
     <string name="prefs_refresh_onprem_config_summary">اکنون پیکربندی سرور را دوباره دانلود کنید. پس از افزودن قابلیت‌های جدید مانند اتصال دسکتاپ به سرور مفید است.</string>
     <string name="onprem_config_refreshed">پیکربندی سرور به‌روزرسانی شد</string>
+    <string name="prefs_title_link_previews">ساخت پیش‌نمایش پیوند</string>
+    <string name="prefs_sum_link_previews">برای پیوندهای موجود در پیام‌هایی که می‌فرستید پیش‌نمایش دریافت کنید. پیش‌نمایش‌ها به‌صورت سرتاسر رمزگذاری‌شده ارسال می‌شوند؛ دستگاه گیرنده هرگز به وب‌سایت متصل نمی‌شود.</string>
+    <string name="link_preview_remove">حذف پیش‌نمایش پیوند</string>
 </resources>

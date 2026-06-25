@@ -1978,4 +1978,7 @@
     <string name="prefs_refresh_onprem_config">Server konfiguratsiyasini yangilash</string>
     <string name="prefs_refresh_onprem_config_summary">Server konfiguratsiyasini hozir qayta yuklab oling. Server ish stoli ulanishi kabi yangi funksiyalarni qoʻshgandan keyin foydali.</string>
     <string name="onprem_config_refreshed">Server konfiguratsiyasi yangilandi</string>
+    <string name="prefs_title_link_previews">Havola koʻrinishlarini yaratish</string>
+    <string name="prefs_sum_link_previews">Siz yuboradigan xabarlardagi havolalar uchun koʻrinishlarni oling. Koʻrinishlar uchdan-uchgacha shifrlangan holda yuboriladi; qabul qiluvchining qurilmasi hech qachon veb-saytga ulanmaydi.</string>
+    <string name="link_preview_remove">Havola koʻrinishini olib tashlash</string>
 </resources>

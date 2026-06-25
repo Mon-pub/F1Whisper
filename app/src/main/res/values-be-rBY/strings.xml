@@ -1984,4 +1984,7 @@
     <string name="prefs_refresh_onprem_config">Абнавіць канфігурацыю сервера</string>
     <string name="prefs_refresh_onprem_config_summary">Зноў спампаваць канфігурацыю сервера зараз. Карысна пасля таго, як сервер дадасць новыя функцыі, напрыклад прывязку камп’ютара.</string>
     <string name="onprem_config_refreshed">Канфігурацыя сервера абноўлена</string>
+    <string name="prefs_title_link_previews">Ствараць папярэдні прагляд спасылак</string>
+    <string name="prefs_sum_link_previews">Атрымліваць папярэдні прагляд спасылак у паведамленнях, якія вы адпраўляеце. Папярэдні прагляд адпраўляецца са скразным шыфраваннем; прылада атрымальніка ніколі не звязваецца з сайтам.</string>
+    <string name="link_preview_remove">Выдаліць папярэдні прагляд спасылкі</string>
 </resources>

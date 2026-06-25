@@ -4018,6 +4018,18 @@ public class MessageServiceImpl implements MessageService {
                 if (mediaItem.isForwarded()) {
                     metaData.put(FileDataModel.METADATA_KEY_FORWARDED, true);
                 }
+                // F1Whisper: carry Signal-style link-preview metadata E2E so a receiving client can
+                // render the preview card WITHOUT fetching the URL (recipient IP never leaks). The
+                // image blob is the og:image (or placeholder) and the caption is the user's text.
+                if (mediaItem.isLinkPreview()) {
+                    metaData.put(FileDataModel.METADATA_KEY_PREVIEW_URL, mediaItem.getLinkPreviewUrl());
+                    if (mediaItem.getLinkPreviewTitle() != null && !mediaItem.getLinkPreviewTitle().isBlank()) {
+                        metaData.put(FileDataModel.METADATA_KEY_PREVIEW_TITLE, mediaItem.getLinkPreviewTitle());
+                    }
+                    if (mediaItem.getLinkPreviewDescription() != null && !mediaItem.getLinkPreviewDescription().isBlank()) {
+                        metaData.put(FileDataModel.METADATA_KEY_PREVIEW_DESCRIPTION, mediaItem.getLinkPreviewDescription());
+                    }
+                }
                 fileDataModel.setMetaData(metaData);
 
                 // F1Whisper: the per-receiver models were serialized (setFileData) in

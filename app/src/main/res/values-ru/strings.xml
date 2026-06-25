@@ -1979,4 +1979,7 @@
     <string name="prefs_refresh_onprem_config">Обновить конфигурацию сервера</string>
     <string name="prefs_refresh_onprem_config_summary">Повторно загрузить конфигурацию сервера сейчас. Полезно после того, как сервер добавит новые функции, например привязку компьютера.</string>
     <string name="onprem_config_refreshed">Конфигурация сервера обновлена</string>
+    <string name="prefs_title_link_previews">Создавать предпросмотр ссылок</string>
+    <string name="prefs_sum_link_previews">Получать предпросмотр ссылок в отправляемых сообщениях. Предпросмотр отправляется со сквозным шифрованием; устройство получателя никогда не обращается к сайту.</string>
+    <string name="link_preview_remove">Удалить предпросмотр ссылки</string>
 </resources>

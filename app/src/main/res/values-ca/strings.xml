@@ -1404,4 +1404,7 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="prefs_refresh_onprem_config">Actualitza la configuració del servidor</string>
     <string name="prefs_refresh_onprem_config_summary">Torna a baixar la configuració del servidor ara. Útil després que el servidor afegeixi funcions noves com la vinculació d’escriptori.</string>
     <string name="onprem_config_refreshed">S’ha actualitzat la configuració del servidor</string>
+    <string name="prefs_title_link_previews">Genera previsualitzacions d\'enllaços</string>
+    <string name="prefs_sum_link_previews">Obtén previsualitzacions dels enllaços dels missatges que envies. Les previsualitzacions s\'envien xifrades d\'extrem a extrem; el dispositiu del destinatari mai no contacta amb el lloc web.</string>
+    <string name="link_preview_remove">Elimina la previsualització de l\'enllaç</string>
 </resources>

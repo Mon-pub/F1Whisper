@@ -61,6 +61,14 @@ public class MediaItem implements Parcelable {
     private boolean listenOnce;
     private boolean spoiler;
     private boolean forwarded; // F1Whisper: this media is being forwarded from another message
+    // F1Whisper: when set, this media item is a Signal-style link preview. The image is the og:image
+    // (or a placeholder), the caption is the user's text, and these carry the preview metadata E2E.
+    @Nullable
+    private String linkPreviewUrl;
+    @Nullable
+    private String linkPreviewTitle;
+    @Nullable
+    private String linkPreviewDescription;
 
     private static final Logger logger = getThreemaLogger("MediaItem");
 
@@ -280,6 +288,9 @@ public class MediaItem implements Parcelable {
         this.listenOnce = false;
         this.spoiler = false;
         this.forwarded = false;
+        this.linkPreviewUrl = null;
+        this.linkPreviewTitle = null;
+        this.linkPreviewDescription = null;
     }
 
 
@@ -306,6 +317,9 @@ public class MediaItem implements Parcelable {
         listenOnce = in.readInt() != 0;
         spoiler = in.readInt() != 0;
         forwarded = in.readInt() != 0;
+        linkPreviewUrl = in.readString();
+        linkPreviewTitle = in.readString();
+        linkPreviewDescription = in.readString();
     }
 
     @Override
@@ -331,6 +345,9 @@ public class MediaItem implements Parcelable {
         dest.writeInt(listenOnce ? 1 : 0);
         dest.writeInt(spoiler ? 1 : 0);
         dest.writeInt(forwarded ? 1 : 0);
+        dest.writeString(linkPreviewUrl);
+        dest.writeString(linkPreviewTitle);
+        dest.writeString(linkPreviewDescription);
     }
 
     @Override
@@ -598,6 +615,38 @@ public class MediaItem implements Parcelable {
      */
     public void setForwarded(boolean forwarded) {
         this.forwarded = forwarded;
+    }
+
+    /**
+     * F1Whisper: return true if this media item is a link-preview card (a preview URL is set).
+     */
+    public boolean isLinkPreview() {
+        return linkPreviewUrl != null && !linkPreviewUrl.isBlank();
+    }
+
+    @Nullable
+    public String getLinkPreviewUrl() {
+        return linkPreviewUrl;
+    }
+
+    @Nullable
+    public String getLinkPreviewTitle() {
+        return linkPreviewTitle;
+    }
+
+    @Nullable
+    public String getLinkPreviewDescription() {
+        return linkPreviewDescription;
+    }
+
+    /**
+     * F1Whisper: mark this media item as a Signal-style link preview carrying the given Open Graph
+     * metadata (transmitted E2E so the recipient renders the card without fetching the URL).
+     */
+    public void setLinkPreview(@NonNull String url, @Nullable String title, @Nullable String description) {
+        this.linkPreviewUrl = url;
+        this.linkPreviewTitle = title;
+        this.linkPreviewDescription = description;
     }
 
     /**

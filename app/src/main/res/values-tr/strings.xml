@@ -1928,4 +1928,7 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="prefs_refresh_onprem_config">Sunucu yapılandırmasını yenile</string>
     <string name="prefs_refresh_onprem_config_summary">Sunucu yapılandırmasını şimdi yeniden indirin. Sunucu masaüstü bağlama gibi yeni özellikler ekledikten sonra kullanışlıdır.</string>
     <string name="onprem_config_refreshed">Sunucu yapılandırması yenilendi</string>
+    <string name="prefs_title_link_previews">Bağlantı önizlemeleri oluştur</string>
+    <string name="prefs_sum_link_previews">Gönderdiğiniz mesajlardaki bağlantılar için önizlemeler alın. Önizlemeler uçtan uca şifreli gönderilir; alıcının cihazı web sitesine asla bağlanmaz.</string>
+    <string name="link_preview_remove">Bağlantı önizlemesini kaldır</string>
 </resources>

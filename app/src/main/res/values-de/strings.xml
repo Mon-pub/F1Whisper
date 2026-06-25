@@ -1961,4 +1961,7 @@
     <string name="prefs_refresh_onprem_config">Serverkonfiguration aktualisieren</string>
     <string name="prefs_refresh_onprem_config_summary">Serverkonfiguration jetzt erneut herunterladen. Nützlich, nachdem der Server neue Funktionen wie die Desktop-Verknüpfung hinzugefügt hat.</string>
     <string name="onprem_config_refreshed">Serverkonfiguration aktualisiert</string>
+    <string name="prefs_title_link_previews">Linkvorschauen erstellen</string>
+    <string name="prefs_sum_link_previews">Vorschauen für Links in von dir gesendeten Nachrichten abrufen. Vorschauen werden Ende-zu-Ende-verschlüsselt gesendet; das Gerät des Empfängers kontaktiert die Website nie.</string>
+    <string name="link_preview_remove">Linkvorschau entfernen</string>
 </resources>

@@ -1932,4 +1932,7 @@ almacenado.</string>
     <string name="prefs_refresh_onprem_config">Actualizar la configuración del servidor</string>
     <string name="prefs_refresh_onprem_config_summary">Vuelve a descargar la configuración del servidor ahora. Útil después de que el servidor añada nuevas funciones como la vinculación de escritorio.</string>
     <string name="onprem_config_refreshed">Configuración del servidor actualizada</string>
+    <string name="prefs_title_link_previews">Generar vistas previas de enlaces</string>
+    <string name="prefs_sum_link_previews">Obtén vistas previas de los enlaces en los mensajes que envías. Las vistas previas se envían cifradas de extremo a extremo; el dispositivo del destinatario nunca contacta con el sitio web.</string>
+    <string name="link_preview_remove">Quitar vista previa del enlace</string>
 </resources>

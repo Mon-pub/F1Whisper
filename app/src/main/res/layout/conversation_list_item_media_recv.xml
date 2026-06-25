@@ -24,6 +24,8 @@
 
             <include layout="@layout/conversation_list_item_media" />
 
+            <include layout="@layout/conversation_list_item_link_preview_info" />
+
             <ch.threema.app.emojis.EmojiConversationTextView
                 android:id="@+id/text_view"
                 style="@style/Threema.Bubble.Text.Body"

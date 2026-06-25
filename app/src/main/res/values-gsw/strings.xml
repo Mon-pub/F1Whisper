@@ -1927,4 +1927,7 @@
     <string name="prefs_refresh_onprem_config">Server-Konfiguration aktualisiere</string>
     <string name="prefs_refresh_onprem_config_summary">D Server-Konfiguration jetz nomol abelade. Nützlich, wenn de Server neui Funktione wie d Desktop-Verbindig dezuegfüegt het.</string>
     <string name="onprem_config_refreshed">Server-Konfiguration aktualisiert</string>
+    <string name="prefs_title_link_previews">Link-Vorschaue erstelle</string>
+    <string name="prefs_sum_link_previews">Vorschaue für Links i Nachrichte, wo du verschicksch, abruefe. Vorschaue werded Änd-zu-Änd-verschlüsslet gschickt; s Grät vom Empfänger kontaktiert d Website nie.</string>
+    <string name="link_preview_remove">Link-Vorschau entferne</string>
 </resources>

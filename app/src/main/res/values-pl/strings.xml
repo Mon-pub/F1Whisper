@@ -1971,4 +1971,7 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="prefs_refresh_onprem_config">Odśwież konfigurację serwera</string>
     <string name="prefs_refresh_onprem_config_summary">Pobierz ponownie konfigurację serwera teraz. Przydatne, gdy serwer doda nowe funkcje, takie jak łączenie z komputerem.</string>
     <string name="onprem_config_refreshed">Konfiguracja serwera odświeżona</string>
+    <string name="prefs_title_link_previews">Generuj podglądy linków</string>
+    <string name="prefs_sum_link_previews">Pobieraj podglądy linków w wysyłanych wiadomościach. Podglądy są wysyłane z szyfrowaniem end-to-end; urządzenie odbiorcy nigdy nie łączy się ze stroną.</string>
+    <string name="link_preview_remove">Usuń podgląd linku</string>
 </resources>

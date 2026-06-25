@@ -808,6 +808,10 @@
     <string name="cannot_open_file">Could not open file</string>
     <string name="prefs_title_image_attach_previews">Media quick select</string>
     <string name="prefs_sum_image_attach_previews">Display a list of recently added images in the attachments popup</string>
+    <!-- F1Whisper: link previews (Signal-style, sender-only fetch) -->
+    <string name="prefs_title_link_previews">Generate link previews</string>
+    <string name="prefs_sum_link_previews">Retrieve previews for links in messages you send. Previews are sent end-to-end encrypted; the recipient\'s device never contacts the website.</string>
+    <string name="link_preview_remove">Remove link preview</string>
     <string name="prefs_title_direct_share">Direct Share</string>
     <string name="prefs_sum_direct_share">Display recent chats when sharing from other apps</string>
     <string name="restore_disable_energy_saving">Please connect your device to the charger and disable all energy saving options to prevent your device from interrupting the backup or restore process.</string>

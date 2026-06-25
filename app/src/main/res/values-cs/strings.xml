@@ -1977,4 +1977,7 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="prefs_refresh_onprem_config">Obnovit konfiguraci serveru</string>
     <string name="prefs_refresh_onprem_config_summary">Znovu stáhnout konfiguraci serveru. Užitečné poté, co server přidá nové funkce, jako je propojení s počítačem.</string>
     <string name="onprem_config_refreshed">Konfigurace serveru byla obnovena</string>
+    <string name="prefs_title_link_previews">Vytvářet náhledy odkazů</string>
+    <string name="prefs_sum_link_previews">Načítat náhledy odkazů ve zprávách, které odesíláte. Náhledy se odesílají koncově šifrované; zařízení příjemce nikdy nekontaktuje webovou stránku.</string>
+    <string name="link_preview_remove">Odebrat náhled odkazu</string>
 </resources>

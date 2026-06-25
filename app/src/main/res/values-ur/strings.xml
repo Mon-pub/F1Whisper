@@ -1941,4 +1941,7 @@
     <string name="prefs_refresh_onprem_config">سرور کنفیگریشن کو ریفریش کریں</string>
     <string name="prefs_refresh_onprem_config_summary">سرور کنفیگریشن کو ابھی دوبارہ ڈاؤن لوڈ کریں۔ سرور کی جانب سے ڈیسک ٹاپ لنکنگ جیسی نئی خصوصیات شامل کرنے کے بعد مفید۔</string>
     <string name="onprem_config_refreshed">سرور کنفیگریشن ریفریش ہو گئی</string>
+    <string name="prefs_title_link_previews">لنک کے پیش منظر بنائیں</string>
+    <string name="prefs_sum_link_previews">آپ کے بھیجے گئے پیغامات میں موجود لنکس کے پیش منظر حاصل کریں۔ پیش منظر اینڈ ٹو اینڈ مرموز کر کے بھیجے جاتے ہیں؛ وصول کنندہ کا آلہ کبھی ویب سائٹ سے رابطہ نہیں کرتا۔</string>
+    <string name="link_preview_remove">لنک کا پیش منظر ہٹائیں</string>
 </resources>

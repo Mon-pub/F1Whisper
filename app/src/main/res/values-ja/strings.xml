@@ -1678,4 +1678,7 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="prefs_refresh_onprem_config">サーバー設定を更新</string>
     <string name="prefs_refresh_onprem_config_summary">サーバー設定を今すぐ再ダウンロードします。サーバーがデスクトップ連携などの新機能を追加した後に便利です。</string>
     <string name="onprem_config_refreshed">サーバー設定を更新しました</string>
+    <string name="prefs_title_link_previews">リンクプレビューを生成</string>
+    <string name="prefs_sum_link_previews">送信するメッセージ内のリンクのプレビューを取得します。プレビューはエンドツーエンドで暗号化されて送信され、受信者の端末がウェブサイトに接続することはありません。</string>
+    <string name="link_preview_remove">リンクプレビューを削除</string>
 </resources>

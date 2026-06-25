@@ -65,6 +65,19 @@ public class FileDataModel implements MediaMessageDataInterface {
      */
     public static final String METADATA_KEY_FORWARDED = "fwd";
 
+    /**
+     * Custom (F1Whisper) link-preview metadata. A previewed text message is sent as an image media
+     * message whose blob is the og:image (or a generated placeholder), whose caption is the user's
+     * text, and whose metadata carries these keys so a receiving F1Whisper client can render a
+     * Signal-style preview card WITHOUT ever fetching the URL itself (recipient IP never leaks). All
+     * three ride inside the E2E-encrypted file metadata map ("x"), invisible to the server.
+     * {@code lp_u} = url (required to be treated as a preview), {@code lp_t} = title,
+     * {@code lp_d} = description (optional). Older clients ignore them and just show image + caption.
+     */
+    public static final String METADATA_KEY_PREVIEW_URL = "lp_u";
+    public static final String METADATA_KEY_PREVIEW_TITLE = "lp_t";
+    public static final String METADATA_KEY_PREVIEW_DESCRIPTION = "lp_d";
+
     private byte[] fileBlobId;
     private byte[] encryptionKey;
     private String mimeType;
@@ -327,6 +340,39 @@ public class FileDataModel implements MediaMessageDataInterface {
      */
     public boolean isSpoiler() {
         return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_SPOILER));
+    }
+
+    /**
+     * @return {@code true} if this file message is a link-preview card (carries the preview URL
+     * metadata). Safe to call on any file message; returns {@code false} when absent.
+     */
+    public boolean isLinkPreview() {
+        final String url = getMetaDataString(METADATA_KEY_PREVIEW_URL);
+        return url != null && !url.isBlank();
+    }
+
+    /**
+     * @return the previewed URL, or {@code null} if this is not a link-preview message.
+     */
+    @Nullable
+    public String getLinkPreviewUrl() {
+        return getMetaDataString(METADATA_KEY_PREVIEW_URL);
+    }
+
+    /**
+     * @return the preview title (og:title), or {@code null} when absent.
+     */
+    @Nullable
+    public String getLinkPreviewTitle() {
+        return getMetaDataString(METADATA_KEY_PREVIEW_TITLE);
+    }
+
+    /**
+     * @return the preview description (og:description), or {@code null} when absent.
+     */
+    @Nullable
+    public String getLinkPreviewDescription() {
+        return getMetaDataString(METADATA_KEY_PREVIEW_DESCRIPTION);
     }
 
     /**

@@ -61,8 +61,18 @@ public class DownloadUtil {
     }
 
     /**
-     * Starts the download with the download manager, saving it under {@code fileName} in the public
-     * Downloads directory so it is named after the release (not a generic name).
+     * Starts the download with the download manager, saving it under {@code fileName} in the app's
+     * own external files directory so it is named after the release (not a generic name).
+     *
+     * <p>F1Whisper: the destination is the app-private external files dir
+     * ({@link Context#getExternalFilesDir}), NOT the public Downloads dir. The earlier public-Downloads
+     * destination was unreliable on locked-down OEMs (Xiaomi/MIUI etc.): scoped storage (Android 11+)
+     * makes the write subject to MediaStore policy, and {@link #deleteOldAPKs} cannot clean a stale
+     * same-named file there, so a second attempt at the same release fails with
+     * {@code ERROR_FILE_ALREADY_EXISTS}. The app-private external dir needs no storage permission, can
+     * always be cleaned by us (so we pre-delete the target below to make retries idempotent), has more
+     * room than the internal download cache on low-storage devices, and is still installable via
+     * {@link DownloadManager#getUriForDownloadedFile} (the same content:// path the install step uses).
      *
      * @param context  the application context
      * @param url      the url of the apk file
@@ -73,13 +83,26 @@ public class DownloadUtil {
         @NonNull Uri url,
         @NonNull String fileName
     ) {
+        // F1Whisper: make a retry of the same release idempotent -- delete any stale partial/complete
+        // file from a previous attempt so the enqueue never fails with ERROR_FILE_ALREADY_EXISTS.
+        final File targetDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        if (targetDir != null) {
+            final File stale = new File(targetDir, fileName);
+            if (stale.exists() && !stale.delete()) {
+                logger.warn("Could not delete stale update file {}", stale.getName());
+            }
+        }
+
         DownloadManager.Request request = new DownloadManager.Request(url);
         request.setTitle(fileName);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+        request.setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS, fileName);
         // F1Whisper: GitHub serves the asset as application/octet-stream; pin the apk MIME type so the
         // system "download complete" notification (and our own install intent) reliably resolve to the
         // package installer.
         request.setMimeType("application/vnd.android.package-archive");
+        // F1Whisper: a self-update is worth fetching on any connection the user has chosen to be on.
+        request.setAllowedOverMetered(true);
+        request.setAllowedOverRoaming(true);
         // F1Whisper: show progress while downloading; the completion is surfaced by our own
         // "tap to install" notification (UpdateDownloadCompleteReceiver), so no need to also keep the
         // system completed-notification around.

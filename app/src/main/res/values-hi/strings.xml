@@ -1990,4 +1990,7 @@
     <string name="prefs_refresh_onprem_config">सर्वर कॉन्फ़िगरेशन ताज़ा करें</string>
     <string name="prefs_refresh_onprem_config_summary">सर्वर कॉन्फ़िगरेशन अभी फिर से डाउनलोड करें। सर्वर द्वारा डेस्कटॉप लिंकिंग जैसी नई सुविधाएँ जोड़ने के बाद उपयोगी।</string>
     <string name="onprem_config_refreshed">सर्वर कॉन्फ़िगरेशन ताज़ा किया गया</string>
+    <string name="prefs_title_link_previews">लिंक प्रीव्यू बनाएँ</string>
+    <string name="prefs_sum_link_previews">आपके द्वारा भेजे जाने वाले संदेशों में मौजूद लिंक के प्रीव्यू प्राप्त करें. प्रीव्यू एंड-टू-एंड एन्क्रिप्टेड भेजे जाते हैं; प्राप्तकर्ता का डिवाइस कभी भी वेबसाइट से संपर्क नहीं करता.</string>
+    <string name="link_preview_remove">लिंक प्रीव्यू हटाएँ</string>
 </resources>
