@@ -2,7 +2,6 @@ package ch.threema.app.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -23,14 +22,17 @@ import android.widget.Toast;
 
 import org.slf4j.Logger;
 
+import java.io.File;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import ch.threema.app.R;
 import ch.threema.app.dialogs.GenericAlertDialog;
-import ch.threema.app.utils.DownloadUtil;
+import ch.threema.app.services.ApkUpdateDownloadService;
 import ch.threema.app.utils.IntentDataUtil;
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 
@@ -42,13 +44,17 @@ import static ch.threema.app.utils.ActiveScreenLoggerKt.logScreenVisibility;
  * ({@link IntentDataUtil#getUrl}) from the check_license updateUrl (= the latest GitHub release APK
  * asset), so the downloader itself is brand-agnostic.
  * <p>
- * The download runs fully in the BACKGROUND via the system {@link DownloadManager} (which survives
- * this activity finishing and shows its own progress notification). There is no blocking modal: after
- * enqueuing, this activity finishes so the user keeps using the app. On completion
- * {@link ch.threema.app.receivers.UpdateDownloadCompleteReceiver} posts an "update ready, tap to
- * install" notification which relaunches this activity with {@link #EXTRA_INSTALL_DOWNLOAD_ID} to run
- * the install (reusing the unknown-sources grant flow). The manual-fallback help URL points at the
- * F1Whisper GitHub releases page.
+ * The download runs fully in the BACKGROUND via {@link ApkUpdateDownloadService} (an OkHttp
+ * foreground-service download that survives this activity finishing and shows its own progress
+ * notification). There is no blocking modal: after kicking it off, this activity finishes so the user
+ * keeps using the app. On completion the service posts an "update ready, tap to install" notification
+ * which relaunches this activity with {@link #EXTRA_INSTALL_FILE_PATH} to run the install (reusing the
+ * unknown-sources grant flow, with the apk handed to the package installer via a FileProvider uri).
+ * The manual-fallback help URL points at the F1Whisper GitHub releases page.
+ * <p>
+ * The system {@link android.app.DownloadManager} is intentionally NOT used: it is silently broken on
+ * locked-down OEMs (Xiaomi/MIUI freezes the downloads provider, so enqueue succeeds but nothing ever
+ * downloads). See {@link ApkUpdateDownloadService} for the full rationale.
  */
 public class DownloadApkActivity extends ThreemaActivity implements GenericAlertDialog.DialogClickListener {
     private static final Logger logger = getThreemaLogger("DownloadApkActivity");
@@ -57,47 +63,64 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
 
     private static final String PREF_STRING = "download_apk_dialog_time";
 
-    private static final String BUNDLE_DOWNLOAD_ID = "download_id";
+    private static final String BUNDLE_INSTALL_PATH = "install_path";
 
     public static final String EXTRA_FORCE_UPDATE_DIALOG = "forceu";
 
-    // F1Whisper: relaunch extra carrying the completed download id, set by the "update ready"
-    // notification so this activity performs the install step (and the unknown-sources grant flow).
-    public static final String EXTRA_INSTALL_DOWNLOAD_ID = "installid";
-
-    // F1Whisper: persisted id of the currently enqueued self-update download. Read by
-    // UpdateDownloadCompleteReceiver so it only acts on our own download.
-    public static final String PREF_DOWNLOAD_ID = "self_update_download_id";
+    // F1Whisper: relaunch extra carrying the absolute path of the finished apk, set by the "update
+    // ready" notification so this activity performs the install step (and the unknown-sources grant
+    // flow). Replaces the former DownloadManager-id extra.
+    public static final String EXTRA_INSTALL_FILE_PATH = "installpath";
 
     // F1Whisper: where to send the user if the automatic download/install fails.
     private static final String FALLBACK_DOWNLOAD_URL = "https://github.com/Mon-pub/F1Whisper/releases/latest";
 
     private SharedPreferences sharedPreferences;
-    private long downloadId = -1;
 
     private int numFailures = 0;
+
+    // F1Whisper: the apk to install (content:// FileProvider uri) + its source path, kept across the
+    // unknown-sources settings round-trip and config changes.
+    @Nullable
+    private Uri pendingInstallUri;
+    @Nullable
+    private String pendingInstallPath;
 
     @Nullable
     private String pendingDownloadUrl;
 
     private final ActivityResultLauncher<Intent> requestUnknownSourcesSettingsLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
         result -> {
-            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-            if (downloadId > 0) {
-                installPackage(downloadManager.getUriForDownloadedFile(downloadId));
+            if (pendingInstallUri != null) {
+                installPackage(pendingInstallUri);
             } else {
-                logger.error("downloadId should be set");
+                logger.error("pendingInstallUri should be set");
                 finishUp();
             }
         });
 
-    // F1Whisper: request POST_NOTIFICATIONS (Android 13+) so the system download-progress
-    // notification isn't silently suppressed. We proceed with the download regardless of the result.
+    // F1Whisper: request POST_NOTIFICATIONS (Android 13+) so the download progress + "update ready"
+    // notifications aren't silently suppressed. We proceed with the download regardless of the result.
     private final ActivityResultLauncher<String> postNotificationsLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
         granted -> reallyDownload(pendingDownloadUrl));
 
     private void finishUp() {
         new Handler().postDelayed(this::finish, 1000);
+    }
+
+    /**
+     * F1Whisper: build a FileProvider content uri for the downloaded apk so it can be granted to the
+     * system package installer. The apk lives in our app-private external files dir, exposed via the
+     * {@code <external-files-path>} entry in file_paths.xml.
+     */
+    @Nullable
+    private Uri uriForApk(@NonNull String absolutePath) {
+        try {
+            return FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", new File(absolutePath));
+        } catch (IllegalArgumentException e) {
+            logger.error("Could not build FileProvider uri for {}", absolutePath, e);
+            return null;
+        }
     }
 
     /**
@@ -113,19 +136,14 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
             Intent installIntent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
             installIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             installIntent.setData(downloadedFileUri);
-            logger.info("Downloaded file to: {}", downloadedFileUri.getPath());
+            logger.info("Installing downloaded apk: {}", downloadedFileUri);
             try {
                 startActivity(installIntent);
                 finishUp();
             } catch (Exception e) {
                 numFailures++;
                 logger.error("Error installing apk", e);
-                if (numFailures > 1) {
-                    showHelpOnUpdateFailure();
-                    return;
-                }
-                // Try to download it on external directory (needed for some OPPO, OnePlus and realme devices)
-                reallyDownload(IntentDataUtil.getUrl(getIntent()));
+                showHelpOnUpdateFailure();
             }
         }
     }
@@ -136,7 +154,7 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
         logScreenVisibility(this, logger);
 
         if (savedInstanceState != null) {
-            downloadId = savedInstanceState.getLong(BUNDLE_DOWNLOAD_ID, -1);
+            pendingInstallPath = savedInstanceState.getString(BUNDLE_INSTALL_PATH, null);
         }
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -144,16 +162,16 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
         Intent intent = getIntent();
 
         // F1Whisper: relaunched from the "update ready" completion notification -> run the install.
-        final long installId = intent.getLongExtra(EXTRA_INSTALL_DOWNLOAD_ID, -1);
-        if (installId > 0) {
-            downloadId = installId;
-            DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-            Uri uri = downloadManager.getUriForDownloadedFile(installId);
+        final String installPath = intent.getStringExtra(EXTRA_INSTALL_FILE_PATH);
+        if (installPath != null) {
+            pendingInstallPath = installPath;
+            final Uri uri = uriForApk(installPath);
             if (uri == null) {
-                logger.error("Downloaded file uri is null for id {}", installId);
+                logger.error("Downloaded apk uri is null for {}", installPath);
                 showHelpOnUpdateFailure();
                 return;
             }
+            pendingInstallUri = uri;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !getPackageManager().canRequestPackageInstalls()) {
                 try {
                     requestUnknownSourcesSettingsLauncher.launch(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(Uri.parse(String.format("package:%s", getPackageName()))));
@@ -183,7 +201,9 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putLong(BUNDLE_DOWNLOAD_ID, downloadId);
+        if (pendingInstallPath != null) {
+            outState.putString(BUNDLE_INSTALL_PATH, pendingInstallPath);
+        }
     }
 
     @Override
@@ -199,17 +219,17 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
     }
 
     /**
-     * F1Whisper: enqueue the background download and finish, so the user keeps using the app. The
-     * system shows download progress; completion is handled by UpdateDownloadCompleteReceiver.
+     * F1Whisper: kick off the background download (foreground service) and finish, so the user keeps
+     * using the app. The service shows download progress; completion posts a "tap to install"
+     * notification.
      */
     private void reallyDownload(@Nullable String data) {
         if (data != null) {
             try {
-                long id = DownloadUtil.downloadUpdate(this, data);
-                sharedPreferences.edit().putLong(PREF_DOWNLOAD_ID, id).apply();
+                ApkUpdateDownloadService.enqueue(this, data);
                 Toast.makeText(getApplicationContext(), R.string.self_updater_downloading_background, Toast.LENGTH_LONG).show();
             } catch (Exception e) {
-                logger.error("Exception while downloading update", e);
+                logger.error("Exception while starting update download", e);
                 Toast.makeText(getApplicationContext(), R.string.an_error_occurred, Toast.LENGTH_LONG).show();
             }
         }
