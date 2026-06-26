@@ -2077,4 +2077,42 @@
     <string name="prefs_title_link_previews">إنشاء معاينات الروابط</string>
     <string name="prefs_sum_link_previews">جلب معاينات للروابط في الرسائل التي ترسلها. تُرسَل المعاينات مشفّرة من طرف إلى طرف؛ جهاز المستلِم لا يتّصل بالموقع أبدًا.</string>
     <string name="link_preview_remove">إزالة معاينة الرابط</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">اسحب المقابض للقص</string>
+    <string name="audio_trim_action">قص</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">تصغير</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">قائمة مهام</string>
+    <string name="checklist_create_as">إنشاء كقائمة مهام</string>
+    <string name="checklist_fork_only">قوائم المهام تعمل فقط بين مستخدمي F1Whisper.</string>
+    <string name="checklist_toggle_item">تبديل عنصر القائمة</string>
+    <string name="checklist_checked_by">بقلم %1$s</string>
+    <string name="checklist_created_successfully">تم إنشاء قائمة المهام</string>
+    <string name="checklist_placeholder">قائمة مهام</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">تثبيت الرسالة</string>
+    <string name="unpin_message">إلغاء التثبيت</string>
+    <string name="pinned_message_banner_label">رسالة مثبتة</string>
+    <string name="pinned_message_banner_dismiss">إخفاء شريط الرسالة المثبتة</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">أدخل عنوان قائمة المهام</string>
+    <string name="checklist_wizard0_explain">أنشئ قائمة مهام مشتركة. يمكن لكل شخص في المحادثة تحديد العناصر وإلغاء تحديدها في أي وقت، وتنتقل العناصر المحددة إلى الأسفل.</string>
+    <string name="checklist_add_items">إضافة عناصر</string>
+    <string name="checklist_item_add">إضافة عنصر</string>
+    <string name="checklist_item_count_error">يرجى إضافة عنصر واحد على الأقل</string>
+    <string name="checklist_add_item_title">إضافة عنصر</string>
+    <string name="checklist_add_item_hint">اسم العنصر الجديد</string>
+    <string name="checklist_add_item_button">إضافة</string>
+    <string name="checklist_delete_item_title">حذف العنصر؟</string>
+    <string name="checklist_delete_item_message">هل أنت متأكد أنك تريد حذف \"%1$s\"؟</string>
+    <string name="checklist_delete_button">حذف</string>
+    <string name="checklist_reorder_item">نقل عنصر القائمة</string>
+    <string name="checklist_cannot_reorder">لا يمكن نقل هذا العنصر</string>
+    <string name="checklist_edit_title">تعديل قائمة المهام</string>
+    <string name="checklist_edit_apply">تطبيق</string>
+    <string name="checklist_rename_item_title">إعادة تسمية العنصر</string>
+    <string name="audio_trim_not_supported">القص غير مدعوم لتنسيق الصوت هذا. أزل القص لإرسال الملف كاملًا.</string>
+    <string name="audio_trim_failed">تعذّر قص هذا الصوت. لم يتم إرسال أي شيء. يُرجى المحاولة مرة أخرى أو إزالة القص.</string>
+    <string name="pinned_message_banner_label_counter">رسالة مثبتة %1$d/%2$d</string>
 </resources>

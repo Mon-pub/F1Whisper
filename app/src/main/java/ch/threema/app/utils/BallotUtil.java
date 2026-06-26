@@ -41,9 +41,26 @@ import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 public class BallotUtil {
     private static final Logger logger = getThreemaLogger("BallotUtil");
 
+    /**
+     * F1Whisper: whether this ballot is an interactive checklist (rides the Poll wire, displayType
+     * == CHECKLIST). Used to branch-scope checklist-only permission relaxations so real polls never
+     * regress.
+     */
+    public static boolean isChecklist(@Nullable BallotModel model) {
+        return model != null && model.getDisplayType() == BallotModel.DisplayType.CHECKLIST;
+    }
+
     public static boolean canVote(@Nullable BallotModel model, @Nullable MessageReceiver messageReceiver) {
-        return model != null
-            && model.getState() == BallotModel.State.OPEN
+        if (model == null) {
+            return false;
+        }
+        // CHECKLIST relaxation (scoped): any member may toggle (check/uncheck) items at any time --
+        // a shared checklist has no "voting is over" close step. A real poll keeps the OPEN-state
+        // gate unchanged so closing still ends voting.
+        if (isChecklist(model)) {
+            return canVote(messageReceiver);
+        }
+        return model.getState() == BallotModel.State.OPEN
             && canVote(messageReceiver);
     }
 
@@ -65,6 +82,11 @@ public class BallotUtil {
     }
 
     public static boolean canClose(@Nullable BallotModel model, @Nullable String myIdentity, @Nullable MessageReceiver messageReceiver) {
+        // CHECKLIST relaxation (scoped): a shared checklist is never "closed" -- items stay
+        // toggleable indefinitely -- so no close action is offered. Real polls are unchanged.
+        if (isChecklist(model)) {
+            return false;
+        }
         return isMine(model, myIdentity)
             && model.getState() == BallotModel.State.OPEN
             && isMember(messageReceiver);
@@ -87,6 +109,12 @@ public class BallotUtil {
         @Nullable BallotModel ballotModel,
         boolean canVote
     ) {
+        // F1Whisper: a CHECKLIST is an interactive inline bubble (tap items directly); it must NEVER
+        // open the poll "vote" modal -- not after creation, not on tap. Suppress the dialog entirely
+        // for checklists (the inline decorator handles all interaction).
+        if (isChecklist(ballotModel)) {
+            return;
+        }
         if (canVote) {
             openVoteDialog(fragmentManager, ballotModel);
         } else if (canViewMatrix(ballotModel)) {
@@ -98,6 +126,12 @@ public class BallotUtil {
      * Must only be called if [canVote] returns true.
      */
     public static void openVoteDialog(@Nullable FragmentManager fragmentManager, @Nullable BallotModel ballotModel) {
+        // F1Whisper: checklists never use the poll "vote" modal (the inline bubble is the interface).
+        // Guard the single chokepoint so EVERY caller path (post-create, ballot notice, overview) is
+        // covered, not just openDefaultActivity().
+        if (isChecklist(ballotModel)) {
+            return;
+        }
         if (fragmentManager != null && ballotModel != null) {
             BallotVoteDialog.newInstance(ballotModel.getId()).show(fragmentManager, "vote");
         }
@@ -229,6 +263,40 @@ public class BallotUtil {
         @NonNull MessageId messageId,
         @NonNull TriggerSource triggerSource
     ) {
+        return createBallot(
+            receiver,
+            description,
+            ballotType,
+            ballotAssessment,
+            BallotModel.DisplayType.LIST_MODE,
+            ballotChoiceModelList,
+            ballotId,
+            messageId,
+            triggerSource
+        );
+    }
+
+    /**
+     * Create a ballot with an explicit display type.
+     *
+     * <p>{@code displayType} is normally {@link BallotModel.DisplayType#LIST_MODE}. Pass
+     * {@link BallotModel.DisplayType#CHECKLIST} to create an F1Whisper interactive checklist, which
+     * rides the same Poll wire verbatim (no new message type) and is discriminated only by the
+     * display type. NOTE: a checklist is F1Whisper &lt;-&gt; F1Whisper only -- an upstream client
+     * rejects displayType=2 wholesale (its {@code DisplayType.fromId} throws).
+     */
+    @Nullable
+    public static BallotModel createBallot(
+        MessageReceiver receiver,
+        String description,
+        BallotModel.Type ballotType,
+        BallotModel.Assessment ballotAssessment,
+        @NonNull BallotModel.DisplayType displayType,
+        List<BallotChoiceModel> ballotChoiceModelList,
+        @NonNull BallotId ballotId,
+        @NonNull MessageId messageId,
+        @NonNull TriggerSource triggerSource
+    ) {
         @NonNull
         BallotModel ballotModel;
 
@@ -264,6 +332,11 @@ public class BallotUtil {
                     throw new NotAllowedException("not allowed");
             }
 
+            // Override the default LIST_MODE display type set by ballotService.create(...). The same
+            // model instance is serialized by modifyFinished(...) below, so the display type rides
+            // out on the wire (displayType=2 for a checklist).
+            ballotModel.setDisplayType(displayType);
+
             //add choices
             for (BallotChoiceModel c : ballotChoiceModelList) {
                 ballotService.update(ballotModel, c);
@@ -272,7 +345,10 @@ public class BallotUtil {
             try {
                 ballotService.modifyFinished(ballotModel, messageId, triggerSource);
                 if (triggerSource == TriggerSource.LOCAL) {
-                    showToast(ThreemaApplication.getAppContext(), R.string.ballot_created_successfully, ToastDuration.LONG);
+                    int createdToast = displayType == BallotModel.DisplayType.CHECKLIST
+                        ? R.string.checklist_created_successfully
+                        : R.string.ballot_created_successfully;
+                    showToast(ThreemaApplication.getAppContext(), createdToast, ToastDuration.LONG);
                 }
             } catch (MessageTooLongException e) {
                 ballotService.remove(ballotModel);

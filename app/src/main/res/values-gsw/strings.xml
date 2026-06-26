@@ -1930,4 +1930,42 @@
     <string name="prefs_title_link_previews">Link-Vorschaue erstelle</string>
     <string name="prefs_sum_link_previews">Vorschaue für Links i Nachrichte, wo du verschicksch, abruefe. Vorschaue werded Änd-zu-Änd-verschlüsslet gschickt; s Grät vom Empfänger kontaktiert d Website nie.</string>
     <string name="link_preview_remove">Link-Vorschau entferne</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Griffe ziehe zum Zuschnitte</string>
+    <string name="audio_trim_action">Zuschnitte</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimiere</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Checkliste</string>
+    <string name="checklist_create_as">Als Checkliste erstelle</string>
+    <string name="checklist_fork_only">Checkliste funktioniere nur zwische F1Whisper-Nutzer.</string>
+    <string name="checklist_toggle_item">Checklisteelement umschalte</string>
+    <string name="checklist_checked_by">Abghakt vo %1$s</string>
+    <string name="checklist_created_successfully">Checkliste erstellt</string>
+    <string name="checklist_placeholder">Checkliste</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Nachricht apinne</string>
+    <string name="unpin_message">Apinne ufhebe</string>
+    <string name="pinned_message_banner_label">Aghefte Nachricht</string>
+    <string name="pinned_message_banner_dismiss">Banner vo aghefte Nachricht verstecke</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Titel vo dr Checkliste igäh</string>
+    <string name="checklist_wizard0_explain">Mach e gmeinsami To-do-Lischte. Alli im Chat chönd Iiträg jederziit abhäkle und wider lö, und abghäkti Iiträg wandered nab.</string>
+    <string name="checklist_add_items">Iiträg zuefüege</string>
+    <string name="checklist_item_add">Iitrag zuefüege</string>
+    <string name="checklist_item_count_error">Bitte füeg mindeschtens ei Iitrag zue</string>
+    <string name="checklist_add_item_title">Iitrag hinzuefüege</string>
+    <string name="checklist_add_item_hint">Name vom neue Iitrag</string>
+    <string name="checklist_add_item_button">Hinzuefüege</string>
+    <string name="checklist_delete_item_title">Iitrag lösche?</string>
+    <string name="checklist_delete_item_message">Wotsch \"%1$s\" würkli lösche?</string>
+    <string name="checklist_delete_button">Lösche</string>
+    <string name="checklist_reorder_item">Checklischte-Iitrag verschiebe</string>
+    <string name="checklist_cannot_reorder">Dä Iitrag cha nöd verschobe werde</string>
+    <string name="checklist_edit_title">Checkliste bearbeite</string>
+    <string name="checklist_edit_apply">Aawände</string>
+    <string name="checklist_rename_item_title">Element umbenenne</string>
+    <string name="audio_trim_not_supported">S Zueschniide wird für das Audioformat nöd unterstützt. Nimm s Zueschniide ewägg, zum di ganzi Datei z schicke.</string>
+    <string name="audio_trim_failed">Das Audio het mer nöd chönne zueschniide. S isch nüt gschickt worde. Probier s nomal oder nimm s Zueschniide ewägg.</string>
+    <string name="pinned_message_banner_label_counter">Aagpinnti Nachricht %1$d/%2$d</string>
 </resources>

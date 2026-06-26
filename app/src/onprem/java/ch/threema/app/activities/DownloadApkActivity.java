@@ -188,7 +188,9 @@ public class DownloadApkActivity extends ThreemaActivity implements GenericAlert
 
         long lastShownTime = sharedPreferences.getLong(PREF_STRING, 0);
 
-        if (intent.getBooleanExtra(EXTRA_FORCE_UPDATE_DIALOG, false) || (System.currentTimeMillis() > (lastShownTime + DateUtils.DAY_IN_MILLIS))) {
+        // F1Whisper: snooze window is 1 hour (not 24h) so the prompt re-appears promptly after
+        // "Remind me later" when the user reopens the app.
+        if (intent.getBooleanExtra(EXTRA_FORCE_UPDATE_DIALOG, false) || (System.currentTimeMillis() > (lastShownTime + DateUtils.HOUR_IN_MILLIS))) {
             GenericAlertDialog dialog = GenericAlertDialog.newInstance(R.string.update_available, IntentDataUtil.getMessage(intent), R.string.download, R.string.not_now, false);
             dialog.setData(IntentDataUtil.getUrl(intent));
             getSupportFragmentManager().beginTransaction().add(dialog, DIALOG_TAG_DOWNLOAD_UPDATE).commitAllowingStateLoss();

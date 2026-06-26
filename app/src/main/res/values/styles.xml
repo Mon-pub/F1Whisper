@@ -755,6 +755,20 @@
         <item name="android:minWidth">80dp</item>
     </style>
 
+    <!-- F1Whisper: filled WARNING/ERROR-tonal action button for the mandatory-update notice card.
+         Uses the Material 3 error color role (colorError surface + colorOnError content) so the
+         button reads as a clear warning action sitting on the colorErrorContainer card, instead of
+         the primary-colored Threema.MaterialButton.Action. Text-button parent (not IconButton). -->
+    <style name="Threema.MaterialButton.Action.Error" parent="@style/Widget.Material3.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Medium</item>
+        <item name="android:backgroundTint">?attr/colorError</item>
+        <item name="android:textColor">?attr/colorOnError</item>
+        <item name="iconTint">?attr/colorOnError</item>
+        <item name="android:paddingStart">20dp</item>
+        <item name="android:paddingEnd">20dp</item>
+        <item name="android:minWidth">80dp</item>
+    </style>
+
     <style name="Threema.MaterialButton.Outlined.Primary" parent="@style/Widget.Material3.Button.OutlinedButton">
         <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Medium</item>
     </style>

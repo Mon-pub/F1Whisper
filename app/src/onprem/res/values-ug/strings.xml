@@ -4,4 +4,19 @@
      translation is preserved verbatim per locale. -->
 <resources>
     <string name="self_updater_installation_failed">يېڭىلاشنى چۈشۈرۈش مەغلۇپ بولدى. يېڭىلاشنى <a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> دىن قولدا چۈشۈرۈپ ئورنىتىڭ.</string>
+
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">بۇ مۇلازىمېتىرنى داۋاملىق ئىشلىتىش ئۈچۈن يېڭىراق نەشرى كېرەك. %1$s ئىچىدە يېڭىلاڭ.</string>
+    <string name="mandatory_update_forced_title">يېڭىلاش لازىم</string>
+    <string name="mandatory_update_forced_body">بۇ مۇلازىمېتىرنى داۋاملىق ئىشلىتىش ئۈچۈن يېڭىراق نەشرى كېرەك. ھازىر يېڭىلاڭ.</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">ھازىر يېڭىلاش</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="one">%d كۈن</item>
+        <item quantity="other">%d كۈن</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="one">%d سائەت</item>
+        <item quantity="other">%d سائەت</item>
+    </plurals>
 </resources>

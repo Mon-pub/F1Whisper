@@ -118,7 +118,13 @@ public class BallotModelFactory extends ModelFactory {
 
                     String displayType = cursorHelper.getString(BallotModel.COLUMN_DISPLAY_TYPE);
                     if (!TestUtil.isEmptyOrNull(displayType)) {
-                        c.setDisplayType(BallotModel.DisplayType.valueOf(displayType));
+                        try {
+                            c.setDisplayType(BallotModel.DisplayType.valueOf(displayType));
+                        } catch (IllegalArgumentException e) {
+                            // Tolerate an unknown persisted display type name (forward-compat) instead
+                            // of failing the whole ballot load; fall back to the list-mode default.
+                            c.setDisplayType(BallotModel.DisplayType.LIST_MODE);
+                        }
                     }
 
                     return false;

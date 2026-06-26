@@ -504,6 +504,30 @@
     <string name="ballot_wizard0_explain">Quickly create an online poll directly with ${app_name_short}. Schedule an event, create
         a survey or ask your contacts anything you want.</string>
     <string name="ballot_add_choices">Add answers</string>
+    <!-- F1Whisper checklist (rides the poll wire; F1Whisper-only). %1$s is a comma-separated list of names. -->
+    <string name="checklist">Checklist</string>
+    <string name="checklist_create_as">Create as checklist</string>
+    <string name="checklist_fork_only">Checklists only work between F1Whisper users.</string>
+    <string name="checklist_toggle_item">Toggle checklist item</string>
+    <string name="checklist_checked_by">Checked by %1$s</string>
+    <string name="checklist_created_successfully">Checklist created</string>
+    <string name="checklist_placeholder">Checklist</string>
+    <string name="checklist_subject_hint">Enter a checklist title</string>
+    <string name="checklist_wizard0_explain">Create a shared to-do list. Everyone in the chat can check and uncheck items at any time, and checked items move to the bottom.</string>
+    <string name="checklist_add_items">Add items</string>
+    <string name="checklist_item_add">Add an item</string>
+    <string name="checklist_item_count_error">Please add at least one item</string>
+    <string name="checklist_add_item_title">Add item</string>
+    <string name="checklist_add_item_hint">New item name</string>
+    <string name="checklist_add_item_button">Add</string>
+    <string name="checklist_delete_item_title">Delete item?</string>
+    <string name="checklist_delete_item_message">Are you sure you want to delete \"%1$s\"?</string>
+    <string name="checklist_delete_button">Delete</string>
+    <string name="checklist_reorder_item">Move checklist item</string>
+    <string name="checklist_cannot_reorder">This item can\'t be moved</string>
+    <string name="checklist_edit_title">Edit checklist</string>
+    <string name="checklist_edit_apply">Apply</string>
+    <string name="checklist_rename_item_title">Rename item</string>
     <string name="blocked_cannot_send">You cannot send messages to a blocked contact</string>
     <string name="invalid_some_cannot_send">Some of the recipients cannot be selected.</string>
     <string name="invalid_all_cannot_send">These recipients cannot be selected.</string>
@@ -1202,6 +1226,13 @@
     <string name="listen_once_sent">Listen-once voice message</string>
     <string name="listen_once_cannot_forward">Listen-once messages cannot be forwarded</string>
     <string name="listen_once_expired">Voice message expired</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Drag the handles to trim</string>
+    <string name="audio_trim_action">Trim</string>
+    <!-- F1Whisper: shown when an attached audio file cannot be cropped for this format; the send is aborted (the untrimmed file is NEVER sent after a trim request) so the user can retry or remove the trim -->
+    <string name="audio_trim_not_supported">Trimming isn\'t supported for this audio format. Remove the trim to send the full file.</string>
+    <!-- F1Whisper: shown when an audio trim could not be completed; the send is aborted (nothing is sent) so the user can try again -->
+    <string name="audio_trim_failed">Couldn\'t trim this audio. Nothing was sent. Please try again or remove the trim.</string>
     <!-- F1Whisper: image/video spoiler -->
     <string name="media_spoiler">Spoiler</string>
     <string name="media_spoiler_reveal">Tap to reveal</string>
@@ -2043,4 +2074,13 @@
     <string name="folder_deleted">Folder deleted</string>
     <string name="add_to_folder_title">Add chat to folders</string>
     <string name="folder_empty">No chats in this folder</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimize</string>
+    <!-- F1Whisper: local message pinning (no wire change; stored in displayTags bitmask) -->
+    <string name="pin_message">Pin message</string>
+    <string name="unpin_message">Unpin</string>
+    <string name="pinned_message_banner_label">Pinned message</string>
+    <!-- Banner label when several messages are pinned; %1$d is the 1-based position of the message currently shown, %2$d the total pinned count. Tapping the banner cycles through them. -->
+    <string name="pinned_message_banner_label_counter">Pinned message %1$d/%2$d</string>
+    <string name="pinned_message_banner_dismiss">Hide pinned message banner</string>
 </resources>

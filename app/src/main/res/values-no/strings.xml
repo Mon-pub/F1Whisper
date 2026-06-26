@@ -1649,4 +1649,42 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="prefs_title_link_previews">Generer lenkeforhåndsvisninger</string>
     <string name="prefs_sum_link_previews">Hent forhåndsvisninger for lenker i meldinger du sender. Forhåndsvisninger sendes ende-til-ende-kryptert; mottakerens enhet kontakter aldri nettstedet.</string>
     <string name="link_preview_remove">Fjern lenkeforhåndsvisning</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Dra håndtakene for å klippe</string>
+    <string name="audio_trim_action">Klippe</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimer</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Sjekkliste</string>
+    <string name="checklist_create_as">Opprett som sjekkliste</string>
+    <string name="checklist_fork_only">Sjekklister fungerer bare mellom F1Whisper-brukere.</string>
+    <string name="checklist_toggle_item">Slå av/på sjekklisteelement</string>
+    <string name="checklist_checked_by">Avkrysset av %1$s</string>
+    <string name="checklist_created_successfully">Sjekkliste opprettet</string>
+    <string name="checklist_placeholder">Sjekkliste</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Fest melding</string>
+    <string name="unpin_message">Løsne</string>
+    <string name="pinned_message_banner_label">Festet melding</string>
+    <string name="pinned_message_banner_dismiss">Skjul banner for festet melding</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Skriv inn en tittel på sjekklisten</string>
+    <string name="checklist_wizard0_explain">Lag en delt gjøremålsliste. Alle i chatten kan krysse av og fjerne avkrysning når som helst, og avkryssede elementer flyttes til bunnen.</string>
+    <string name="checklist_add_items">Legg til elementer</string>
+    <string name="checklist_item_add">Legg til et element</string>
+    <string name="checklist_item_count_error">Legg til minst ett element</string>
+    <string name="checklist_add_item_title">Legg til element</string>
+    <string name="checklist_add_item_hint">Navn på nytt element</string>
+    <string name="checklist_add_item_button">Legg til</string>
+    <string name="checklist_delete_item_title">Slette elementet?</string>
+    <string name="checklist_delete_item_message">Er du sikker på at du vil slette \"%1$s\"?</string>
+    <string name="checklist_delete_button">Slett</string>
+    <string name="checklist_reorder_item">Flytt sjekklisteelement</string>
+    <string name="checklist_cannot_reorder">Dette elementet kan ikke flyttes</string>
+    <string name="checklist_edit_title">Rediger sjekkliste</string>
+    <string name="checklist_edit_apply">Bruk</string>
+    <string name="checklist_rename_item_title">Gi nytt navn til element</string>
+    <string name="audio_trim_not_supported">Beskjæring støttes ikke for dette lydformatet. Fjern beskjæringen for å sende hele filen.</string>
+    <string name="audio_trim_failed">Kunne ikke beskjære denne lyden. Ingenting ble sendt. Prøv igjen, eller fjern beskjæringen.</string>
+    <string name="pinned_message_banner_label_counter">Festet melding %1$d/%2$d</string>
 </resources>

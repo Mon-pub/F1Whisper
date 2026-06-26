@@ -1681,4 +1681,42 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="prefs_title_link_previews">リンクプレビューを生成</string>
     <string name="prefs_sum_link_previews">送信するメッセージ内のリンクのプレビューを取得します。プレビューはエンドツーエンドで暗号化されて送信され、受信者の端末がウェブサイトに接続することはありません。</string>
     <string name="link_preview_remove">リンクプレビューを削除</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">ハンドルをドラッグしてトリミング</string>
+    <string name="audio_trim_action">トリミング</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">最小化</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">チェックリスト</string>
+    <string name="checklist_create_as">チェックリストとして作成</string>
+    <string name="checklist_fork_only">チェックリストはF1Whisperユーザー間でのみ機能します。</string>
+    <string name="checklist_toggle_item">チェックリスト項目を切り替え</string>
+    <string name="checklist_checked_by">%1$sがチェック済み</string>
+    <string name="checklist_created_successfully">チェックリストを作成しました</string>
+    <string name="checklist_placeholder">チェックリスト</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">メッセージをピン留め</string>
+    <string name="unpin_message">ピン留めを外す</string>
+    <string name="pinned_message_banner_label">ピン留めされたメッセージ</string>
+    <string name="pinned_message_banner_dismiss">ピン留めメッセージのバナーを非表示</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">チェックリストのタイトルを入力</string>
+    <string name="checklist_wizard0_explain">共有のTo-Doリストを作成します。チャットの全員がいつでも項目をチェック・チェック解除でき、チェックした項目は下に移動します。</string>
+    <string name="checklist_add_items">項目を追加</string>
+    <string name="checklist_item_add">項目を追加</string>
+    <string name="checklist_item_count_error">項目を1つ以上追加してください</string>
+    <string name="checklist_add_item_title">項目を追加</string>
+    <string name="checklist_add_item_hint">新しい項目の名前</string>
+    <string name="checklist_add_item_button">追加</string>
+    <string name="checklist_delete_item_title">項目を削除しますか？</string>
+    <string name="checklist_delete_item_message">\"%1$s\" を削除してもよろしいですか？</string>
+    <string name="checklist_delete_button">削除</string>
+    <string name="checklist_reorder_item">チェックリスト項目を移動</string>
+    <string name="checklist_cannot_reorder">この項目は移動できません</string>
+    <string name="checklist_edit_title">チェックリストを編集</string>
+    <string name="checklist_edit_apply">適用</string>
+    <string name="checklist_rename_item_title">項目の名前を変更</string>
+    <string name="audio_trim_not_supported">この音声形式ではトリミングがサポートされていません。ファイル全体を送信するにはトリミングを解除してください。</string>
+    <string name="audio_trim_failed">この音声をトリミングできませんでした。何も送信されていません。もう一度試すか、トリミングを解除してください。</string>
+    <string name="pinned_message_banner_label_counter">ピン留めされたメッセージ %1$d/%2$d</string>
 </resources>

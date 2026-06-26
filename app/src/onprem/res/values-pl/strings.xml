@@ -4,4 +4,23 @@
      translation is preserved verbatim per locale. -->
 <resources>
     <string name="self_updater_installation_failed">Pobranie aktualizacji nie powiodło się. Pobierz ją ze strony <a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> i zainstaluj ręcznie.</string>
+
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">Wymagana jest nowsza wersja, aby kontynuować korzystanie z tego serwera. Proszę zaktualizować w ciągu %1$s.</string>
+    <string name="mandatory_update_forced_title">Wymagana aktualizacja</string>
+    <string name="mandatory_update_forced_body">Wymagana jest nowsza wersja, aby kontynuować korzystanie z tego serwera. Proszę zaktualizować teraz.</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">Zaktualizuj teraz</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="one">%d dzień</item>
+        <item quantity="few">%d dni</item>
+        <item quantity="many">%d dni</item>
+        <item quantity="other">%d dnia</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="one">%d godzina</item>
+        <item quantity="few">%d godziny</item>
+        <item quantity="many">%d godzin</item>
+        <item quantity="other">%d godziny</item>
+    </plurals>
 </resources>

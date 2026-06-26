@@ -1982,4 +1982,42 @@
     <string name="prefs_title_link_previews">Создавать предпросмотр ссылок</string>
     <string name="prefs_sum_link_previews">Получать предпросмотр ссылок в отправляемых сообщениях. Предпросмотр отправляется со сквозным шифрованием; устройство получателя никогда не обращается к сайту.</string>
     <string name="link_preview_remove">Удалить предпросмотр ссылки</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Перетащите маркеры для обрезки</string>
+    <string name="audio_trim_action">Обрезать</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Свернуть</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Контрольный список</string>
+    <string name="checklist_create_as">Создать как контрольный список</string>
+    <string name="checklist_fork_only">Контрольные списки работают только между пользователями F1Whisper.</string>
+    <string name="checklist_toggle_item">Переключить элемент списка</string>
+    <string name="checklist_checked_by">Отмечено %1$s</string>
+    <string name="checklist_created_successfully">Контрольный список создан</string>
+    <string name="checklist_placeholder">Контрольный список</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Закрепить сообщение</string>
+    <string name="unpin_message">Открепить</string>
+    <string name="pinned_message_banner_label">Закреплённое сообщение</string>
+    <string name="pinned_message_banner_dismiss">Скрыть баннер закреплённого сообщения</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Введите название списка задач</string>
+    <string name="checklist_wizard0_explain">Создайте общий список задач. Любой участник чата может в любой момент отмечать и снимать отметки с пунктов, а отмеченные пункты перемещаются вниз.</string>
+    <string name="checklist_add_items">Добавить пункты</string>
+    <string name="checklist_item_add">Добавить пункт</string>
+    <string name="checklist_item_count_error">Добавьте хотя бы один пункт</string>
+    <string name="checklist_add_item_title">Добавить пункт</string>
+    <string name="checklist_add_item_hint">Название нового пункта</string>
+    <string name="checklist_add_item_button">Добавить</string>
+    <string name="checklist_delete_item_title">Удалить пункт?</string>
+    <string name="checklist_delete_item_message">Вы уверены, что хотите удалить \"%1$s\"?</string>
+    <string name="checklist_delete_button">Удалить</string>
+    <string name="checklist_reorder_item">Переместить пункт списка</string>
+    <string name="checklist_cannot_reorder">Этот пункт нельзя переместить</string>
+    <string name="checklist_edit_title">Редактировать список</string>
+    <string name="checklist_edit_apply">Применить</string>
+    <string name="checklist_rename_item_title">Переименовать элемент</string>
+    <string name="audio_trim_not_supported">Обрезка не поддерживается для этого аудиоформата. Удалите обрезку, чтобы отправить файл целиком.</string>
+    <string name="audio_trim_failed">Не удалось обрезать это аудио. Ничего не отправлено. Повторите попытку или удалите обрезку.</string>
+    <string name="pinned_message_banner_label_counter">Закреплённое сообщение %1$d/%2$d</string>
 </resources>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F1Whisper: pinned-message banner shown above the conversation list.
+     Tap the text area → jump/cycle through pinned messages.
+     Tap the X button → hide the banner for this session (does NOT unpin). -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pinned_banner_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="2dp"
+    android:clickable="false"
+    android:outlineProvider="none"
+    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
+    app:cardCornerRadius="@dimen/cardview_border_radius"
+    app:cardElevation="@dimen/notice_views_elevation"
+    app:contentPaddingBottom="6dp"
+    app:contentPaddingLeft="12dp"
+    app:contentPaddingRight="8dp"
+    app:contentPaddingTop="6dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@null"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_pin"
+            app:tint="?attr/colorPrimary" />
+
+        <LinearLayout
+            android:id="@+id/pinned_banner_tap_area"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="@drawable/selector_avatar"
+            android:orientation="vertical"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+
+            <TextView
+                android:id="@+id/pinned_banner_label"
+                style="@style/Threema.TextAppearance.BodySmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pinned_message_banner_label"
+                android:textColor="?attr/colorPrimary" />
+
+            <TextView
+                android:id="@+id/pinned_banner_preview"
+                style="@style/Threema.TextAppearance.BodyMedium"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/colorOnSurface" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/pinned_banner_dismiss"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="4dp"
+            android:clickable="true"
+            android:contentDescription="@string/pinned_message_banner_dismiss"
+            android:focusable="true"
+            android:foreground="@drawable/selector_avatar"
+            android:padding="4dp"
+            android:src="@drawable/ic_close"
+            app:tint="?attr/colorOnSurface" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

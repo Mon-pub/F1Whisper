@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.viewpager2.widget.ViewPager2
 import ch.threema.app.R
+import ch.threema.app.camera.AudioTrimEditView
 import ch.threema.app.camera.VideoEditView
 import ch.threema.app.ui.BigFileView
 import ch.threema.app.ui.MediaItem
@@ -36,11 +37,26 @@ class BigMediaFragment : Fragment() {
     private lateinit var bigFileView: BigFileView
     private lateinit var bigImageView: ImageView
     private var videoEditView: VideoEditView? = null
+    private var audioEditView: AudioTrimEditView? = null
     private lateinit var bigProgressBar: CircularProgressIndicator
     private var bottomElemHeight: Int = 0
     private var isVideo = false
+    private var isAudio = false
     private val timelineDragListener: VideoEditView.OnTimelineDragListener = object :
         VideoEditView.OnTimelineDragListener {
+        override fun onTimelineDragStart() {
+            viewPager?.isUserInputEnabled = false
+        }
+
+        override fun onTimelineDragStop() {
+            viewPager?.isUserInputEnabled = true
+        }
+    }
+
+    // F1Whisper: mirror the video timeline drag handling for the audio trim editor so the ViewPager
+    // swipe is suspended while the user drags an audio trim handle.
+    private val audioTimelineDragListener: AudioTrimEditView.OnTimelineDragListener = object :
+        AudioTrimEditView.OnTimelineDragListener {
         override fun onTimelineDragStart() {
             viewPager?.isUserInputEnabled = false
         }
@@ -59,6 +75,7 @@ class BigMediaFragment : Fragment() {
             bigFileView = findViewById(R.id.big_file_view)
             bigImageView = findViewById(R.id.preview_image)
             videoEditView = findViewById(R.id.video_edit_view)
+            audioEditView = findViewById(R.id.audio_edit_view)
             bigProgressBar = findViewById(R.id.progress)
         }
 
@@ -76,23 +93,29 @@ class BigMediaFragment : Fragment() {
 
         if (isVideo) {
             showBigVideo(mediaItem ?: return)
+        } else if (isAudio) {
+            showBigAudio(mediaItem ?: return)
         }
     }
 
     override fun onPause() {
         videoEditView?.releasePlayer()
+        audioEditView?.releasePlayer()
         super.onPause()
     }
 
     override fun onDestroyView() {
         videoEditView?.setOnTimelineDragListener(null)
         videoEditView = null
+        audioEditView?.setOnTimelineDragListener(null)
+        audioEditView = null
         super.onDestroyView()
     }
 
     fun setMediaItem(mediaItem: MediaItem) {
         this.mediaItem = mediaItem
         isVideo = mediaItem.type == MediaItem.TYPE_VIDEO || mediaItem.type == MediaItem.TYPE_VIDEO_CAM
+        isAudio = mediaItem.type == MediaItem.TYPE_AUDIO_FILE
     }
 
     // Change to drag listener here
@@ -119,6 +142,10 @@ class BigMediaFragment : Fragment() {
 
             MediaItem.TYPE_VIDEO, MediaItem.TYPE_VIDEO_CAM -> {
                 // nothing to do as the video gets initialized in onResume
+            }
+
+            MediaItem.TYPE_AUDIO_FILE -> {
+                // nothing to do as the audio editor gets initialized in onResume (like video)
             }
 
             else -> {
@@ -151,6 +178,7 @@ class BigMediaFragment : Fragment() {
     private fun showBigFile(item: MediaItem) {
         this.bigImageView.visibility = View.GONE
         this.videoEditView?.visibility = View.GONE
+        this.audioEditView?.visibility = View.GONE
         this.bigFileView.visibility = View.VISIBLE
         this.bigFileView.setPadding(0, 0, 0, bottomElemHeight)
         this.bigFileView.setMediaItem(item)
@@ -159,6 +187,7 @@ class BigMediaFragment : Fragment() {
     private fun showBigVideo(item: MediaItem) {
         this.bigFileView.visibility = View.GONE
         this.bigImageView.visibility = View.GONE
+        this.audioEditView?.visibility = View.GONE
         this.videoEditView?.visibility = View.VISIBLE
         this.videoEditView?.setOnTimelineDragListener(timelineDragListener)
         this.videoEditView?.doOnLayout {
@@ -167,10 +196,23 @@ class BigMediaFragment : Fragment() {
         this.videoEditView?.requestLayout()
     }
 
+    private fun showBigAudio(item: MediaItem) {
+        this.bigFileView.visibility = View.GONE
+        this.bigImageView.visibility = View.GONE
+        this.videoEditView?.visibility = View.GONE
+        this.audioEditView?.visibility = View.VISIBLE
+        this.audioEditView?.setOnTimelineDragListener(audioTimelineDragListener)
+        this.audioEditView?.doOnLayout {
+            this.audioEditView?.setAudio(item)
+        }
+        this.audioEditView?.requestLayout()
+    }
+
     private fun showBigImage(item: MediaItem) {
         bigImageView.visibility = View.VISIBLE
         bigFileView.visibility = View.GONE
         videoEditView?.visibility = View.GONE
+        audioEditView?.visibility = View.GONE
         val flipHorizontal =
             (item.rotation in setOf(90, 270) && item.flip and FLIP_VERTICAL == FLIP_VERTICAL) ||
                 (item.rotation in setOf(0, 180) && item.flip and FLIP_HORIZONTAL == FLIP_HORIZONTAL)

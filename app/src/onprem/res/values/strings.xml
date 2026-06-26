@@ -1,7 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- F1Whisper: override the self-updater failure dialog URL (shop.threema.ch -> our
-     GitHub releases) for the onprem self-updater. Only the URL changes; the upstream
-     translation is preserved verbatim per locale. -->
+<!-- F1Whisper: onprem-flavor self-updater string overrides and additions. -->
 <resources>
+    <!-- Override: self-updater failure URL (shop.threema.ch -> our GitHub releases). -->
     <string name="self_updater_installation_failed">The download of the update failed. Please download and install the update from <a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> manually.</string>
+
+    <!-- F1Whisper: mandatory-update gate strings.
+         NOTE: this gate is a SOFT convenience mechanism — it is not a security boundary.
+         An AGPL self-installed client can bypass it. These strings intentionally frame
+         the prompt as a server compatibility requirement, not a security enforcement. -->
+
+    <!-- Warning-card title (shown for both the grace-countdown and forced states). -->
+    <string name="mandatory_update_forced_title">Update required</string>
+
+    <!-- Grace-period countdown body. %1$s is a localized duration (e.g. "2 days", "6 hours"),
+         built from the mandatory_update_days / mandatory_update_hours plurals below. -->
+    <string name="mandatory_update_countdown">A newer version is needed to stay compatible with this server. Please update within %1$s to keep your chats running smoothly.</string>
+
+    <!-- Forced-update body (shown once the grace deadline has passed or no deadline was given). -->
+    <string name="mandatory_update_forced_body">A newer version is needed to stay compatible with this server. Please update now to keep your chats running smoothly.</string>
+
+    <!-- Warning-card action button label. -->
+    <string name="mandatory_update_action">Update now</string>
+
+    <!-- Localized remaining-time units used inside mandatory_update_countdown. -->
+    <plurals name="mandatory_update_days">
+        <item quantity="one">1 day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="one">1 hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
 </resources>

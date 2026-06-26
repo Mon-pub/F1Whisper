@@ -49,6 +49,7 @@ import ch.threema.domain.protocol.csp.messages.ballot.BallotVoteInterface;
 import ch.threema.domain.protocol.csp.messages.ballot.GroupPollSetupMessage;
 import ch.threema.domain.taskmanager.TriggerSource;
 import ch.threema.storage.DatabaseService;
+import ch.threema.storage.factories.BallotChoiceModelFactory;
 import ch.threema.storage.factories.GroupBallotModelFactory;
 import ch.threema.storage.factories.IdentityBallotModelFactory;
 import ch.threema.storage.models.AbstractMessageModel;
@@ -120,6 +121,13 @@ public class BallotServiceImpl implements BallotService {
         @NonNull MessageId messageId,
         @NonNull TriggerSource triggerSource
     ) throws MessageTooLongException {
+        // Defense in depth: an F1Whisper CHECKLIST is ALWAYS multiple-choice. Each participant's
+        // checks are an independent, re-votable selection set, and multiple participants may check
+        // the same item -- impossible with single-choice. Auto-correct here so a malformed
+        // CHECKLIST + SINGLE_CHOICE (e.g. from a future caller that forgot to set the assessment)
+        // can never be persisted nor sent over the Poll wire. This is the last service-layer gate
+        // before the ballot is finalized + published.
+        enforceChecklistAssessment(ballotModel);
         if (ballotModel.getState() == BallotModel.State.TEMPORARY) {
             ballotModel.setState(BallotModel.State.OPEN);
             try {
@@ -150,6 +158,152 @@ public class BallotServiceImpl implements BallotService {
         } else {
             this.handleModified(ballotModel);
         }
+    }
+
+    @Override
+    public void modifyChecklistChoices(
+        @NonNull final BallotModel ballotModel,
+        @NonNull final List<BallotChoiceModel> targetChoices,
+        @NonNull TriggerSource triggerSource
+    ) throws NotAllowedException, MessageTooLongException {
+        // Guards: only the creator may edit, only a CHECKLIST is editable, and only while OPEN.
+        if (!BallotUtil.isChecklist(ballotModel)) {
+            throw new NotAllowedException("Only checklists support item modification");
+        }
+        if (!BallotUtil.isMine(ballotModel, this.userService.getIdentity())) {
+            throw new NotAllowedException("Only the creator can edit this checklist");
+        }
+        if (ballotModel.getState() != BallotModel.State.OPEN) {
+            throw new NotAllowedException("Checklist is not open");
+        }
+        // Service-layer floor (not only UI-enforced): a checklist/ballot needs at least two choices,
+        // otherwise the re-broadcast BallotSetup would be rejected on the wire (see publish() ->
+        // REQUIRED_CHOICE_COUNT). Reject cleanly so a caller cannot drive the checklist below the
+        // floor regardless of UI gating.
+        if (targetChoices.size() < REQUIRED_CHOICE_COUNT) {
+            throw new NotAllowedException("A checklist needs at least " + REQUIRED_CHOICE_COUNT + " items");
+        }
+        this.checkAccess();
+
+        final BallotChoiceModelFactory choiceFactory = this.databaseService.getBallotChoiceModelFactory();
+        final List<BallotChoiceModel> existing = choiceFactory.getByBallotId(ballotModel.getId());
+
+        // Index existing choices by their stored primary-key id for an O(1) survival check.
+        final Map<Integer, BallotChoiceModel> existingById = new HashMap<>();
+        for (BallotChoiceModel c : existing) {
+            existingById.put(c.getId(), c);
+        }
+
+        // Track which existing ids survive so the rest can be deleted (+ their votes).
+        final java.util.Set<Integer> survivingIds = new java.util.HashSet<>();
+        // Compute the next free apiBallotChoiceId so inserts stay unique within this ballot.
+        int maxApiId = 0;
+        for (BallotChoiceModel c : existing) {
+            maxApiId = Math.max(maxApiId, c.getApiBallotChoiceId());
+        }
+
+        final Date now = new Date();
+        for (BallotChoiceModel target : targetChoices) {
+            target.setBallotId(ballotModel.getId());
+            target.setType(BallotChoiceModel.Type.Text);
+            if (target.getModifiedAt() == null) {
+                target.setModifiedAt(now);
+            }
+
+            if (target.getId() > 0 && existingById.containsKey(target.getId())) {
+                // Update an existing item in place (name + order may have changed).
+                BallotChoiceModel stored = existingById.get(target.getId());
+                stored.setName(target.getName());
+                stored.setOrder(target.getOrder());
+                stored.setModifiedAt(now);
+                choiceFactory.createOrUpdate(stored);
+                survivingIds.add(stored.getId());
+            } else {
+                // Insert a new item. Assign a fresh unique apiBallotChoiceId if it has none.
+                if (target.getApiBallotChoiceId() <= 0) {
+                    target.setApiBallotChoiceId(++maxApiId);
+                } else {
+                    maxApiId = Math.max(maxApiId, target.getApiBallotChoiceId());
+                }
+                if (target.getCreatedAt() == null) {
+                    target.setCreatedAt(now);
+                }
+                target.setId(0);
+                choiceFactory.create(target);
+                survivingIds.add(target.getId());
+            }
+        }
+
+        // Delete the items that are no longer present, and drop any votes that referenced them so no
+        // orphan votes linger (the UI only offers deletion of unvoted items, but be defensive).
+        for (BallotChoiceModel c : existing) {
+            if (!survivingIds.contains(c.getId())) {
+                this.databaseService.getBallotVoteModelFactory().deleteByBallotChoiceId(c.getId());
+                choiceFactory.delete(c);
+            }
+        }
+
+        ballotModel.setModifiedAt(now);
+        this.databaseService.getBallotModelFactory().update(ballotModel);
+        this.cache(ballotModel);
+
+        // Re-broadcast the updated checklist over the existing Poll wire as a fresh BallotSetup
+        // (same ballot id, new choiceList). Recipients merge it (see mergeChecklistUpdate via the
+        // checklist branch in update(BallotSetupInterface, ...)). Re-publish on the EXISTING ballot
+        // message model so the creator does NOT get a duplicate bubble per edit -- the inline
+        // checklist bubble simply re-renders in place.
+        MessageReceiver receiver = this.getReceiver(ballotModel);
+        AbstractMessageModel carrier = null;
+        try {
+            List<AbstractMessageModel> ballotMessages = this.serviceManager.getMessageService().getMessageForBallot(ballotModel);
+            if (ballotMessages != null && !ballotMessages.isEmpty()) {
+                // The most recent ballot message acts as the carrier for the re-broadcast.
+                carrier = ballotMessages.get(ballotMessages.size() - 1);
+            }
+        } catch (ThreemaException e) {
+            logger.error("Could not resolve ballot carrier message", e);
+        }
+
+        if (receiver != null && carrier != null) {
+            // CRITICAL: re-publish on the EXISTING carrier message id so the re-broadcast UPDATES the
+            // same ballot message in place rather than spawning a brand-new bubble per edit. Reusing
+            // MessageId.random() here reassigns a fresh wire id onto the carrier row, which the
+            // outgoing/reflection path treats as a new message (duplicate bubble). The carrier was
+            // already sent, so it always has a wire id; fall back to a fresh id only in the
+            // (defensive) case it somehow has none yet.
+            final MessageId carrierMessageId = carrier.getMessageId();
+            this.publish(
+                receiver,
+                ballotModel,
+                carrier,
+                carrierMessageId != null ? carrierMessageId : MessageId.random(),
+                triggerSource
+            );
+        } else {
+            // Fallback: no existing carrier found, fall back to the standard creator-only send path
+            // (this will create a fresh ballot bubble).
+            this.send(
+                ballotModel, listener -> {
+                    if (listener.handle(ballotModel)) {
+                        listener.onModified(ballotModel);
+                    }
+                },
+                MessageId.random(),
+                triggerSource
+            );
+        }
+
+        // Refresh the creator's own inline checklist bubble in place.
+        ListenerManager.ballotListeners.handle(listener -> {
+            if (listener.handle(ballotModel)) {
+                listener.onModified(ballotModel);
+            }
+        });
+        ListenerManager.ballotVoteListeners.handle(listener -> {
+            if (listener.handle(ballotModel)) {
+                listener.onVoteChanged(ballotModel, ballotModel.getCreatorIdentity(), false);
+            }
+        });
     }
 
     @Override
@@ -226,6 +380,34 @@ public class BallotServiceImpl implements BallotService {
         } catch (NotAllowedException notAllowedException) {
             logger.error("Not allowed", notAllowedException);
             throw notAllowedException;
+        }
+    }
+
+    /**
+     * Whether per-participant votes must be stored/displayed for this display type. Both LIST_MODE
+     * polls and F1Whisper CHECKLISTs keep each participant's individual choices (so a checklist can
+     * show who checked each item); SUMMARY_MODE keeps only aggregate counts.
+     */
+    private static boolean isPerParticipantVoteMode(@Nullable BallotModel.DisplayType displayType) {
+        return displayType == BallotModel.DisplayType.LIST_MODE
+            || displayType == BallotModel.DisplayType.CHECKLIST;
+    }
+
+    /**
+     * Enforce the F1Whisper CHECKLIST invariant: a CHECKLIST is ALWAYS multiple-choice. A checklist
+     * stores each participant's completed items as an independent, re-votable selection set, and
+     * multiple participants may check the same item -- both of which are impossible with
+     * single-choice (where one vote replaces another and only one choice can be selected). A
+     * CHECKLIST persisted or sent with SINGLE_CHOICE would silently degrade into a broken one-shot
+     * single pick, so we auto-correct it to MULTIPLE_CHOICE here rather than letting the malformed
+     * state reach storage or the wire. No-op for non-checklist ballots and already-correct ones.
+     */
+    private static void enforceChecklistAssessment(@Nullable BallotModel ballotModel) {
+        if (ballotModel != null
+            && ballotModel.getDisplayType() == BallotModel.DisplayType.CHECKLIST
+            && ballotModel.getAssessment() != BallotModel.Assessment.MULTIPLE_CHOICE) {
+            logger.warn("CHECKLIST ballot had assessment {}, forcing MULTIPLE_CHOICE", ballotModel.getAssessment());
+            ballotModel.setAssessment(BallotModel.Assessment.MULTIPLE_CHOICE);
         }
     }
 
@@ -343,6 +525,11 @@ public class BallotServiceImpl implements BallotService {
             if (ballotData.getState() == BallotData.State.CLOSED) {
                 ballotModel = existingModel;
                 toState = BallotModel.State.CLOSED;
+            } else if (BallotUtil.isChecklist(existingModel)) {
+                // F1Whisper CHECKLIST: a re-broadcast of an open checklist is an ITEM EDIT
+                // (add/remove/reorder), not a duplicate. Merge the new choice set into the existing
+                // ballot (preserving votes for surviving items) instead of discarding the message.
+                return mergeChecklistUpdate(existingModel, ballotData, date);
             } else {
                 throw new BadMessageException("Ballot with same ID already exists. Discarding message.");
             }
@@ -390,6 +577,11 @@ public class BallotServiceImpl implements BallotService {
             case SUMMARY_MODE:
                 ballotModel.setDisplayType(BallotModel.DisplayType.SUMMARY_MODE);
                 break;
+            case CHECKLIST:
+                // F1Whisper checklist: preserve the discriminator end-to-end on receive so the
+                // rendered bubble stays interactive (does not collapse into a plain list poll).
+                ballotModel.setDisplayType(BallotModel.DisplayType.CHECKLIST);
+                break;
             case LIST_MODE:
             default:
                 ballotModel.setDisplayType(BallotModel.DisplayType.LIST_MODE);
@@ -428,7 +620,7 @@ public class BallotServiceImpl implements BallotService {
             throw new ThreemaException("invalid");
         }
 
-        if (toState == BallotModel.State.CLOSED && ballotModel.getDisplayType() == BallotModel.DisplayType.LIST_MODE) {
+        if (toState == BallotModel.State.CLOSED && isPerParticipantVoteMode(ballotModel.getDisplayType())) {
             //first remove all previously known votes if result should be shown in list mode to ensure a common result for all participants
             this.databaseService.getBallotVoteModelFactory().deleteByBallotId(
                 ballotModel.getId()
@@ -464,7 +656,7 @@ public class BallotServiceImpl implements BallotService {
             );
 
             //save individual votes received in case result should be shown in list mode for each participant (case mobile client user poll)
-            if (ballotModel.getDisplayType() == BallotModel.DisplayType.LIST_MODE && !ballotData.getParticipants().isEmpty()) {
+            if (isPerParticipantVoteMode(ballotModel.getDisplayType()) && !ballotData.getParticipants().isEmpty()) {
                 int participantPos = 0;
                 for (String p : ballotData.getParticipants()) {
                     BallotVoteModel voteModel = new BallotVoteModel();
@@ -510,6 +702,78 @@ public class BallotServiceImpl implements BallotService {
             );
             return new BallotUpdateResult(ballotModel, BallotUpdateResult.Operation.CLOSE);
         }
+    }
+
+    /**
+     * Merge a re-broadcast CHECKLIST definition into an existing open checklist (F1Whisper item
+     * edit: add / remove / reorder). Choices are matched by their stable {@code apiBallotChoiceId}:
+     * a choice present in the incoming set is created-or-updated (name + order), a choice no longer
+     * present is deleted along with its votes. Votes for surviving choices are preserved. The
+     * ballot name may also change. Does NOT re-create the ballot row and does NOT touch votes for
+     * surviving items -- so a participant's checks survive an edit. Fires {@code onModified} so the
+     * open chat refreshes.
+     */
+    @NonNull
+    private BallotUpdateResult mergeChecklistUpdate(
+        @NonNull final BallotModel ballotModel,
+        @NonNull final BallotData ballotData,
+        @NonNull final Date date
+    ) {
+        // Name may have changed.
+        if (ballotData.getDescription() != null) {
+            ballotModel.setName(ballotData.getDescription());
+        }
+        ballotModel.setModifiedAt(new Date());
+        this.databaseService.getBallotModelFactory().update(ballotModel);
+
+        final BallotChoiceModelFactory choiceFactory = this.databaseService.getBallotChoiceModelFactory();
+
+        // Set of apiBallotChoiceIds present in the incoming definition (these survive).
+        final java.util.Set<Integer> incomingApiIds = new java.util.HashSet<>();
+        for (BallotDataChoice apiChoice : ballotData.getChoiceList()) {
+            incomingApiIds.add(apiChoice.getId());
+
+            BallotChoiceModel choiceModel = this.getChoiceByApiId(ballotModel, apiChoice.getId());
+            if (choiceModel == null) {
+                choiceModel = new BallotChoiceModel();
+                choiceModel.setBallotId(ballotModel.getId());
+                choiceModel.setApiBallotChoiceId(apiChoice.getId());
+                choiceModel.setCreatedAt(date);
+            }
+            choiceModel.setName(apiChoice.getName());
+            choiceModel.setOrder(apiChoice.getOrder());
+            choiceModel.setType(BallotChoiceModel.Type.Text);
+            choiceModel.setModifiedAt(new Date());
+            choiceFactory.createOrUpdate(choiceModel);
+        }
+
+        // Delete any local choices that are no longer in the incoming set (+ their votes).
+        for (BallotChoiceModel local : choiceFactory.getByBallotId(ballotModel.getId())) {
+            if (!incomingApiIds.contains(local.getApiBallotChoiceId())) {
+                this.databaseService.getBallotVoteModelFactory().deleteByBallotChoiceId(local.getId());
+                choiceFactory.delete(local);
+            }
+        }
+
+        this.cache(ballotModel);
+
+        ListenerManager.ballotListeners.handle(listener -> {
+            if (listener.handle(ballotModel)) {
+                listener.onModified(ballotModel);
+            }
+        });
+        // Also nudge vote listeners so the inline checklist bubble (which renders off votes/choices)
+        // re-binds immediately on the receiver.
+        ListenerManager.ballotVoteListeners.handle(listener -> {
+            if (listener.handle(ballotModel)) {
+                listener.onVoteChanged(ballotModel, ballotModel.getCreatorIdentity(), false);
+            }
+        });
+
+        // UPDATE (not CREATE) so the receiver's incoming-message handler does NOT spawn a brand-new
+        // ballot bubble on every edit; the existing inline checklist bubble refreshes in place via
+        // the listeners fired above.
+        return new BallotUpdateResult(ballotModel, BallotUpdateResult.Operation.UPDATE);
     }
 
     @Override
@@ -767,6 +1031,11 @@ public class BallotServiceImpl implements BallotService {
                 break;
         }
 
+        // Defense in depth (wire gate): a CHECKLIST must be multiple-choice before its assessment
+        // is serialized below. Auto-correct so a malformed CHECKLIST + SINGLE_CHOICE can never go
+        // out on the Poll wire, regardless of how it reached publish().
+        enforceChecklistAssessment(ballotModel);
+
         final boolean isClosing = ballotModel.getState() == BallotModel.State.CLOSED;
 
         BallotData ballotData = new BallotData();
@@ -808,6 +1077,12 @@ public class BallotServiceImpl implements BallotService {
         switch (ballotModel.getDisplayType()) {
             case SUMMARY_MODE:
                 ballotData.setDisplayType(BallotData.DisplayType.SUMMARY_MODE);
+                break;
+            case CHECKLIST:
+                // Emit displayType=2 verbatim on the existing Poll wire so the receiving F1Whisper
+                // client renders an interactive checklist. (Upstream clients reject it wholesale --
+                // checklist is F1Whisper <-> F1Whisper only; see BallotData.DisplayType.)
+                ballotData.setDisplayType(BallotData.DisplayType.CHECKLIST);
                 break;
             case LIST_MODE:
             default:
@@ -1131,6 +1406,12 @@ public class BallotServiceImpl implements BallotService {
         }
 
         final String fromIdentity = ((AbstractMessage) voteMessage).getFromIdentity();
+        // Wire send-time of this vote message, used as the Last-Writer-Wins clock when overwriting an
+        // existing vote cell (guards the same-user cross-device race where a reflected vote from
+        // another of my devices can arrive out of order). Falls back to receive-time when absent.
+        final Date incomingVoteDate = ((AbstractMessage) voteMessage).getDate() != null
+            ? ((AbstractMessage) voteMessage).getDate()
+            : new Date();
 
         if (ballotModel.getType() == BallotModel.Type.RESULT_ON_CLOSE) {
             final String pollCreatorIdentity = ballotModel.getCreatorIdentity();
@@ -1186,14 +1467,29 @@ public class BallotServiceImpl implements BallotService {
                     existingVotes.remove(ballotVoteModel);
                 }
 
-                if (
-                    // Is a new vote...
-                    ballotVoteModel.getId() <= 0
-                        // ... or a modified
-                        || ballotVoteModel.getChoice() != apiVoteModel.getValue()) {
+                final boolean isNewVote = ballotVoteModel.getId() <= 0;
+                final boolean isModified = ballotVoteModel.getChoice() != apiVoteModel.getValue();
+
+                if (isNewVote || isModified) {
+                    // LWW order-guard: when OVERWRITING an existing cell, drop a stale/out-of-order
+                    // write. Apply only if the incoming wire date is newer than the stored
+                    // modifiedAt; otherwise keep the newer local value. This protects the same-user
+                    // cross-device (MD) race where a reflected vote from another of my devices can be
+                    // redelivered after a newer write. New cells (no stored timestamp) always apply.
+                    if (!isNewVote) {
+                        final Date storedModifiedAt = ballotVoteModel.getModifiedAt();
+                        if (storedModifiedAt != null && incomingVoteDate.before(storedModifiedAt)) {
+                            logger.debug(
+                                "Dropping stale ballot vote (incoming {} older than stored {}) for choice {}",
+                                incomingVoteDate, storedModifiedAt, ballotChoiceModel.getId());
+                            continue;
+                        }
+                    }
 
                     ballotVoteModel.setChoice(apiVoteModel.getValue());
-                    ballotVoteModel.setModifiedAt(new Date());
+                    // Anchor modifiedAt to the wire send-time so subsequent LWW comparisons use the
+                    // sender's clock, not our receive-time.
+                    ballotVoteModel.setModifiedAt(incomingVoteDate);
                     savingVotes.add(ballotVoteModel);
                 }
             }

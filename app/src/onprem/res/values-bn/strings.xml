@@ -4,4 +4,19 @@
      translation is preserved verbatim per locale. -->
 <resources>
     <string name="self_updater_installation_failed">আপডেটের ডাউনলোড ব্যর্থ হয়েছে। দয়া করে <a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> থেকে আপডেটটি ম্যানুয়ালি ডাউনলোড ও ইনস্টল করুন।</string>
+
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">এই সার্ভার ব্যবহার অব্যাহত রাখতে একটি নতুন সংস্করণ প্রয়োজন। অনুগ্রহ করে %1$s-এর মধ্যে আপডেট করুন।</string>
+    <string name="mandatory_update_forced_title">আপডেট প্রয়োজন</string>
+    <string name="mandatory_update_forced_body">এই সার্ভার ব্যবহার অব্যাহত রাখতে একটি নতুন সংস্করণ প্রয়োজন। অনুগ্রহ করে এখনই আপডেট করুন।</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">এখন আপডেট করুন</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="one">%d দিন</item>
+        <item quantity="other">%d দিন</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="one">%d ঘণ্টা</item>
+        <item quantity="other">%d ঘণ্টা</item>
+    </plurals>
 </resources>

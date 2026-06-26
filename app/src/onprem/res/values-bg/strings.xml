@@ -4,4 +4,19 @@
      translation is preserved verbatim per locale. -->
 <resources>
     <string name="self_updater_installation_failed">Изтеглянето на актуализацията е неуспешно. Моля, изтеглете и инсталирайте актуализацията от <a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> ръчно.</string>
+
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">За продължаване на използването на този сървър е необходима по-нова версия. Моля, обновете в рамките на %1$s.</string>
+    <string name="mandatory_update_forced_title">Необходимо е обновяване</string>
+    <string name="mandatory_update_forced_body">За продължаване на използването на този сървър е необходима по-нова версия. Моля, обновете сега.</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">Обнови сега</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="one">%d ден</item>
+        <item quantity="other">%d дни</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="one">%d час</item>
+        <item quantity="other">%d часа</item>
+    </plurals>
 </resources>

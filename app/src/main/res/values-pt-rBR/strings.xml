@@ -1913,4 +1913,42 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="prefs_title_link_previews">Gerar pré-visualizações de links</string>
     <string name="prefs_sum_link_previews">Obtenha pré-visualizações dos links nas mensagens que você envia. As pré-visualizações são enviadas com criptografia de ponta a ponta; o dispositivo do destinatário nunca contata o site.</string>
     <string name="link_preview_remove">Remover pré-visualização do link</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Arraste os controles para cortar</string>
+    <string name="audio_trim_action">Cortar</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimizar</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Lista de verificação</string>
+    <string name="checklist_create_as">Criar como lista de verificação</string>
+    <string name="checklist_fork_only">Listas de verificação funcionam apenas entre usuários do F1Whisper.</string>
+    <string name="checklist_toggle_item">Alternar item da lista</string>
+    <string name="checklist_checked_by">Marcado por %1$s</string>
+    <string name="checklist_created_successfully">Lista de verificação criada</string>
+    <string name="checklist_placeholder">Lista de verificação</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Fixar mensagem</string>
+    <string name="unpin_message">Desfixar</string>
+    <string name="pinned_message_banner_label">Mensagem fixada</string>
+    <string name="pinned_message_banner_dismiss">Ocultar banner da mensagem fixada</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Digite um título para a lista</string>
+    <string name="checklist_wizard0_explain">Crie uma lista de tarefas compartilhada. Todos no chat podem marcar e desmarcar itens a qualquer momento, e os itens marcados vão para o final.</string>
+    <string name="checklist_add_items">Adicionar itens</string>
+    <string name="checklist_item_add">Adicionar um item</string>
+    <string name="checklist_item_count_error">Adicione pelo menos um item</string>
+    <string name="checklist_add_item_title">Adicionar item</string>
+    <string name="checklist_add_item_hint">Nome do novo item</string>
+    <string name="checklist_add_item_button">Adicionar</string>
+    <string name="checklist_delete_item_title">Excluir item?</string>
+    <string name="checklist_delete_item_message">Tem certeza de que deseja excluir \"%1$s\"?</string>
+    <string name="checklist_delete_button">Excluir</string>
+    <string name="checklist_reorder_item">Mover item da lista</string>
+    <string name="checklist_cannot_reorder">Este item não pode ser movido</string>
+    <string name="checklist_edit_title">Editar lista</string>
+    <string name="checklist_edit_apply">Aplicar</string>
+    <string name="checklist_rename_item_title">Renomear item</string>
+    <string name="audio_trim_not_supported">O corte não é compatível com este formato de áudio. Remova o corte para enviar o arquivo completo.</string>
+    <string name="audio_trim_failed">Não foi possível cortar este áudio. Nada foi enviado. Tente novamente ou remova o corte.</string>
+    <string name="pinned_message_banner_label_counter">Mensagem fixada %1$d/%2$d</string>
 </resources>

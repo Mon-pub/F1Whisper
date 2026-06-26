@@ -54,6 +54,14 @@ import static ch.threema.app.utils.ActiveScreenLoggerKt.logScreenVisibility;
 public class BallotWizardActivity extends ThreemaActivity {
     private static final Logger logger = getThreemaLogger("BallotWizardActivity");
 
+    /**
+     * F1Whisper: boolean intent extra. When {@code true}, the wizard opens in checklist mode: a
+     * shared interactive checklist (displayType=CHECKLIST, multiple-choice, intermediate results)
+     * rather than a poll. The poll-only options are hidden so creating a checklist is a direct,
+     * Scarlet-Notes-like flow surfaced from the attach menu.
+     */
+    public static final String EXTRA_CREATE_CHECKLIST = "create_checklist";
+
     private static final int NUM_PAGES = 2;
 
     @NonNull
@@ -69,6 +77,11 @@ public class BallotWizardActivity extends ThreemaActivity {
     private String ballotDescription;
     private BallotModel.Type ballotType;
     private BallotModel.Assessment ballotAssessment;
+    // F1Whisper: LIST_MODE for a normal poll, CHECKLIST for an interactive shared checklist.
+    private BallotModel.DisplayType ballotDisplayType = BallotModel.DisplayType.LIST_MODE;
+    // F1Whisper: true when the wizard was launched as a dedicated "Checklist" flow (see
+    // EXTRA_CREATE_CHECKLIST). Drives the wizard UI to hide poll-only options.
+    private boolean checklistMode = false;
 
     private final List<WeakReference<BallotWizardFragment>> fragmentList = new ArrayList<>();
     private final Runnable createBallotRunnable = new Runnable() {
@@ -86,6 +99,7 @@ public class BallotWizardActivity extends ThreemaActivity {
                 ballotDescription,
                 ballotType,
                 ballotAssessment,
+                ballotDisplayType,
                 ballotChoiceModelList,
                 new BallotId(),
                 MessageId.random(),
@@ -227,7 +241,28 @@ public class BallotWizardActivity extends ThreemaActivity {
         if (this.receiver == null) {
             logger.info("No message receiver");
             finish();
+            return;
         }
+
+        // F1Whisper: a checklist is created from a dedicated attach-menu entry. Pre-configure the
+        // wizard so the user lands on "enter your items" with the right semantics already set:
+        //  - CHECKLIST display type (rides the poll wire, F1Whisper <-> F1Whisper only),
+        //  - multiple-choice assessment (each member's checks are an independent, re-votable set),
+        //  - intermediate results (everyone's checks are always visible, never closed).
+        if (getIntent().getBooleanExtra(EXTRA_CREATE_CHECKLIST, false)) {
+            this.checklistMode = true;
+            setBallotDisplayType(BallotModel.DisplayType.CHECKLIST);
+            setBallotAssessment(BallotModel.Assessment.MULTIPLE_CHOICE);
+            setBallotType(BallotModel.Type.INTERMEDIATE);
+        }
+    }
+
+    /**
+     * F1Whisper: whether this wizard was opened as a dedicated checklist flow (the poll-only
+     * options are hidden when {@code true}).
+     */
+    public boolean isChecklistMode() {
+        return this.checklistMode;
     }
 
     @Override
@@ -266,12 +301,18 @@ public class BallotWizardActivity extends ThreemaActivity {
             if (checkTitle()) {
                 BallotWizardFragment1 fragment = (BallotWizardFragment1) pagerAdapter.instantiateItem(pager, pager.getCurrentItem());
                 fragment.saveUnsavedData();
-                if (this.ballotChoiceModelList.size() > 1) {
+                // A poll needs at least two answers to be a choice; a checklist is meaningful with a
+                // single item, so it only requires one.
+                int minItems = checklistMode ? 1 : 2;
+                if (this.ballotChoiceModelList.size() >= minItems) {
                     ExecutorServices.getSendMessageExecutorService().execute(createBallotRunnable);
                     setResult(RESULT_OK);
                     finish();
                 } else {
-                    Toast.makeText(BallotWizardActivity.this, getString(R.string.ballot_answer_count_error), Toast.LENGTH_SHORT).show();
+                    int errorRes = checklistMode
+                        ? R.string.checklist_item_count_error
+                        : R.string.ballot_answer_count_error;
+                    Toast.makeText(BallotWizardActivity.this, getString(errorRes), Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -291,6 +332,14 @@ public class BallotWizardActivity extends ThreemaActivity {
 
     public void setBallotAssessment(BallotModel.Assessment ballotAssessment) {
         this.ballotAssessment = ballotAssessment;
+    }
+
+    public void setBallotDisplayType(BallotModel.DisplayType ballotDisplayType) {
+        this.ballotDisplayType = ballotDisplayType;
+    }
+
+    public BallotModel.DisplayType getBallotDisplayType() {
+        return this.ballotDisplayType;
     }
 
     public List<BallotChoiceModel> getBallotChoiceModelList() {

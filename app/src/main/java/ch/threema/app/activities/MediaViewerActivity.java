@@ -2,15 +2,21 @@ package ch.threema.app.activities;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AppOpsManager;
+import android.app.PictureInPictureParams;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.os.Process;
+import android.util.Rational;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,10 +31,12 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.Lifecycle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -129,6 +137,18 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
     private MenuItem saveMenuItem, shareMenuItem, viewMenuItem;
 
     private boolean isPrivateChat = false;
+
+    // F1Whisper: picture-in-picture state
+    private @Nullable MenuItem pipMenuItem;
+    private boolean isInPictureInPictureMode = false;
+    // True from the moment enterPipMode() is invoked until the window has fully entered PiP, so the
+    // video fragment keeps its ExoPlayer running across the activity's onPause() during the transition.
+    private boolean isEnteringPictureInPictureMode = false;
+    // True between onStart() and onStop(). Mirrors Telegram's PipActivityHandler.isActivityStarted:
+    // it lets onPictureInPictureModeChanged(false) distinguish "expand back to fullscreen" (activity
+    // still started → onResume follows) from "closed via the PiP X button" (onStop already ran →
+    // !isActivityStarted), so we only tear the player down on a real dismissal.
+    private boolean isActivityStarted = false;
 
     private @Nullable ListenableFuture<MediaController> mediaControllerFuture = null;
     private volatile @Nullable MediaController mediaController = null;
@@ -390,6 +410,8 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
             this.currentMessageModel = this.messageModels.get(this.currentPosition);
 
             updateActionBarTitle(this.currentMessageModel);
+            // F1Whisper: refresh pip menu visibility when the viewed item changes
+            updatePipMenuItem();
 
             final @Nullable MediaViewFragment currentMediaViewFragment = this.getCurrentFragment();
             for (@Nullable MediaViewFragment mediaViewFragment : fragments) {
@@ -424,6 +446,9 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
         saveMenuItem = menu.findItem(R.id.menu_save);
         shareMenuItem = menu.findItem(R.id.menu_share);
         viewMenuItem = menu.findItem(R.id.menu_view);
+        // F1Whisper: pip menu item — only shown for video when PiP is supported (API 26+)
+        pipMenuItem = menu.findItem(R.id.menu_pip);
+        updatePipMenuItem();
 
         return true;
     }
@@ -450,6 +475,10 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
             return true;
         } else if (itemId == R.id.menu_show_in_chat) {
             showInChat(this.currentMessageModel);
+            return true;
+        } else if (itemId == R.id.menu_pip) {
+            // F1Whisper: enter picture-in-picture from the menu
+            enterPipMode();
             return true;
         } else {
             return super.onOptionsItemSelected(item);
@@ -606,6 +635,27 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
         this.pager.setCurrentItem(this.currentPosition);
 
         currentFragmentChanged(this.currentPosition);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Track the started/stopped window so onPictureInPictureModeChanged(false) can tell a PiP
+        // expand from a PiP dismissal (Telegram PipActivityHandler.isActivityStarted pattern).
+        this.isActivityStarted = true;
+    }
+
+    @Override
+    protected void onStop() {
+        // Mark the window stopped BEFORE super so onPictureInPictureModeChanged(false) — which the OS
+        // fires AFTER onStop() on a PiP X-button dismissal — can detect the dismissal via
+        // !isActivityStarted. We deliberately do NOT release the player here: pressing Home enters PiP
+        // and ALSO drives the activity to onStop() while still in PiP (NOT a dismissal), so releasing
+        // here would kill the floating window. Teardown happens in onPictureInPictureModeChanged.
+        // (Mirrors Telegram LaunchActivity, which tears down in onPictureInPictureModeChanged when
+        // !isStarted, not in onStop.)
+        this.isActivityStarted = false;
+        super.onStop();
     }
 
     @Override
@@ -867,4 +917,245 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
 
         ConfigUtils.adjustToolbar(this, getToolbar());
     }
+
+    //region F1Whisper: picture-in-picture (video minimize)
+
+    /** Returns true when the currently visible item is a video (VIDEO message or FILE with video MIME). */
+    private boolean isCurrentlyShowingVideo() {
+        AbstractMessageModel model = getCurrentMessageModel();
+        if (model == null) {
+            return false;
+        }
+        if (model.getType() == MessageType.VIDEO) {
+            return true;
+        }
+        if (model.getType() == MessageType.FILE && model.getFileData() != null) {
+            return MimeUtil.isVideoFile(model.getFileData().getMimeType());
+        }
+        return false;
+    }
+
+    /**
+     * Shows the PiP menu item only when a video is displayed AND the device supports PiP (API 26+).
+     * Never shown in PiP mode itself (chrome is hidden there anyway).
+     */
+    private void updatePipMenuItem() {
+        if (pipMenuItem == null) {
+            return;
+        }
+        boolean showPip = !isInPictureInPictureMode
+            && ConfigUtils.supportsPictureInPicture(this)
+            && isCurrentlyShowingVideo();
+        pipMenuItem.setVisible(showPip);
+    }
+
+    /** Returns the currently visible {@link VideoViewFragment}, or null if the current item is not a video. */
+    private @Nullable VideoViewFragment getCurrentVideoFragment() {
+        MediaViewFragment fragment = getCurrentFragment();
+        if (fragment instanceof VideoViewFragment) {
+            return (VideoViewFragment) fragment;
+        }
+        return null;
+    }
+
+    /**
+     * F1Whisper: true while we are transitioning into, or already in, picture-in-picture. The video
+     * fragment queries this so it does NOT pause the ExoPlayer during the activity's onPause() that
+     * the PiP transition triggers — the surface keeps rendering the live video into the PiP window.
+     */
+    public boolean isEnteringOrInPictureInPictureMode() {
+        return isEnteringPictureInPictureMode || isInPictureInPictureMode;
+    }
+
+    /**
+     * Builds the {@link PictureInPictureParams} from the REAL decoded video dimensions so the floating
+     * window fits the video without cropping, and a source-rect hint taken from the live player surface
+     * so the OS animates the shrink from exactly where the video is rendered.
+     *
+     * <p>Aspect-ratio clamping mirrors Telegram's PipSourceParams (valid PiP range is roughly
+     * 0.45..2.39): below 45:100 we clamp to 45:100, above 235:100 we clamp to 235:100.</p>
+     */
+    @RequiresApi(Build.VERSION_CODES.O)
+    private @NonNull PictureInPictureParams buildPictureInPictureParams(@Nullable VideoViewFragment videoFragment) {
+        PictureInPictureParams.Builder pipBuilder = new PictureInPictureParams.Builder();
+
+        // Derive the aspect ratio from the actual decoded video size (accounting for non-square
+        // pixels via pixelWidthHeightRatio); fall back to 16:9 only if the player has no video track
+        // size yet (e.g. still preparing).
+        int videoWidth = 0;
+        int videoHeight = 0;
+        if (videoFragment != null) {
+            androidx.media3.common.VideoSize videoSize = videoFragment.getCurrentVideoSize();
+            if (videoSize != null) {
+                float pixelRatio = videoSize.pixelWidthHeightRatio > 0f ? videoSize.pixelWidthHeightRatio : 1f;
+                videoWidth = Math.round(videoSize.width * pixelRatio);
+                videoHeight = videoSize.height;
+            }
+        }
+
+        final Rational aspectRatio;
+        if (videoWidth > 0 && videoHeight > 0) {
+            float ratio = (float) videoWidth / (float) videoHeight;
+            // Clamp to the valid PiP range, mirroring Telegram's PipSourceParams.
+            if (ratio < 0.45f) {
+                aspectRatio = new Rational(45, 100);
+            } else if (ratio > 2.35f) {
+                aspectRatio = new Rational(235, 100);
+            } else {
+                aspectRatio = new Rational(videoWidth, videoHeight);
+            }
+        } else {
+            aspectRatio = new Rational(16, 9);
+        }
+        pipBuilder.setAspectRatio(aspectRatio);
+
+        // Source-rect hint from the live player surface (preferred) or the pager as a fallback.
+        Rect sourceRect = null;
+        if (videoFragment != null) {
+            sourceRect = videoFragment.getPlayerSurfaceScreenBounds();
+        }
+        if (sourceRect == null) {
+            View pagerView = pager;
+            if (pagerView != null && pagerView.getWidth() > 0 && pagerView.getHeight() > 0) {
+                int[] location = new int[2];
+                pagerView.getLocationOnScreen(location);
+                sourceRect = new Rect(
+                    location[0],
+                    location[1],
+                    location[0] + pagerView.getWidth(),
+                    location[1] + pagerView.getHeight()
+                );
+            }
+        }
+        if (sourceRect != null && !sourceRect.isEmpty()) {
+            pipBuilder.setSourceRectHint(sourceRect);
+        }
+
+        return pipBuilder.build();
+    }
+
+    /**
+     * Enters picture-in-picture mode for the video currently on screen.
+     * Guards: API 26+, FEATURE_PICTURE_IN_PICTURE, AppOps permission.
+     */
+    private void enterPipMode() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return;
+        }
+        if (!ConfigUtils.supportsPictureInPicture(this)) {
+            return;
+        }
+        if (!isCurrentlyShowingVideo()) {
+            return;
+        }
+
+        // Respect the per-app PiP permission the user controls in Settings.
+        AppOpsManager appOpsManager = (AppOpsManager) getSystemService(APP_OPS_SERVICE);
+        if (appOpsManager != null
+            && appOpsManager.checkOpNoThrow(
+                AppOpsManager.OPSTR_PICTURE_IN_PICTURE,
+                Process.myUid(),
+                getPackageName()) != AppOpsManager.MODE_ALLOWED) {
+            // The user has disabled PiP for this app in Settings — do nothing silently.
+            logger.info("PiP disabled by user in system settings");
+            return;
+        }
+
+        final @Nullable VideoViewFragment videoFragment = getCurrentVideoFragment();
+        final PictureInPictureParams params = buildPictureInPictureParams(videoFragment);
+
+        // Mark the transition BEFORE entering so the fragment's onPause()/setUserVisibleHint(false)
+        // (triggered by entering PiP) keeps the ExoPlayer running instead of pausing the surface.
+        isEnteringPictureInPictureMode = true;
+        try {
+            if (!enterPictureInPictureMode(params)) {
+                isEnteringPictureInPictureMode = false;
+            }
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            isEnteringPictureInPictureMode = false;
+            logger.error("Unable to enter PiP mode", e);
+        }
+    }
+
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        // Auto-enter PiP when the user presses Home while a video is playing, matching
+        // the CallActivity behaviour.
+        if (isCurrentlyShowingVideo()) {
+            enterPipMode();
+        }
+    }
+
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPip, @NonNull Configuration newConfig) {
+        super.onPictureInPictureModeChanged(isInPip, newConfig);
+        this.isInPictureInPictureMode = isInPip;
+        // The transition has resolved; clear the "entering" guard regardless of direction.
+        this.isEnteringPictureInPictureMode = false;
+
+        final @Nullable VideoViewFragment videoFragment = getCurrentVideoFragment();
+
+        if (isInPip) {
+            // Hide all chrome (action bar, caption, playback controls) so ONLY the player surface
+            // is visible in the floating window. The ExoPlayer keeps playing — no pause/resume,
+            // no release; its TextureView surface stays attached and renders the live stream.
+            logger.debug("Entering PiP mode — hiding chrome, keeping player surface live");
+            hideUi();
+            if (videoFragment != null) {
+                videoFragment.setChromeVisibleForPip(false);
+                // Scale the player surface to the (now small) PiP window so the FULL frame fits
+                // instead of only its top-left corner — see VideoViewFragment.onEnterPip().
+                videoFragment.onEnterPip();
+                // Resume playback so the floating window shows live motion (Telegram-style).
+                videoFragment.ensurePlayingForPip();
+            }
+        } else {
+            // isInPip == false. Two very different cases reach here:
+            //   1. The user tapped the PiP window to EXPAND back to fullscreen → the activity is still
+            //      started (onStart ran, onResume follows). Restore the chrome and continue playing.
+            //   2. The user tapped the system "X" to CLOSE the PiP → the OS already drove us through
+            //      onStop() (so isActivityStarted == false). This is the reliable dismissal signal:
+            //      stop + release the player and finish, otherwise ExoPlayer keeps decoding audio/video
+            //      in the background until the whole app is force-stopped. (Mirrors Telegram
+            //      LaunchActivity.onPictureInPictureModeChanged → destroyPhotoViewer/releasePlayer when
+            //      !isStarted.)
+            //
+            // Detection = onStop already ran (!isActivityStarted) OR the activity is finishing OR the
+            // lifecycle is below STARTED. The lifecycle cross-check makes the dismissal signal robust on
+            // OEMs that fire this callback before our onStop() flag flips (Android PiP docs: "onStop
+            // while in PiP == closed"). An EXPAND keeps the activity at/above STARTED so it falls through.
+            final boolean belowStarted =
+                !getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED);
+            if (!isActivityStarted || isFinishing() || belowStarted) {
+                logger.debug("PiP closed via X (activity stopped/finishing) — releasing player and finishing");
+                stopAndReleaseVideoPlayer();
+                finish();
+                return;
+            }
+            // Case 1: expand back. Playback state is preserved (still playing / paused exactly as the
+            // user left it in the PiP window).
+            logger.debug("Exiting PiP mode via expand — restoring chrome");
+            showUi();
+            if (videoFragment != null) {
+                videoFragment.onExitPip();
+                videoFragment.setChromeVisibleForPip(true);
+            }
+        }
+        // Refresh pip menu item visibility (hidden in pip, visible on expand for video).
+        updatePipMenuItem();
+    }
+
+    /**
+     * F1Whisper: stops and releases the currently visible video fragment's ExoPlayer. Called when the
+     * PiP window is dismissed via the system "X" so playback does not leak into the background.
+     */
+    private void stopAndReleaseVideoPlayer() {
+        final @Nullable VideoViewFragment videoFragment = getCurrentVideoFragment();
+        if (videoFragment != null) {
+            videoFragment.stopAndReleasePlayer();
+        }
+    }
+
+    //endregion
 }

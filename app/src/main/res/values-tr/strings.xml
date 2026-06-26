@@ -1931,4 +1931,42 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="prefs_title_link_previews">Bağlantı önizlemeleri oluştur</string>
     <string name="prefs_sum_link_previews">Gönderdiğiniz mesajlardaki bağlantılar için önizlemeler alın. Önizlemeler uçtan uca şifreli gönderilir; alıcının cihazı web sitesine asla bağlanmaz.</string>
     <string name="link_preview_remove">Bağlantı önizlemesini kaldır</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Kırpmak için tutamaçları sürükleyin</string>
+    <string name="audio_trim_action">Kırp</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Küçült</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Kontrol listesi</string>
+    <string name="checklist_create_as">Kontrol listesi olarak oluştur</string>
+    <string name="checklist_fork_only">Kontrol listeleri yalnızca F1Whisper kullanıcıları arasında çalışır.</string>
+    <string name="checklist_toggle_item">Kontrol listesi öğesini değiştir</string>
+    <string name="checklist_checked_by">%1$s tarafından işaretlendi</string>
+    <string name="checklist_created_successfully">Kontrol listesi oluşturuldu</string>
+    <string name="checklist_placeholder">Kontrol listesi</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Mesajı sabitle</string>
+    <string name="unpin_message">Sabitlemeyi kaldır</string>
+    <string name="pinned_message_banner_label">Sabitlenmiş mesaj</string>
+    <string name="pinned_message_banner_dismiss">Sabitlenmiş mesaj başlığını gizle</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Bir kontrol listesi başlığı girin</string>
+    <string name="checklist_wizard0_explain">Paylaşılan bir yapılacaklar listesi oluşturun. Sohbetteki herkes öğeleri istediği zaman işaretleyip işaretini kaldırabilir ve işaretlenen öğeler alta taşınır.</string>
+    <string name="checklist_add_items">Öğe ekle</string>
+    <string name="checklist_item_add">Bir öğe ekle</string>
+    <string name="checklist_item_count_error">Lütfen en az bir öğe ekleyin</string>
+    <string name="checklist_add_item_title">Öğe ekle</string>
+    <string name="checklist_add_item_hint">Yeni öğe adı</string>
+    <string name="checklist_add_item_button">Ekle</string>
+    <string name="checklist_delete_item_title">Öğe silinsin mi?</string>
+    <string name="checklist_delete_item_message">\"%1$s\" öğesini silmek istediğinizden emin misiniz?</string>
+    <string name="checklist_delete_button">Sil</string>
+    <string name="checklist_reorder_item">Liste öğesini taşı</string>
+    <string name="checklist_cannot_reorder">Bu öğe taşınamaz</string>
+    <string name="checklist_edit_title">Kontrol listesini düzenle</string>
+    <string name="checklist_edit_apply">Uygula</string>
+    <string name="checklist_rename_item_title">Ögeyi yeniden adlandır</string>
+    <string name="audio_trim_not_supported">Bu ses biçimi için kırpma desteklenmiyor. Dosyanın tamamını göndermek için kırpmayı kaldırın.</string>
+    <string name="audio_trim_failed">Bu ses kırpılamadı. Hiçbir şey gönderilmedi. Lütfen tekrar deneyin veya kırpmayı kaldırın.</string>
+    <string name="pinned_message_banner_label_counter">Sabitlenmiş mesaj %1$d/%2$d</string>
 </resources>

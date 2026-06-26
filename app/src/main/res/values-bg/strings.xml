@@ -1869,4 +1869,42 @@
     <string name="prefs_title_link_previews">Генериране на визуализации на връзки</string>
     <string name="prefs_sum_link_previews">Извличане на визуализации за връзките в съобщенията, които изпращате. Визуализациите се изпращат със сквозно шифроване; устройството на получателя никога не се свързва с уебсайта.</string>
     <string name="link_preview_remove">Премахване на визуализацията на връзката</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Плъзнете манипулаторите за изрязване</string>
+    <string name="audio_trim_action">Изрязване</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Минимизиране</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Контролен списък</string>
+    <string name="checklist_create_as">Създай като контролен списък</string>
+    <string name="checklist_fork_only">Контролните списъци работят само между потребители на F1Whisper.</string>
+    <string name="checklist_toggle_item">Превключване на елемент от списъка</string>
+    <string name="checklist_checked_by">Отбелязано от %1$s</string>
+    <string name="checklist_created_successfully">Контролният списък е създаден</string>
+    <string name="checklist_placeholder">Контролен списък</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Закачи съобщение</string>
+    <string name="unpin_message">Откачи</string>
+    <string name="pinned_message_banner_label">Закачено съобщение</string>
+    <string name="pinned_message_banner_dismiss">Скриване на банера за закачено съобщение</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Въведете заглавие на списъка със задачи</string>
+    <string name="checklist_wizard0_explain">Създайте споделен списък със задачи. Всеки в чата може да отмята и размята елементи по всяко време, а отметнатите елементи се преместват най-долу.</string>
+    <string name="checklist_add_items">Добавяне на елементи</string>
+    <string name="checklist_item_add">Добавяне на елемент</string>
+    <string name="checklist_item_count_error">Моля, добавете поне един елемент</string>
+    <string name="checklist_add_item_title">Добавяне на елемент</string>
+    <string name="checklist_add_item_hint">Име на нов елемент</string>
+    <string name="checklist_add_item_button">Добавяне</string>
+    <string name="checklist_delete_item_title">Изтриване на елемента?</string>
+    <string name="checklist_delete_item_message">Сигурни ли сте, че искате да изтриете \"%1$s\"?</string>
+    <string name="checklist_delete_button">Изтриване</string>
+    <string name="checklist_reorder_item">Преместване на елемент от списъка</string>
+    <string name="checklist_cannot_reorder">Този елемент не може да бъде преместен</string>
+    <string name="checklist_edit_title">Редактиране на списъка</string>
+    <string name="checklist_edit_apply">Прилагане</string>
+    <string name="checklist_rename_item_title">Преименуване на елемента</string>
+    <string name="audio_trim_not_supported">Изрязването не се поддържа за този аудиоформат. Премахнете изрязването, за да изпратите целия файл.</string>
+    <string name="audio_trim_failed">Това аудио не можа да бъде изрязано. Нищо не беше изпратено. Опитайте отново или премахнете изрязването.</string>
+    <string name="pinned_message_banner_label_counter">Закачено съобщение %1$d/%2$d</string>
 </resources>

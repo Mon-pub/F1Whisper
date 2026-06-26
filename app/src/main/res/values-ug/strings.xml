@@ -1981,4 +1981,42 @@
     <string name="prefs_title_link_previews">ئۇلانما ئالدىن كۆرۈشنى ھاسىل قىلىش</string>
     <string name="prefs_sum_link_previews">ئەۋەتىدىغان ئۇچۇرلىرىڭىزدىكى ئۇلانمىلارنىڭ ئالدىن كۆرۈشىنى ئېلىڭ. ئالدىن كۆرۈش ئۇچ-ئۇچىغا شىفىرلىنىپ ئەۋەتىلىدۇ؛ تاپشۇرۇۋالغۇچىنىڭ ئۈسكۈنىسى تور بېكەتكە ھەرگىز باغلانمايدۇ.</string>
     <string name="link_preview_remove">ئۇلانما ئالدىن كۆرۈشنى ئۆچۈرۈش</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">قىرقىش ئۈچۈن تۇتقۇلارنى سۆرەڭ</string>
+    <string name="audio_trim_action">قىرقىش</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">كىچىكلىتىش</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">تىزىملىك</string>
+    <string name="checklist_create_as">تىزىملىك قىلىپ قۇرۇش</string>
+    <string name="checklist_fork_only">تىزىملىك پەقەت F1Whisper ئىشلەتكۈچىلەر ئارىسىدا ئىشلەيدۇ.</string>
+    <string name="checklist_toggle_item">تىزىملىك تۈرىنى ئالماشتۇرۇش</string>
+    <string name="checklist_checked_by">%1$s بەلگىلىگەن</string>
+    <string name="checklist_created_successfully">تىزىملىك قۇرۇلدى</string>
+    <string name="checklist_placeholder">تىزىملىك</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">ئۇچۇرنى قىستۇرۇش</string>
+    <string name="unpin_message">قىستۇرۇشنى ئايرىش</string>
+    <string name="pinned_message_banner_label">قىستۇرۇلغان ئۇچۇر</string>
+    <string name="pinned_message_banner_dismiss">قىستۇرۇلغان ئۇچۇر بانىرىنى يوشۇرۇش</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">تەكشۈرۈش تىزىملىكى ماۋزۇسىنى كىرگۈزۈڭ</string>
+    <string name="checklist_wizard0_explain">ئورتاق قىلىدىغان ئىش تىزىملىكى قۇرۇڭ. سۆھبەتتىكى ھەممە كىشى خالىغان ۋاقىتتا تۈرلەرنى بەلگىلىيەلەيدۇ ياكى بەلگىنى ئېلىۋېتەلەيدۇ، بەلگىلەنگەن تۈرلەر ئاستىغا يۆتكىلىدۇ.</string>
+    <string name="checklist_add_items">تۈر قوشۇش</string>
+    <string name="checklist_item_add">بىر تۈر قوشۇش</string>
+    <string name="checklist_item_count_error">كەم دېگەندە بىر تۈر قوشۇڭ</string>
+    <string name="checklist_add_item_title">تۈر قوشۇش</string>
+    <string name="checklist_add_item_hint">يېڭى تۈر ئىسمى</string>
+    <string name="checklist_add_item_button">قوشۇش</string>
+    <string name="checklist_delete_item_title">تۈرنى ئۆچۈرەمسىز؟</string>
+    <string name="checklist_delete_item_message">\"%1$s\" نى راستلا ئۆچۈرەمسىز؟</string>
+    <string name="checklist_delete_button">ئۆچۈرۈش</string>
+    <string name="checklist_reorder_item">تىزىملىك تۈرىنى يۆتكەش</string>
+    <string name="checklist_cannot_reorder">بۇ تۈرنى يۆتكىگىلى بولمايدۇ</string>
+    <string name="checklist_edit_title">تىزىملىكنى تەھرىرلەش</string>
+    <string name="checklist_edit_apply">قوللىنىش</string>
+    <string name="checklist_rename_item_title">تۈرنىڭ ئىسمىنى ئۆزگەرتىش</string>
+    <string name="audio_trim_not_supported">بۇ ئاۋاز فورماتى ئۈچۈن كېسىش قوللىمايدۇ. تولۇق ھۆججەتنى ئەۋەتىش ئۈچۈن كېسىشنى ئېلىۋېتىڭ.</string>
+    <string name="audio_trim_failed">بۇ ئاۋازنى كېسىش بولمىدى. ھېچنېمە ئەۋەتىلمىدى. قايتا سىناڭ ياكى كېسىشنى ئېلىۋېتىڭ.</string>
+    <string name="pinned_message_banner_label_counter">قادالغان ئۇچۇر %1$d/%2$d</string>
 </resources>

@@ -4,4 +4,19 @@
      translation is preserved verbatim per locale. -->
 <resources>
     <string name="self_updater_installation_failed">Güncellemenin indirilmesi başarısız oldu. Lütfen güncellemeyi <a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> adresinden manuel olarak indirip yükleyin.</string>
+
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">Bu sunucuyu kullanmaya devam etmek için daha yeni bir sürüm gereklidir. Lütfen %1$s içinde güncelleyin.</string>
+    <string name="mandatory_update_forced_title">Güncelleme gerekli</string>
+    <string name="mandatory_update_forced_body">Bu sunucuyu kullanmaya devam etmek için daha yeni bir sürüm gereklidir. Lütfen şimdi güncelleyin.</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">Şimdi güncelle</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="one">%d gün</item>
+        <item quantity="other">%d gün</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="one">%d saat</item>
+        <item quantity="other">%d saat</item>
+    </plurals>
 </resources>

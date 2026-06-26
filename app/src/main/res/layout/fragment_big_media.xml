@@ -35,6 +35,16 @@
             android:layout_gravity="center"
             android:visibility="invisible" />
 
+        <!-- F1Whisper: trim timeline for attached audio files (mp3, opus/ogg, m4a, mp4-audio),
+             mirroring the VideoEditView placement/interaction. Shows a waveform + dual start/end
+             handles automatically for TYPE_AUDIO_FILE items. -->
+        <ch.threema.app.camera.AudioTrimEditView
+            android:id="@+id/audio_edit_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="invisible" />
+
     </FrameLayout>
 
     <ch.threema.app.ui.BigFileView

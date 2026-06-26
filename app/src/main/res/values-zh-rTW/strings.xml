@@ -1929,4 +1929,42 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="prefs_title_link_previews">產生連結預覽</string>
     <string name="prefs_sum_link_previews">為您傳送的訊息中的連結取得預覽。預覽以端對端加密方式傳送；收件者的裝置絕不會連線到該網站。</string>
     <string name="link_preview_remove">移除連結預覽</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">拖動控制點進行剪裁</string>
+    <string name="audio_trim_action">剪裁</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">最小化</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">清單</string>
+    <string name="checklist_create_as">建立為清單</string>
+    <string name="checklist_fork_only">清單功能僅在F1Whisper用戶之間有效。</string>
+    <string name="checklist_toggle_item">切換清單項目</string>
+    <string name="checklist_checked_by">%1$s已勾選</string>
+    <string name="checklist_created_successfully">清單已建立</string>
+    <string name="checklist_placeholder">清單</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">置頂訊息</string>
+    <string name="unpin_message">取消置頂</string>
+    <string name="pinned_message_banner_label">已置頂訊息</string>
+    <string name="pinned_message_banner_dismiss">隱藏置頂訊息橫幅</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">輸入清單標題</string>
+    <string name="checklist_wizard0_explain">建立共享待辦清單。聊天中的所有人都可以隨時勾選和取消勾選項目，已勾選的項目會移到底部。</string>
+    <string name="checklist_add_items">新增項目</string>
+    <string name="checklist_item_add">新增一個項目</string>
+    <string name="checklist_item_count_error">請至少新增一個項目</string>
+    <string name="checklist_add_item_title">新增項目</string>
+    <string name="checklist_add_item_hint">新項目名稱</string>
+    <string name="checklist_add_item_button">新增</string>
+    <string name="checklist_delete_item_title">刪除項目？</string>
+    <string name="checklist_delete_item_message">確定要刪除「%1$s」嗎？</string>
+    <string name="checklist_delete_button">刪除</string>
+    <string name="checklist_reorder_item">移動清單項目</string>
+    <string name="checklist_cannot_reorder">此項目無法移動</string>
+    <string name="checklist_edit_title">編輯清單</string>
+    <string name="checklist_edit_apply">套用</string>
+    <string name="checklist_rename_item_title">重新命名項目</string>
+    <string name="audio_trim_not_supported">此音訊格式不支援裁剪。移除裁剪即可傳送完整檔案。</string>
+    <string name="audio_trim_failed">無法裁剪此音訊。未傳送任何內容。請重試或移除裁剪。</string>
+    <string name="pinned_message_banner_label_counter">釘選訊息 %1$d/%2$d</string>
 </resources>

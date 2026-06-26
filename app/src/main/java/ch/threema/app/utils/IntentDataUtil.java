@@ -53,6 +53,11 @@ public class IntentDataUtil {
     public static final String ACTION_LICENSE_NOT_ALLOWED = BuildConfig.APPLICATION_ID + "license_not_allowed";
     public static final String ACTION_CONTACTS_CHANGED = BuildConfig.APPLICATION_ID + "contacts_changed";
     public static final String ACTION_UPDATE_AVAILABLE = BuildConfig.APPLICATION_ID + "update_available";
+    // F1Whisper: fired when the server signals that this client's version is below the mandatory
+    // floor. Carries updateUrl (for the download) and an optional deadline (unix epoch seconds).
+    // NOTE: this is a SOFT gate (see plan honesty-ceiling); it is not a security boundary.
+    public static final String ACTION_MANDATORY_UPDATE = BuildConfig.APPLICATION_ID + "mandatory_update";
+    private static final String INTENT_DATA_MANDATORY_DEADLINE_SECS = "mandatory_deadline_secs";
 
     public static final String INTENT_DATA_LOCATION_LAT = "latitude";
     public static final String INTENT_DATA_LOCATION_LNG = "longitude";
@@ -188,6 +193,27 @@ public class IntentDataUtil {
         intent.putExtra(INTENT_DATA_URL, updateUrl);
         intent.setAction(ACTION_UPDATE_AVAILABLE);
         return intent;
+    }
+
+    /**
+     * F1Whisper: broadcast to HomeActivity that the server requires a mandatory update.
+     *
+     * @param updateUrl      download URL for the new APK (same as the updateUrl channel)
+     * @param deadlineSecs   unix epoch seconds of the grace-period end, or null for immediate forced update
+     */
+    public static Intent createActionIntentMandatoryUpdate(@Nullable String updateUrl, @Nullable Long deadlineSecs) {
+        Intent intent = new Intent();
+        intent.putExtra(INTENT_DATA_URL, updateUrl);
+        if (deadlineSecs != null) {
+            intent.putExtra(INTENT_DATA_MANDATORY_DEADLINE_SECS, deadlineSecs.longValue());
+        }
+        intent.setAction(ACTION_MANDATORY_UPDATE);
+        return intent;
+    }
+
+    /** F1Whisper: deadline unix epoch seconds from the mandatory-update broadcast, or -1 if absent. */
+    public static long getMandatoryDeadlineSecs(Intent intent) {
+        return intent.getLongExtra(INTENT_DATA_MANDATORY_DEADLINE_SECS, -1L);
     }
 
     public static Intent createActionIntentHideAfterUnlock(Intent intent) {

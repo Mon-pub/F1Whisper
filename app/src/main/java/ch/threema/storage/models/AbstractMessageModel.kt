@@ -303,6 +303,23 @@ internal constructor(
     val isStarred: Boolean
         get() = (displayTags and DisplayTag.DISPLAY_TAG_STARRED) == DisplayTag.DISPLAY_TAG_STARRED
 
+    /** F1Whisper: true if this message has been locally pinned (DISPLAY_TAG_PINNED bit is set). */
+    val isPinned: Boolean
+        get() = (displayTags and DisplayTag.DISPLAY_TAG_PINNED) == DisplayTag.DISPLAY_TAG_PINNED
+
+    /**
+     * F1Whisper: set or clear the DISPLAY_TAG_PINNED bit on this message without touching other
+     * display-tag bits.  Mirrors the XOR approach used for starring (see [toggleStar] in
+     * ComposeMessageFragment).
+     */
+    fun setPinned(pinned: Boolean) {
+        displayTags = if (pinned) {
+            displayTags or DisplayTag.DISPLAY_TAG_PINNED
+        } else {
+            displayTags and DisplayTag.DISPLAY_TAG_PINNED.inv()
+        }
+    }
+
     /**
      * This only makes sense (finds its use) when multi device is active.
      * The api call to download a blob without multi-device does not require a scope.

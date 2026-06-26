@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F1Whisper: non-dismissable warning card shown when the server signals this client is below the
+     mandatory-update floor. Rendered in the AppBarLayout, same position as notice_sms_verification.
+     Material 3 warning-tonal card (colorErrorContainer surface + colorOnErrorContainer content,
+     leading warning icon, bold title, supporting body, filled "Update now" button).
+     Title + body text and the button label are set programmatically (grace-countdown or forced state). -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/notice_mandatory_update_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="@dimen/notice_views_vertical_margin"
+    android:layout_marginBottom="@dimen/notice_views_vertical_margin"
+    android:clickable="false"
+    android:outlineProvider="none"
+    android:visibility="gone"
+    app:cardBackgroundColor="?attr/colorErrorContainer"
+    app:cardCornerRadius="@dimen/cardview_border_radius"
+    app:cardElevation="@dimen/notice_views_elevation"
+    app:contentPaddingBottom="14dp"
+    app:contentPaddingLeft="16dp"
+    app:contentPaddingRight="16dp"
+    app:contentPaddingTop="14dp"
+    app:strokeWidth="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/notice_mandatory_update_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_warning"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/notice_mandatory_update_title"
+            app:layout_constraintBottom_toBottomOf="@+id/notice_mandatory_update_title"
+            app:tint="?attr/colorOnErrorContainer" />
+
+        <TextView
+            android:id="@+id/notice_mandatory_update_title"
+            style="@style/Threema.TextAppearance.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:clickable="false"
+            android:gravity="start"
+            android:text="@string/mandatory_update_forced_title"
+            android:textColor="?attr/colorOnErrorContainer"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/notice_mandatory_update_icon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/notice_mandatory_update_text"
+            style="@style/Threema.TextAppearance.BodyMedium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:clickable="false"
+            android:gravity="start"
+            android:textColor="?attr/colorOnErrorContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/notice_mandatory_update_title"
+            app:layout_constraintTop_toBottomOf="@+id/notice_mandatory_update_title" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/notice_mandatory_update_button"
+            style="@style/Threema.MaterialButton.Action.Error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/notice_mandatory_update_text" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

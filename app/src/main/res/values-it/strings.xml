@@ -1951,4 +1951,42 @@
     <string name="prefs_title_link_previews">Genera anteprime dei link</string>
     <string name="prefs_sum_link_previews">Recupera le anteprime dei link nei messaggi che invii. Le anteprime vengono inviate cifrate end-to-end; il dispositivo del destinatario non contatta mai il sito web.</string>
     <string name="link_preview_remove">Rimuovi anteprima del link</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Trascina i cursori per tagliare</string>
+    <string name="audio_trim_action">Taglia</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Riduci a icona</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Lista di controllo</string>
+    <string name="checklist_create_as">Crea come lista di controllo</string>
+    <string name="checklist_fork_only">Le liste di controllo funzionano solo tra utenti F1Whisper.</string>
+    <string name="checklist_toggle_item">Attiva/disattiva elemento</string>
+    <string name="checklist_checked_by">Spuntato da %1$s</string>
+    <string name="checklist_created_successfully">Lista di controllo creata</string>
+    <string name="checklist_placeholder">Lista di controllo</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Fissa il messaggio</string>
+    <string name="unpin_message">Togli dal fissato</string>
+    <string name="pinned_message_banner_label">Messaggio fissato</string>
+    <string name="pinned_message_banner_dismiss">Nascondi il banner del messaggio fissato</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Inserisci un titolo per l\'elenco</string>
+    <string name="checklist_wizard0_explain">Crea un elenco di cose da fare condiviso. Tutti nella chat possono spuntare e deselezionare gli elementi in qualsiasi momento, e gli elementi spuntati vengono spostati in fondo.</string>
+    <string name="checklist_add_items">Aggiungi elementi</string>
+    <string name="checklist_item_add">Aggiungi un elemento</string>
+    <string name="checklist_item_count_error">Aggiungi almeno un elemento</string>
+    <string name="checklist_add_item_title">Aggiungi elemento</string>
+    <string name="checklist_add_item_hint">Nome del nuovo elemento</string>
+    <string name="checklist_add_item_button">Aggiungi</string>
+    <string name="checklist_delete_item_title">Eliminare l\'elemento?</string>
+    <string name="checklist_delete_item_message">Vuoi davvero eliminare \"%1$s\"?</string>
+    <string name="checklist_delete_button">Elimina</string>
+    <string name="checklist_reorder_item">Sposta elemento della lista</string>
+    <string name="checklist_cannot_reorder">Questo elemento non può essere spostato</string>
+    <string name="checklist_edit_title">Modifica elenco</string>
+    <string name="checklist_edit_apply">Applica</string>
+    <string name="checklist_rename_item_title">Rinomina elemento</string>
+    <string name="audio_trim_not_supported">Il ritaglio non è supportato per questo formato audio. Rimuovi il ritaglio per inviare il file completo.</string>
+    <string name="audio_trim_failed">Non è stato possibile ritagliare questo audio. Non è stato inviato nulla. Riprova o rimuovi il ritaglio.</string>
+    <string name="pinned_message_banner_label_counter">Messaggio fissato %1$d/%2$d</string>
 </resources>

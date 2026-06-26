@@ -1964,4 +1964,42 @@
     <string name="prefs_title_link_previews">Linkvorschauen erstellen</string>
     <string name="prefs_sum_link_previews">Vorschauen für Links in von dir gesendeten Nachrichten abrufen. Vorschauen werden Ende-zu-Ende-verschlüsselt gesendet; das Gerät des Empfängers kontaktiert die Website nie.</string>
     <string name="link_preview_remove">Linkvorschau entfernen</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Griffe ziehen zum Zuschneiden</string>
+    <string name="audio_trim_action">Zuschneiden</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimieren</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Checkliste</string>
+    <string name="checklist_create_as">Als Checkliste erstellen</string>
+    <string name="checklist_fork_only">Checklisten funktionieren nur zwischen F1Whisper-Nutzern.</string>
+    <string name="checklist_toggle_item">Checklistenelement umschalten</string>
+    <string name="checklist_checked_by">Abgehakt von %1$s</string>
+    <string name="checklist_created_successfully">Checkliste erstellt</string>
+    <string name="checklist_placeholder">Checkliste</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Nachricht anpinnen</string>
+    <string name="unpin_message">Anpinnen aufheben</string>
+    <string name="pinned_message_banner_label">Angeheftete Nachricht</string>
+    <string name="pinned_message_banner_dismiss">Banner für angeheftete Nachricht ausblenden</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Titel der Checkliste eingeben</string>
+    <string name="checklist_wizard0_explain">Erstelle eine gemeinsame To-do-Liste. Alle im Chat können Einträge jederzeit abhaken und wieder lösen, und abgehakte Einträge wandern nach unten.</string>
+    <string name="checklist_add_items">Einträge hinzufügen</string>
+    <string name="checklist_item_add">Eintrag hinzufügen</string>
+    <string name="checklist_item_count_error">Bitte füge mindestens einen Eintrag hinzu</string>
+    <string name="checklist_add_item_title">Eintrag hinzufügen</string>
+    <string name="checklist_add_item_hint">Name des neuen Eintrags</string>
+    <string name="checklist_add_item_button">Hinzufügen</string>
+    <string name="checklist_delete_item_title">Eintrag löschen?</string>
+    <string name="checklist_delete_item_message">Möchtest du \"%1$s\" wirklich löschen?</string>
+    <string name="checklist_delete_button">Löschen</string>
+    <string name="checklist_reorder_item">Checklisteneintrag verschieben</string>
+    <string name="checklist_cannot_reorder">Dieser Eintrag kann nicht verschoben werden</string>
+    <string name="checklist_edit_title">Checkliste bearbeiten</string>
+    <string name="checklist_edit_apply">Anwenden</string>
+    <string name="checklist_rename_item_title">Element umbenennen</string>
+    <string name="audio_trim_not_supported">Das Zuschneiden wird für dieses Audioformat nicht unterstützt. Entferne den Zuschnitt, um die gesamte Datei zu senden.</string>
+    <string name="audio_trim_failed">Diese Audiodatei konnte nicht zugeschnitten werden. Es wurde nichts gesendet. Bitte versuche es erneut oder entferne den Zuschnitt.</string>
+    <string name="pinned_message_banner_label_counter">Angepinnte Nachricht %1$d/%2$d</string>
 </resources>

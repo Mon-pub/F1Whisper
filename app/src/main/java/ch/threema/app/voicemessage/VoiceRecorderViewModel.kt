@@ -6,10 +6,12 @@ import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
 import android.text.format.DateUtils
+import androidx.annotation.StringRes
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
+import ch.threema.app.R
 import ch.threema.app.messagereceiver.MessageReceiver
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.services.FileService
@@ -25,6 +27,7 @@ import java.io.IOException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -51,6 +54,11 @@ class VoiceRecorderViewModel(
     val state: StateFlow<VoiceRecorderScreenState> = _state
 
     private var audioOutputUri: Uri? = null
+
+    // F1Whisper: user-chosen trim window (start/end, in ms). Defaults to no trim (the full clip).
+    // [trimEndMs] == TRIM_END_UNSET means "until the end of the recording".
+    private var trimStartMs: Long = 0L
+    private var trimEndMs: Long = TRIM_END_UNSET
 
     private var mediaRecorder: MediaRecorder? = null
     var mediaPlayer: MediaPlayerStateWrapper? = null
@@ -331,6 +339,16 @@ class VoiceRecorderViewModel(
         _state.value = _state.value.copy(listenOnce = newValue)
     }
 
+    /**
+     * F1Whisper: set the user-chosen trim window (in ms from the start of the recording). The clip
+     * is losslessly cropped to this window on send. Pass [startMs] == 0 and [endMs] == [TRIM_END_UNSET]
+     * (or the full duration) to keep the whole clip.
+     */
+    fun setTrimWindow(startMs: Long, endMs: Long) {
+        trimStartMs = startMs.coerceAtLeast(0L)
+        trimEndMs = endMs
+    }
+
     fun send() {
         val currentMediaState = _state.value.mediaState
         if (currentMediaState is MediaState.Record) {
@@ -346,29 +364,121 @@ class VoiceRecorderViewModel(
             }
             return
         }
-        val audioFileDuration = getDurationFromFile(uri)
-        if (audioFileDuration == Duration.ZERO) {
-            viewModelScope.launch {
-                _events.emit(VoiceRecorderViewModelEvent.FailedToDetermineDuration)
-            }
-            return
-        }
 
-        val mediaItem = MediaItem(uri, MimeUtil.MIME_TYPE_AUDIO_AAC, null).apply {
-            durationMs = audioFileDuration.inWholeMilliseconds.coerceAtLeast(
-                minimumValue = DateUtils.SECOND_IN_MILLIS,
+        // Snapshot the trim window + listen-once flag before going off-thread.
+        val startMs = trimStartMs
+        val endMs = trimEndMs
+        val listenOnce = _state.value.listenOnce
+
+        // Determining the duration (MediaPlayer) and the lossless crop (MediaExtractor/MediaMuxer)
+        // are I/O-bound, so run them off the main thread.
+        viewModelScope.launch(Dispatchers.IO) {
+            val audioFileDuration = getDurationFromFile(uri)
+            if (audioFileDuration == Duration.ZERO) {
+                _events.emit(VoiceRecorderViewModelEvent.FailedToDetermineDuration)
+                return@launch
+            }
+
+            // F1Whisper: crop the recording to the chosen window before sending, if the user trimmed
+            // it. The crop is a lossless per-container copy (AAC remux / MP3 frame-cut / WAV PCM-cut /
+            // Opus page-copy) via [AudioTrimmer] - no re-encode.
+            //
+            // CRITICAL FAIL-SAFE (data/privacy): the user explicitly asked to trim, so if the crop
+            // cannot be performed we ABORT the send entirely - we send NOTHING - and surface a clear
+            // error so the user can retry or remove the trim. We must NEVER silently send the
+            // untrimmed original after a trim request: that would transmit more audio than the user
+            // intended to share. This mirrors MessageServiceImpl.trimAudio() for attached audio files.
+            //
+            // The voice send path reads the raw file and reports [MediaItem.durationMs] directly (it
+            // has no audio-trim machinery), so we point the MediaItem at the cropped file and report
+            // the trimmed duration here.
+            val fullDurationMs = audioFileDuration.inWholeMilliseconds
+            val resolvedEndMs = if (endMs == TRIM_END_UNSET) fullDurationMs else endMs
+            val isTrimmed = startMs > 0L || resolvedEndMs < fullDurationMs
+            var sendUri = uri
+            var sendDurationMs = fullDurationMs
+            if (isTrimmed) {
+                // Pick the precise abort message before attempting the crop: an unsupported container
+                // gets "format not supported", anything else gets the generic "couldn't trim". This
+                // matches the attached-audio fail-safe so the UX is identical across both flows.
+                val method = AudioTrimmer.getTrimMethod(application, uri)
+                if (method == AudioTrimmer.TrimMethod.UNSUPPORTED) {
+                    logger.warn("Voice message container is not losslessly trimmable; aborting send (fail-safe)")
+                    abortSendAfterTrimFailure(uri, R.string.audio_trim_not_supported)
+                    return@launch
+                }
+                val croppedUri = cropRecording(uri, startMs, resolvedEndMs)
+                if (croppedUri != null) {
+                    sendUri = croppedUri
+                    sendDurationMs = (resolvedEndMs - startMs).coerceAtLeast(DateUtils.SECOND_IN_MILLIS)
+                } else {
+                    // The user requested a trim that could not be performed. ABORT - send NOTHING.
+                    // Never fall back to the untrimmed original.
+                    logger.warn("Voice message trim failed; aborting send (fail-safe) - the untrimmed clip is NOT sent")
+                    abortSendAfterTrimFailure(uri, R.string.audio_trim_failed)
+                    return@launch
+                }
+            }
+
+            val mediaItem = MediaItem(sendUri, MimeUtil.MIME_TYPE_AUDIO_AAC, null).apply {
+                durationMs = sendDurationMs.coerceAtLeast(
+                    minimumValue = DateUtils.SECOND_IN_MILLIS,
+                )
+                isListenOnce = listenOnce
+            }
+            messageService.sendMediaAsync(
+                /* mediaItems = */
+                listOf(mediaItem),
+                /* messageReceivers = */
+                listOf(messageReceiver),
             )
-            isListenOnce = _state.value.listenOnce
-        }
-        messageService.sendMediaAsync(
-            /* mediaItems = */
-            listOf(mediaItem),
-            /* messageReceivers = */
-            listOf(messageReceiver),
-        )
-        viewModelScope.launch {
             _events.emit(VoiceRecorderViewModelEvent.Sent)
         }
+    }
+
+    /**
+     * F1Whisper: losslessly crop [sourceUri] to the [startMs, endMs] window into a new temp file.
+     *
+     * @return the cropped file's [Uri], or null if cropping failed. On null the caller MUST abort the
+     * send (fail-safe); it must NEVER send the untrimmed original after a trim request.
+     */
+    private fun cropRecording(sourceUri: Uri, startMs: Long, endMs: Long): Uri? {
+        return try {
+            val croppedFile = File.createTempFile(
+                /* prefix = */
+                "voice-trimmed-",
+                /* suffix = */
+                VOICE_MESSAGE_FILE_EXTENSION,
+                /* directory = */
+                fileService.tempPath,
+            )
+            val trimmer = AudioTrimmer(application, sourceUri, startMs, endMs)
+            if (trimmer.trim(croppedFile)) {
+                croppedFile.toUri()
+            } else {
+                if (croppedFile.exists() && !croppedFile.delete()) {
+                    logger.warn("Failed to delete unused trim temp file")
+                }
+                null
+            }
+        } catch (e: IOException) {
+            logger.error("Failed to create temp file for trimmed voice message", e)
+            null
+        }
+    }
+
+    /**
+     * F1Whisper: fail-safe abort after a requested trim could not be performed. Surfaces [messageRes]
+     * to the user and restores the screen to [MediaState.FinishedRecording] so the recording (still
+     * intact, with the chosen trim handles) can be replayed, re-trimmed, re-sent, or discarded. We
+     * NEVER send the untrimmed original after a trim request - that would leak more audio than the
+     * user intended to share. Mirrors MessageServiceImpl.showAudioTrimFailedAndAbort().
+     */
+    private suspend fun abortSendAfterTrimFailure(recordingUri: Uri, @StringRes messageRes: Int) {
+        _state.value = _state.value.copy(
+            mediaState = MediaState.FinishedRecording(uri = recordingUri),
+        )
+        _events.emit(VoiceRecorderViewModelEvent.TrimFailedSendAborted(messageRes))
     }
 
     fun discard(force: Boolean = false) {
@@ -505,5 +615,8 @@ class VoiceRecorderViewModel(
 
     companion object {
         private val discardConfirmationThresholdDuration = 10.seconds
+
+        // F1Whisper: sentinel for "no explicit trim end set" -> crop until the end of the recording.
+        const val TRIM_END_UNSET = -1L
     }
 }

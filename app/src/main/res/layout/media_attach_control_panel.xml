@@ -107,6 +107,22 @@
                     app:labelIcon="@drawable/ic_outline_rule"
                     app:labelText="@string/attach_ballot" />
 
+                <!--
+                 F1Whisper: first-class entry point for a shared interactive checklist, mirroring
+                 Scarlet-Notes' single-tap list-note creation. Launches the ballot wizard
+                 pre-configured in checklist mode (displayType=CHECKLIST, multiple-choice).
+                -->
+                <ch.threema.app.mediaattacher.ControlPanelButton
+                    android:id="@+id/attach_checklist"
+                    android:layout_width="@dimen/media_attach_button_width"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    app:fillColor="@color/material_cyan"
+                    app:fillColorAlpha="@integer/button_alpha"
+                    app:foregroundColor="@color/material_cyan"
+                    app:labelIcon="@drawable/ic_checklist_outline"
+                    app:labelText="@string/checklist" />
+
                 <ch.threema.app.mediaattacher.ControlPanelButton
                     android:id="@+id/attach_contact"
                     android:layout_width="@dimen/media_attach_button_width"

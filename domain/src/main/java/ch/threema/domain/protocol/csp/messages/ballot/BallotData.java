@@ -91,7 +91,15 @@ public class BallotData {
     }
 
     public enum DisplayType {
-        LIST_MODE(0), SUMMARY_MODE(1);
+        LIST_MODE(0), SUMMARY_MODE(1),
+        // F1Whisper-only: a CHECKLIST rides the existing Ballot/Poll wire (PollSetup 0x15 /
+        // GroupPollSetup 0x52, PollVote 0x16 / GroupPollVote 0x53) and is discriminated ONLY by this
+        // displayType value. WARNING: a displayType=2 ballot reaching an UPSTREAM (non-fork) client
+        // makes its fromId() throw IllegalArgumentException -> BadMessageException -> the whole ballot
+        // is dropped. Checklists are therefore F1Whisper <-> F1Whisper ONLY (never gracefully
+        // degraded). On OUR receive path the displayType parse below defaults unknown ids to
+        // LIST_MODE so future ids never make us self-throw.
+        CHECKLIST(2);
 
         private final int value;
 
@@ -231,14 +239,19 @@ public class BallotData {
             } catch (IllegalArgumentException e) {
                 throw new BadMessageException("TM034");
             }
-            try {
-                if (o.has(KEY_DISPLAY_TYPE)) {
-                    ballotData.displayType = DisplayType.fromId(o.getInt(KEY_DISPLAY_TYPE));
-                } else {
+            if (o.has(KEY_DISPLAY_TYPE)) {
+                // Forward-compat: an UNKNOWN displayType id must NOT make us throw (a future fork
+                // could introduce displayType ids we don't know yet). Default unknown ids to
+                // LIST_MODE instead of raising BadMessageException, so an otherwise valid ballot is
+                // never dropped on OUR receive path. Known ids (incl. CHECKLIST=2) still resolve.
+                int displayTypeId = o.getInt(KEY_DISPLAY_TYPE);
+                try {
+                    ballotData.displayType = DisplayType.fromId(displayTypeId);
+                } catch (IllegalArgumentException e) {
                     ballotData.displayType = DisplayType.LIST_MODE;
                 }
-            } catch (IllegalArgumentException e) {
-                throw new BadMessageException("TM035");
+            } else {
+                ballotData.displayType = DisplayType.LIST_MODE;
             }
 
             JSONArray choices = o.getJSONArray(KEY_CHOICES);

@@ -71,6 +71,24 @@
             android:checked="true"
             android:text="@string/ballot_intermediate_results_show" />
 
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/checklist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/checklist_create_as" />
+
+        <TextView
+            android:id="@+id/checklist_hint"
+            style="@style/Threema.TextAppearance.BodyMedium"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/checklist_fork_only"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </ch.threema.app.ui.ResizingScrollView>

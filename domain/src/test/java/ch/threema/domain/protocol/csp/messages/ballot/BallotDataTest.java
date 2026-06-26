@@ -65,6 +65,38 @@ public class BallotDataTest {
         }
     }
 
+    /**
+     * F1Whisper: a ballot with displayType=2 (the checklist discriminator) must round-trip to
+     * {@link BallotData.DisplayType#CHECKLIST}.
+     */
+    @Test
+    public void parseChecklistDisplayType() {
+        String checklistBallot = testBallot.replace("\"u\":0", "\"u\":2");
+        try {
+            BallotData result = BallotData.parse(checklistBallot);
+            Assertions.assertNotNull(result);
+            Assertions.assertEquals(BallotData.DisplayType.CHECKLIST, result.getDisplayType());
+        } catch (BadMessageException e) {
+            Assertions.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * F1Whisper forward-compat: an UNKNOWN displayType id must NOT throw -- it defaults to
+     * {@link BallotData.DisplayType#LIST_MODE} so an otherwise valid ballot is never dropped.
+     */
+    @Test
+    public void parseUnknownDisplayTypeDefaultsToListMode() {
+        String unknownDisplayTypeBallot = testBallot.replace("\"u\":0", "\"u\":99");
+        try {
+            BallotData result = BallotData.parse(unknownDisplayTypeBallot);
+            Assertions.assertNotNull(result);
+            Assertions.assertEquals(BallotData.DisplayType.LIST_MODE, result.getDisplayType());
+        } catch (BadMessageException e) {
+            Assertions.fail("unknown displayType must not throw: " + e.getMessage());
+        }
+    }
+
     @Test
     public void generateStringTest() {
         BallotData d = new BallotData();

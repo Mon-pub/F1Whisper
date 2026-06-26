@@ -268,10 +268,29 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
                 IntentDataUtil.ACTION_UPDATE_AVAILABLE -> {
                     if (BuildFlavor.current.maySelfUpdate && userService.hasIdentity()) {
                         logger.info("App update available. Opening DownloadApkActivity.")
+                        // F1Whisper: cache the intent so onResume can re-prompt hourly.
+                        cachedSelfUpdateIntent = Intent(intent)
                         delay(5.seconds)
                         val dialogIntent = Intent(intent)
                         dialogIntent.setClass(context, DownloadApkActivity::class.java)
+                        // Record shown time so the 1-hour cooldown starts now.
+                        android.preference.PreferenceManager.getDefaultSharedPreferences(context)
+                            .edit()
+                            .putLong(PREF_SELF_UPDATE_LAST_SHOWN_MS, System.currentTimeMillis())
+                            .apply()
                         startActivity(dialogIntent)
+                    }
+                }
+                IntentDataUtil.ACTION_MANDATORY_UPDATE -> {
+                    if (BuildFlavor.current.maySelfUpdate && userService.hasIdentity()) {
+                        // F1Whisper: server has signalled that this client is below the mandatory
+                        // floor. Cache url + deadline and refresh the banner on the next UI tick.
+                        // NOTE: this gate is SOFT — not a security mechanism. See plan honesty-ceiling.
+                        cachedMandatoryUpdateUrl = IntentDataUtil.getUrl(intent)
+                        val deadlineSecs = IntentDataUtil.getMandatoryDeadlineSecs(intent)
+                        cachedMandatoryDeadlineSecs = if (deadlineSecs >= 0L) deadlineSecs else null
+                        logger.info("Mandatory update gate received: url={} deadlineSecs={}", cachedMandatoryUpdateUrl, cachedMandatoryDeadlineSecs)
+                        updateMandatoryUpdateBanner()
                     }
                 }
             }
@@ -394,12 +413,21 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
     private var isInitialized = false
     private var isWhatsNewShown = false
     private val unsentMessages = mutableListOf<AbstractMessageModel>()
+    // F1Whisper: cached self-update intent — replayed on resume so the user is re-prompted after
+    // tapping "Remind me later". Null if no update is known; cleared only when the update is
+    // superseded (a fresh check arrives).
+    private var cachedSelfUpdateIntent: Intent? = null
+    // F1Whisper: mandatory-update gate state. Set when ACTION_MANDATORY_UPDATE arrives.
+    // Null means no gate active; non-null means the server placed this client below the floor.
+    private var cachedMandatoryUpdateUrl: String? = null
+    private var cachedMandatoryDeadlineSecs: Long? = null   // null => immediate forced update
 
     // Views
     private var actionBar: ActionBar? = null
     private var toolbar: MaterialToolbar? = null
     private var connectionIndicator: View? = null
     private var noticeSMSLayout: View? = null
+    private var noticeMandatoryUpdateLayout: View? = null
     private var ongoingCallNotice: OngoingCallNoticeView? = null
     private var identityPopup: IdentityPopup? = null
     private var bottomNavigationView: BottomNavigationView? = null
@@ -524,6 +552,84 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
         }
     }
 
+    /**
+     * F1Whisper: show or refresh the mandatory-update banner / forced-update overlay.
+     *
+     * Gate logic (units: epoch seconds):
+     *  - [cachedMandatoryUpdateUrl] null => no gate active, hide banner.
+     *  - deadline present AND now < deadline => GRACE: non-dismissable countdown banner with "Update now".
+     *  - deadline absent OR now >= deadline => FORCED: forced-update overlay (same banner, but the
+     *    button text changes and there is no way to proceed without updating, since the banner
+     *    covers the AppBar and is non-dismissable). The actual download reuses [ApkUpdateDownloadService]
+     *    via [DownloadApkActivity] with the EXTRA_FORCE_UPDATE_DIALOG flag so the dialog always shows.
+     *
+     * NOTE: This gate is SOFT — it is a convenience/accident gate, NOT a security mechanism.
+     * An AGPL self-installed client can bypass it. The user-facing copy is intentionally framed
+     * as a server compatibility requirement, not a security enforcement.
+     *
+     * Must be called on the UI thread (it manipulates views).
+     */
+    @UiThread
+    private fun updateMandatoryUpdateBanner() {
+        val bannerLayout = noticeMandatoryUpdateLayout ?: return
+        val updateUrl = cachedMandatoryUpdateUrl
+
+        if (updateUrl == null) {
+            // No gate active.
+            bannerLayout.isVisible = false
+            return
+        }
+
+        val bannerTitle = bannerLayout.findViewById<android.widget.TextView>(R.id.notice_mandatory_update_title)
+        val bannerText = bannerLayout.findViewById<android.widget.TextView>(R.id.notice_mandatory_update_text)
+        val bannerButton = bannerLayout.findViewById<android.widget.Button>(R.id.notice_mandatory_update_button)
+
+        val deadlineSecs = cachedMandatoryDeadlineSecs
+        val nowSecs = System.currentTimeMillis() / 1000L
+        val isGrace = deadlineSecs != null && nowSecs < deadlineSecs
+
+        // Same bold warning title in both states; only the supporting body differs.
+        bannerTitle?.setText(R.string.mandatory_update_forced_title)
+        bannerButton?.setText(R.string.mandatory_update_action)
+
+        if (isGrace && deadlineSecs != null) {
+            // Grace period: show countdown body with a LOCALIZED remaining duration.
+            // Round UP so the user is never told they have less time than they do.
+            // remainingSecs is > 0 here (isGrace requires nowSecs < deadlineSecs), but clamp
+            // to >= 0 defensively so a clock skew can never produce a negative duration label.
+            val remainingSecs = (deadlineSecs - nowSecs).coerceAtLeast(0L)
+            val remainingHours = ((remainingSecs + 3599L) / 3600L).coerceAtLeast(1L)
+            val durationLabel = if (remainingHours >= 48L) {
+                val days = ((remainingHours + 23L) / 24L).toInt()
+                resources.getQuantityString(R.plurals.mandatory_update_days, days, days)
+            } else {
+                val hours = remainingHours.toInt()
+                resources.getQuantityString(R.plurals.mandatory_update_hours, hours, hours)
+            }
+            bannerText?.text = getString(R.string.mandatory_update_countdown, durationLabel)
+        } else {
+            // Past deadline (or no deadline) => forced update.
+            bannerText?.setText(R.string.mandatory_update_forced_body)
+        }
+
+        // Wire the "Update now" / "Download" button to the existing download path.
+        // EXTRA_FORCE_UPDATE_DIALOG bypasses DownloadApkActivity's snooze guard so the
+        // dialog always appears regardless of when the user last dismissed it.
+        bannerButton?.setOnClickListener {
+            logger.info("Mandatory update: launching DownloadApkActivity for url={}", updateUrl)
+            val downloadIntent = IntentDataUtil.createActionIntentUpdateAvailable(
+                getString(R.string.mandatory_update_forced_body),
+                updateUrl
+            ).apply {
+                setClass(this@HomeActivity, DownloadApkActivity::class.java)
+                putExtra(DownloadApkActivity.EXTRA_FORCE_UPDATE_DIALOG, true)
+            }
+            startActivity(downloadIntent)
+        }
+
+        bannerLayout.isVisible = true
+    }
+
     // TODO(ANDR-4480): This needs refactoring
     private fun showWhatsNew() {
         val skipWhatsNew = true // set this to false if you want to show a What's New screen
@@ -614,10 +720,11 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
             // not registered... ignore exceptions
         }
 
-        // Register not licensed and update available broadcast
+        // Register not licensed, update available, and mandatory-update broadcasts.
         val filter = IntentFilter().apply {
             addAction(IntentDataUtil.ACTION_LICENSE_NOT_ALLOWED)
             addAction(IntentDataUtil.ACTION_UPDATE_AVAILABLE)
+            addAction(IntentDataUtil.ACTION_MANDATORY_UPDATE)
         }
         LocalBroadcastManager.getInstance(this).registerReceiver(currentCheckAppReceiver, filter)
 
@@ -807,6 +914,10 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
         }
         noticeSMSLayout = findViewById<View>(R.id.notice_sms_layout)
         noticeSMSLayout?.isVisible = userService.getMobileLinkingState() == UserService.LinkingState_PENDING
+
+        // F1Whisper: mandatory-update banner wiring. The banner view is hidden by default in the
+        // layout; updateMandatoryUpdateBanner() makes it visible when the gate is active.
+        noticeMandatoryUpdateLayout = findViewById(R.id.notice_mandatory_update_layout)
 
         initOngoingCallNotice()
 
@@ -1384,6 +1495,35 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
 
         showMainContent()
         updateWarningButton()
+
+        // F1Whisper: refresh the mandatory-update banner on every resume so the countdown text
+        // stays current (a grace period may have expired since we last showed the banner).
+        if (BuildFlavor.current.maySelfUpdate) {
+            updateMandatoryUpdateBanner()
+        }
+
+        // F1Whisper: re-prompt for a pending self-update on every resume, but at most once per hour.
+        // The initial show (from the broadcast) already wrote PREF_SELF_UPDATE_LAST_SHOWN_MS; here we
+        // honour that cooldown so the user is not spammed across rapid foreground/background cycles.
+        // Scoped strictly to the self-updater path: the cachedSelfUpdateIntent is set only when
+        // ACTION_UPDATE_AVAILABLE fires for a maySelfUpdate flavor (onprem), and is never cleared by
+        // unrelated license-check results.
+        val cachedUpdate = cachedSelfUpdateIntent
+        if (BuildFlavor.current.maySelfUpdate && userService.hasIdentity() && cachedUpdate != null) {
+            val lastShown = android.preference.PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getLong(PREF_SELF_UPDATE_LAST_SHOWN_MS, 0L)
+            if (System.currentTimeMillis() - lastShown >= android.text.format.DateUtils.HOUR_IN_MILLIS) {
+                logger.info("Re-prompting for cached self-update (>=1 h since last shown).")
+                val dialogIntent = Intent(cachedUpdate)
+                dialogIntent.setClass(this, DownloadApkActivity::class.java)
+                android.preference.PreferenceManager.getDefaultSharedPreferences(this)
+                    .edit()
+                    .putLong(PREF_SELF_UPDATE_LAST_SHOWN_MS, System.currentTimeMillis())
+                    .apply()
+                startActivity(dialogIntent)
+            }
+        }
     }
 
     override fun onPause() {
@@ -1533,6 +1673,11 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
     }
 
     companion object {
+        // F1Whisper: shared-pref key for the last time the self-update prompt was shown (ms epoch).
+        // Shared with DownloadApkActivity's PREF_STRING via the same default SharedPreferences
+        // instance, but stored under a distinct key to avoid clobbering the snooze dismissal time.
+        private const val PREF_SELF_UPDATE_LAST_SHOWN_MS = "self_update_last_shown_ms"
+
         private const val DIALOG_TAG_VERIFY_CODE = "vc"
         private const val DIALOG_TAG_VERIFY_CODE_CONFIRM = "vcc"
         private const val DIALOG_TAG_CANCEL_VERIFY = "cv"

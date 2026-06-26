@@ -1,0 +1,15 @@
+<!--
+ F1Whisper: attach-menu icon for an interactive shared checklist. Standard Material "checklist"
+ glyph (a list with leading check marks), 24dp to match the sibling attach icons; the fill is white
+ and the ControlPanelButton applies the tint via foregroundColor.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M22,7H13v2h9V7zM22,15H13v2h9v-2zM5.54,11L2,7.46l1.41,-1.41l2.12,2.12l4.24,-4.24l1.41,1.41L5.54,11zM5.54,19L2,15.46l1.41,-1.41l2.12,2.12l4.24,-4.24l1.41,1.41L5.54,19z" />
+</vector>

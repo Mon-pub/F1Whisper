@@ -4,4 +4,27 @@
      translation is preserved verbatim per locale. -->
 <resources>
     <string name="self_updater_installation_failed">فشل تنزيل التحديث. يرجى تنزيل وتثبيت التحديث من <a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> يدوياً.</string>
+
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">يلزم إصدار أحدث للاستمرار في استخدام هذا الخادم. يرجى التحديث خلال %1$s.</string>
+    <string name="mandatory_update_forced_title">التحديث مطلوب</string>
+    <string name="mandatory_update_forced_body">يلزم إصدار أحدث لمواصلة استخدام هذا الخادم. يرجى التحديث الآن.</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">تحديث الآن</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="zero">%d يوم</item>
+        <item quantity="one">يوم واحد</item>
+        <item quantity="two">يومان</item>
+        <item quantity="few">%d أيام</item>
+        <item quantity="many">%d يومًا</item>
+        <item quantity="other">%d يوم</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="zero">%d ساعة</item>
+        <item quantity="one">ساعة واحدة</item>
+        <item quantity="two">ساعتان</item>
+        <item quantity="few">%d ساعات</item>
+        <item quantity="many">%d ساعة</item>
+        <item quantity="other">%d ساعة</item>
+    </plurals>
 </resources>

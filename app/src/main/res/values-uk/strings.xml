@@ -2016,4 +2016,42 @@
     <string name="prefs_title_link_previews">Створювати попередній перегляд посилань</string>
     <string name="prefs_sum_link_previews">Отримувати попередній перегляд посилань у повідомленнях, які ви надсилаєте. Попередній перегляд надсилається з наскрізним шифруванням; пристрій отримувача ніколи не з\'єднується з вебсайтом.</string>
     <string name="link_preview_remove">Вилучити попередній перегляд посилання</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Перетягніть маркери для обрізання</string>
+    <string name="audio_trim_action">Обрізати</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Згорнути</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Контрольний список</string>
+    <string name="checklist_create_as">Створити як контрольний список</string>
+    <string name="checklist_fork_only">Контрольні списки працюють лише між користувачами F1Whisper.</string>
+    <string name="checklist_toggle_item">Перемкнути елемент списку</string>
+    <string name="checklist_checked_by">Відмічено %1$s</string>
+    <string name="checklist_created_successfully">Контрольний список створено</string>
+    <string name="checklist_placeholder">Контрольний список</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Закріпити повідомлення</string>
+    <string name="unpin_message">Відкріпити</string>
+    <string name="pinned_message_banner_label">Закріплене повідомлення</string>
+    <string name="pinned_message_banner_dismiss">Приховати банер закріпленого повідомлення</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Введіть назву списку завдань</string>
+    <string name="checklist_wizard0_explain">Створіть спільний список завдань. Будь-хто в чаті може будь-коли позначати й знімати позначки з пунктів, а позначені пункти переміщуються вниз.</string>
+    <string name="checklist_add_items">Додати пункти</string>
+    <string name="checklist_item_add">Додати пункт</string>
+    <string name="checklist_item_count_error">Додайте щонайменше один пункт</string>
+    <string name="checklist_add_item_title">Додати пункт</string>
+    <string name="checklist_add_item_hint">Назва нового пункту</string>
+    <string name="checklist_add_item_button">Додати</string>
+    <string name="checklist_delete_item_title">Видалити пункт?</string>
+    <string name="checklist_delete_item_message">Ви впевнені, що хочете видалити \"%1$s\"?</string>
+    <string name="checklist_delete_button">Видалити</string>
+    <string name="checklist_reorder_item">Перемістити пункт списку</string>
+    <string name="checklist_cannot_reorder">Цей пункт не можна перемістити</string>
+    <string name="checklist_edit_title">Редагувати список</string>
+    <string name="checklist_edit_apply">Застосувати</string>
+    <string name="checklist_rename_item_title">Перейменувати елемент</string>
+    <string name="audio_trim_not_supported">Обрізання не підтримується для цього аудіоформату. Видаліть обрізання, щоб надіслати файл цілком.</string>
+    <string name="audio_trim_failed">Не вдалося обрізати це аудіо. Нічого не надіслано. Повторіть спробу або видаліть обрізання.</string>
+    <string name="pinned_message_banner_label_counter">Закріплене повідомлення %1$d/%2$d</string>
 </resources>

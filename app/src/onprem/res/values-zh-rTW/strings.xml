@@ -4,4 +4,17 @@
      translation is preserved verbatim per locale. -->
 <resources>
     <string name="self_updater_installation_failed">下載更新失敗。請手動從 <a href="https://github.com/Mon-pub/F1Whisper/releases">https://github.com/Mon-pub/F1Whisper/releases</a> 下載並安裝更新。</string>
+
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">繼續使用此伺服器需要更新版本。請在 %1$s 內更新。</string>
+    <string name="mandatory_update_forced_title">需要更新</string>
+    <string name="mandatory_update_forced_body">繼續使用此伺服器需要更新版本。請立即更新。</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">立即更新</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="other">%d 小時</item>
+    </plurals>
 </resources>

@@ -34,4 +34,20 @@
         android:singleLine="true"
         android:text="Tap" />
 
+    <!--
+     F1Whisper: interactive checklist rows are inflated into this container when the ballot's
+     displayType == CHECKLIST. Hidden (and the controller/text affordance used instead) for normal
+     polls.
+    -->
+    <LinearLayout
+        android:id="@+id/checklist_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/secondary_text_view"
+        android:layout_alignStart="@id/text_view"
+        android:paddingStart="@dimen/chat_bubble_container_padding_left_right"
+        android:paddingTop="4dp"
+        android:orientation="vertical"
+        android:visibility="gone" />
+
 </RelativeLayout>

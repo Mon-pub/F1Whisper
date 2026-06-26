@@ -483,9 +483,11 @@
         <activity
             android:name=".activities.AddAccountActivity"
             android:theme="@android:style/Theme.NoDisplay" />
+        <!-- F1Whisper: smallestScreenSize|screenSize added for PiP resize; supportsPictureInPicture for API 26+ video minimize -->
         <activity
             android:name=".activities.MediaViewerActivity"
-            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
+            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:supportsPictureInPicture="true"
             android:theme="@style/Theme.Threema.WithToolbar" />
         <activity
             android:name=".mediagallery.MediaGalleryActivity"

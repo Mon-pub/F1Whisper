@@ -52,6 +52,8 @@ public class MimeUtil {
     public static final String MIME_TYPE_AUDIO_FLAC = "audio/flac";
     public static final String MIME_TYPE_AUDIO_XFLAC = "audio/x-flac";
     public static final String MIME_TYPE_AUDIO_OGG = "audio/ogg";
+    public static final String MIME_TYPE_AUDIO_MPEG = "audio/mpeg"; // MP3
+    public static final String MIME_TYPE_AUDIO_WAV = "audio/wav";
     public static final String MIME_TYPE_ZIP = "application/zip";
     public static final String MIME_TYPE_PDF = "application/pdf";
     public static final String MIME_TYPE_VCARD = "text/x-vcard";
@@ -358,6 +360,18 @@ public class MimeUtil {
 
     public static boolean isAudioFile(@Nullable String mimeType) {
         return mimeType != null && mimeType.startsWith("audio/");
+    }
+
+    /**
+     * F1Whisper: true if the given mime type is an audio FILE that should be attachable with a trim
+     * timeline in the send/preview flow (mp3, opus/ogg, m4a, mp4-audio, aac, flac, ...). MIDI is
+     * excluded because it has no PCM waveform / sample-accurate timeline. The actual lossless-crop
+     * eligibility (and the per-container method) is decided by
+     * {@link ch.threema.app.voicemessage.AudioTrimmer#getTrimMethod} (it sniffs the real container);
+     * this is only the attach-time gate for showing the timeline.
+     */
+    public static boolean isAttachedAudioFile(@Nullable String mimeType) {
+        return isAudioFile(mimeType) && !isMidiFile(mimeType);
     }
 
     public static boolean isText(@Nullable String mimeType) {

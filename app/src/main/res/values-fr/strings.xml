@@ -1934,4 +1934,42 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="prefs_title_link_previews">Générer des aperçus de liens</string>
     <string name="prefs_sum_link_previews">Récupérer des aperçus pour les liens dans les messages que vous envoyez. Les aperçus sont envoyés chiffrés de bout en bout ; l\'appareil du destinataire ne contacte jamais le site web.</string>
     <string name="link_preview_remove">Supprimer l\'aperçu du lien</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Faites glisser les poignées pour rogner</string>
+    <string name="audio_trim_action">Rogner</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimiser</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Liste de contrôle</string>
+    <string name="checklist_create_as">Créer comme liste de contrôle</string>
+    <string name="checklist_fork_only">Les listes de contrôle ne fonctionnent qu\'entre utilisateurs F1Whisper.</string>
+    <string name="checklist_toggle_item">Cocher/décocher l\'élément</string>
+    <string name="checklist_checked_by">Coché par %1$s</string>
+    <string name="checklist_created_successfully">Liste de contrôle créée</string>
+    <string name="checklist_placeholder">Liste de contrôle</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Épingler le message</string>
+    <string name="unpin_message">Désépingler</string>
+    <string name="pinned_message_banner_label">Message épinglé</string>
+    <string name="pinned_message_banner_dismiss">Masquer la bannière du message épinglé</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Saisissez un titre de liste</string>
+    <string name="checklist_wizard0_explain">Créez une liste de tâches partagée. Tout le monde dans la discussion peut cocher et décocher des éléments à tout moment, et les éléments cochés passent en bas.</string>
+    <string name="checklist_add_items">Ajouter des éléments</string>
+    <string name="checklist_item_add">Ajouter un élément</string>
+    <string name="checklist_item_count_error">Veuillez ajouter au moins un élément</string>
+    <string name="checklist_add_item_title">Ajouter un élément</string>
+    <string name="checklist_add_item_hint">Nom du nouvel élément</string>
+    <string name="checklist_add_item_button">Ajouter</string>
+    <string name="checklist_delete_item_title">Supprimer l\'élément ?</string>
+    <string name="checklist_delete_item_message">Voulez-vous vraiment supprimer \"%1$s\" ?</string>
+    <string name="checklist_delete_button">Supprimer</string>
+    <string name="checklist_reorder_item">Déplacer l\'élément de la liste</string>
+    <string name="checklist_cannot_reorder">Cet élément ne peut pas être déplacé</string>
+    <string name="checklist_edit_title">Modifier la liste</string>
+    <string name="checklist_edit_apply">Appliquer</string>
+    <string name="checklist_rename_item_title">Renommer l\'élément</string>
+    <string name="audio_trim_not_supported">Le rognage n\'est pas pris en charge pour ce format audio. Retirez le rognage pour envoyer le fichier complet.</string>
+    <string name="audio_trim_failed">Impossible de rogner cet audio. Rien n\'a été envoyé. Veuillez réessayer ou retirer le rognage.</string>
+    <string name="pinned_message_banner_label_counter">Message épinglé %1$d/%2$d</string>
 </resources>

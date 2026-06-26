@@ -1156,6 +1156,16 @@ public class APIConnector {
                 checkLicenseResult.updateUrl = result.getString("updateUrl");
             }
 
+            // F1Whisper: mandatory-update gate (OPTIONAL, additive). Both fields absent => no gate.
+            // Presence of mandatoryMinIteration is the gate signal; no client-side iteration
+            // re-computation needed (the server already determined this client is below floor).
+            if (result.has("mandatoryMinIteration")) {
+                checkLicenseResult.mandatoryMinIteration = result.getLong("mandatoryMinIteration");
+            }
+            if (result.has("mandatoryUpdateDeadline")) {
+                checkLicenseResult.mandatoryUpdateDeadline = result.getLong("mandatoryUpdateDeadline");
+            }
+
         } else {
             checkLicenseResult.success = false;
             checkLicenseResult.error = result.getString("error");
@@ -1710,6 +1720,11 @@ public class APIConnector {
         public String error;
         public String updateMessage;
         public String updateUrl;
+        // F1Whisper: mandatory-update gate fields. Both are OPTIONAL (absent => no gate).
+        // mandatoryMinIteration: server-configured floor; presence alone signals this client is gated.
+        // mandatoryUpdateDeadline: unix epoch seconds; absent or null => treat as immediate forced update.
+        @Nullable public Long mandatoryMinIteration;
+        @Nullable public Long mandatoryUpdateDeadline;
     }
 
     public static class CheckIdentityStatesResult {

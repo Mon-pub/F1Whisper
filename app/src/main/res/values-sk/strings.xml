@@ -1901,4 +1901,42 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="prefs_title_link_previews">Vytvárať náhľady odkazov</string>
     <string name="prefs_sum_link_previews">Načítavať náhľady odkazov v správach, ktoré odosielate. Náhľady sa odosielajú koncovo šifrované; zariadenie príjemcu nikdy nekontaktuje webovú stránku.</string>
     <string name="link_preview_remove">Odstrániť náhľad odkazu</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Potiahnutím úchytov orezajte</string>
+    <string name="audio_trim_action">Orezať</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimalizovať</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Kontrolný zoznam</string>
+    <string name="checklist_create_as">Vytvoriť ako kontrolný zoznam</string>
+    <string name="checklist_fork_only">Kontrolné zoznamy fungujú iba medzi používateľmi F1Whisper.</string>
+    <string name="checklist_toggle_item">Prepnúť položku zoznamu</string>
+    <string name="checklist_checked_by">Zaškrtol/a %1$s</string>
+    <string name="checklist_created_successfully">Kontrolný zoznam bol vytvorený</string>
+    <string name="checklist_placeholder">Kontrolný zoznam</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Pripnúť správu</string>
+    <string name="unpin_message">Odopnúť</string>
+    <string name="pinned_message_banner_label">Pripnutá správa</string>
+    <string name="pinned_message_banner_dismiss">Skryť banner pripnutej správy</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Zadajte názov zoznamu úloh</string>
+    <string name="checklist_wizard0_explain">Vytvorte zdieľaný zoznam úloh. Ktokoľvek v chate môže kedykoľvek položky zaškrtnúť aj odškrtnúť a zaškrtnuté položky sa presunú nadol.</string>
+    <string name="checklist_add_items">Pridať položky</string>
+    <string name="checklist_item_add">Pridať položku</string>
+    <string name="checklist_item_count_error">Pridajte aspoň jednu položku</string>
+    <string name="checklist_add_item_title">Pridať položku</string>
+    <string name="checklist_add_item_hint">Názov novej položky</string>
+    <string name="checklist_add_item_button">Pridať</string>
+    <string name="checklist_delete_item_title">Odstrániť položku?</string>
+    <string name="checklist_delete_item_message">Naozaj chcete odstrániť \"%1$s\"?</string>
+    <string name="checklist_delete_button">Odstrániť</string>
+    <string name="checklist_reorder_item">Presunúť položku zoznamu</string>
+    <string name="checklist_cannot_reorder">Túto položku nie je možné presunúť</string>
+    <string name="checklist_edit_title">Upraviť zoznam</string>
+    <string name="checklist_edit_apply">Použiť</string>
+    <string name="checklist_rename_item_title">Premenovať položku</string>
+    <string name="audio_trim_not_supported">Orezanie nie je pre tento zvukový formát podporované. Odstráňte orezanie, ak chcete odoslať celý súbor.</string>
+    <string name="audio_trim_failed">Tento zvuk sa nepodarilo orezať. Nič sa neodoslalo. Skúste to znova alebo odstráňte orezanie.</string>
+    <string name="pinned_message_banner_label_counter">Pripnutá správa %1$d/%2$d</string>
 </resources>

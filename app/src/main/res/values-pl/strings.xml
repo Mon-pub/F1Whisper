@@ -1974,4 +1974,42 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="prefs_title_link_previews">Generuj podglądy linków</string>
     <string name="prefs_sum_link_previews">Pobieraj podglądy linków w wysyłanych wiadomościach. Podglądy są wysyłane z szyfrowaniem end-to-end; urządzenie odbiorcy nigdy nie łączy się ze stroną.</string>
     <string name="link_preview_remove">Usuń podgląd linku</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Przeciągnij uchwyty, aby przyciąć</string>
+    <string name="audio_trim_action">Przytnij</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimalizuj</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Lista kontrolna</string>
+    <string name="checklist_create_as">Utwórz jako listę kontrolną</string>
+    <string name="checklist_fork_only">Listy kontrolne działają tylko między użytkownikami F1Whisper.</string>
+    <string name="checklist_toggle_item">Przełącz element listy</string>
+    <string name="checklist_checked_by">Zaznaczone przez %1$s</string>
+    <string name="checklist_created_successfully">Lista kontrolna utworzona</string>
+    <string name="checklist_placeholder">Lista kontrolna</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Przypnij wiadomość</string>
+    <string name="unpin_message">Odepnij</string>
+    <string name="pinned_message_banner_label">Przypięta wiadomość</string>
+    <string name="pinned_message_banner_dismiss">Ukryj baner przypiętej wiadomości</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Wpisz tytuł listy zadań</string>
+    <string name="checklist_wizard0_explain">Utwórz wspólną listę zadań. Każdy w czacie może w dowolnym momencie zaznaczać i odznaczać pozycje, a zaznaczone pozycje przenoszą się na dół.</string>
+    <string name="checklist_add_items">Dodaj pozycje</string>
+    <string name="checklist_item_add">Dodaj pozycję</string>
+    <string name="checklist_item_count_error">Dodaj co najmniej jedną pozycję</string>
+    <string name="checklist_add_item_title">Dodaj element</string>
+    <string name="checklist_add_item_hint">Nazwa nowego elementu</string>
+    <string name="checklist_add_item_button">Dodaj</string>
+    <string name="checklist_delete_item_title">Usunąć element?</string>
+    <string name="checklist_delete_item_message">Czy na pewno chcesz usunąć \"%1$s\"?</string>
+    <string name="checklist_delete_button">Usuń</string>
+    <string name="checklist_reorder_item">Przenieś element listy</string>
+    <string name="checklist_cannot_reorder">Tego elementu nie można przenieść</string>
+    <string name="checklist_edit_title">Edytuj listę</string>
+    <string name="checklist_edit_apply">Zastosuj</string>
+    <string name="checklist_rename_item_title">Zmień nazwę pozycji</string>
+    <string name="audio_trim_not_supported">Przycinanie nie jest obsługiwane dla tego formatu audio. Usuń przycięcie, aby wysłać cały plik.</string>
+    <string name="audio_trim_failed">Nie udało się przyciąć tego dźwięku. Nic nie zostało wysłane. Spróbuj ponownie lub usuń przycięcie.</string>
+    <string name="pinned_message_banner_label_counter">Przypięta wiadomość %1$d/%2$d</string>
 </resources>

@@ -1945,4 +1945,42 @@
     <string name="prefs_title_link_previews">ساخت پیش‌نمایش پیوند</string>
     <string name="prefs_sum_link_previews">برای پیوندهای موجود در پیام‌هایی که می‌فرستید پیش‌نمایش دریافت کنید. پیش‌نمایش‌ها به‌صورت سرتاسر رمزگذاری‌شده ارسال می‌شوند؛ دستگاه گیرنده هرگز به وب‌سایت متصل نمی‌شود.</string>
     <string name="link_preview_remove">حذف پیش‌نمایش پیوند</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">دستگیره‌ها را برای برش بکشید</string>
+    <string name="audio_trim_action">برش</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">کوچک‌سازی</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">چک‌لیست</string>
+    <string name="checklist_create_as">ایجاد به‌عنوان چک‌لیست</string>
+    <string name="checklist_fork_only">چک‌لیست‌ها فقط بین کاربران F1Whisper کار می‌کنند.</string>
+    <string name="checklist_toggle_item">تغییر وضعیت مورد چک‌لیست</string>
+    <string name="checklist_checked_by">علامت‌گذاری شده توسط %1$s</string>
+    <string name="checklist_created_successfully">چک‌لیست ایجاد شد</string>
+    <string name="checklist_placeholder">چک‌لیست</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">سنجاق کردن پیام</string>
+    <string name="unpin_message">برداشتن سنجاق</string>
+    <string name="pinned_message_banner_label">پیام سنجاق‌شده</string>
+    <string name="pinned_message_banner_dismiss">پنهان کردن نوار پیام سنجاق‌شده</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">عنوان فهرست کارها را وارد کنید</string>
+    <string name="checklist_wizard0_explain">یک فهرست کارهای مشترک بسازید. همه افراد در گفت‌وگو می‌توانند در هر زمان موارد را علامت بزنند یا علامت آن‌ها را بردارند، و موارد علامت‌خورده به پایین منتقل می‌شوند.</string>
+    <string name="checklist_add_items">افزودن موارد</string>
+    <string name="checklist_item_add">افزودن یک مورد</string>
+    <string name="checklist_item_count_error">لطفاً حداقل یک مورد اضافه کنید</string>
+    <string name="checklist_add_item_title">افزودن مورد</string>
+    <string name="checklist_add_item_hint">نام مورد جدید</string>
+    <string name="checklist_add_item_button">افزودن</string>
+    <string name="checklist_delete_item_title">حذف مورد؟</string>
+    <string name="checklist_delete_item_message">آیا مطمئن هستید که می‌خواهید \"%1$s\" را حذف کنید؟</string>
+    <string name="checklist_delete_button">حذف</string>
+    <string name="checklist_reorder_item">جابجایی مورد فهرست</string>
+    <string name="checklist_cannot_reorder">این مورد قابل جابجایی نیست</string>
+    <string name="checklist_edit_title">ویرایش فهرست کارها</string>
+    <string name="checklist_edit_apply">اعمال</string>
+    <string name="checklist_rename_item_title">تغییر نام مورد</string>
+    <string name="audio_trim_not_supported">برش برای این قالب صوتی پشتیبانی نمی‌شود. برای ارسال فایل کامل، برش را حذف کنید.</string>
+    <string name="audio_trim_failed">برش این صدا ممکن نشد. چیزی ارسال نشد. لطفاً دوباره تلاش کنید یا برش را حذف کنید.</string>
+    <string name="pinned_message_banner_label_counter">پیام سنجاق‌شده %1$d/%2$d</string>
 </resources>

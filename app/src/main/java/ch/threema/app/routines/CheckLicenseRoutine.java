@@ -103,7 +103,22 @@ public class CheckLicenseRoutine implements Runnable {
 
             if (licenseService instanceof LicenseServiceThreema && BuildFlavor.getCurrent().getMaySelfUpdate()) {
                 LicenseServiceThreema<?> licenseServiceThreema = (LicenseServiceThreema<?>) licenseService;
-                if (licenseServiceThreema.getUpdateMessage() != null && !licenseServiceThreema.isUpdateMessageShown()) {
+                // F1Whisper: mandatory-update gate takes priority over the regular update nag.
+                // Presence of mandatoryMinIteration means the server determined this client is
+                // below the configured floor. This gate is SOFT (see plan honesty-ceiling) and
+                // is NOT a security mechanism; an AGPL self-installed client can bypass it.
+                if (licenseServiceThreema.getMandatoryMinIteration() != null) {
+                    try {
+                        LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(
+                            IntentDataUtil.createActionIntentMandatoryUpdate(
+                                licenseServiceThreema.getUpdateUrl(),
+                                licenseServiceThreema.getMandatoryUpdateDeadline()
+                            )
+                        );
+                    } catch (ReceiverCallNotAllowedException x) {
+                        logger.error("Exception", x);
+                    }
+                } else if (licenseServiceThreema.getUpdateMessage() != null && !licenseServiceThreema.isUpdateMessageShown()) {
                     try {
                         LocalBroadcastManager.getInstance(applicationContext).sendBroadcast(
                             IntentDataUtil.createActionIntentUpdateAvailable(

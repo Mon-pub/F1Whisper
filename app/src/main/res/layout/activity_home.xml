@@ -37,6 +37,11 @@
             layout="@layout/notice_sms_verification"
             tools:visibility="gone" />
 
+        <!-- F1Whisper: mandatory-update banner — shown when server gates this client (non-dismissable). -->
+        <include
+            layout="@layout/notice_mandatory_update"
+            tools:visibility="gone" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <include

@@ -9,6 +9,7 @@ import static ch.threema.app.preference.service.PreferenceService.VIDEO_SIZE_MED
 import static ch.threema.app.preference.service.PreferenceService.VIDEO_SIZE_ORIGINAL;
 import static ch.threema.app.preference.service.PreferenceService.VIDEO_SIZE_SEND_AS_FILE;
 import static ch.threema.app.preference.service.PreferenceService.VIDEO_SIZE_SMALL;
+import static ch.threema.app.ui.MediaItem.TYPE_AUDIO_FILE;
 import static ch.threema.app.ui.MediaItem.TYPE_IMAGE;
 import static ch.threema.app.ui.MediaItem.TYPE_IMAGE_CAM;
 import static ch.threema.app.ui.MediaItem.TYPE_VIDEO;
@@ -907,7 +908,19 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
                             incomingMediaItem.setExifRotation((int) exifOrientation.getRotation());
                             incomingMediaItem.setExifFlip(exifOrientation.getFlip());
 
-                            if (MimeUtil.isVideoFile(incomingMediaItem.getMimeType())) {
+                            // F1Whisper: an attached audio file (mp3, opus/ogg, m4a, mp4-audio, ...)
+                            // gets a trim timeline in the preview, just like a video. Re-classify it
+                            // as TYPE_AUDIO_FILE here, at the attach boundary -- regardless of whether
+                            // the picker classified it as TYPE_FILE (mp3/opus/flac) or TYPE_VOICEMESSAGE
+                            // (m4a/aac). This keeps the voice-recorder path (which builds its own
+                            // TYPE_VOICEMESSAGE item directly) and every other consumer untouched.
+                            if (MimeUtil.isAttachedAudioFile(incomingMediaItem.getMimeType())) {
+                                incomingMediaItem.setType(TYPE_AUDIO_FILE);
+                                incomingMediaItem.setRenderingType(FileData.RENDERING_DEFAULT);
+                            }
+
+                            if (MimeUtil.isVideoFile(incomingMediaItem.getMimeType())
+                                || incomingMediaItem.getType() == TYPE_AUDIO_FILE) {
                                 // do not use automatic resource management on MediaMetadataRetriever
                                 MediaMetadataRetriever metaDataRetriever = new MediaMetadataRetriever();
                                 try {

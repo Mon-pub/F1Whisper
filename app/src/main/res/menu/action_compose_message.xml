@@ -77,6 +77,23 @@
         app:iconTint="?attr/colorPrimary"
         app:showAsAction="ifRoom" />
 
+    <!-- F1Whisper: pin/unpin a message locally (persisted in displayTags, no wire change) -->
+    <item
+        android:id="@+id/menu_message_pin"
+        android:icon="@drawable/ic_pin"
+        android:orderInCategory="57"
+        android:title="@string/pin_message"
+        app:iconTint="?attr/colorPrimary"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/menu_message_unpin"
+        android:icon="@drawable/ic_unpin"
+        android:orderInCategory="58"
+        android:title="@string/unpin_message"
+        app:iconTint="?attr/colorPrimary"
+        app:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/menu_info"
         android:icon="@drawable/ic_info_outline"

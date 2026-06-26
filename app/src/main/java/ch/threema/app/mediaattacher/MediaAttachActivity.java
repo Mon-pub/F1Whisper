@@ -92,7 +92,7 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
     private ConstraintLayout sendPanel;
     private LinearLayout attachPanel;
-    private ControlPanelButton attachGalleryButton, attachLocationButton, attachQRButton, attachBallotButton, attachDrawingButton, attachFileButton, sendButton, editButton, cancelButton, attachFromExternalCameraButton;
+    private ControlPanelButton attachGalleryButton, attachLocationButton, attachQRButton, attachBallotButton, attachChecklistButton, attachDrawingButton, attachFileButton, sendButton, editButton, cancelButton, attachFromExternalCameraButton;
     private Button selectCounterButton;
     private ImageView moreArrowView;
     private HorizontalScrollView scrollView;
@@ -206,6 +206,7 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         this.attachFileButton = attachPanel.findViewById(R.id.attach_file);
         this.attachQRButton = attachPanel.findViewById(R.id.attach_qr_code);
         this.attachBallotButton = attachPanel.findViewById(R.id.attach_poll);
+        this.attachChecklistButton = attachPanel.findViewById(R.id.attach_checklist);
         this.attachDrawingButton = attachPanel.findViewById(R.id.attach_drawing);
 
         // Attaching a device address-book contact has been removed for privacy reasons.
@@ -243,6 +244,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         if (messageReceiver instanceof DistributionListMessageReceiver ||
             (messageReceiver instanceof GroupMessageReceiver && dependencies.getGroupService().isNotesGroup(((GroupMessageReceiver) messageReceiver).getGroup()))) {
             this.attachBallotButton.setVisibility(View.GONE);
+            // A checklist rides the poll wire, so it shares the same receiver constraints.
+            this.attachChecklistButton.setVisibility(View.GONE);
         }
     }
 
@@ -252,6 +255,7 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         attachFileButton.setOnClickListener(this);
         attachQRButton.setOnClickListener(this);
         attachBallotButton.setOnClickListener(this);
+        attachChecklistButton.setOnClickListener(this);
         attachDrawingButton.setOnClickListener(this);
         sendButton.setOnClickListener(this);
         editButton.setOnClickListener(this);
@@ -345,6 +349,9 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             if (attachBallotButton.getVisibility() == View.VISIBLE) {
                 AnimationUtil.bubbleAnimate(attachBallotButton, animDelay += animDelayDiff);
             }
+            if (attachChecklistButton.getVisibility() == View.VISIBLE) {
+                AnimationUtil.bubbleAnimate(attachChecklistButton, animDelay += animDelayDiff);
+            }
             AnimationUtil.bubbleAnimate(attachDrawingButton, animDelay += animDelayDiff);
             AnimationUtil.bubbleAnimate(attachQRButton, animDelay += animDelayDiff);
             AnimationUtil.bubbleAnimate(attachFromExternalCameraButton, animDelay + animDelayDiff);
@@ -363,6 +370,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             }
         } else if (id == R.id.attach_poll) {
             createBallot();
+        } else if (id == R.id.attach_checklist) {
+            createChecklist();
         } else if (id == R.id.attach_qr_code) {
             if (ConfigUtils.requestCameraPermissions(this, null, PERMISSION_REQUEST_QR_READER)) {
                 attachQR(v);
@@ -596,6 +605,19 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
     private void createBallot() {
         Intent intent = new Intent(this, BallotWizardActivity.class);
         IntentDataUtil.addMessageReceiverToIntent(intent, messageReceiver);
+        startActivityForResult(intent, ThreemaActivity.ACTIVITY_ID_CREATE_BALLOT);
+    }
+
+    /**
+     * F1Whisper: launch the ballot wizard pre-configured for a shared interactive checklist
+     * (Scarlet-Notes-style). The wizard reads {@link BallotWizardActivity#EXTRA_CREATE_CHECKLIST}
+     * and switches to checklist mode (displayType=CHECKLIST, multiple-choice), hiding the poll-only
+     * options, so the user lands directly on "enter your items".
+     */
+    private void createChecklist() {
+        Intent intent = new Intent(this, BallotWizardActivity.class);
+        IntentDataUtil.addMessageReceiverToIntent(intent, messageReceiver);
+        intent.putExtra(BallotWizardActivity.EXTRA_CREATE_CHECKLIST, true);
         startActivityForResult(intent, ThreemaActivity.ACTIVITY_ID_CREATE_BALLOT);
     }
 

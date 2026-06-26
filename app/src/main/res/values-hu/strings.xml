@@ -1390,4 +1390,42 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="prefs_title_link_previews">Hivatkozás-előnézetek létrehozása</string>
     <string name="prefs_sum_link_previews">Előnézetek lekérése az elküldött üzenetekben lévő hivatkozásokhoz. Az előnézetek végpontok közötti titkosítással kerülnek elküldésre; a címzett eszköze soha nem lép kapcsolatba a weboldallal.</string>
     <string name="link_preview_remove">Hivatkozás előnézetének eltávolítása</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Húzza a fogókat a vágáshoz</string>
+    <string name="audio_trim_action">Vágás</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimalizálás</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Ellenőrzőlista</string>
+    <string name="checklist_create_as">Létrehozás ellenőrzőlistaként</string>
+    <string name="checklist_fork_only">Az ellenőrzőlisták csak F1Whisper felhasználók között működnek.</string>
+    <string name="checklist_toggle_item">Elem be-/kikapcsolása</string>
+    <string name="checklist_checked_by">%1$s jelölte be</string>
+    <string name="checklist_created_successfully">Ellenőrzőlista létrehozva</string>
+    <string name="checklist_placeholder">Ellenőrzőlista</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Üzenet kitűzése</string>
+    <string name="unpin_message">Kitűzés megszüntetése</string>
+    <string name="pinned_message_banner_label">Kitűzött üzenet</string>
+    <string name="pinned_message_banner_dismiss">Kitűzött üzenet szalaghirdetésének elrejtése</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Adja meg az ellenőrzőlista címét</string>
+    <string name="checklist_wizard0_explain">Hozzon létre egy megosztott teendőlistát. A csevegésben bárki bármikor be- és kipipálhatja a tételeket, a bepipált tételek pedig a lista aljára kerülnek.</string>
+    <string name="checklist_add_items">Tételek hozzáadása</string>
+    <string name="checklist_item_add">Tétel hozzáadása</string>
+    <string name="checklist_item_count_error">Adjon hozzá legalább egy tételt</string>
+    <string name="checklist_add_item_title">Elem hozzáadása</string>
+    <string name="checklist_add_item_hint">Új elem neve</string>
+    <string name="checklist_add_item_button">Hozzáadás</string>
+    <string name="checklist_delete_item_title">Törli az elemet?</string>
+    <string name="checklist_delete_item_message">Biztosan törli a következőt: \"%1$s\"?</string>
+    <string name="checklist_delete_button">Törlés</string>
+    <string name="checklist_reorder_item">Listaelem áthelyezése</string>
+    <string name="checklist_cannot_reorder">Ezt az elemet nem lehet áthelyezni</string>
+    <string name="checklist_edit_title">Lista szerkesztése</string>
+    <string name="checklist_edit_apply">Alkalmaz</string>
+    <string name="checklist_rename_item_title">Elem átnevezése</string>
+    <string name="audio_trim_not_supported">A vágás nem támogatott ennél a hangformátumnál. Távolítsa el a vágást a teljes fájl elküldéséhez.</string>
+    <string name="audio_trim_failed">Nem sikerült levágni ezt a hangot. Semmi sem lett elküldve. Próbálja újra, vagy távolítsa el a vágást.</string>
+    <string name="pinned_message_banner_label_counter">Rögzített üzenet %1$d/%2$d</string>
 </resources>

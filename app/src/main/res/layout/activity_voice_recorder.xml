@@ -32,6 +32,20 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
+        <!-- F1Whisper: dual-handle waveform trim widget. Shown only when the recording is finished
+             (FinishedRecording state), letting the user crop the start/end before sending. -->
+        <ch.threema.app.ui.AudioTrimView
+            android:id="@+id/audio_trim_view"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:contentDescription="@string/audio_trim_action"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <RelativeLayout
             android:id="@+id/bottom_panel"
             android:layout_width="match_parent"

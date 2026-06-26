@@ -1407,4 +1407,42 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="prefs_title_link_previews">Genera previsualitzacions d\'enllaços</string>
     <string name="prefs_sum_link_previews">Obtén previsualitzacions dels enllaços dels missatges que envies. Les previsualitzacions s\'envien xifrades d\'extrem a extrem; el dispositiu del destinatari mai no contacta amb el lloc web.</string>
     <string name="link_preview_remove">Elimina la previsualització de l\'enllaç</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Arrossegueu els controls per retallar</string>
+    <string name="audio_trim_action">Retalla</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimitza</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Llista de verificació</string>
+    <string name="checklist_create_as">Crea com a llista de verificació</string>
+    <string name="checklist_fork_only">Les llistes de verificació només funcionen entre usuaris de F1Whisper.</string>
+    <string name="checklist_toggle_item">Commuta element de la llista</string>
+    <string name="checklist_checked_by">Marcat per %1$s</string>
+    <string name="checklist_created_successfully">Llista de verificació creada</string>
+    <string name="checklist_placeholder">Llista de verificació</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Fixa el missatge</string>
+    <string name="unpin_message">Desfixa</string>
+    <string name="pinned_message_banner_label">Missatge fixat</string>
+    <string name="pinned_message_banner_dismiss">Amaga el bàner del missatge fixat</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Introduïu un títol per a la llista</string>
+    <string name="checklist_wizard0_explain">Creeu una llista de tasques compartida. Tothom del xat pot marcar i desmarcar elements en qualsevol moment, i els elements marcats es mouen al final.</string>
+    <string name="checklist_add_items">Afegeix elements</string>
+    <string name="checklist_item_add">Afegeix un element</string>
+    <string name="checklist_item_count_error">Afegiu almenys un element</string>
+    <string name="checklist_add_item_title">Afegeix un element</string>
+    <string name="checklist_add_item_hint">Nom del nou element</string>
+    <string name="checklist_add_item_button">Afegeix</string>
+    <string name="checklist_delete_item_title">Voleu suprimir l\'element?</string>
+    <string name="checklist_delete_item_message">Segur que voleu suprimir \"%1$s\"?</string>
+    <string name="checklist_delete_button">Suprimeix</string>
+    <string name="checklist_reorder_item">Mou l\'element de la llista</string>
+    <string name="checklist_cannot_reorder">Aquest element no es pot moure</string>
+    <string name="checklist_edit_title">Edita la llista</string>
+    <string name="checklist_edit_apply">Aplica</string>
+    <string name="checklist_rename_item_title">Canvia el nom de l\'element</string>
+    <string name="audio_trim_not_supported">Aquest format d\'àudio no admet la retallada. Elimina la retallada per enviar el fitxer sencer.</string>
+    <string name="audio_trim_failed">No s\'ha pogut retallar aquest àudio. No s\'ha enviat res. Torna-ho a provar o elimina la retallada.</string>
+    <string name="pinned_message_banner_label_counter">Missatge fixat %1$d/%2$d</string>
 </resources>

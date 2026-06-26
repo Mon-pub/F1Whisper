@@ -158,7 +158,7 @@ class SendMediaPreviewAdapter(
      */
     private fun updateSendAsFileLayout(holder: SendMediaItemHolder, item: MediaItem) {
         val sendAsFile =
-            item.type == TYPE_FILE || item.imageScale == IMAGE_SCALE_SEND_AS_FILE || item.videoSize == VIDEO_SIZE_SEND_AS_FILE
+            item.type == TYPE_FILE || item.type == TYPE_AUDIO_FILE || item.imageScale == IMAGE_SCALE_SEND_AS_FILE || item.videoSize == VIDEO_SIZE_SEND_AS_FILE
         holder.fileIndicatorView.visibility = if (sendAsFile) View.VISIBLE else View.GONE
     }
 
@@ -196,6 +196,7 @@ class SendMediaPreviewAdapter(
     private fun showAsFile(mediaItem: MediaItem): Boolean {
         return when (mediaItem.type) {
             TYPE_FILE -> true
+            TYPE_AUDIO_FILE -> true
             TYPE_VOICEMESSAGE -> true
             TYPE_TEXT -> true
             else -> false

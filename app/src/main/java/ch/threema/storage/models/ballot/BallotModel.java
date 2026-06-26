@@ -35,7 +35,9 @@ public class BallotModel {
     }
 
     public enum DisplayType {
-        LIST_MODE, SUMMARY_MODE
+        // CHECKLIST is F1Whisper-only; it rides the existing Ballot/Poll wire and is persisted by
+        // name here. See BallotData.DisplayType (domain) for the interop caveat.
+        LIST_MODE, SUMMARY_MODE, CHECKLIST
     }
 
     private int id;

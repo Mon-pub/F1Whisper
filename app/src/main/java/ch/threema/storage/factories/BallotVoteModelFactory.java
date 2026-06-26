@@ -242,6 +242,20 @@ public class BallotVoteModelFactory extends ModelFactory {
         );
     }
 
+    /**
+     * Delete all votes that referenced a now-removed ballot choice (used by the F1Whisper checklist
+     * editor so deleting an item never leaves orphan votes pointing at a missing choice).
+     */
+    public int deleteByBallotChoiceId(int ballotChoiceId) {
+        return getWritableDatabase().delete(
+            this.getTableName(),
+            BallotVoteModel.COLUMN_BALLOT_CHOICE_ID + "=?",
+            new String[]{
+                String.valueOf(ballotChoiceId)
+            }
+        );
+    }
+
     public int deleteByBallotIdAndVotingIdentity(int ballotId, String identity) {
         return getWritableDatabase().delete(
             this.getTableName(),

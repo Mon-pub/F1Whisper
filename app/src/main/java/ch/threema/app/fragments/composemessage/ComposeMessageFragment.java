@@ -21,6 +21,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.SystemClock;
 import android.os.Vibrator;
@@ -183,6 +184,7 @@ import ch.threema.app.emojis.EmojiTextView;
 import ch.threema.app.glide.AvatarOptions;
 import ch.threema.app.home.HomeActivity;
 import ch.threema.app.listeners.BallotListener;
+import ch.threema.app.listeners.BallotVoteListener;
 import ch.threema.app.listeners.ContactListener;
 import ch.threema.app.listeners.ContactTypingListener;
 import ch.threema.app.listeners.ConversationListener;
@@ -349,6 +351,7 @@ import static ch.threema.app.utils.ActiveScreenLoggerKt.logScreenVisibility;
 import static ch.threema.app.utils.MessageUtil.canDeleteRemotely;
 import static ch.threema.app.utils.ShortcutUtil.TYPE_CHAT;
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
+import static ch.threema.storage.models.data.DisplayTag.DISPLAY_TAG_PINNED;
 import static ch.threema.storage.models.data.DisplayTag.DISPLAY_TAG_STARRED;
 
 public class ComposeMessageFragment extends Fragment implements
@@ -544,6 +547,34 @@ public class ComposeMessageFragment extends Fragment implements
     private OpenBallotNoticeView openBallotNoticeView;
     private ReportSpamView reportSpamView;
     private AvailabilityStatusContactBannerView availabilityStatusBannerView;
+    // F1Whisper: pinned-message banner views + cycler state.
+    // The cycler is keyed by the message's globally-unique uid (Telegram-style jump-by-id), NEVER by
+    // text content or object identity: with several pins sharing the same body (e.g. two "Test"
+    // messages) the banner must jump to the EXACT pinned message, and successive taps must cycle
+    // through the distinct pinned messages in pin order. uid is stable across adapter rebuilds and a
+    // deleted message simply drops out of the recollected set.
+    private View pinnedBannerContainer;
+    private TextView pinnedBannerPreview;
+    private TextView pinnedBannerLabel;
+    // uids of the currently-pinned messages, in pin (list) order; rebuilt on every banner refresh
+    private final List<String> pinnedMessageUids = new ArrayList<>();
+    // uid of the message currently shown in the banner (the next tap jumps to THIS one)
+    @Nullable
+    private String currentPinnedMessageUid = null;
+    private boolean pinnedBannerDismissed = false; // user hit X; hide for this session only
+    // transient jump-target highlight (Material 3): the row we briefly flash after a banner jump
+    @NonNull
+    private final Handler pinnedHighlightHandler = new Handler(Looper.getMainLooper());
+    @Nullable
+    private Runnable pinnedHighlightClear = null;
+    // F1Whisper: coalesce a burst of ballot-vote callbacks (a busy group checklist can fire many in a
+    // row) into a single list re-bind ~200ms after the burst goes quiet, so the list does not jank or
+    // disturb scroll on every vote. A single pending runnable is reused per burst.
+    @NonNull
+    private final Handler ballotRefreshHandler = new Handler(Looper.getMainLooper());
+    @Nullable
+    private Runnable ballotRefreshRunnable = null;
+    private static final long BALLOT_REFRESH_DEBOUNCE_MS = 200L;
     private ComposeMessageActivity activity;
     private View fragmentView;
     private FrameLayout coordinatorLayout;
@@ -790,6 +821,8 @@ public class ComposeMessageFragment extends Fragment implements
                         dismissEmojiReactionPopupIfMessageWasDeleted(modifiedMessageModel);
                     }
                 }
+                // F1Whisper: a message's displayTags may have changed (e.g., pin/unpin); keep banner in sync
+                updatePinnedBanner();
             });
         }
 
@@ -799,6 +832,9 @@ public class ComposeMessageFragment extends Fragment implements
                 if (composeMessageAdapter != null && removedMessageModel != null) {
                     composeMessageAdapter.remove(removedMessageModel);
                 }
+                // F1Whisper: a removed message may have been pinned; drop it from the banner set
+                // (no crash, no stale jump) and re-render / hide the banner accordingly.
+                updatePinnedBanner();
             });
         }
 
@@ -810,6 +846,8 @@ public class ComposeMessageFragment extends Fragment implements
                         composeMessageAdapter.remove(removedMessageModel);
                     }
                 }
+                // F1Whisper: same as the single-removal path — keep the pinned banner consistent.
+                updatePinnedBanner();
             });
         }
 
@@ -1176,6 +1214,12 @@ public class ComposeMessageFragment extends Fragment implements
 
         @Override
         public void onModified(BallotModel ballotModel) {
+            // F1Whisper: a checklist STRUCTURE change (add / remove / reorder of items) arrives here --
+            // both on the creator's own re-broadcast and on a receiver after mergeChecklistUpdate()
+            // applies an incoming GroupPollSetup (0x52) modify. Re-render the open chat's checklist
+            // bubble promptly via the SAME debounced, targeted rebind used for vote changes so the new
+            // items/order show without waiting for a natural row recycle.
+            refreshListForBallot(ballotModel);
         }
 
         @Override
@@ -1204,6 +1248,78 @@ public class ComposeMessageFragment extends Fragment implements
             return true;
         }
     };
+
+    /**
+     * F1Whisper: refresh the message list when any ballot vote changes (my own optimistic toggle
+     * being confirmed/reconciled, or a remote participant's check). This is what makes an interactive
+     * checklist's voter-names and sink-order update without waiting for a natural row recycle, and is
+     * the reconcile half of the optimistic checklist toggle in BallotChatAdapterDecorator.
+     */
+    private final BallotVoteListener ballotVoteListener = new BallotVoteListener() {
+        @Override
+        public void onSelfVote(BallotModel ballotModel) {
+            refreshListForBallot(ballotModel);
+        }
+
+        @Override
+        public void onVoteChanged(BallotModel ballotModel, String votingIdentity, boolean isFirstVote) {
+            refreshListForBallot(ballotModel);
+        }
+
+        @Override
+        public void onVoteRemoved(BallotModel ballotModel, String votingIdentity) {
+            refreshListForBallot(ballotModel);
+        }
+
+        @Override
+        public boolean handle(BallotModel ballotModel) {
+            return true;
+        }
+    };
+
+    /**
+     * Coalesce ballot callbacks (vote changes AND checklist structure edits) into one re-bind
+     * ~200ms after the burst quiesces (a busy group checklist fires many in quick succession), and
+     * re-bind ONLY the affected ballot's rows (notifyItemsChanged) when they can be resolved, falling
+     * back to a full notifyDataSetChanged only if the rows can't be found. Keeps the list from
+     * janking / losing scroll on every vote or item edit. Shared by both the {@code ballotVoteListener}
+     * (vote/sink changes) and the {@code ballotListener.onModified} (add/remove/reorder of items).
+     */
+    private void refreshListForBallot(@Nullable BallotModel ballotModel) {
+        RuntimeUtil.runOnUiThread(() -> {
+            if (ballotRefreshRunnable != null) {
+                ballotRefreshHandler.removeCallbacks(ballotRefreshRunnable);
+            }
+            ballotRefreshRunnable = () -> rebindBallotRows(ballotModel);
+            ballotRefreshHandler.postDelayed(ballotRefreshRunnable, BALLOT_REFRESH_DEBOUNCE_MS);
+        });
+    }
+
+    /**
+     * Re-bind the chat rows carrying a given ballot. Prefers the surgical
+     * {@link ComposeMessageAdapter#notifyItemsChanged} on just that ballot's message models (resolved
+     * via the message service); falls back to a full {@code notifyDataSetChanged} when the rows can't
+     * be resolved or anything goes wrong. Must run on the UI thread.
+     */
+    @UiThread
+    private void rebindBallotRows(@Nullable BallotModel ballotModel) {
+        if (composeMessageAdapter == null) {
+            return;
+        }
+        try {
+            if (ballotModel != null && messageService != null) {
+                List<AbstractMessageModel> ballotMessages = messageService.getMessageForBallot(ballotModel);
+                if (ballotMessages != null && !ballotMessages.isEmpty()) {
+                    composeMessageAdapter.notifyItemsChanged(ballotMessages);
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not resolve ballot rows for surgical refresh", e);
+        }
+        // Fallback: the ballot's rows could not be resolved -> full refresh.
+        composeMessageAdapter.notifyDataSetChanged();
+    }
 
     private final QuotePopup.QuotePopupListener quotePopupListener = new QuotePopup.QuotePopupListener() {
         @Override
@@ -1289,6 +1405,7 @@ public class ComposeMessageFragment extends Fragment implements
         ListenerManager.messagePlayerListener.add(this.messagePlayerListener);
         ListenerManager.qrCodeScanListener.add(this.qrCodeScanListener);
         ListenerManager.ballotListeners.add(this.ballotListener);
+        ListenerManager.ballotVoteListeners.add(this.ballotVoteListener);
         VoipListenerManager.callEventListener.add(this.voipCallEventListener);
 
         initializeMedia3Controller();
@@ -1396,6 +1513,24 @@ public class ComposeMessageFragment extends Fragment implements
             this.reportSpamView.setListener(this);
 
             this.availabilityStatusBannerView = this.fragmentView.findViewById(R.id.availability_status_banner_view);
+
+            // F1Whisper: wire pinned-message banner
+            this.pinnedBannerContainer = this.fragmentView.findViewById(R.id.pinned_banner_container);
+            this.pinnedBannerPreview = this.fragmentView.findViewById(R.id.pinned_banner_preview);
+            this.pinnedBannerLabel = this.fragmentView.findViewById(R.id.pinned_banner_label);
+            final View pinnedTapArea = this.fragmentView.findViewById(R.id.pinned_banner_tap_area);
+            final View pinnedDismiss = this.fragmentView.findViewById(R.id.pinned_banner_dismiss);
+            if (pinnedTapArea != null) {
+                pinnedTapArea.setOnClickListener(v -> cyclePinnedMessageBanner());
+            }
+            if (pinnedDismiss != null) {
+                pinnedDismiss.setOnClickListener(v -> {
+                    pinnedBannerDismissed = true;
+                    if (pinnedBannerContainer != null) {
+                        pinnedBannerContainer.setVisibility(View.GONE);
+                    }
+                });
+            }
 
             quickscrollDownContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
@@ -1560,6 +1695,8 @@ public class ComposeMessageFragment extends Fragment implements
             swipeRefreshLayout.setRefreshing(false);
             swipeRefreshLayout.setEnabled(nextRecodsLoadedEvent.hasMoreRecords);
         }
+        // F1Whisper: a batch of older messages may contain pinned ones; refresh the banner
+        updatePinnedBanner();
     }
 
     @AnyThread
@@ -1924,6 +2061,11 @@ public class ComposeMessageFragment extends Fragment implements
             linkPreviewController.destroy();
             linkPreviewController = null;
         }
+        // F1Whisper: cancel any pending pinned-jump highlight cleanup to avoid touching a torn-down view.
+        if (pinnedHighlightHandler != null && pinnedHighlightClear != null) {
+            pinnedHighlightHandler.removeCallbacks(pinnedHighlightClear);
+            pinnedHighlightClear = null;
+        }
     }
 
     @Override
@@ -1941,6 +2083,12 @@ public class ComposeMessageFragment extends Fragment implements
             ListenerManager.messagePlayerListener.remove(this.messagePlayerListener);
             ListenerManager.qrCodeScanListener.remove(this.qrCodeScanListener);
             ListenerManager.ballotListeners.remove(this.ballotListener);
+            ListenerManager.ballotVoteListeners.remove(this.ballotVoteListener);
+            // F1Whisper: drop any pending coalesced ballot re-bind so it can't fire on a torn-down view.
+            if (ballotRefreshRunnable != null) {
+                ballotRefreshHandler.removeCallbacks(ballotRefreshRunnable);
+                ballotRefreshRunnable = null;
+            }
             VoipListenerManager.callEventListener.remove(this.voipCallEventListener);
 
             if (scrollButtonManager != null) {
@@ -3776,6 +3924,9 @@ public class ComposeMessageFragment extends Fragment implements
         setIdentityColors();
 
         removeIsTypingFooter();
+
+        // F1Whisper: refresh the pinned-message banner after the list is populated
+        updatePinnedBanner();
     }
 
     /**
@@ -5142,6 +5293,676 @@ public class ComposeMessageFragment extends Fragment implements
         }
     }
 
+    /**
+     * F1Whisper: toggle the DISPLAY_TAG_PINNED bit for the provided message and persist it.
+     * After the toggle, refresh the pinned banner so it reflects the new pinned set.
+     * Mirrors {@link #toggleStar(AbstractMessageModel)} exactly.
+     */
+    @UiThread
+    private void togglePin(@Nullable AbstractMessageModel messageModel) {
+        if (messageModel != null && messageReceiver != null) {
+            final int newTags = messageModel.getDisplayTags() ^ DISPLAY_TAG_PINNED;
+            final boolean nowPinned = (newTags & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED;
+            messageModel.setDisplayTags(newTags);
+            messageModel.setSaved(true);
+            messageReceiver.saveLocalModel(messageModel);
+            // Keep the known full pin set in sync immediately so the banner counter is correct
+            // without waiting on the async full scan (which still runs to reconcile paged-out pins).
+            final String toggledUid = messageModel.getUid();
+            if (toggledUid != null) {
+                if (nowPinned) {
+                    if (!pinnedMessageUids.contains(toggledUid)) {
+                        pinnedMessageUids.add(toggledUid);
+                    }
+                    // Point the banner at the message the user just pinned.
+                    currentPinnedMessageUid = toggledUid;
+                } else {
+                    pinnedMessageUids.remove(toggledUid);
+                    if (toggledUid.equals(currentPinnedMessageUid)) {
+                        // Fall back to the first remaining pin (or null -> banner hides).
+                        currentPinnedMessageUid = pinnedMessageUids.isEmpty() ? null : pinnedMessageUids.get(0);
+                    }
+                }
+            }
+            pinnedBannerDismissed = false;
+            updatePinnedBanner();
+        }
+    }
+
+    /**
+     * F1Whisper: collect the uids of all currently-pinned messages from the loaded adapter, in
+     * list (pin) order. Uses the globally-unique {@code uid} (never text/object identity) so two
+     * pins that share the same body remain distinct. Messages with a null uid are skipped (they
+     * cannot be jumped-to reliably).
+     * <p>
+     * NOTE: this only sees the bounded page of messages currently held by the adapter. A pinned
+     * message that has been paged out of the loaded window will be missed here. The authoritative,
+     * window-independent set is discovered asynchronously by {@link #refreshFullPinnedSet()} which
+     * queries the whole conversation from the database; this fast adapter scan only seeds the banner
+     * label so it can render immediately without waiting on the background query.
+     */
+    @UiThread
+    private void collectPinnedUids(@NonNull List<String> out) {
+        out.clear();
+        if (composeMessageAdapter == null) {
+            return;
+        }
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null
+                && m.getUid() != null
+                && (m.getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED) {
+                out.add(m.getUid());
+            }
+        }
+    }
+
+    // F1Whisper: guards against running more than one full-conversation pin scan at a time.
+    private boolean pinnedFullScanInProgress = false;
+
+    /**
+     * F1Whisper: discover the COMPLETE pinned set for this conversation — including pins that have
+     * been paged out of the loaded adapter window — by querying the whole conversation from the
+     * local database on a worker thread, then refresh the banner on the UI thread.
+     * <p>
+     * Without this, the cycler in {@link #cyclePinnedMessageBanner()} and the "N/M" counter in
+     * {@link #updatePinnedBanner()} would only ever know about pins that happen to be loaded, so the
+     * counter would be wrong and older pins would be unreachable. All data is local; this is a pure
+     * read, no wire change.
+     */
+    @UiThread
+    private void refreshFullPinnedSet() {
+        if (messageReceiver == null || pinnedFullScanInProgress) {
+            return;
+        }
+        pinnedFullScanInProgress = true;
+        new AsyncTask<Void, Void, List<String>>() {
+            @Override
+            protected List<String> doInBackground(Void... voids) {
+                final List<String> uids = new ArrayList<>();
+                try {
+                    // null filter => the entire conversation (same query the search action uses).
+                    final List<AbstractMessageModel> all = messageService.getMessagesForReceiver(messageReceiver);
+                    if (all != null) {
+                        // getMessagesForReceiver returns newest-first; reverse to oldest-first so the
+                        // pin order matches the loaded-adapter order used elsewhere.
+                        for (int i = all.size() - 1; i >= 0; i--) {
+                            final AbstractMessageModel m = all.get(i);
+                            if (m != null
+                                && m.getUid() != null
+                                && !m.isStatusMessage()
+                                && (m.getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED) {
+                                uids.add(m.getUid());
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.info("refreshFullPinnedSet failed", e);
+                }
+                return uids;
+            }
+
+            @Override
+            protected void onPostExecute(List<String> fullUids) {
+                pinnedFullScanInProgress = false;
+                if (!isAdded() || composeMessageAdapter == null || pinnedBannerContainer == null) {
+                    return;
+                }
+                if (pinnedBannerDismissed) {
+                    return;
+                }
+                if (!fullUids.isEmpty()) {
+                    pinnedMessageUids.clear();
+                    pinnedMessageUids.addAll(fullUids);
+                    // Repair the shown uid if the freshly-discovered set no longer contains it.
+                    if (currentPinnedMessageUid == null || !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+                        currentPinnedMessageUid = pinnedMessageUids.get(0);
+                    }
+                    renderPinnedBannerFromState();
+                } else {
+                    // No pins anywhere in the conversation: drop stale state and hide.
+                    currentPinnedMessageUid = null;
+                    pinnedMessageUids.clear();
+                    pinnedBannerContainer.setVisibility(View.GONE);
+                }
+            }
+        }.execute();
+    }
+
+    /**
+     * F1Whisper: (re-)render the pinned-message banner above the list.
+     * <p>
+     * Rebuilds the pinned-uid cycler from the live adapter, repairs {@link #currentPinnedMessageUid}
+     * if its message was deleted or unpinned (Telegram-style: the deleted id is dropped from the
+     * set and the banner advances to the first remaining pin), previews the message the next tap
+     * will jump to, and hides the banner when nothing is pinned.
+     */
+    @UiThread
+    private void updatePinnedBanner() {
+        if (pinnedBannerContainer == null || composeMessageAdapter == null) {
+            return;
+        }
+        if (pinnedBannerDismissed) {
+            pinnedBannerContainer.setVisibility(View.GONE);
+            return;
+        }
+        // Fast path: seed the cycler from the loaded adapter so the banner can render immediately.
+        // This may UNDERCOUNT pins that are paged out of the loaded window.
+        final List<String> loadedPins = new ArrayList<>();
+        collectPinnedUids(loadedPins);
+        // Merge the loaded pins into the known set without dropping paged-out pins discovered by a
+        // previous full scan. The authoritative, complete set is (re)established by the async
+        // refreshFullPinnedSet() kicked off below.
+        for (String uid : loadedPins) {
+            if (!pinnedMessageUids.contains(uid)) {
+                pinnedMessageUids.add(uid);
+            }
+        }
+        if (pinnedMessageUids.isEmpty() && loadedPins.isEmpty()) {
+            // Nothing pinned in the loaded window AND nothing known from a prior scan: provisionally
+            // hide, but still run the full scan in case a pin lives outside the loaded window.
+            currentPinnedMessageUid = null;
+            pinnedBannerContainer.setVisibility(View.GONE);
+            refreshFullPinnedSet();
+            return;
+        }
+        if (currentPinnedMessageUid == null || !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+            currentPinnedMessageUid = pinnedMessageUids.get(0);
+        }
+        renderPinnedBannerFromState();
+        // Reconcile against the whole conversation (discovers paged-out pins, prunes deleted ones).
+        refreshFullPinnedSet();
+    }
+
+    /**
+     * F1Whisper: render the banner label + preview from the current {@link #pinnedMessageUids} /
+     * {@link #currentPinnedMessageUid} state, WITHOUT re-collecting. The complete set is owned by
+     * {@link #refreshFullPinnedSet()}; this only paints what state already holds.
+     */
+    @UiThread
+    private void renderPinnedBannerFromState() {
+        if (pinnedBannerContainer == null) {
+            return;
+        }
+        if (pinnedMessageUids.isEmpty() || currentPinnedMessageUid == null) {
+            pinnedBannerContainer.setVisibility(View.GONE);
+            return;
+        }
+        final int shownIndex = Math.max(0, pinnedMessageUids.indexOf(currentPinnedMessageUid));
+        // The preview can only be sourced from a loaded message; a paged-out pin shows a generic
+        // label until it is loaded (e.g. on the first jump). Never blank out an existing preview.
+        final AbstractMessageModel shown = findMessageByUid(currentPinnedMessageUid);
+        if (pinnedBannerPreview != null) {
+            if (shown != null) {
+                String preview = shown.getBody();
+                if (preview == null || preview.isEmpty()) {
+                    // graceful fallback for media messages with no text body
+                    preview = shown.getType() != null ? shown.getType().toString() : "";
+                }
+                pinnedBannerPreview.setText(preview);
+            } else if (pinnedBannerPreview.length() == 0) {
+                pinnedBannerPreview.setText(R.string.pinned_message_banner_label);
+            }
+        }
+        // Counter label: plain "Pinned message" for a single pin, "Pinned message N/M" for several
+        // so the user understands successive taps cycle through them.
+        if (pinnedBannerLabel != null) {
+            if (pinnedMessageUids.size() > 1) {
+                pinnedBannerLabel.setText(getString(
+                    R.string.pinned_message_banner_label_counter,
+                    shownIndex + 1,
+                    pinnedMessageUids.size()));
+            } else {
+                pinnedBannerLabel.setText(R.string.pinned_message_banner_label);
+            }
+        }
+        pinnedBannerContainer.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * F1Whisper: locate the loaded adapter item whose globally-unique uid matches {@code uid}.
+     * Returns {@code null} if no loaded message carries that uid (e.g. it was deleted).
+     */
+    @UiThread
+    @Nullable
+    private AbstractMessageModel findMessageByUid(@Nullable String uid) {
+        if (uid == null || composeMessageAdapter == null) {
+            return null;
+        }
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null && uid.equals(m.getUid())) {
+                return m;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * F1Whisper: find the adapter position of the loaded message with the given uid, or -1.
+     */
+    @UiThread
+    private int findAdapterPositionByUid(@Nullable String uid) {
+        if (uid == null || composeMessageAdapter == null) {
+            return -1;
+        }
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null && uid.equals(m.getUid())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * F1Whisper: tap on the pinned banner — jump to the EXACT pinned message identified by
+     * {@link #currentPinnedMessageUid} (by unique id, never by text), briefly highlight it, then
+     * advance the cycler to the next pinned message in pin order so the next tap continues the
+     * cycle. Deleted/unpinned targets are handled by re-resolving against the live adapter.
+     */
+    @UiThread
+    private void cyclePinnedMessageBanner() {
+        if (composeMessageAdapter == null) {
+            logger.info("Pinned banner tapped but adapter is null; ignoring");
+            return;
+        }
+        // A full-conversation load is already running for a previous tap: ignore re-taps so we don't
+        // stack loads or scroll to a stale target mid-load.
+        if (pinnedJumpInProgress) {
+            logger.info("Pinned banner tapped while a jump-load is in progress; ignoring re-tap");
+            return;
+        }
+        // Reconcile the known pin set against the loaded window before cycling. We cannot do a
+        // synchronous full-DB scan on the UI thread, so we keep paged-out pins (those not present in
+        // the loaded window can't be judged here) but PRUNE any loaded message that is no longer
+        // pinned, and ADD any newly-pinned loaded message in its correct list position. This stops
+        // the cycler from ever advancing to a loaded-but-unpinned uid. A still-stale paged-out uid is
+        // a non-issue: the robust jumpToPinnedMessage() does a full load + reconcile and skips to the
+        // first surviving pin, so every tap still lands somewhere.
+        mergeLoadedPinsPreservingOrder();
+        if (pinnedMessageUids.isEmpty()) {
+            logger.info("Pinned banner tapped but no pins remain after reconcile; hiding banner");
+            updatePinnedBanner(); // hides the banner + kicks a full scan
+            return;
+        }
+        if (currentPinnedMessageUid == null || !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+            currentPinnedMessageUid = pinnedMessageUids.get(0);
+        }
+        logger.info("Pinned banner tapped: cycling to uid={} ({} pins total)",
+            currentPinnedMessageUid, pinnedMessageUids.size());
+        jumpToPinnedMessage(currentPinnedMessageUid);
+    }
+
+    /**
+     * F1Whisper: reconcile {@link #pinnedMessageUids} against the currently-loaded adapter window
+     * WITHOUT discarding paged-out pins discovered by a prior full scan.
+     * <p>
+     * For every uid currently known: if it is present in the loaded window we trust the live pinned
+     * flag (prune it if it has been unpinned); if it is NOT in the loaded window we keep it as-is
+     * (it may be a legitimately paged-out pin — only the async full scan, or a full-load jump, can
+     * judge it). Then we add any newly-pinned loaded message that is not yet tracked. Pin/list order
+     * is preserved: surviving known pins keep their relative order, then any brand-new loaded pins are
+     * appended in adapter order. Rebuilding into a fresh list (rather than mutating in place) keeps
+     * the ordering deterministic.
+     */
+    @UiThread
+    private void mergeLoadedPinsPreservingOrder() {
+        if (composeMessageAdapter == null) {
+            return;
+        }
+        // Snapshot which loaded uids are currently pinned.
+        final Set<String> loadedPinnedSet = new HashSet<>();
+        final List<String> loadedPinnedOrdered = new ArrayList<>();
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null
+                && m.getUid() != null
+                && (m.getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED) {
+                loadedPinnedSet.add(m.getUid());
+                loadedPinnedOrdered.add(m.getUid());
+            }
+        }
+        // Track which loaded uids exist at all (pinned or not) so we can distinguish "loaded and
+        // unpinned" (prune) from "not loaded / paged out" (keep).
+        final Set<String> loadedAnyUids = new HashSet<>();
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null && m.getUid() != null) {
+                loadedAnyUids.add(m.getUid());
+            }
+        }
+
+        final List<String> reconciled = new ArrayList<>();
+        final Set<String> seen = new HashSet<>();
+        for (final String uid : pinnedMessageUids) {
+            if (loadedAnyUids.contains(uid)) {
+                // It is loaded: keep it only if it is still pinned.
+                if (loadedPinnedSet.contains(uid) && seen.add(uid)) {
+                    reconciled.add(uid);
+                }
+                // else: loaded but no longer pinned -> drop it.
+            } else {
+                // Paged out: cannot judge here, keep it (full-load jump / async scan will reconcile).
+                if (seen.add(uid)) {
+                    reconciled.add(uid);
+                }
+            }
+        }
+        // Append any newly-pinned loaded message not already tracked, in adapter order.
+        for (final String uid : loadedPinnedOrdered) {
+            if (seen.add(uid)) {
+                reconciled.add(uid);
+            }
+        }
+
+        pinnedMessageUids.clear();
+        pinnedMessageUids.addAll(reconciled);
+    }
+
+    // F1Whisper: guards a single in-flight robust pinned jump (full-conversation load) so rapid
+    // re-taps don't stack background loads or race the scroll.
+    private boolean pinnedJumpInProgress = false;
+
+    /**
+     * F1Whisper: robustly jump to the pinned message with the given uid (Telegram-style
+     * "jump to message even if it isn't loaded"), then advance the cycler to the next pin.
+     * <p>
+     * If the target is already in the loaded adapter window, we scroll + highlight immediately. If
+     * it is paged out, we load the ENTIRE conversation into the adapter on a worker thread (the same
+     * proven path the in-chat search uses), then scroll + highlight once it is present. If, after a
+     * full load, the uid still does not resolve, the message was deleted from the database: we prune
+     * it from the pin set and advance to the next real pin so every tap always lands somewhere. All
+     * data is local; no wire change.
+     */
+    @UiThread
+    private void jumpToPinnedMessage(@NonNull final String jumpUid) {
+        final int targetPosition = findAdapterPositionByUid(jumpUid);
+        logger.info("Jumping to pinned uid={}, in-window lookup result={}", jumpUid, targetPosition);
+        if (targetPosition >= 0) {
+            logger.info("Pinned target in-window: scrolling to position={}, uid={}", targetPosition, jumpUid);
+            scrollToPinnedAndHighlight(targetPosition, jumpUid);
+            advancePinnedCycler(jumpUid);
+            return;
+        }
+        // Target not in the loaded window: load the full conversation, then jump. This is the same
+        // proven "load every record into the adapter, then resolve by uid" path the in-chat search /
+        // quote-jump uses to reach an off-window message (searchV2Quote -> getAllRecords). After the
+        // load the target uid is guaranteed present unless its message was deleted from the DB.
+        logger.info("Pinned target uid={} NOT in loaded window; loading full conversation to page it in", jumpUid);
+        pinnedJumpInProgress = true;
+        new AsyncTask<Void, Void, List<AbstractMessageModel>>() {
+            @Override
+            protected List<AbstractMessageModel> doInBackground(Void... voids) {
+                try {
+                    return getAllRecords();
+                } catch (Exception e) {
+                    logger.info("jumpToPinnedMessage: full conversation load failed", e);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(@Nullable List<AbstractMessageModel> all) {
+                pinnedJumpInProgress = false;
+                if (!isAdded() || composeMessageAdapter == null || convListView == null) {
+                    logger.info("Pinned full-load completed but fragment/adapter detached; aborting jump");
+                    return;
+                }
+                if (all != null) {
+                    // Replace the loaded window with the entire conversation (same as search load-all).
+                    insertToList(all, true, false, true);
+                    logger.info("Pinned full load complete: {} records now loaded; reconciling pins", all.size());
+                } else {
+                    logger.info("Pinned full load returned null; reconciling pins against current window");
+                }
+                // The entire conversation is now loaded, so the adapter is the authoritative source of
+                // truth for which pins still exist. Reconcile the pin set against it (in pin order),
+                // dropping any pin whose message was deleted/unpinned, BEFORE we attempt any scroll.
+                reconcilePinnedSetFromAdapter();
+                if (pinnedMessageUids.isEmpty()) {
+                    logger.info("No pins survived full-load reconcile; hiding banner");
+                    currentPinnedMessageUid = null;
+                    updatePinnedBanner(); // hides the banner
+                    return;
+                }
+
+                // Prefer the originally-requested target if it survived the reconcile.
+                final int positionAfterLoad = findAdapterPositionByUid(jumpUid);
+                if (positionAfterLoad >= 0 && pinnedMessageUids.contains(jumpUid)) {
+                    currentPinnedMessageUid = jumpUid;
+                    logger.info("Jump successful after full load: scrolled to pinned uid={}, position={}",
+                        jumpUid, positionAfterLoad);
+                    scrollToPinnedAndHighlight(positionAfterLoad, jumpUid);
+                    advancePinnedCycler(jumpUid);
+                    return;
+                }
+
+                // The requested target was deleted: jump to the first SURVIVING pin instead so the tap
+                // never "goes nowhere". Find the first pin that actually resolves to a real position
+                // (defensive: reconcile already pruned non-resolving pins, but guard regardless).
+                String nextUid = null;
+                int nextPosition = -1;
+                for (final String uid : pinnedMessageUids) {
+                    final int pos = findAdapterPositionByUid(uid);
+                    if (pos >= 0) {
+                        nextUid = uid;
+                        nextPosition = pos;
+                        break;
+                    }
+                }
+                if (nextUid == null || nextPosition < 0) {
+                    // No surviving pin resolves to a real row: hide the banner instead of scrolling
+                    // to an invalid (-1) position, which would silently no-op ("goes nowhere").
+                    logger.info("Target uid={} was deleted and no surviving pin resolves to a row; hiding banner", jumpUid);
+                    currentPinnedMessageUid = null;
+                    pinnedMessageUids.clear();
+                    updatePinnedBanner();
+                    return;
+                }
+                logger.info("Target uid={} was deleted; falling back to first surviving pin uid={}, position={}",
+                    jumpUid, nextUid, nextPosition);
+                currentPinnedMessageUid = nextUid;
+                scrollToPinnedAndHighlight(nextPosition, nextUid);
+                advancePinnedCycler(nextUid);
+            }
+        }.execute();
+    }
+
+    // F1Whisper: breathing-room gap (dp) left above the jumped-to row so it lands cleanly at the top
+    // of the conversation viewport, just under the pinned banner. The banner is a SIBLING above the
+    // list in the ConstraintLayout (the list's top is constrained below it), so it does NOT overlay
+    // the list — the list already starts beneath the banner. We therefore only need a small visual
+    // margin here, NOT the full banner height (which would leave a banner-height dead band above the
+    // target). When the banner is visible we add a couple of extra dp to clear its card elevation.
+    private static final int PINNED_JUMP_TOP_GAP_DP = 8;
+    private static final int PINNED_JUMP_TOP_GAP_WITH_BANNER_DP = 12;
+    // F1Whisper: delay (ms) before the second selection re-apply. The robust jump path runs straight
+    // after insertToList(clear=true) -> notifyDataSetInvalidated(), which forces AbsListView to throw
+    // away its layout and (with stackFromBottom=true) re-anchor at the BOTTOM on its next layout pass.
+    // A single selection request issued in the same frame gets clobbered by that relayout, which is
+    // exactly why far jumps used to "go nowhere". We therefore re-apply the selection once more after
+    // this short delay — the same proven double-apply the unread anchor uses — so it wins over the
+    // invalidate-driven relayout. Matches the search-quote path's 500ms settle window.
+    private static final int PINNED_JUMP_REAPPLY_DELAY_MS = 500;
+
+    /**
+     * F1Whisper: deterministic pinned jump — scroll the target row to land JUST BELOW the pinned
+     * banner and flash it, surviving the post-invalidate relayout for ANY scroll distance.
+     * <p>
+     * ROOT-CAUSE NOTE (this regressed three times): the robust jump path loads the whole conversation
+     * via {@link #insertToList(java.util.List, boolean, boolean, boolean)} with {@code clear=true},
+     * which calls {@link android.widget.ListView#getAdapter()}'s {@code notifyDataSetInvalidated()}.
+     * That discards the ListView's layout state, and because the list is {@code stackFromBottom="true"}
+     * it re-anchors at the BOTTOM on its very next layout pass. A selection requested in the SAME frame
+     * (a single {@code post(setSelectionFromTop)}) is then overwritten by that relayout, so the far jump
+     * silently parked at the bottom — "went nowhere". The fix is NOT a different scroller; it is to
+     * APPLY the selection immediately AND RE-APPLY it once after a short settle delay (the same proven
+     * double-apply the unread anchor and the search-quote jump use), so our selection wins the race with
+     * the invalidate-driven stack-from-bottom relayout. We then flash the row by re-resolving its
+     * position by uid (never a stale captured position), using the same native activated-state flash the
+     * search-quote jump uses ({@link android.widget.ListView#setItemChecked(int, boolean)}), which the
+     * bubble selectors render — no home-grown background mutation that could corrupt a recycled row.
+     *
+     * @param targetPosition resolved adapter position of the target row (negative is a no-op)
+     * @param uid            unique id of the message to flash once it is laid out
+     */
+    @UiThread
+    private void scrollToPinnedAndHighlight(final int targetPosition, @NonNull final String uid) {
+        if (targetPosition < 0 || convListView == null) {
+            logger.info("scrollToPinnedAndHighlight: skipping invalid position {} (uid={})", targetPosition, uid);
+            return;
+        }
+        // Top offset = a small breathing-room gap so the row lands cleanly at the top of the list
+        // viewport (which already sits BELOW the banner via the layout constraint — the banner is not
+        // an overlay). A touch more gap when the banner is showing, to clear its card elevation/shadow.
+        // This is deliberately NOT the full banner height (that would push the target a banner-height
+        // too far down, leaving dead space above it).
+        final boolean bannerShown = pinnedBannerContainer != null
+            && pinnedBannerContainer.getVisibility() == View.VISIBLE
+            && pinnedBannerContainer.getHeight() > 0;
+        final int gapDp = bannerShown ? PINNED_JUMP_TOP_GAP_WITH_BANNER_DP : PINNED_JUMP_TOP_GAP_DP;
+        final int offset = (int) (gapDp * getResources().getDisplayMetrics().density);
+        logger.info("scrollToPinnedAndHighlight: setSelectionFromTop position={} offset={}px (bannerShown={}) uid={}",
+            targetPosition, offset, bannerShown, uid);
+        // First application: issued now, after insertToList already ran on this same UI turn, so it is
+        // the last layout instruction queued for the current pass.
+        convListView.setSelectionFromTop(targetPosition, offset);
+        // Second application: after the invalidate-driven (stack-from-bottom) relayout has settled, so
+        // our selection is the one that sticks even for a far jump. Re-resolve the position by uid in
+        // case the adapter shifted between the two applications, then flash the now-stable row.
+        convListView.postDelayed(() -> {
+            if (convListView == null || !isAdded()) {
+                return;
+            }
+            final int livePosition = findAdapterPositionByUid(uid);
+            if (livePosition < 0) {
+                logger.info("Pinned re-apply: uid={} no longer resolves; skipping flash", uid);
+                return;
+            }
+            convListView.setSelectionFromTop(livePosition, offset);
+            // Flash on the next layout pass, once the re-applied selection has laid the row out.
+            convListView.post(() -> flashPinnedRow(uid));
+        }, PINNED_JUMP_REAPPLY_DELAY_MS);
+    }
+
+    /**
+     * F1Whisper: re-derive the complete pinned set from the CURRENTLY-LOADED adapter, in list (pin)
+     * order, and reconcile {@link #pinnedMessageUids} / {@link #currentPinnedMessageUid} against it.
+     * <p>
+     * This is only authoritative when the full conversation is loaded (it is called right after a
+     * full-conversation load in the robust jump path): at that point the adapter holds every message,
+     * so any pin that does not resolve to an adapter item has been deleted or unpinned and must be
+     * dropped. Rebuilding (rather than appending) guarantees the cycler can never advance to a stale
+     * uid that no longer exists, and preserves the true pin order from the conversation.
+     */
+    @UiThread
+    private void reconcilePinnedSetFromAdapter() {
+        final List<String> fresh = new ArrayList<>();
+        collectPinnedUids(fresh);
+        pinnedMessageUids.clear();
+        pinnedMessageUids.addAll(fresh);
+        if (currentPinnedMessageUid != null && !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+            currentPinnedMessageUid = pinnedMessageUids.isEmpty() ? null : pinnedMessageUids.get(0);
+        }
+    }
+
+    /**
+     * F1Whisper: after a successful jump, advance {@link #currentPinnedMessageUid} to the next pin
+     * in the cycle and repaint the banner so the next tap continues to the following pin.
+     */
+    @UiThread
+    private void advancePinnedCycler(@NonNull String jumpedUid) {
+        final int currentIndex = pinnedMessageUids.indexOf(jumpedUid);
+        if (currentIndex < 0 || pinnedMessageUids.isEmpty()) {
+            logger.info("advancePinnedCycler: jumped uid={} no longer in pin set; refreshing banner", jumpedUid);
+            updatePinnedBanner();
+            return;
+        }
+        // Advance to the NEXT pin in cycle order. Prefer the first sibling that actually resolves to a
+        // loaded row so the FOLLOWING tap is guaranteed to land somewhere. We walk at most one full lap;
+        // a candidate that does NOT resolve (paged out / deleted) is GENUINELY skipped — we keep
+        // scanning. Only if NO sibling in the whole lap resolves do we fall back to the arithmetic next
+        // uid (a legitimately paged-out pin that the robust full-load jump path can still page in on the
+        // next tap). This is the cycler guard against advancing onto a dead uid.
+        final int size = pinnedMessageUids.size();
+        final String arithmeticNext = pinnedMessageUids.get((currentIndex + 1) % size);
+        String chosen = null;
+        for (int step = 1; step <= size; step++) {
+            final String candidate = pinnedMessageUids.get((currentIndex + step) % size);
+            if (candidate.equals(jumpedUid)) {
+                // Single distinct pin (or wrapped fully back to the just-jumped one): stay on it.
+                chosen = candidate;
+                break;
+            }
+            if (findAdapterPositionByUid(candidate) >= 0) {
+                // First resolving sibling: cycle to it.
+                chosen = candidate;
+                break;
+            }
+            // candidate does not resolve in the loaded window: genuinely skip it, keep scanning.
+        }
+        if (chosen == null) {
+            // No sibling resolved in a full lap: fall back to the arithmetic next uid so the cycle still
+            // progresses (the full-load jump path will page it in on the next tap).
+            chosen = arithmeticNext;
+            logger.info("advancePinnedCycler: no sibling pin resolves in window; falling back to arithmetic next uid={}", chosen);
+        }
+        currentPinnedMessageUid = chosen;
+        logger.info("advancePinnedCycler: next tap will target uid={}", currentPinnedMessageUid);
+        renderPinnedBannerFromState();
+    }
+
+    // Duration the jumped-to row stays highlighted before we clear the activated state, in ms.
+    private static final long PINNED_HIGHLIGHT_DURATION_MS = 1400L;
+
+    /**
+     * F1Whisper: flash the jumped-to pinned row using the SAME native, recycle-safe mechanism the
+     * upstream search-quote jump uses — {@link android.widget.ListView#setItemChecked(int, boolean)}.
+     * <p>
+     * The list is in {@code choiceMode="singleChoice"}; activating an item drives the bubble's
+     * {@code state_activated} selector (e.g. {@code bubble_fade_send_selector}), which the bubble
+     * MaterialCardView renders as a brief tint — no home-grown background mutation on the row root
+     * (the previous approach called {@code row.setBackground(null)}, which fought the choice-mode /
+     * activated selector and could clear a recycled row's real background). The position is re-resolved
+     * by uid at apply-time (Telegram-style scrollToMessageId), so a message that shifted or was deleted
+     * never flashes a wrong row. The activated state is cleared after {@link #PINNED_HIGHLIGHT_DURATION_MS}
+     * by re-resolving the position by uid again (the row may have recycled by then).
+     */
+    @UiThread
+    private void flashPinnedRow(@Nullable final String uid) {
+        if (convListView == null || uid == null) {
+            return;
+        }
+        final int position = findAdapterPositionByUid(uid);
+        if (position < 0) {
+            logger.info("Pinned highlight: uid={} no longer resolves; skipping flash", uid);
+            return;
+        }
+        // Cancel any in-flight highlight clear so rapid taps don't leave a stuck activated row.
+        if (pinnedHighlightClear != null) {
+            pinnedHighlightHandler.removeCallbacks(pinnedHighlightClear);
+            pinnedHighlightClear = null;
+        }
+        logger.info("Pinned highlight: flashing row at position={} for uid={}", position, uid);
+        convListView.setItemChecked(position, true);
+        // Clear by re-resolving the position by uid (the row may have recycled/shifted by now), so we
+        // never leave a stale activated row and never un-check an unrelated message.
+        pinnedHighlightClear = () -> {
+            if (convListView == null) {
+                return;
+            }
+            final int livePosition = findAdapterPositionByUid(uid);
+            if (livePosition >= 0) {
+                convListView.setItemChecked(livePosition, false);
+            } else {
+                convListView.clearChoices();
+                convListView.requestLayout();
+            }
+        };
+        pinnedHighlightHandler.postDelayed(pinnedHighlightClear, PINNED_HIGHLIGHT_DURATION_MS);
+    }
+
     @UiThread
     /**
      * F1Whisper: build the "&lt;names&gt; is/are typing…" subtitle for a group chat, or {@code null}
@@ -5848,7 +6669,7 @@ public class ComposeMessageFragment extends Fragment implements
 
     public class ComposeMessageAction implements ActionMode.Callback {
         private final int position;
-        private MenuItem quoteItem, forwardItem, saveItem, copyItem, shareItem, infoItem, editItem, starItem, unStarItem, imageReplyItem, deleteItem;
+        private MenuItem quoteItem, forwardItem, saveItem, copyItem, shareItem, infoItem, editItem, starItem, unStarItem, pinItem, unPinItem, imageReplyItem, deleteItem;
 
         ComposeMessageAction(int position) {
             this.position = position;
@@ -5903,6 +6724,12 @@ public class ComposeMessageFragment extends Fragment implements
                 && (selectedMessages.get(0).getDisplayTags() & DisplayTag.DISPLAY_TAG_STARRED) == DisplayTag.DISPLAY_TAG_STARRED;
             starItem.setVisible(canStarMessage && !isMessageCurrentlyStarred);
             unStarItem.setVisible(canStarMessage && isMessageCurrentlyStarred);
+
+            // F1Whisper: pin/unpin (local-only; mirrors star/unstar logic above)
+            boolean isMessageCurrentlyPinned = !selectedMessages.isEmpty()
+                && (selectedMessages.get(0).getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED;
+            pinItem.setVisible(isSingleMessage && !isMessageCurrentlyPinned);
+            unPinItem.setVisible(isSingleMessage && isMessageCurrentlyPinned);
 
             deleteItem.setShowAsAction(isSingleMessage ? MenuItem.SHOW_AS_ACTION_IF_ROOM : MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
@@ -6044,6 +6871,8 @@ public class ComposeMessageFragment extends Fragment implements
             editItem = menu.findItem(R.id.menu_message_edit);
             starItem = menu.findItem(R.id.menu_message_star);
             unStarItem = menu.findItem(R.id.menu_message_unstar);
+            pinItem = menu.findItem(R.id.menu_message_pin);
+            unPinItem = menu.findItem(R.id.menu_message_unpin);
             imageReplyItem = menu.findItem(R.id.menu_message_image_reply);
             deleteItem = menu.findItem(R.id.menu_message_discard);
 
@@ -6107,6 +6936,11 @@ public class ComposeMessageFragment extends Fragment implements
             } else if (id == R.id.menu_message_star || id == R.id.menu_message_unstar) {
                 logger.info("Action menu: (un)star clicked");
                 toggleStar(selectedMessages.get(0));
+                mode.finish();
+            } else if (id == R.id.menu_message_pin || id == R.id.menu_message_unpin) {
+                // F1Whisper: local pin/unpin — no wire change
+                logger.info("Action menu: (un)pin clicked");
+                togglePin(selectedMessages.get(0));
                 mode.finish();
             } else if (id == R.id.menu_message_edit) {
                 logger.info("Action menu: edit clicked");

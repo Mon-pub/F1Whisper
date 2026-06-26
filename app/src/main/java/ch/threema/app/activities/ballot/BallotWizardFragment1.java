@@ -12,6 +12,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.timepicker.MaterialTimePicker;
@@ -203,6 +204,17 @@ public class BallotWizardFragment1 extends BallotWizardFragment implements Ballo
                 datePicker.show(getParentFragmentManager(), DIALOG_TAG_SELECT_DATETIME);
             }
         });
+
+        // F1Whisper: when this is a dedicated checklist flow, relabel the page-2 affordances so it
+        // reads as a checklist editor ("Add items" / "Add an item") rather than a poll.
+        if (getBallotActivity() != null && getBallotActivity().isChecklistMode()) {
+            TextView pageTitle = rootView.findViewById(R.id.wizard_title);
+            if (pageTitle != null) {
+                pageTitle.setText(R.string.checklist_add_items);
+            }
+            this.createChoiceEditText.setHint(R.string.checklist_item_add);
+            this.createChoiceButton.setContentDescription(getString(R.string.checklist_item_add));
+        }
 
         initAdapter();
 

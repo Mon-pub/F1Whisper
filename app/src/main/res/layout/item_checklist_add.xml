@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ F1Whisper: the "+ Add item" footer row of an interactive checklist bubble. Shown only to the
+ checklist creator. Tapping it opens a dialog to append a new checklist item, which is persisted
+ locally and re-broadcast over the existing Poll wire as an updated BallotSetup.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="?attr/selectableItemBackground"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_add"
+        android:contentDescription="@string/checklist_add_item_title"
+        app:tint="?attr/colorPrimary" />
+
+    <TextView
+        android:id="@+id/checklist_add_label"
+        style="@style/Threema.Bubble.Text.Body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="8dp"
+        android:paddingEnd="0dp"
+        android:textColor="?attr/colorPrimary"
+        android:text="@string/checklist_add_item_title" />
+
+</LinearLayout>

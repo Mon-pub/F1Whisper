@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 import androidx.core.app.NotificationManagerCompat;
@@ -98,6 +99,7 @@ import ch.threema.app.utils.ThumbnailUtil;
 import ch.threema.app.utils.VideoUtil;
 import ch.threema.app.video.transcoder.VideoConfig;
 import ch.threema.app.video.transcoder.VideoTranscoder;
+import ch.threema.app.voicemessage.AudioTrimmer;
 import ch.threema.app.voip.groupcall.GroupCallDescription;
 import ch.threema.base.ProgressListener;
 import ch.threema.base.ThreemaException;
@@ -129,6 +131,7 @@ import ch.threema.domain.protocol.csp.messages.GroupTextMessage;
 import ch.threema.domain.protocol.csp.messages.ImageMessage;
 import ch.threema.domain.protocol.csp.messages.location.LocationMessage;
 import ch.threema.domain.protocol.csp.messages.TextMessage;
+import ch.threema.domain.protocol.csp.messages.ballot.BallotData;
 import ch.threema.domain.protocol.csp.messages.ballot.BallotSetupInterface;
 import ch.threema.domain.protocol.csp.messages.ballot.GroupPollSetupMessage;
 import ch.threema.domain.protocol.csp.messages.ballot.PollSetupMessage;
@@ -170,6 +173,7 @@ import static ch.threema.app.AppConstants.MAX_BLOB_SIZE;
 import static ch.threema.app.AppConstants.MAX_BLOB_SIZE_MB;
 import static ch.threema.app.preference.service.PreferenceService.IMAGE_SCALE_DEFAULT;
 import static ch.threema.app.ui.MediaItem.TIME_UNDEFINED;
+import static ch.threema.app.ui.MediaItem.TYPE_AUDIO_FILE;
 import static ch.threema.app.ui.MediaItem.TYPE_FILE;
 import static ch.threema.app.ui.MediaItem.TYPE_IMAGE;
 import static ch.threema.app.ui.MediaItem.TYPE_IMAGE_ANIMATED;
@@ -1883,9 +1887,24 @@ public class MessageServiceImpl implements MessageService {
 
         if (existingModel != null) {
             if (existingModel.isSaved()) {
-                //do nothing!
-                logger.error("GroupMessage {}: error: message already exists", message.getMessageId());
-                return true;
+                // F1Whisper CHECKLIST item-edit (add / remove / reorder): the creator re-broadcasts the
+                // updated checklist over the EXISTING Poll wire as a fresh GroupPollSetup carrying the
+                // SAME ballot id AND the SAME carrier wire message id (so it refreshes one bubble rather
+                // than spawning a new one per edit). That collides with the duplicate-message guard here.
+                // For a CHECKLIST-displayType PollSetup whose ballot ALREADY EXISTS, do NOT reject as a
+                // duplicate -- route it through the normal save path so it reaches
+                // BallotServiceImpl.update() -> mergeChecklistUpdate() (which merges choices/order and
+                // preserves votes for surviving items). Reuse the existing saved model so no duplicate
+                // bubble is created. NON-checklist ballots (and every other message type) keep the
+                // existing duplicate guard unchanged -- no regression.
+                if (isExistingChecklistPollSetup(message)) {
+                    logger.info("GroupMessage {}: checklist re-broadcast, merging into existing ballot", message.getMessageId());
+                    messageModel = existingModel;
+                } else {
+                    //do nothing!
+                    logger.error("GroupMessage {}: error: message already exists", message.getMessageId());
+                    return true;
+                }
             } else {
                 //use the first non saved model to edit!
                 logger.error("GroupMessage {}: error: reusing unsaved model", message.getMessageId());
@@ -1972,6 +1991,35 @@ public class MessageServiceImpl implements MessageService {
             // we use sync as this will prevent sending any csp messages.
             TriggerSource.SYNC
         );
+    }
+
+    /**
+     * F1Whisper: whether an incoming group message is a re-broadcast of an ALREADY-EXISTING interactive
+     * CHECKLIST (a {@link GroupPollSetupMessage} whose ballot data carries displayType == CHECKLIST and
+     * whose ballot id resolves to a checklist ballot we already store). Such a re-broadcast is a
+     * structure edit (add / remove / reorder), not a duplicate ballot, so the duplicate-message guard in
+     * {@link #processIncomingGroupMessage} must let it through to the merge path. Returns {@code false}
+     * for any non-checklist ballot (real polls keep the duplicate guard) and for any other message type.
+     */
+    private boolean isExistingChecklistPollSetup(@NonNull AbstractGroupMessage message) {
+        if (!(message instanceof GroupPollSetupMessage)) {
+            return false;
+        }
+        final GroupPollSetupMessage pollSetup = (GroupPollSetupMessage) message;
+        final BallotData ballotData = pollSetup.getBallotData();
+        // Only the CHECKLIST display type rides this merge path; a normal poll must NOT bypass the guard.
+        if (ballotData == null || ballotData.getDisplayType() != BallotData.DisplayType.CHECKLIST) {
+            return false;
+        }
+        if (pollSetup.getBallotId() == null || pollSetup.getBallotCreatorIdentity() == null) {
+            return false;
+        }
+        // The ballot must already exist locally AND already be a checklist; otherwise treat normally.
+        final BallotModel existingBallot = ballotService.get(
+            pollSetup.getBallotId().toString(),
+            pollSetup.getBallotCreatorIdentity()
+        );
+        return BallotUtil.isChecklist(existingBallot);
     }
 
     private GroupMessageModel saveGroupMessage(GroupPollSetupMessage message, GroupMessageModel messageModel) throws Exception {
@@ -4195,6 +4243,15 @@ public class MessageServiceImpl implements MessageService {
                     logger.error("Exception", e);
                 }
                 break;
+            case TYPE_AUDIO_FILE:
+                // F1Whisper: an attached audio file. If the user picked a trim window on the preview
+                // timeline, losslessly crop it (per-container: AAC/Opus remux, MP3 frame-cut, WAV
+                // PCM-cut) before sending. CRITICAL FAIL-SAFE: if the user requested a trim and it
+                // cannot be performed, we ABORT the send entirely (throw) instead of silently sending
+                // the untrimmed original, which would be a data/privacy leak (sending more audio than
+                // the user intended to share). Then send the cropped clip as a regular file.
+                trimAudio(mediaItem, fileDataModel);
+                return getContentData(mediaItem);
             case TYPE_IMAGE_ANIMATED:
                 metaData.put(FileDataModel.METADATA_KEY_ANIMATED, true);
                 // fallthrough
@@ -4319,6 +4376,14 @@ public class MessageServiceImpl implements MessageService {
                     metaData.put(FileDataModel.METADATA_KEY_LISTEN_ONCE, true);
                 }
                 // voice messages do not have thumbnails
+                thumbnailBitmap = null;
+                break;
+            case TYPE_AUDIO_FILE:
+                // F1Whisper: attached audio file. Carry the (possibly trimmed) duration so the
+                // recipient's audio player shows the right runtime; audio files have no thumbnail.
+                if (mediaItem.getDurationMs() > 0) {
+                    metaData.put(FileDataModel.METADATA_KEY_DURATION, (float) mediaItem.getTrimmedDurationMs() / (float) DateUtils.SECOND_IN_MILLIS);
+                }
                 thumbnailBitmap = null;
                 break;
             case MediaItem.TYPE_FILE:
@@ -4667,6 +4732,11 @@ public class MessageServiceImpl implements MessageService {
                 // "regular" file messages
                 renderingType = FileData.RENDERING_DEFAULT;
                 break;
+            case TYPE_AUDIO_FILE:
+                // F1Whisper: attached audio is sent as a regular file (keeps its real filename); the
+                // trim window, if any, has already been baked into the file by trimAudio().
+                renderingType = FileData.RENDERING_DEFAULT;
+                break;
             case TYPE_VIDEO:
                 if (renderingType == FileData.RENDERING_MEDIA) {
                     // videos in formats other than MP4 are always transcoded and result in an MP4 file
@@ -4870,6 +4940,156 @@ public class MessageServiceImpl implements MessageService {
             logger.info("No transcoding necessary");
         }
         return VideoTranscoder.SUCCESS;
+    }
+
+    /**
+     * F1Whisper: losslessly crop an attached audio file ({@link MediaItem#TYPE_AUDIO_FILE}) to the
+     * trim window the user chose on the preview timeline, mirroring {@link #transcodeVideo}'s trim.
+     *
+     * <p>Each container is cut losslessly by its own strategy (sniffed from the real magic bytes,
+     * not the extension): AAC-in-MP4/m4a is frame-copied via MediaMuxer; MP3 is cut on MPEG-audio
+     * frame boundaries; WAV is cut on PCM sample boundaries; Opus/Vorbis-in-Ogg is page-copied via
+     * MediaMuxer (API 29+). FLAC and any other decode-only codec are unsupported.
+     *
+     * <p><b>CRITICAL FAIL-SAFE (data/privacy):</b> the user explicitly asked to trim, so if the trim
+     * cannot be performed (unsupported format OR execution failure) this throws
+     * {@link ThreemaException} to ABORT the entire send. We must NEVER silently fall back to sending
+     * the untrimmed original after a trim request - that would transmit more audio than the user
+     * intended to share. The caller turns the exception into a clear error and the user can retry or
+     * remove the trim. (If no trim was requested, this is a no-op and the file is sent as-is.)
+     *
+     * <p>On success the media item's {@link MediaItem#getUri() uri} is repointed at the cropped temp
+     * file and its duration is updated to the cropped length so the recipient sees the right runtime.
+     */
+    @WorkerThread
+    private void trimAudio(@NonNull MediaItem mediaItem, @NonNull FileDataModel fileDataModel) throws ThreemaException {
+        if (!mediaItem.needsTrimming()) {
+            // No trim requested: send the file untouched.
+            return;
+        }
+
+        final Uri sourceUri = mediaItem.getUri();
+        if (sourceUri == null) {
+            // A trim was requested but we have no source to trim -> fail-safe abort.
+            throw new ThreemaException("Audio trim requested but the source is unavailable; send aborted");
+        }
+
+        final AudioTrimmer.TrimMethod method = AudioTrimmer.getTrimMethod(context, sourceUri);
+        if (method == AudioTrimmer.TrimMethod.UNSUPPORTED) {
+            logger.info("Attached audio cannot be trimmed losslessly; aborting send (fail-safe)");
+            showAudioTrimFailedAndAbort(R.string.audio_trim_not_supported);
+            return; // showAudioTrimFailedAndAbort always throws; this documents the abort intent
+        }
+
+        final String suffix;
+        switch (method) {
+            case AAC_MP4:
+                suffix = ".m4a";
+                break;
+            case OGG_MUXER:
+                suffix = ".ogg";
+                break;
+            case MP3_FRAMES:
+                suffix = ".mp3";
+                break;
+            case WAV_PCM:
+            default:
+                suffix = ".wav";
+                break;
+        }
+
+        final File croppedFile;
+        try {
+            croppedFile = fileService.createTempFile(".atrim", suffix);
+        } catch (IOException e) {
+            logger.error("Unable to open temp file for audio trim; aborting send (fail-safe)", e);
+            showAudioTrimFailedAndAbort(R.string.audio_trim_failed);
+            return; // unreachable; keeps the compiler happy about croppedFile being assigned
+        }
+
+        final long startTimeMs = mediaItem.getStartTimeMs();
+        final long endTimeMs = mediaItem.getEndTimeMs() == TIME_UNDEFINED
+            ? mediaItem.getDurationMs()
+            : mediaItem.getEndTimeMs();
+
+        final AudioTrimmer trimmer = new AudioTrimmer(context, sourceUri, startTimeMs, endTimeMs);
+        if (!trimmer.trim(croppedFile)) {
+            // The user requested a trim that could not be performed. ABORT - do not send anything.
+            logger.warn("Audio trim failed; aborting send (fail-safe) - the untrimmed file is NOT sent");
+            if (croppedFile.exists() && !croppedFile.delete()) {
+                logger.warn("Failed to delete unused audio trim temp file");
+            }
+            showAudioTrimFailedAndAbort(R.string.audio_trim_failed);
+            return; // unreachable
+        }
+
+        // Crop succeeded: drop the original (if expendable) and send the cropped clip. Normalize the
+        // mime type / extension on the item and the file data model (the latter drives what the
+        // recipient sees) to match the produced container; remuxed AAC/Opus get a fresh extension,
+        // MP3/WAV keep theirs (we cut in place, same codec).
+        deleteTemporaryFile(mediaItem);
+        mediaItem.setUri(Uri.fromFile(croppedFile));
+        mediaItem.setDeleteAfterUse(true);
+        mediaItem.setDurationMs(Math.max(endTimeMs - startTimeMs, DateUtils.SECOND_IN_MILLIS));
+
+        final String newMimeType;
+        final String newExtension;
+        switch (method) {
+            case AAC_MP4:
+                newMimeType = MimeUtil.MIME_TYPE_AUDIO_M4A;
+                newExtension = ".m4a";
+                break;
+            case OGG_MUXER:
+                newMimeType = MimeUtil.MIME_TYPE_AUDIO_OGG;
+                newExtension = ".ogg";
+                break;
+            case MP3_FRAMES:
+                newMimeType = MimeUtil.MIME_TYPE_AUDIO_MPEG;
+                newExtension = ".mp3";
+                break;
+            case WAV_PCM:
+            default:
+                newMimeType = MimeUtil.MIME_TYPE_AUDIO_WAV;
+                newExtension = ".wav";
+                break;
+        }
+        mediaItem.setMimeType(newMimeType);
+        fileDataModel.setMimeType(newMimeType);
+        final String originalFilename = fileDataModel.getFileName();
+        if (originalFilename != null) {
+            final int dot = originalFilename.lastIndexOf('.');
+            final String base = dot > 0 ? originalFilename.substring(0, dot) : originalFilename;
+            fileDataModel.setFileName(base + newExtension);
+        }
+        // The window is now fully baked into the file; reset so nothing re-trims downstream and the
+        // reported duration is the cropped length.
+        resetAudioTrimWindow(mediaItem);
+    }
+
+    /**
+     * F1Whisper: surface a clear audio-trim failure to the user and ABORT the send by throwing.
+     * Used for both unsupported formats and trim execution failures so the untrimmed original is
+     * never sent after a trim request.
+     */
+    @WorkerThread
+    private void showAudioTrimFailedAndAbort(@StringRes int messageRes) throws ThreemaException {
+        final String message = context.getString(messageRes);
+        RuntimeUtil.runOnUiThread(() -> Toast.makeText(
+            ThreemaApplication.getAppContext(),
+            message,
+            Toast.LENGTH_LONG
+        ).show());
+        throw new ThreemaException(message);
+    }
+
+    /**
+     * F1Whisper: reset an audio item's trim window so {@link MediaItem#needsTrimming()} is false and
+     * {@link MediaItem#getTrimmedDurationMs()} returns the item's current full duration. Used after
+     * a successful crop (window baked in) and on every fall-back-to-full-file path.
+     */
+    private static void resetAudioTrimWindow(@NonNull MediaItem mediaItem) {
+        mediaItem.setStartTimeMs(0L);
+        mediaItem.setEndTimeMs(TIME_UNDEFINED);
     }
 
     /**

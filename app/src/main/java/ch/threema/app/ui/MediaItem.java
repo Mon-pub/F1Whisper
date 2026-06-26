@@ -73,7 +73,7 @@ public class MediaItem implements Parcelable {
     private static final Logger logger = getThreemaLogger("MediaItem");
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({TYPE_FILE, TYPE_IMAGE, TYPE_VIDEO, TYPE_IMAGE_CAM, TYPE_VIDEO_CAM, TYPE_VOICEMESSAGE, TYPE_TEXT, TYPE_LOCATION, TYPE_IMAGE_ANIMATED})
+    @IntDef({TYPE_FILE, TYPE_IMAGE, TYPE_VIDEO, TYPE_IMAGE_CAM, TYPE_VIDEO_CAM, TYPE_VOICEMESSAGE, TYPE_TEXT, TYPE_LOCATION, TYPE_IMAGE_ANIMATED, TYPE_AUDIO_FILE})
     public @interface MediaType {
     }
 
@@ -86,6 +86,10 @@ public class MediaItem implements Parcelable {
     public static final int TYPE_TEXT = 6;
     public static final int TYPE_LOCATION = 7;
     public static final int TYPE_IMAGE_ANIMATED = 8; // animated images such as animated WebP
+    // F1Whisper: an attached audio FILE (mp3, opus/ogg, m4a, mp4-audio) that is NOT a recorded voice
+    // message. Unlike TYPE_FILE it gets a trim timeline in the send/preview flow (mirroring video),
+    // and is still sent as a regular file message (RENDERING_DEFAULT) so the recipient sees a file.
+    public static final int TYPE_AUDIO_FILE = 9;
 
     public static final long TIME_UNDEFINED = Long.MIN_VALUE;
 
@@ -672,6 +676,9 @@ public class MediaItem implements Parcelable {
             return isEdited() || orientation.getRotation() != 0 || orientation.getFlip() != BitmapUtil.FLIP_NONE;
         } else if (type == TYPE_VIDEO || type == TYPE_VIDEO_CAM) {
             return needsTrimming() || muted;
+        } else if (type == TYPE_AUDIO_FILE) {
+            // F1Whisper: an attached audio file is "changed" when the user cropped its trim window.
+            return needsTrimming();
         } else {
             return false;
         }
@@ -687,7 +694,8 @@ public class MediaItem implements Parcelable {
         } else if (type == TYPE_IMAGE || type == TYPE_IMAGE_CAM) {
             return getImageScale() == PreferenceService.IMAGE_SCALE_SEND_AS_FILE;
         } else {
-            return type == TYPE_FILE || type == TYPE_IMAGE_ANIMATED;
+            // F1Whisper: TYPE_AUDIO_FILE is always sent as a regular file (just trimmed beforehand).
+            return type == TYPE_FILE || type == TYPE_IMAGE_ANIMATED || type == TYPE_AUDIO_FILE;
         }
     }
 
