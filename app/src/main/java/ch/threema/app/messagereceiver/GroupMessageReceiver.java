@@ -32,6 +32,7 @@ import ch.threema.app.tasks.OutgoingLocationMessageTask;
 import ch.threema.app.tasks.OutgoingPollSetupMessageTask;
 import ch.threema.app.tasks.OutgoingPollVoteGroupMessageTask;
 import ch.threema.app.tasks.OutgoingTextMessageTask;
+import ch.threema.app.utils.BallotUtil;
 import ch.threema.app.utils.GroupFeatureSupport;
 import ch.threema.app.utils.GroupUtil;
 import ch.threema.app.utils.NameUtil;
@@ -289,6 +290,14 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
 
         final BallotId ballotId = new BallotId(Utils.hexStringToByteArray(ballotModel.getApiBallotId()));
 
+        // F1Whisper CHECKLIST: a checklist always shows everyone's checks live, so its votes must
+        // reach ALL members, never just the creator. Pass INTERMEDIATE for checklists so the task's
+        // RESULT_ON_CLOSE "send only to creator" branch is bypassed (covers any pre-fix checklist
+        // still stored as RESULT_ON_CLOSE). Real polls keep their stored type unchanged.
+        final BallotModel.Type effectiveBallotType = BallotUtil.isChecklist(ballotModel)
+            ? BallotModel.Type.INTERMEDIATE
+            : ballotModel.getType();
+
         // Schedule outgoing text message task
         taskManager.schedule(new OutgoingPollVoteGroupMessageTask(
             messageId,
@@ -296,7 +305,7 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
             ballotId,
             ballotModel.getCreatorIdentity(),
             votes,
-            ballotModel.getType(),
+            effectiveBallotType,
             group.getApiGroupId(),
             group.getCreatorIdentity()
         ));

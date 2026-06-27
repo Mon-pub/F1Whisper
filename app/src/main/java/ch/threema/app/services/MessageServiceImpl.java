@@ -1771,8 +1771,20 @@ public class MessageServiceImpl implements MessageService {
             }
 
             if (savedMessageModel.isSaved()) {
-                //do nothing!
-                return true;
+                // F1Whisper CHECKLIST item-edit (1:1): like the group path, the creator re-broadcasts
+                // an edited checklist over the EXISTING Poll wire carrying the SAME api message id, so
+                // this duplicate-message guard would drop it BEFORE it reaches the merge. For an
+                // already-existing CHECKLIST PollSetup, reuse the saved model and fall through to the
+                // normal save path -> ballotService.update() -> mergeChecklistUpdate(), so added /
+                // removed / reordered items sync instead of being silently discarded. Every other 1:1
+                // message keeps the duplicate guard unchanged -- no regression.
+                if (isExistingChecklistPollSetupContact(message)) {
+                    logger.info("ContactMessage {}: checklist re-broadcast, merging into existing ballot", message.getMessageId());
+                    messageModel = savedMessageModel;
+                } else {
+                    //do nothing!
+                    return true;
+                }
             } else {
                 messageModel = savedMessageModel;
             }
@@ -2015,6 +2027,33 @@ public class MessageServiceImpl implements MessageService {
             return false;
         }
         // The ballot must already exist locally AND already be a checklist; otherwise treat normally.
+        final BallotModel existingBallot = ballotService.get(
+            pollSetup.getBallotId().toString(),
+            pollSetup.getBallotCreatorIdentity()
+        );
+        return BallotUtil.isChecklist(existingBallot);
+    }
+
+    /**
+     * F1Whisper: the 1:1 ({@link PollSetupMessage}) counterpart of {@link #isExistingChecklistPollSetup}.
+     * Whether an incoming contact message is a re-broadcast of an ALREADY-EXISTING interactive
+     * CHECKLIST (displayType == CHECKLIST whose ballot id resolves to a checklist we already store).
+     * Such a re-broadcast is a structure edit (add / remove / reorder), so the duplicate-message guard
+     * in {@link #processIncomingContactMessage} must let it through to the merge path. Returns
+     * {@code false} for non-checklist ballots (real polls keep the duplicate guard) and other types.
+     */
+    private boolean isExistingChecklistPollSetupContact(@NonNull AbstractMessage message) {
+        if (!(message instanceof PollSetupMessage)) {
+            return false;
+        }
+        final PollSetupMessage pollSetup = (PollSetupMessage) message;
+        final BallotData ballotData = pollSetup.getBallotData();
+        if (ballotData == null || ballotData.getDisplayType() != BallotData.DisplayType.CHECKLIST) {
+            return false;
+        }
+        if (pollSetup.getBallotId() == null || pollSetup.getBallotCreatorIdentity() == null) {
+            return false;
+        }
         final BallotModel existingBallot = ballotService.get(
             pollSetup.getBallotId().toString(),
             pollSetup.getBallotCreatorIdentity()

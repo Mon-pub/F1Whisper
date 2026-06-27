@@ -38,6 +38,7 @@ import ch.threema.app.tasks.OutgoingVoipCallHangupMessageTask;
 import ch.threema.app.tasks.OutgoingVoipCallOfferMessageTask;
 import ch.threema.app.tasks.OutgoingVoipCallRingingMessageTask;
 import ch.threema.app.tasks.OutgoingVoipICECandidateMessageTask;
+import ch.threema.app.utils.BallotUtil;
 import ch.threema.app.utils.ContactUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.NameUtil;
@@ -306,7 +307,12 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
     ) throws ThreemaException {
         final BallotId ballotId = new BallotId(Utils.hexStringToByteArray(ballotModel.getApiBallotId()));
 
-        if (ballotModel.getType() == BallotModel.Type.RESULT_ON_CLOSE) {
+        // F1Whisper CHECKLIST: a checklist's creator MUST broadcast its own checks so participants
+        // see them (a checklist always shows everyone's checks live). The RESULT_ON_CLOSE
+        // "creator does not send" optimisation would otherwise suppress them, so skip it for
+        // checklists (new ones are forced INTERMEDIATE anyway; this also covers any pre-fix one).
+        if (ballotModel.getType() == BallotModel.Type.RESULT_ON_CLOSE
+            && !BallotUtil.isChecklist(ballotModel)) {
             //if i am the creator do not send anything
             if (TestUtil.compare(ballotModel.getCreatorIdentity(), identityStore.getIdentityString())) {
                 return;

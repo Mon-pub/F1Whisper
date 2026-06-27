@@ -589,6 +589,13 @@ public class BallotServiceImpl implements BallotService {
 
         }
 
+        // F1Whisper: a received CHECKLIST is always stored as INTERMEDIATE (see publish()). Never let
+        // a stale RESULT_ON_CLOSE on the wire make this (non-creator) device drop the creator's
+        // incoming checks in vote() -- that is what made checked items sink only on the creator.
+        if (ballotModel.getDisplayType() == BallotModel.DisplayType.CHECKLIST) {
+            ballotModel.setType(BallotModel.Type.INTERMEDIATE);
+        }
+
         ballotModel.setState(toState);
 
         if (toState == BallotModel.State.OPEN) {
@@ -1036,6 +1043,21 @@ public class BallotServiceImpl implements BallotService {
         // out on the Poll wire, regardless of how it reached publish().
         enforceChecklistAssessment(ballotModel);
 
+        // F1Whisper CHECKLIST: a checklist is ALWAYS intermediate-results (every member's checks are
+        // always visible -- a checklist never "closes"). The poll wizard's "intermediate results"
+        // checkbox can otherwise leave a checklist as RESULT_ON_CLOSE, which silently breaks live
+        // sync: (a) ContactMessageReceiver / OutgoingPollVoteGroupMessageTask then STOP the creator
+        // from broadcasting its own checks to participants, and (b) non-creator devices DROP incoming
+        // votes (BallotServiceImpl.vote guard), so checked items would sink only on the creator's
+        // device. Force + persist INTERMEDIATE on the local model here so the wire, the stored model
+        // and every vote-send path agree. No-op for real polls and already-correct checklists.
+        if (BallotUtil.isChecklist(ballotModel) && ballotModel.getType() != BallotModel.Type.INTERMEDIATE) {
+            logger.info("CHECKLIST ballot had type {}, forcing INTERMEDIATE", ballotModel.getType());
+            ballotModel.setType(BallotModel.Type.INTERMEDIATE);
+            this.databaseService.getBallotModelFactory().update(ballotModel);
+            this.cache(ballotModel);
+        }
+
         final boolean isClosing = ballotModel.getState() == BallotModel.State.CLOSED;
 
         BallotData ballotData = new BallotData();
@@ -1420,8 +1442,13 @@ public class BallotServiceImpl implements BallotService {
             // the creator, this should not happen and the message must be ignored.
             // If a vote is received from ourselves in such a case this is a reflected vote that must
             // be processed.
+            // F1Whisper CHECKLIST exception: a checklist shows every member's checks live to all
+            // members, so a non-creator MUST persist incoming checks from anyone. New checklists are
+            // forced INTERMEDIATE (see publish()/update()) so this never trips; this guard keeps any
+            // checklist that was created RESULT_ON_CLOSE before the fix working too.
             if (!TestUtil.compare(pollCreatorIdentity, myIdentity)
-                && !TestUtil.compare(fromIdentity, myIdentity)) {
+                && !TestUtil.compare(fromIdentity, myIdentity)
+                && !BallotUtil.isChecklist(ballotModel)) {
                 logger.warn("Intermediate results are not shown for this poll. Ignore message.");
                 // Return true to ack the message
                 return new BallotVoteResult(true);
