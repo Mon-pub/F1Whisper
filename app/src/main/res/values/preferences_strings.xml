@@ -43,6 +43,8 @@
     <string name="preferences__transmitted_feature_level" translatable="false">pref_key_transmitted_feature_level</string>
     <string name="preferences__transmitted_feature_mask" translatable="false">pref_key_transmitted_feature_mask</string>
     <string name="preferences__last_feature_mask_transmission" translatable="false">pref_key_last_feature_mask_transmission</string>
+    <string name="preferences__trusted_clock_offset_ms" translatable="false">f1w_trusted_clock_offset_ms</string>
+    <string name="preferences__trusted_clock_synced" translatable="false">f1w_trusted_clock_synced</string>
     <string name="preferences__show_inactive_contacts" translatable="false">pref_key_show_inactive_contacts</string>
     <string name="preferences__last_online_status" translatable="false">last_online</string>
     <string name="preferences__video_size" translatable="false">pref_key_video_size</string>

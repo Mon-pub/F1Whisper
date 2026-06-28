@@ -33,6 +33,7 @@ import ch.threema.app.push.PushService
 import ch.threema.app.restrictions.AppRestrictionService
 import ch.threema.app.services.ServiceManagerProvider
 import ch.threema.app.services.ThreemaPushService
+import ch.threema.app.services.TrustedClock
 import ch.threema.app.services.avatarcache.AvatarCacheService
 import ch.threema.app.startup.AppProcessLifecycleObserver
 import ch.threema.app.startup.AppStartupMonitorImpl
@@ -145,6 +146,10 @@ class ThreemaApplication : Application() {
         setUpDayNightMode(this)
 
         initDependencyInjection(this)
+
+        // F1Whisper: register the server-time consumer so the pinned OnPrem API's `Date:` header
+        // feeds TrustedClock (cross-device-comparable outgoing message timestamps).
+        TrustedClock.register()
 
         with(get<AppVersionLogger>()) {
             logAppVersionInfo()

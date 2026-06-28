@@ -131,7 +131,9 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
         m.setType(type);
         m.setMessageContentsType(contentsType);
         m.setPostedAt(postedAt);
-        m.setCreatedAt(new Date());
+        // F1Whisper: stamp outgoing createdAt from the server-corrected, monotonic TrustedClock so
+        // timestamps are cross-device-comparable even when the phone's own clock is wrong.
+        m.setCreatedAt(ch.threema.app.services.TrustedClock.stampNow());
         m.setSaved(false);
         m.setUid(UUID.randomUUID().toString());
         m.setIdentity(contact.getIdentity());

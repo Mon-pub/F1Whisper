@@ -284,6 +284,17 @@ class PreferenceServiceImpl(
         preferenceStore.save(getKeyName(R.string.preferences__transmitted_feature_mask), transmittedFeatureMask)
     }
 
+    override fun getTrustedClockOffsetMs(): Long =
+        preferenceStore.getLong(getKeyName(R.string.preferences__trusted_clock_offset_ms), defaultValue = 0L)
+
+    override fun setTrustedClockOffsetMs(offsetMs: Long) {
+        preferenceStore.save(getKeyName(R.string.preferences__trusted_clock_offset_ms), offsetMs)
+        preferenceStore.save(getKeyName(R.string.preferences__trusted_clock_synced), true)
+    }
+
+    override fun hasTrustedClockSynced(): Boolean =
+        preferenceStore.getBoolean(getKeyName(R.string.preferences__trusted_clock_synced), false)
+
     override fun getLastFeatureMaskTransmission(): Instant? =
         preferenceStore.getInstant(getKeyName(R.string.preferences__last_feature_mask_transmission))
 

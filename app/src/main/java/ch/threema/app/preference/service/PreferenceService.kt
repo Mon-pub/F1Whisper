@@ -158,6 +158,19 @@ interface PreferenceService {
     fun getTransmittedFeatureMask(): Long
     fun setTransmittedFeatureMask(transmittedFeatureMask: Long)
 
+    /**
+     * F1Whisper: persisted server-UTC offset in ms (`serverEpochMs - deviceEpochMs`) derived from
+     * the HTTP `Date:` header of our pinned OnPrem API. Used by [ch.threema.app.services.TrustedClock]
+     * to stamp outgoing message timestamps with a cross-device-comparable time even when the phone's
+     * own clock is wrong. 0 before the first-ever sync. Message display/sort only — never for
+     * security/expiry timing.
+     */
+    fun getTrustedClockOffsetMs(): Long
+    fun setTrustedClockOffsetMs(offsetMs: Long)
+
+    /** F1Whisper: whether the trusted clock has synced with the server at least once. */
+    fun hasTrustedClockSynced(): Boolean
+
     fun getLastFeatureMaskTransmission(): Instant?
 
     fun setLastFeatureMaskTransmission(timestamp: Instant?)

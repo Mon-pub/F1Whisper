@@ -456,7 +456,7 @@ public class MessageServiceImpl implements MessageService {
         MessageReceiver receiver,
         int messageFlags,
         ForwardSecurityMode forwardSecurityMode) {
-        AbstractMessageModel model = receiver.createLocalModel(MessageType.BALLOT, MessageContentsType.BALLOT, new Date());
+        AbstractMessageModel model = receiver.createLocalModel(MessageType.BALLOT, MessageContentsType.BALLOT, TrustedClock.now()); // F1Whisper: server-corrected outgoing postedAt
         if (model != null) {
             //hack: save ballot id into body string
             model.setIdentity(ballotModel.getCreatorIdentity());
@@ -495,7 +495,7 @@ public class MessageServiceImpl implements MessageService {
         String trimmedMessage = validateTextMessage(message);
 
         logger.debug("{}: create model instance", tag);
-        final AbstractMessageModel messageModel = messageReceiver.createLocalModel(MessageType.TEXT, MessageContentsType.TEXT, new Date());
+        final AbstractMessageModel messageModel = messageReceiver.createLocalModel(MessageType.TEXT, MessageContentsType.TEXT, TrustedClock.now()); // F1Whisper: server-corrected outgoing postedAt
         logger.debug("{}: cache", tag);
         cache(messageModel);
 
@@ -886,7 +886,7 @@ public class MessageServiceImpl implements MessageService {
         final String tag = "sendLocationMessage";
         logger.info("{}: start", tag);
 
-        AbstractMessageModel messageModel = receiver.createLocalModel(MessageType.LOCATION, MessageContentsType.LOCATION, new Date());
+        AbstractMessageModel messageModel = receiver.createLocalModel(MessageType.LOCATION, MessageContentsType.LOCATION, TrustedClock.now()); // F1Whisper: server-corrected outgoing postedAt
         cache(messageModel);
 
         @Nullable Poi poi = null;
@@ -1183,7 +1183,7 @@ public class MessageServiceImpl implements MessageService {
         if (receiver != null) {
             //ok...
             logger.debug("sendBallotMessage to {}", receiver);
-            final AbstractMessageModel messageModel = receiver.createLocalModel(MessageType.BALLOT, MessageContentsType.BALLOT, new Date());
+            final AbstractMessageModel messageModel = receiver.createLocalModel(MessageType.BALLOT, MessageContentsType.BALLOT, TrustedClock.now()); // F1Whisper: server-corrected outgoing postedAt
             cache(messageModel);
 
             messageModel.setOutbox(true);
@@ -4814,7 +4814,7 @@ public class MessageServiceImpl implements MessageService {
     ) {
         for (MessageReceiver messageReceiver : resolvedReceivers) {
 
-            final AbstractMessageModel messageModel = messageReceiver.createLocalModel(MessageType.FILE, MimeUtil.getContentTypeFromFileData(fileDataModel), new Date());
+            final AbstractMessageModel messageModel = messageReceiver.createLocalModel(MessageType.FILE, MimeUtil.getContentTypeFromFileData(fileDataModel), TrustedClock.now()); // F1Whisper: server-corrected outgoing postedAt
             cache(messageModel);
 
             messageModel.setOutbox(true);
