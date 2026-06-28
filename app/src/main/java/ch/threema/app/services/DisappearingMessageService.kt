@@ -329,25 +329,12 @@ class DisappearingMessageService private constructor() {
             }
 
             MessageReceiver.Type_GROUP -> {
-                val groupReceiver = receiver as? ch.threema.app.messagereceiver.GroupMessageReceiver ?: return
-                val group = groupReceiver.group ?: return
-                val timerSecs = group.disappearingMessagesTimerSeconds ?: return
-                if (timerSecs <= 0) return
-                val members = serviceManager.groupService.getGroupMemberIdentities(group)
-                    ?.filterNot { it == serviceManager.userService.identity }
-                    ?.toSet()
-                    ?: return
-                if (members.isEmpty()) return
-                recordTimerBroadcast(conversationKey)
-                taskManager.schedule(
-                    ch.threema.app.tasks.OutgoingGroupDisappearingTimerMessageTask(
-                        groupId = group.apiGroupId,
-                        creatorIdentity = group.creatorIdentity,
-                        recipientIdentities = members,
-                        timerSeconds = timerSecs,
-                    )
-                )
-                logger.debug("E2: piggybacking group timer re-assert ({}s) to {} members", timerSecs, members.size)
+                // F1Whisper GROUP convergence fix (Option X): groups NEVER piggyback. The group
+                // disappearing timer is a single shared field that converges on the last genuine
+                // user change (broadcast once from setConversationTimer). A per-member re-assert
+                // here re-injected each member's stale value on every send → endless 30↔300↔OFF
+                // ping-pong. It is removed. 0x95 is durable + server-queued, so an offline member
+                // still catches up on reconnect without any client re-assert.
             }
 
             else -> { /* distribution list etc — no-op */ }

@@ -344,15 +344,21 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
     public List<MessageModel> find(String identity, MessageService.MessageFilter filter) {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        // F1Whisper: sort by the server send-time (postedAtUtc), falling back to the local
-        // received/created time (createdAtUtc) for legacy rows that predate postedAt, then by id to
-        // keep same-timestamp messages stable. Upstream sorted purely by insertion id, which for a
-        // reconnect backlog equals PROCESSING order, not send order: a large blob (e.g. a video)
-        // finishes processing after the small text messages queued behind it, so it showed up below
-        // its own replies. postedAtUtc carries the real server timestamp for both incoming and
-        // outgoing messages, restoring true chronological order.
-        String orderBy = "COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
-            + AbstractMessageModel.COLUMN_CREATED_AT + ") DESC, " + MessageModel.COLUMN_ID + " DESC";
+        // F1Whisper: sort by the immutable per-row sort key (sortAtUtc). It is outgoing ->
+        // createdAtUtc (local compose time, immutable) / incoming -> COALESCE(postedAtUtc,
+        // createdAtUtc) (sender time). The earlier postedAtUtc-only sort reordered same-minute
+        // OUTGOING messages, because postedAtUtc is overwritten with the send-completion time
+        // (sentAt), which is not monotonic with compose order (FS/blob/retry finish out of order).
+        // sortAtUtc is never overwritten, so compose order is preserved while incoming rows still
+        // keep sender time (so a reconnect-backlog blob stays below its own replies). The inner CASE
+        // is a defensive fallback for any row written before the v124 backfill. Then id for stability.
+        String orderBy =
+            "COALESCE(" + AbstractMessageModel.COLUMN_SORT_AT + ", "
+                + "CASE WHEN " + AbstractMessageModel.COLUMN_OUTBOX + " = 1 "
+                + "THEN " + AbstractMessageModel.COLUMN_CREATED_AT + " "
+                + "ELSE COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
+                + AbstractMessageModel.COLUMN_CREATED_AT + ") END) DESC, "
+                + MessageModel.COLUMN_ID + " DESC";
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(MessageModel.COLUMN_IDENTITY + "=?");
@@ -536,7 +542,9 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
                     // F1Whisper disappearing messages (mirror DatabaseUpdateToVersion122)
                     "`" + MessageModel.COLUMN_EXPIRES_AT + "` BIGINT DEFAULT NULL ," +
                     "`" + MessageModel.COLUMN_EXPIRE_STARTED_AT + "` BIGINT DEFAULT NULL ," +
-                    "`" + MessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL );",
+                    "`" + MessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL ," +
+                    // F1Whisper message-ordering fix (mirror DatabaseUpdateToVersion124)
+                    "`" + MessageModel.COLUMN_SORT_AT + "` BIGINT DEFAULT NULL );",
 
                 // indices
                 "CREATE INDEX `contact_message_uid_idx` ON `" + MessageModel.TABLE + "` ( `" + MessageModel.COLUMN_UID + "` )",

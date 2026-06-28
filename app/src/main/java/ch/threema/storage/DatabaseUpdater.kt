@@ -27,7 +27,7 @@ class DatabaseUpdater(
     }
 
     companion object {
-        const val VERSION = 123
+        const val VERSION = 124
 
         private val updates: List<(SQLiteDatabase, Context) -> DatabaseUpdate>
             get() = listOf<(SQLiteDatabase, Context) -> DatabaseUpdate>(
@@ -129,6 +129,7 @@ class DatabaseUpdater(
                 update(::DatabaseUpdateToVersion121),
                 update(::DatabaseUpdateToVersion122),
                 update(::DatabaseUpdateToVersion123),
+                update(::DatabaseUpdateToVersion124),
             )
 
         private fun update(databaseUpdate: () -> DatabaseUpdate): (SQLiteDatabase, Context) -> DatabaseUpdate =

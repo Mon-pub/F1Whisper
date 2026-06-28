@@ -223,9 +223,11 @@ public class GroupModelOld implements ReceiverModel {
     }
 
     /**
-     * F1Whisper: the peer's last-advertised disappearing-messages timer in seconds (the value that
-     * freezes onto INCOMING group messages). {@code null} or {@code 0} means no peer timer advertised /
-     * off. Tracked separately from {@link #getDisappearingMessagesTimerSeconds()}.
+     * F1Whisper: DEAD for groups under the single-shared-field convergence model (Option X) — groups
+     * use {@link #getDisappearingMessagesTimerSeconds()} for BOTH directions. This column is still
+     * persisted (no migration) but is no longer read or written by the group disappearing path; it
+     * only ever holds whatever value was last stored under the pre-fix per-direction code. (The
+     * per-direction split remains live for 1:1 contacts on {@code ContactModel}.)
      */
     @Nullable
     public Integer getPeerDisappearingTimerSeconds() {

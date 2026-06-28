@@ -347,11 +347,18 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
     public List<GroupMessageModel> find(int groupId, MessageService.MessageFilter filter) {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        // F1Whisper: sort by server send-time (postedAtUtc) with a createdAtUtc fallback for legacy
-        // rows, then id for stability. See MessageModelFactory.find for the rationale: insertion-id
-        // order put backlog blobs (videos) below their own replies after a reconnect.
-        String orderBy = "COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
-            + AbstractMessageModel.COLUMN_CREATED_AT + ") DESC, " + GroupMessageModel.COLUMN_ID + " DESC";
+        // F1Whisper: sort by the immutable per-row sort key (sortAtUtc), then id for stability. See
+        // MessageModelFactory.find for the full rationale: the earlier postedAtUtc-only sort
+        // reordered same-minute outgoing messages (postedAtUtc is overwritten with the mutable
+        // send-completion time). sortAtUtc is outgoing -> createdAtUtc / incoming ->
+        // COALESCE(postedAtUtc, createdAtUtc); the inner CASE is a defensive pre-backfill fallback.
+        String orderBy =
+            "COALESCE(" + AbstractMessageModel.COLUMN_SORT_AT + ", "
+                + "CASE WHEN " + AbstractMessageModel.COLUMN_OUTBOX + " = 1 "
+                + "THEN " + AbstractMessageModel.COLUMN_CREATED_AT + " "
+                + "ELSE COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
+                + AbstractMessageModel.COLUMN_CREATED_AT + ") END) DESC, "
+                + GroupMessageModel.COLUMN_ID + " DESC";
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(GroupMessageModel.COLUMN_GROUP_ID + "=?");
@@ -520,7 +527,9 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
                     // F1Whisper disappearing messages (per-message frozen timer + expiry timestamps).
                     "`" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` BIGINT DEFAULT NULL ," +
                     "`" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + "` BIGINT DEFAULT NULL ," +
-                    "`" + AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL );",
+                    "`" + AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL ," +
+                    // F1Whisper message-ordering fix (mirror DatabaseUpdateToVersion124)
+                    "`" + AbstractMessageModel.COLUMN_SORT_AT + "` BIGINT DEFAULT NULL );",
 
                 // indices
                 "CREATE INDEX `group_message_uid_idx` ON `" + GroupMessageModel.TABLE + "` ( `" + GroupMessageModel.COLUMN_UID + "` )",

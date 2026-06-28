@@ -467,6 +467,16 @@ internal constructor(
         const val COLUMN_POSTED_AT = "postedAtUtc"
 
         /**
+         * F1Whisper: immutable per-row chat-timeline sort key.
+         *
+         * Value = outgoing -> [COLUMN_CREATED_AT] (local compose time, immutable, monotonic);
+         * incoming -> COALESCE([COLUMN_POSTED_AT], [COLUMN_CREATED_AT]) (sender time; keeps the
+         * reconnect-backlog fix). Unlike [COLUMN_POSTED_AT], it is never overwritten by the
+         * send-completion time, so same-minute outgoing messages no longer reorder.
+         */
+        const val COLUMN_SORT_AT = "sortAtUtc"
+
+        /**
          * When the message was last modified.
          */
         const val COLUMN_MODIFIED_AT = "modifiedAtUtc"

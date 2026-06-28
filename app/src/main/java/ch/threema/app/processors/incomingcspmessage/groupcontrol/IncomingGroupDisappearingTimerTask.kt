@@ -14,14 +14,19 @@ private val logger = getThreemaLogger("IncomingGroupDisappearingTimerTask")
 /**
  * F1Whisper: handle an incoming group disappearing-timer control message (type 0x95).
  *
+ * GROUP convergence model (Option X): unlike 1:1 (which is per-direction), a group disappearing
+ * timer is a SINGLE shared value. Both outgoing and incoming freezing read
+ * [GroupModelOld.disappearingMessagesTimerSeconds]; the per-direction peer column is unused for
+ * groups. Any member's genuine change is adopted unconditionally (last change wins). There is no
+ * group piggyback re-assert (see [DisappearingMessageService.piggybackTimerReassert]), so no stale
+ * value is ever re-injected and the group converges on the last genuine change.
+ *
  * On receive:
  * 1. Run common group receive steps — discard if the group cannot be found or sender is invalid.
- * 2. Persist the peer's advertised timer on [GroupModelOld.peerDisappearingTimerSeconds].
- *    Adopt-if-unset: if no explicit group timer has been set locally, mirror the peer's value so a
- *    one-sided enable still gives a shared feel.  An explicit local choice (incl. OFF = 0) is NEVER
- *    overwritten.
+ * 2. Unconditionally adopt the advertised timer into the shared field
+ *    [GroupModelOld.disappearingMessagesTimerSeconds] (OFF → null).
  * 3. Insert a local DISAPPEARING_STATUS status message in the group conversation.
- *    Suppressed when the incoming value equals the previously-stored peer value (piggyback re-assert).
+ *    Suppressed when the incoming value equals the previously-stored shared value (no real change).
  * 4. Re-arm the disappearing alarm.
  */
 class IncomingGroupDisappearingTimerTask(
@@ -58,26 +63,20 @@ class IncomingGroupDisappearingTimerTask(
             return ReceiveStepsResult.DISCARD
         }
 
-        // E2 isReassert: compare incoming value to the PEER column (not the my-field)
-        // so piggyback re-asserts are suppressed independently of the local group timer.
-        val previousPeerTimer = oldGroupModel.peerDisappearingTimerSeconds
-        val isReassert = (timerSeconds > 0 && timerSeconds == previousPeerTimer) ||
-                         (timerSeconds <= 0 && (previousPeerTimer == null || previousPeerTimer <= 0))
+        // F1Whisper GROUP convergence fix (Option X — single shared field, pure last-writer-wins).
+        // Groups use ONE shared timer (disappearingMessagesTimerSeconds) for BOTH directions; the
+        // per-direction peer column is NOT used for groups. Any member's genuine change is adopted
+        // unconditionally (last change wins). There is no group piggyback re-assert, so no stale
+        // value is ever re-injected → the group converges on the last genuine change (incl. OFF).
+        // isReassert baseline is the previous shared value, so a duplicate-of-current advertisement
+        // (e.g. a second member who already holds the value) does not re-print a status row.
+        val previousSharedTimer = oldGroupModel.disappearingMessagesTimerSeconds
+        val isReassert = (timerSeconds > 0 && timerSeconds == previousSharedTimer) ||
+                         (timerSeconds <= 0 && (previousSharedTimer == null || previousSharedTimer <= 0))
 
-        // 1a. Persist peer's advertised timer (0 = peer turned it OFF; null = never advertised).
-        oldGroupModel.setPeerDisappearingTimerSeconds(if (timerSeconds > 0) timerSeconds else 0)
-
-        // 1b. Adopt-if-unset: if no local group timer has ever been explicitly configured,
-        //     mirror the sender's value so the group conversation disappears for everyone.
-        //     A non-null local value (including OFF = 0) is NEVER overwritten.
-        val myTimer = oldGroupModel.disappearingMessagesTimerSeconds
-        if (myTimer == null) {
-            oldGroupModel.setDisappearingMessagesTimerSeconds(if (timerSeconds > 0) timerSeconds else null)
-            logger.info(
-                "Disappearing adopt-if-unset: mirroring peer timer {}s for group {}",
-                timerSeconds, message.apiGroupId
-            )
-        }
+        // Unconditionally adopt the advertised value into the shared group field.
+        // OFF (timerSeconds <= 0) stores null (matches the user-OFF convention the picker reads).
+        oldGroupModel.setDisappearingMessagesTimerSeconds(if (timerSeconds > 0) timerSeconds else null)
 
         databaseService.groupModelFactory.update(oldGroupModel)
 

@@ -1613,24 +1613,29 @@ public class MessageServiceImpl implements MessageService {
     }
 
     /**
-     * F1Whisper: returns the PEER's advertised per-conversation disappearing timer for [message].
+     * F1Whisper: returns the per-conversation disappearing timer that governs INCOMING-message
+     * freezing for [message].
      *
-     * For 1:1 messages: reads {@code ContactModel.getPeerDisappearingTimerSeconds()} — the value
-     * the remote contact last sent us via a 0x85 control message.
-     * For group messages: reads {@code GroupModelOld.getPeerDisappearingTimerSeconds()} — the last
-     * 0x95 value received for that group.
+     * For 1:1 messages (per-direction model): reads {@code ContactModel.getPeerDisappearingTimerSeconds()}
+     * — the value the remote contact last sent us via a 0x85 control message. Does NOT fall back to
+     * the my-field, so my local timer changes cannot affect incoming-message expiry after the fact.
+     * Returns {@code null} when the peer has never advertised a timer (treated as OFF for incoming).
      *
-     * Returns {@code null} when the peer has never advertised a timer (treated as OFF for incoming
-     * freezing).  Does NOT fall back to the my-field ({@code disappearingMessagesTimerSeconds}) so
-     * that local timer changes cannot affect incoming-message expiry after the fact.
+     * For group messages (single-shared-field convergence model, Option X): reads
+     * {@code GroupModelOld.getDisappearingMessagesTimerSeconds()} — the ONE shared group timer that
+     * also governs outgoing freezing, so every member freezes group messages at the same converged
+     * value. The per-direction peer column is unused for groups.
      */
     @Nullable
     private Integer peerDisappearingTimer(@NonNull AbstractMessageModel message) {
         try {
             if (message instanceof GroupMessageModel) {
+                // F1Whisper GROUP convergence fix (Option X): groups use the SINGLE shared field for
+                // BOTH outgoing and incoming freeze (not the per-direction peer column), so every
+                // member freezes group messages at the same converged value.
                 ch.threema.storage.models.group.GroupModelOld group =
                     groupService.getById(((GroupMessageModel) message).getGroupId());
-                return group != null ? group.getPeerDisappearingTimerSeconds() : null;
+                return group != null ? group.getDisappearingMessagesTimerSeconds() : null;
             } else {
                 ContactModel c = contactService.getByIdentity(message.getIdentity());
                 return c != null ? c.getPeerDisappearingTimerSeconds() : null;

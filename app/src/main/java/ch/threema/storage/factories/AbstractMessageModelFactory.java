@@ -111,6 +111,15 @@ abstract class AbstractMessageModelFactory extends ModelFactory {
         contentValues.put(AbstractMessageModel.COLUMN_STATE, messageModel.getState() != null ? messageModel.getState().toString() : null);
         contentValues.put(AbstractMessageModel.COLUMN_POSTED_AT, DatabaseUtil.getDateTimeContentValue(messageModel.getPostedAt()));
         contentValues.put(AbstractMessageModel.COLUMN_CREATED_AT, DatabaseUtil.getDateTimeContentValue(messageModel.getCreatedAt()));
+        // F1Whisper message-ordering fix: immutable per-row sort key. Outgoing rows sort by their
+        // local compose time (createdAtUtc) instead of the mutable send-completion time (postedAtUtc
+        // is overwritten with sentAt on SEND, which is not monotonic with compose order). Incoming
+        // rows keep sender time (preserves the reconnect-backlog fix). The formula is stable for a
+        // row's whole life, so recomputing it on every write yields the same value.
+        final java.util.Date sortDate = messageModel.isOutbox()
+            ? messageModel.getCreatedAt()
+            : (messageModel.getPostedAt() != null ? messageModel.getPostedAt() : messageModel.getCreatedAt());
+        contentValues.put(AbstractMessageModel.COLUMN_SORT_AT, DatabaseUtil.getDateTimeContentValue(sortDate));
         contentValues.put(AbstractMessageModel.COLUMN_MODIFIED_AT, DatabaseUtil.getDateTimeContentValue(messageModel.getModifiedAt()));
         contentValues.put(AbstractMessageModel.COLUMN_IS_STATUS_MESSAGE, messageModel.isStatusMessage());
         contentValues.put(AbstractMessageModel.COLUMN_CAPTION, messageModel.getCaption());

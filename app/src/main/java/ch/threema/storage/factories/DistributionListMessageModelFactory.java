@@ -172,10 +172,18 @@ public class DistributionListMessageModelFactory extends AbstractMessageModelFac
     public List<DistributionListMessageModel> find(long distributionListId, MessageService.MessageFilter filter) {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        // F1Whisper: sort by server send-time (postedAtUtc) with a createdAtUtc fallback for legacy
-        // rows, then id for stability (see MessageModelFactory.find for the rationale).
-        String orderBy = "COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
-            + AbstractMessageModel.COLUMN_CREATED_AT + ") DESC, " + DistributionListMessageModel.COLUMN_ID + " DESC";
+        // F1Whisper: sort by the immutable per-row sort key (sortAtUtc), then id for stability (see
+        // MessageModelFactory.find for the rationale: the earlier postedAtUtc-only sort reordered
+        // same-minute outgoing messages because postedAtUtc is overwritten with the mutable
+        // send-completion time). sortAtUtc is outgoing -> createdAtUtc / incoming ->
+        // COALESCE(postedAtUtc, createdAtUtc); the inner CASE is a defensive pre-backfill fallback.
+        String orderBy =
+            "COALESCE(" + AbstractMessageModel.COLUMN_SORT_AT + ", "
+                + "CASE WHEN " + AbstractMessageModel.COLUMN_OUTBOX + " = 1 "
+                + "THEN " + AbstractMessageModel.COLUMN_CREATED_AT + " "
+                + "ELSE COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
+                + AbstractMessageModel.COLUMN_CREATED_AT + ") END) DESC, "
+                + DistributionListMessageModel.COLUMN_ID + " DESC";
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(DistributionListMessageModel.COLUMN_DISTRIBUTION_LIST_ID + "=?");
@@ -277,7 +285,9 @@ public class DistributionListMessageModelFactory extends AbstractMessageModelFac
                     "`" + DistributionListMessageModel.COLUMN_FORWARD_SECURITY_MODE + "` TINYINT DEFAULT 0 ," +
                     "`" + DistributionListMessageModel.COLUMN_DISPLAY_TAGS + "` TINYINT DEFAULT 0 ," +
                     "`" + DistributionListMessageModel.COLUMN_EDITED_AT + "` DATETIME ," +
-                    "`" + DistributionListMessageModel.COLUMN_DELETED_AT + "` DATETIME );",
+                    "`" + DistributionListMessageModel.COLUMN_DELETED_AT + "` DATETIME ," +
+                    // F1Whisper message-ordering fix (mirror DatabaseUpdateToVersion124)
+                    "`" + DistributionListMessageModel.COLUMN_SORT_AT + "` BIGINT DEFAULT NULL );",
 
                 // indices
                 "CREATE INDEX `distributionListDistributionListIdIdx` ON `" + DistributionListMessageModel.TABLE + "` ( `" + DistributionListMessageModel.COLUMN_DISTRIBUTION_LIST_ID + "` )",
