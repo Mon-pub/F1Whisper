@@ -120,6 +120,9 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
         m.setCreatedAt(new Date());
         m.setSaved(false);
         m.setUid(UUID.randomUUID().toString());
+        // F1Whisper: stamp disappearing-timer on every outgoing message at creation time.
+        ch.threema.app.services.DisappearingMessageService.stampOutgoing(
+            m, group.getDisappearingMessagesTimerSeconds());
         return m;
     }
 

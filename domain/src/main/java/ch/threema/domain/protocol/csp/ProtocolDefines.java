@@ -124,6 +124,11 @@ public class ProtocolDefines {
     // F1Whisper: group typing indicator (group variant of MSGTYPE_TYPING_INDICATOR 0x90).
     // Decoded purely in Kotlin (MessageCoder); no libthreema/proto change needed.
     public static final int MSGTYPE_GROUP_TYPING_INDICATOR = 0x84;
+    // F1Whisper: disappearing-messages timer control (Signal-style per-conversation short timer;
+    // distinct from the upstream keep-messages-N-days purge). Durable + queued; decoded purely in
+    // Kotlin (MessageCoder), no libthreema/proto change needed.
+    public static final int MSGTYPE_DISAPPEARING_TIMER = 0x85;
+    public static final int MSGTYPE_GROUP_DISAPPEARING_TIMER = 0x95;
     public static final int MSGTYPE_WORK_SYNC_DELTA = 0xfd;
 
     /* message flags */

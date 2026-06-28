@@ -218,6 +218,15 @@ public class ConversationServiceImpl implements ConversationService {
 
             this.sort();
 
+            // F1Whisper: belt-and-suspenders — enforce disappearing expiry on the latest message
+            // of each conversation so no overdue message survives a conversation-list refresh.
+            for (ConversationModel conv : this.conversationCache) {
+                final AbstractMessageModel latest = conv.latestMessage;
+                if (latest != null) {
+                    DisappearingMessageService.enforceIfExpired(latest);
+                }
+            }
+
             if (filter != null) {
                 boolean filteringApplied = false;
                 Stream<ConversationModel> filtered = this.conversationCache.stream();

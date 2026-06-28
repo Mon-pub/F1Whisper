@@ -19,6 +19,7 @@ import ch.threema.storage.models.data.media.BallotDataModel
 import ch.threema.storage.models.data.media.FileDataModel
 import ch.threema.storage.models.data.media.ImageDataModel
 import ch.threema.storage.models.data.media.VideoDataModel
+import ch.threema.storage.models.data.status.DisappearingStatusDataModel
 import ch.threema.storage.models.data.status.ForwardSecurityStatusDataModel
 import ch.threema.storage.models.data.status.GroupCallStatusDataModel
 import ch.threema.storage.models.data.status.GroupStatusDataModel
@@ -110,6 +111,33 @@ internal constructor(
     open var editedAt: Date? = null
 
     open var deletedAt: Date? = null
+
+    /**
+     * F1Whisper disappearing messages: epoch-millis at which this message is due for hard-deletion,
+     * or null while no countdown has started. Stored as a raw timestamp (not [Date]) so the
+     * enforcement engine can do cheap arithmetic compares without per-row [Date] allocation.
+     */
+    open var expiresAt: Long? = null
+
+    /**
+     * F1Whisper disappearing messages: epoch-millis at which the countdown started (on-send for
+     * outgoing, first-read for incoming), or null if it has not started. First-write-wins.
+     */
+    open var expireStartedAt: Long? = null
+
+    /**
+     * F1Whisper disappearing messages: the per-conversation timer (in seconds) FROZEN onto this
+     * message when it was created (Signal `EXPIRES_IN` parity), or null if disappearing was off.
+     * Frozen per-message so every enforcement check is a pure timestamp compare with no join.
+     */
+    open var disappearingTimerSeconds: Int? = null
+
+    /**
+     * True if this message participates in disappearing messages (i.e. a non-null, positive
+     * per-message timer was frozen onto it).
+     */
+    val isDisappearing: Boolean
+        get() = (disappearingTimerSeconds ?: 0) > 0
 
     var caption: String? = null
         get() = when (type) {
@@ -218,6 +246,18 @@ internal constructor(
         )
         set(value) {
             setDataModel(MessageType.GROUP_STATUS, value, StatusDataModel::convert)
+        }
+
+    // F1Whisper: data for DISAPPEARING_STATUS inline status messages (per-conversation timer change).
+    var disappearingStatusData: DisappearingStatusDataModel?
+        get() = getOrSetDataModel(
+            expectedType = MessageType.DISAPPEARING_STATUS,
+            convert = {
+                StatusDataModel.convert(this) as DisappearingStatusDataModel?
+            },
+        )
+        set(value) {
+            setDataModel(MessageType.DISAPPEARING_STATUS, value, StatusDataModel::convert)
         }
 
     var imageData: ImageDataModel
@@ -487,6 +527,21 @@ internal constructor(
          * When the message was deleted
          */
         const val COLUMN_DELETED_AT = "deletedAtUtc"
+
+        /**
+         * F1Whisper disappearing messages: epoch-millis when the message is due for hard-deletion.
+         */
+        const val COLUMN_EXPIRES_AT = "expiresAtUtc"
+
+        /**
+         * F1Whisper disappearing messages: epoch-millis when the countdown started.
+         */
+        const val COLUMN_EXPIRE_STARTED_AT = "expireStartedAtUtc"
+
+        /**
+         * F1Whisper disappearing messages: per-message frozen timer in seconds (Signal EXPIRES_IN).
+         */
+        const val COLUMN_DISAPPEARING_TIMER_SECONDS = "disappearingTimerSeconds"
 
         // These models are used as workaround for the case where the data model is accessed
         // through a getter, but the stored body is missing or of the wrong type. We can't return null

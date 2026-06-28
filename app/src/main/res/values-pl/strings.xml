@@ -2012,4 +2012,20 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="audio_trim_not_supported">Przycinanie nie jest obsługiwane dla tego formatu audio. Usuń przycięcie, aby wysłać cały plik.</string>
     <string name="audio_trim_failed">Nie udało się przyciąć tego dźwięku. Nic nie zostało wysłane. Spróbuj ponownie lub usuń przycięcie.</string>
     <string name="pinned_message_banner_label_counter">Przypięta wiadomość %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Znikające wiadomości</string>
+    <string name="disappearing_messages_summary">Nowe wiadomości w tym czacie znikną po upływie wybranego czasu od przeczytania.</string>
+    <string name="disappearing_off">Wył.</string>
+    <string name="disappearing_duration_picker_title">Minutnik znikania</string>
+    <string name="status_disappearing_set">%1$s ustawił(a) minutnik znikających wiadomości: %2$s</string>
+    <string name="status_disappearing_set_you">Ustawiono minutnik znikających wiadomości: %1$s</string>
+    <string name="status_disappearing_off">%1$s wyłączył(a) znikające wiadomości</string>
+    <string name="status_disappearing_off_you">Wyłączono znikające wiadomości</string>
+    <string name="disappearing_messages_unsupported">Znikające wiadomości działają tylko między użytkownikami F1Whisper i nie stanowią gwarancji bezpieczeństwa.</string>
+    <string name="disappearing_duration_30s">30 sekund</string>
+    <string name="disappearing_duration_5m">5 minut</string>
+    <string name="disappearing_duration_1h">1 godzina</string>
+    <string name="disappearing_duration_8h">8 godzin</string>
+    <string name="disappearing_duration_1d">1 dzień</string>
+    <string name="disappearing_duration_1w">1 tydzień</string>
+    <string name="disappearing_duration_4w">4 tygodnie</string>
 </resources>

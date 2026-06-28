@@ -29,4 +29,9 @@ enum class MessageType(val canBeEdited: Boolean = false) {
     GROUP_CALL_STATUS,
     FORWARD_SECURITY_STATUS,
     GROUP_STATUS,
+
+    // F1Whisper disappearing messages: inline status message announcing a per-conversation timer
+    // change ("X set disappearing messages to 1 day" / "...turned off"). Appended at the END so the
+    // persisted DB ordinal of every existing type stays stable.
+    DISAPPEARING_STATUS,
 }

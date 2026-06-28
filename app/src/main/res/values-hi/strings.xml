@@ -2031,4 +2031,20 @@
     <string name="audio_trim_not_supported">इस ऑडियो प्रारूप के लिए ट्रिमिंग समर्थित नहीं है। पूरी फ़ाइल भेजने के लिए ट्रिम हटाएँ।</string>
     <string name="audio_trim_failed">इस ऑडियो को ट्रिम नहीं किया जा सका। कुछ नहीं भेजा गया। कृपया फिर से प्रयास करें या ट्रिम हटाएँ।</string>
     <string name="pinned_message_banner_label_counter">पिन किया गया संदेश %1$d/%2$d</string>
+    <string name="disappearing_messages_title">गायब होने वाले संदेश</string>
+    <string name="disappearing_messages_summary">इस चैट में नए संदेश पढ़े जाने के बाद चुने गए समय में गायब हो जाएंगे।</string>
+    <string name="disappearing_off">बंद</string>
+    <string name="disappearing_duration_picker_title">गायब होने का टाइमर</string>
+    <string name="status_disappearing_set">%1$s ने गायब होने वाले संदेश %2$s पर सेट किए</string>
+    <string name="status_disappearing_set_you">आपने गायब होने वाले संदेश %1$s पर सेट किए</string>
+    <string name="status_disappearing_off">%1$s ने गायब होने वाले संदेश बंद किए</string>
+    <string name="status_disappearing_off_you">आपने गायब होने वाले संदेश बंद किए</string>
+    <string name="disappearing_messages_unsupported">गायब होने वाले संदेश केवल F1Whisper उपयोगकर्ताओं के बीच काम करते हैं और यह सुरक्षा गारंटी नहीं है।</string>
+    <string name="disappearing_duration_30s">३० सेकंड</string>
+    <string name="disappearing_duration_5m">५ मिनट</string>
+    <string name="disappearing_duration_1h">१ घंटा</string>
+    <string name="disappearing_duration_8h">८ घंटे</string>
+    <string name="disappearing_duration_1d">१ दिन</string>
+    <string name="disappearing_duration_1w">१ सप्ताह</string>
+    <string name="disappearing_duration_4w">४ सप्ताह</string>
 </resources>

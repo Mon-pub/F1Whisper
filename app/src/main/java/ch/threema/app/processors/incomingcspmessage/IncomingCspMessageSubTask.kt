@@ -27,8 +27,10 @@ import ch.threema.app.processors.incomingcspmessage.conversation.IncomingGroupPo
 import ch.threema.app.processors.incomingcspmessage.conversation.IncomingGroupPollVoteTask
 import ch.threema.app.processors.incomingcspmessage.conversation.IncomingGroupReactionMessageTask
 import ch.threema.app.processors.incomingcspmessage.fs.IncomingEmptyTask
+import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingDisappearingTimerTask
 import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingGroupCallControlTask
 import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingGroupDeleteProfilePictureTask
+import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingGroupDisappearingTimerTask
 import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingGroupLeaveTask
 import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingGroupNameTask
 import ch.threema.app.processors.incomingcspmessage.groupcontrol.IncomingGroupSetProfilePictureTask
@@ -43,6 +45,8 @@ import ch.threema.domain.protocol.csp.messages.AbstractGroupMessage
 import ch.threema.domain.protocol.csp.messages.AbstractMessage
 import ch.threema.domain.protocol.csp.messages.ContactRequestProfilePictureMessage
 import ch.threema.domain.protocol.csp.messages.DeleteMessage
+import ch.threema.domain.protocol.csp.messages.DisappearingTimerMessage
+import ch.threema.domain.protocol.csp.messages.GroupDisappearingTimerMessage
 import ch.threema.domain.protocol.csp.messages.DeleteProfilePictureMessage
 import ch.threema.domain.protocol.csp.messages.DeliveryReceiptMessage
 import ch.threema.domain.protocol.csp.messages.EditMessage
@@ -242,6 +246,11 @@ fun getSubTaskFromMessage(
     // Check if message is a file message
     is FileMessage -> IncomingContactFileMessageTask(message, triggerSource, serviceManager)
     is GroupFileMessage -> IncomingGroupFileMessageTask(message, triggerSource, serviceManager)
+
+    // F1Whisper: disappearing-timer control messages (0x85 1:1 / 0x95 group).
+    // Must appear ABOVE the AbstractGroupMessage catch-all.
+    is DisappearingTimerMessage -> IncomingDisappearingTimerTask(message, triggerSource, serviceManager)
+    is GroupDisappearingTimerMessage -> IncomingGroupDisappearingTimerTask(message, triggerSource, serviceManager)
 
     // If it is a group message, process it as a group conversation message
     is AbstractGroupMessage -> IncomingGroupConversationMessageTask(

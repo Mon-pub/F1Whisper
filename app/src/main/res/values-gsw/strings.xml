@@ -1968,4 +1968,20 @@
     <string name="audio_trim_not_supported">S Zueschniide wird für das Audioformat nöd unterstützt. Nimm s Zueschniide ewägg, zum di ganzi Datei z schicke.</string>
     <string name="audio_trim_failed">Das Audio het mer nöd chönne zueschniide. S isch nüt gschickt worde. Probier s nomal oder nimm s Zueschniide ewägg.</string>
     <string name="pinned_message_banner_label_counter">Aagpinnti Nachricht %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Verschwindendi Nachrichte</string>
+    <string name="disappearing_messages_summary">Neui Nachrichte in däm Chat verschwindet nach em Läse nach de gwählte Ziit.</string>
+    <string name="disappearing_off">Us</string>
+    <string name="disappearing_duration_picker_title">Ablauftimer</string>
+    <string name="status_disappearing_set">%1$s het verschwindendi Nachrichte uf %2$s gsetzt</string>
+    <string name="status_disappearing_set_you">Du hesch verschwindendi Nachrichte uf %1$s gsetzt</string>
+    <string name="status_disappearing_off">%1$s het verschwindendi Nachrichte deaktiviert</string>
+    <string name="status_disappearing_off_you">Du hesch verschwindendi Nachrichte deaktiviert</string>
+    <string name="disappearing_messages_unsupported">Verschwindendi Nachrichte funktioniere nur zwüsche F1Whisper-Nutzer und sind kei Sicherheitsgarantie.</string>
+    <string name="disappearing_duration_30s">30 Sekunde</string>
+    <string name="disappearing_duration_5m">5 Minute</string>
+    <string name="disappearing_duration_1h">1 Stund</string>
+    <string name="disappearing_duration_8h">8 Stunde</string>
+    <string name="disappearing_duration_1d">1 Tag</string>
+    <string name="disappearing_duration_1w">1 Wuche</string>
+    <string name="disappearing_duration_4w">4 Wuche</string>
 </resources>

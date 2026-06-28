@@ -2115,4 +2115,20 @@
     <string name="audio_trim_not_supported">القص غير مدعوم لتنسيق الصوت هذا. أزل القص لإرسال الملف كاملًا.</string>
     <string name="audio_trim_failed">تعذّر قص هذا الصوت. لم يتم إرسال أي شيء. يُرجى المحاولة مرة أخرى أو إزالة القص.</string>
     <string name="pinned_message_banner_label_counter">رسالة مثبتة %1$d/%2$d</string>
+    <string name="disappearing_messages_title">الرسائل المختفية</string>
+    <string name="disappearing_messages_summary">ستختفي الرسائل الجديدة في هذه المحادثة بعد الوقت المحدد فور قراءتها.</string>
+    <string name="disappearing_off">إيقاف</string>
+    <string name="disappearing_duration_picker_title">مؤقت الاختفاء</string>
+    <string name="status_disappearing_set">قام %1$s بضبط الرسائل المختفية على %2$s</string>
+    <string name="status_disappearing_set_you">قمت بضبط الرسائل المختفية على %1$s</string>
+    <string name="status_disappearing_off">قام %1$s بإيقاف الرسائل المختفية</string>
+    <string name="status_disappearing_off_you">قمت بإيقاف الرسائل المختفية</string>
+    <string name="disappearing_messages_unsupported">تعمل الرسائل المختفية فقط بين مستخدمي F1Whisper وليست ضمانًا أمنيًا.</string>
+    <string name="disappearing_duration_30s">٣٠ ثانية</string>
+    <string name="disappearing_duration_5m">٥ دقائق</string>
+    <string name="disappearing_duration_1h">ساعة واحدة</string>
+    <string name="disappearing_duration_8h">٨ ساعات</string>
+    <string name="disappearing_duration_1d">يوم واحد</string>
+    <string name="disappearing_duration_1w">أسبوع واحد</string>
+    <string name="disappearing_duration_4w">٤ أسابيع</string>
 </resources>

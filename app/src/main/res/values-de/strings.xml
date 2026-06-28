@@ -2002,4 +2002,20 @@
     <string name="audio_trim_not_supported">Das Zuschneiden wird für dieses Audioformat nicht unterstützt. Entferne den Zuschnitt, um die gesamte Datei zu senden.</string>
     <string name="audio_trim_failed">Diese Audiodatei konnte nicht zugeschnitten werden. Es wurde nichts gesendet. Bitte versuche es erneut oder entferne den Zuschnitt.</string>
     <string name="pinned_message_banner_label_counter">Angepinnte Nachricht %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Verschwindende Nachrichten</string>
+    <string name="disappearing_messages_summary">Neue Nachrichten in diesem Chat verschwinden nach dem Lesen nach der gewählten Zeit.</string>
+    <string name="disappearing_off">Aus</string>
+    <string name="disappearing_duration_picker_title">Ablauftimer</string>
+    <string name="status_disappearing_set">%1$s hat verschwindende Nachrichten auf %2$s gesetzt</string>
+    <string name="status_disappearing_set_you">Du hast verschwindende Nachrichten auf %1$s gesetzt</string>
+    <string name="status_disappearing_off">%1$s hat verschwindende Nachrichten deaktiviert</string>
+    <string name="status_disappearing_off_you">Du hast verschwindende Nachrichten deaktiviert</string>
+    <string name="disappearing_messages_unsupported">Verschwindende Nachrichten funktionieren nur zwischen F1Whisper-Nutzern und sind keine Sicherheitsgarantie.</string>
+    <string name="disappearing_duration_30s">30 Sekunden</string>
+    <string name="disappearing_duration_5m">5 Minuten</string>
+    <string name="disappearing_duration_1h">1 Stunde</string>
+    <string name="disappearing_duration_8h">8 Stunden</string>
+    <string name="disappearing_duration_1d">1 Tag</string>
+    <string name="disappearing_duration_1w">1 Woche</string>
+    <string name="disappearing_duration_4w">4 Wochen</string>
 </resources>

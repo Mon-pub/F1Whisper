@@ -221,6 +221,7 @@ import ch.threema.app.services.GroupFlowDispatcher;
 import ch.threema.app.services.GroupService;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.services.RingtoneService;
+import ch.threema.app.services.DisappearingMessageService;
 import ch.threema.app.services.ScheduledMessageService;
 import ch.threema.app.services.UserService;
 import ch.threema.app.services.VoiceMessagePlayerService;
@@ -273,6 +274,7 @@ import ch.threema.app.utils.LinkifyUtil;
 import ch.threema.app.utils.LocaleUtil;
 import ch.threema.app.utils.MediaSpoilerUtil;
 import ch.threema.app.utils.MessageUtil;
+import ch.threema.app.utils.DisappearingMessageUtil;
 import ch.threema.app.utils.NameUtil;
 import ch.threema.app.utils.MessageUtilKt;
 import ch.threema.app.utils.NavigationUtil;
@@ -441,6 +443,7 @@ public class ComposeMessageFragment extends Fragment implements
     private MenuItem showOpenBallotWindowMenuItem;
     private MenuItem showBallotsMenuItem;
     private MenuItem showEmptyChatMenuItem;
+    private MenuItem disappearingMessagesMenuItem;
     private TextView dateTextView;
     private TextInputLayout textInputLayout;
     private ConstraintLayout conversationParent;
@@ -1927,6 +1930,11 @@ public class ComposeMessageFragment extends Fragment implements
         this.notificationService.setVisibleReceiver(this.messageReceiver);
 
         isPaused = false;
+
+        // F1Whisper: on chat open, sweep any disappearing messages that expired while the chat was
+        // backgrounded (covers the case the alarm missed), then re-arm. Worker-thread; never throws.
+        new Thread(() -> DisappearingMessageService.getInstance().purgeOverdueAndRearm(),
+            "DisappearingChatOpenSweep").start();
 
         // mark all unread messages as read
         if (!unreadMessages.isEmpty()) {
@@ -4141,6 +4149,11 @@ public class ComposeMessageFragment extends Fragment implements
 
                     AbstractMessageModel quotedMessageModel = messageService.getMessageModelByApiMessageIdAndReceiver(messageModel.getQuotedMessageId(), messageReceiver);
                     logger.info("Trying to jump to quoted message");
+                    // F1Whisper: a disappearing quoted message that is now overdue is removed here so
+                    // the jump degrades to "message deleted" instead of reviving a gone message.
+                    if (quotedMessageModel != null && DisappearingMessageService.enforceIfExpired(quotedMessageModel)) {
+                        quotedMessageModel = null;
+                    }
                     if (quotedMessageModel != null) {
                         ComposeMessageAdapter.ConversationListFilter filter = (ComposeMessageAdapter.ConversationListFilter) composeMessageAdapter.getQuoteFilter(quoteContent);
                         searchV2Quote(quotedMessageModel.getApiMessageId(), filter);
@@ -4684,6 +4697,53 @@ public class ComposeMessageFragment extends Fragment implements
         messageText.setText("");
         LongToast.makeText(getActivity(), R.string.message_scheduled, Toast.LENGTH_SHORT).show();
         updateScheduledMessagesBar();
+    }
+
+    /**
+     * F1Whisper: show the disappearing-messages duration picker (Signal-style fixed presets). On
+     * confirm the per-conversation timer is set via {@link DisappearingMessageService}, which persists
+     * it, sends the control message to the peer/members, and inserts the local status message.
+     */
+    private void showDisappearingMessagesPicker() {
+        final Context context = getContext();
+        if (messageReceiver == null || context == null) {
+            return;
+        }
+
+        // Current conversation timer (seconds; null/0 = off) used to pre-select the wheel.
+        Integer currentTimer = null;
+        if (messageReceiver instanceof ContactMessageReceiver) {
+            currentTimer = ((ContactMessageReceiver) messageReceiver).getContact().getDisappearingMessagesTimerSeconds();
+        } else if (messageReceiver instanceof GroupMessageReceiver) {
+            currentTimer = ((GroupMessageReceiver) messageReceiver).getGroup().getDisappearingMessagesTimerSeconds();
+        }
+
+        final BottomSheetDialog dialog = new BottomSheetDialog(context);
+        final View sheet = LayoutInflater.from(context)
+            .inflate(R.layout.bottom_sheet_disappearing_messages, null);
+        dialog.setContentView(sheet);
+
+        final NumberPicker durationPicker = sheet.findViewById(R.id.duration_picker);
+        final MaterialButton confirmButton = sheet.findViewById(R.id.disappearing_confirm_button);
+
+        final String[] labels = DisappearingMessageUtil.getPickerLabels(context);
+        durationPicker.setMinValue(0);
+        durationPicker.setMaxValue(labels.length - 1);
+        durationPicker.setDisplayedValues(labels);
+        durationPicker.setWrapSelectorWheel(false);
+        durationPicker.setValue(DisappearingMessageUtil.indexForSeconds(currentTimer));
+
+        confirmButton.setOnClickListener(v -> {
+            final int seconds = DisappearingMessageUtil.DURATIONS_SECONDS[durationPicker.getValue()];
+            dialog.dismiss();
+            final MessageReceiver<?> receiver = this.messageReceiver;
+            if (receiver != null) {
+                // Service persists the timer, sends the control message, and inserts the status row.
+                DisappearingMessageService.getInstance().setConversationTimer(receiver, seconds);
+            }
+        });
+
+        dialog.show();
     }
 
     @Nullable
@@ -5879,34 +5939,39 @@ public class ComposeMessageFragment extends Fragment implements
             updatePinnedBanner();
             return;
         }
-        // Advance to the NEXT pin in cycle order. Prefer the first sibling that actually resolves to a
-        // loaded row so the FOLLOWING tap is guaranteed to land somewhere. We walk at most one full lap;
-        // a candidate that does NOT resolve (paged out / deleted) is GENUINELY skipped — we keep
-        // scanning. Only if NO sibling in the whole lap resolves do we fall back to the arithmetic next
-        // uid (a legitimately paged-out pin that the robust full-load jump path can still page in on the
-        // next tap). This is the cycler guard against advancing onto a dead uid.
+        // Advance to the NEXT pin in cycle order. The cycler MUST always move to a DIFFERENT pin when
+        // more than one is pinned — even when the other pins are paged out of the loaded window. We
+        // prefer the first sibling that already resolves to a loaded row (so the FOLLOWING tap lands
+        // instantly), but if NONE of the siblings is loaded we still advance to the arithmetic-next pin
+        // so the cycle progresses; jumpToPinnedMessage() pages that pin in via a full-conversation load
+        // on the next tap. We deliberately scan siblings ONLY (steps 1..size-1) and never wrap back onto
+        // the just-jumped uid: wrapping-to-self is correct ONLY for a genuine single pin. (The old loop
+        // wrapped to self whenever the siblings were merely paged out, which stranded every tap on the
+        // one loaded pin — the "every tap targets the same uid" bug — so the paged-out pins were
+        // unreachable.)
         final int size = pinnedMessageUids.size();
-        final String arithmeticNext = pinnedMessageUids.get((currentIndex + 1) % size);
-        String chosen = null;
-        for (int step = 1; step <= size; step++) {
-            final String candidate = pinnedMessageUids.get((currentIndex + step) % size);
-            if (candidate.equals(jumpedUid)) {
-                // Single distinct pin (or wrapped fully back to the just-jumped one): stay on it.
-                chosen = candidate;
-                break;
+        String chosen;
+        if (size == 1) {
+            // Genuinely a single pin: stay on it.
+            chosen = jumpedUid;
+        } else {
+            final String arithmeticNext = pinnedMessageUids.get((currentIndex + 1) % size);
+            chosen = null;
+            for (int step = 1; step < size; step++) {
+                final String candidate = pinnedMessageUids.get((currentIndex + step) % size);
+                if (findAdapterPositionByUid(candidate) >= 0) {
+                    // First resolving sibling: cycle to it.
+                    chosen = candidate;
+                    break;
+                }
+                // candidate does not resolve in the loaded window: skip it, keep scanning siblings.
             }
-            if (findAdapterPositionByUid(candidate) >= 0) {
-                // First resolving sibling: cycle to it.
-                chosen = candidate;
-                break;
+            if (chosen == null) {
+                // No sibling is loaded (all other pins are paged out): advance to the next pin anyway so
+                // the cycle reaches a DIFFERENT message; the full-load jump pages it in on the next tap.
+                chosen = arithmeticNext;
+                logger.info("advancePinnedCycler: no sibling pin resolves in window; advancing to arithmetic next uid={}", chosen);
             }
-            // candidate does not resolve in the loaded window: genuinely skip it, keep scanning.
-        }
-        if (chosen == null) {
-            // No sibling resolved in a full lap: fall back to the arithmetic next uid so the cycle still
-            // progresses (the full-load jump path will page it in on the next tap).
-            chosen = arithmeticNext;
-            logger.info("advancePinnedCycler: no sibling pin resolves in window; falling back to arithmetic next uid={}", chosen);
         }
         currentPinnedMessageUid = chosen;
         logger.info("advancePinnedCycler: next tap will target uid={}", currentPinnedMessageUid);
@@ -6112,6 +6177,7 @@ public class ComposeMessageFragment extends Fragment implements
         this.showOpenBallotWindowMenuItem = menu.findItem(R.id.menu_ballot_window_show);
         this.showBallotsMenuItem = menu.findItem(R.id.menu_ballot_show_all);
         this.showEmptyChatMenuItem = menu.findItem(R.id.menu_empty_chat);
+        this.disappearingMessagesMenuItem = menu.findItem(R.id.menu_disappearing_messages);
 
         // initialize menus
         updateMenus();
@@ -6140,6 +6206,16 @@ public class ComposeMessageFragment extends Fragment implements
         this.deleteDistributionListItem.setVisible(this.isDistributionListChat);
         this.mutedMenuItem.setVisible(!this.isDistributionListChat && !isNotesGroupChat());
         updateMuteMenu();
+
+        // F1Whisper: disappearing-messages timer only applies to real conversations with a peer.
+        // Distribution lists are local-only (no E2E peer) and notes groups have no recipient, so the
+        // timer would have nothing to sync to; group chats need the user to still be a member.
+        if (this.disappearingMessagesMenuItem != null) {
+            final boolean canDisappear = !this.isDistributionListChat
+                && !isNotesGroupChat()
+                && !isGroupChatWhereUserIsNotMemberOf();
+            this.disappearingMessagesMenuItem.setVisible(canDisappear);
+        }
 
         if (contactModel != null) {
             this.blockMenuItem.setVisible(true);
@@ -6362,6 +6438,9 @@ public class ComposeMessageFragment extends Fragment implements
         } else if (id == R.id.menu_wallpaper) {
             logger.info("Wallpaper button clicked");
             wallpaperService.selectWallpaper(this, this.wallpaperLauncher, this.messageReceiver, () -> RuntimeUtil.runOnUiThread(this::setBackgroundWallpaper));
+        } else if (id == R.id.menu_disappearing_messages) {
+            logger.info("Disappearing messages button clicked");
+            showDisappearingMessagesPicker();
         } else if (id == R.id.menu_muted) {
             logger.info("Muting button clicked");
             if (!isDistributionListChat) {
@@ -6893,6 +6972,9 @@ public class ComposeMessageFragment extends Fragment implements
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            // F1Whisper: drop any selected disappearing messages that have expired before acting on
+            // them (forward / share / save / details), so an overdue message is never revived.
+            selectedMessages.removeIf(DisappearingMessageService::enforceIfExpired);
             if (selectedMessages.isEmpty()) {
                 mode.finish();
                 return true;
@@ -7210,6 +7292,12 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     private void showMessageDetailScreen(AbstractMessageModel messageModel) {
+        // F1Whisper: if this disappearing message just expired, drop it instead of opening details on
+        // an about-to-vanish message.
+        if (DisappearingMessageService.enforceIfExpired(messageModel)) {
+            Toast.makeText(getContext(), R.string.quoted_message_deleted, Toast.LENGTH_SHORT).show();
+            return;
+        }
         activity.startActivity(MessageDetailsActivity.createIntent(requireContext(), messageModel));
     }
 

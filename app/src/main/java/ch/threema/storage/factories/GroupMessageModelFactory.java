@@ -416,6 +416,41 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
             });
     }
 
+    /**
+     * F1Whisper disappearing messages: all group messages whose disappear deadline has already passed
+     * ({@code expiresAtUtc <= now} and {@code expiresAtUtc} is set). Mirror of
+     * {@link MessageModelFactory#getMessagesExpiredBefore(long)} for the group table.
+     */
+    public List<GroupMessageModel> getMessagesExpiredBefore(long now) {
+        return convertList(getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            AbstractMessageModel.COLUMN_EXPIRES_AT + " IS NOT NULL"
+                + " AND " + AbstractMessageModel.COLUMN_EXPIRES_AT + "<=?",
+            new String[]{String.valueOf(now)},
+            null,
+            null,
+            AbstractMessageModel.COLUMN_EXPIRES_AT + " ASC"));
+    }
+
+    /**
+     * F1Whisper disappearing messages: the soonest pending expiry across all group messages
+     * ({@code MIN(expiresAtUtc)} where set), or {@code null} if nothing is scheduled. Mirror of
+     * {@link MessageModelFactory#getEarliestExpiry()} for the group table.
+     */
+    @Nullable
+    public Long getEarliestExpiry() {
+        try (Cursor cursor = getReadableDatabase().rawQuery(
+            "SELECT MIN(`" + AbstractMessageModel.COLUMN_EXPIRES_AT + "`) FROM " + this.getTableName()
+                + " WHERE `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` IS NOT NULL",
+            null)) {
+            if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+                return cursor.getLong(0);
+            }
+        }
+        return null;
+    }
+
     private GroupMessageModel getFirst(String selection, String[] selectionArgs) {
         Cursor cursor = getReadableDatabase().query(
             this.getTableName(),
@@ -481,7 +516,11 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
                     "`" + GroupMessageModel.COLUMN_GROUP_MESSAGE_STATES + "` VARCHAR ," +
                     "`" + GroupMessageModel.COLUMN_DISPLAY_TAGS + "` TINYINT DEFAULT 0 ," +
                     "`" + GroupMessageModel.COLUMN_EDITED_AT + "` DATETIME ," +
-                    "`" + GroupMessageModel.COLUMN_DELETED_AT + "` DATETIME );",
+                    "`" + GroupMessageModel.COLUMN_DELETED_AT + "` DATETIME ," +
+                    // F1Whisper disappearing messages (per-message frozen timer + expiry timestamps).
+                    "`" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL );",
 
                 // indices
                 "CREATE INDEX `group_message_uid_idx` ON `" + GroupMessageModel.TABLE + "` ( `" + GroupMessageModel.COLUMN_UID + "` )",
@@ -495,6 +534,10 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
                     + "`, `" + AbstractMessageModel.COLUMN_STATE
                     + "`, `" + AbstractMessageModel.COLUMN_OUTBOX
                     + "`)",
+                // F1Whisper disappearing messages: hot-path index for the alarm engine's
+                // MIN(expiresAtUtc) / expiresAtUtc<=now sweeps.
+                "CREATE INDEX `" + GroupMessageModel.TABLE + "_expiresAt_idx` ON `" + GroupMessageModel.TABLE
+                    + "` ( `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` )",
             };
         }
     }

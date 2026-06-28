@@ -164,6 +164,7 @@ import ch.threema.storage.models.data.media.BallotDataModel;
 import ch.threema.storage.models.data.media.FileDataModel;
 import ch.threema.storage.models.data.media.ImageDataModel;
 import ch.threema.storage.models.data.media.MediaMessageDataInterface;
+import ch.threema.storage.models.data.status.DisappearingStatusDataModel;
 import ch.threema.storage.models.data.status.ForwardSecurityStatusDataModel;
 import ch.threema.storage.models.data.status.GroupCallStatusDataModel;
 import ch.threema.storage.models.data.status.GroupStatusDataModel;
@@ -426,6 +427,28 @@ public class MessageServiceImpl implements MessageService {
         return model;
     }
 
+    @Override
+    public AbstractMessageModel createDisappearingStatus(
+        @NonNull MessageReceiver receiver,
+        @Nullable String changedByIdentity,
+        int timerSeconds
+    ) {
+        logger.info("Storing disappearing status message: timer={}s changedBy={}", timerSeconds, changedByIdentity);
+        final AbstractMessageModel model = receiver.createLocalModel(
+            MessageType.DISAPPEARING_STATUS,
+            MessageContentsType.STATUS,
+            new Date()
+        );
+        model.setOutbox(changedByIdentity == null); // outbox=true if WE changed it
+        model.setDisappearingStatusData(DisappearingStatusDataModel.create(timerSeconds, changedByIdentity));
+        model.setSaved(true);
+        model.setStatusMessage(true);
+        model.setRead(true);
+        receiver.saveLocalModel(model);
+        fireOnCreatedMessage(model);
+        return model;
+    }
+
     public AbstractMessageModel createNewBallotMessage(
         MessageId messageId,
         BallotModel ballotModel,
@@ -483,6 +506,8 @@ public class MessageServiceImpl implements MessageService {
 
         logger.debug("{}: save db", tag);
         messageReceiver.saveLocalModel(messageModel);
+        DisappearingMessageService.armOutgoingClock(messageModel); // F1Whisper: start disappearing countdown
+        DisappearingMessageService.getInstance().piggybackTimerReassert(messageReceiver); // F1Whisper E2
         logger.debug("{}: fire create message", tag);
         fireOnCreatedMessage(messageModel);
 
@@ -894,6 +919,8 @@ public class MessageServiceImpl implements MessageService {
         messageModel.setState(MessageState.PENDING);
         messageModel.setSaved(true);
         receiver.saveLocalModel(messageModel);
+        DisappearingMessageService.armOutgoingClock(messageModel); // F1Whisper: start disappearing countdown
+        DisappearingMessageService.getInstance().piggybackTimerReassert(receiver); // F1Whisper E2
 
         fireOnCreatedMessage(messageModel);
 
@@ -1479,6 +1506,36 @@ public class MessageServiceImpl implements MessageService {
 
             saved = true;
 
+            // F1Whisper: start the incoming countdown on first-read (first-write-wins guard).
+            // Prefer the per-message frozen timer (set at receive-time via E1 receive-freeze).
+            // Back-compat fallback: if no frozen timer, read the PEER's advertised timer (peer col)
+            // so that a local timer toggle-off between arrive and read cannot suppress expiry.
+            if (!message.isOutbox()
+                    && message.getExpireStartedAt() == null
+                    && message.getType() != MessageType.DISAPPEARING_STATUS) {
+                Integer timerSecs = message.getDisappearingTimerSeconds();
+                if (timerSecs == null || timerSecs <= 0) {
+                    timerSecs = peerDisappearingTimer(message);
+                }
+                if (timerSecs != null && timerSecs > 0) {
+                    message.setDisappearingTimerSeconds(timerSecs); // freeze on incoming
+                    message.setExpireStartedAt(readAt.getTime());
+                    message.setExpiresAt(readAt.getTime() + timerSecs * 1000L);
+                    save(message);
+                    logger.info("Disappearing: started incoming countdown uid={} timer={}s expiresAt={}",
+                        message.getUid(), timerSecs, message.getExpiresAt());
+                    try {
+                        ch.threema.app.services.DisappearingMessageService.getInstance()
+                            .rescheduleNextAlarm(ch.threema.app.ThreemaApplication.getAppContext());
+                    } catch (Exception ex) {
+                        logger.warn("Could not rearm disappearing alarm after markAsRead", ex);
+                    }
+                }
+            }
+
+            // F1Whisper: belt-and-suspenders — delete immediately if already overdue at read time.
+            ch.threema.app.services.DisappearingMessageService.enforceIfExpired(message);
+
             if (contactModel == null) {
                 return saved;
             }
@@ -1533,6 +1590,57 @@ public class MessageServiceImpl implements MessageService {
      * read receipts: the per-contact override, falling back to the global "send read receipts"
      * preference.
      */
+    /**
+     * F1Whisper: look up the per-conversation disappearing-messages timer (in seconds) for the
+     * conversation this message belongs to. Returns null if the conversation has no timer set.
+     * Used by {@link #markAsRead} to freeze the timer onto incoming messages at read-time.
+     */
+    @Nullable
+    private Integer conversationDisappearingTimer(@NonNull AbstractMessageModel message) {
+        try {
+            if (message instanceof GroupMessageModel) {
+                ch.threema.storage.models.group.GroupModelOld group =
+                    groupService.getById(((GroupMessageModel) message).getGroupId());
+                return group != null ? group.getDisappearingMessagesTimerSeconds() : null;
+            } else {
+                ContactModel c = contactService.getByIdentity(message.getIdentity());
+                return c != null ? c.getDisappearingMessagesTimerSeconds() : null;
+            }
+        } catch (Exception e) {
+            logger.warn("Could not read conversation disappearing timer for uid={}", message.getUid(), e);
+            return null;
+        }
+    }
+
+    /**
+     * F1Whisper: returns the PEER's advertised per-conversation disappearing timer for [message].
+     *
+     * For 1:1 messages: reads {@code ContactModel.getPeerDisappearingTimerSeconds()} — the value
+     * the remote contact last sent us via a 0x85 control message.
+     * For group messages: reads {@code GroupModelOld.getPeerDisappearingTimerSeconds()} — the last
+     * 0x95 value received for that group.
+     *
+     * Returns {@code null} when the peer has never advertised a timer (treated as OFF for incoming
+     * freezing).  Does NOT fall back to the my-field ({@code disappearingMessagesTimerSeconds}) so
+     * that local timer changes cannot affect incoming-message expiry after the fact.
+     */
+    @Nullable
+    private Integer peerDisappearingTimer(@NonNull AbstractMessageModel message) {
+        try {
+            if (message instanceof GroupMessageModel) {
+                ch.threema.storage.models.group.GroupModelOld group =
+                    groupService.getById(((GroupMessageModel) message).getGroupId());
+                return group != null ? group.getPeerDisappearingTimerSeconds() : null;
+            } else {
+                ContactModel c = contactService.getByIdentity(message.getIdentity());
+                return c != null ? c.getPeerDisappearingTimerSeconds() : null;
+            }
+        } catch (Exception e) {
+            logger.warn("Could not read peer disappearing timer for uid={}", message.getUid(), e);
+            return null;
+        }
+    }
+
     private boolean isDeliveryReceiptAllowedForContact(@Nullable ContactModel contactModel) {
         if (contactModel == null) {
             return false;
@@ -1838,6 +1946,21 @@ public class MessageServiceImpl implements MessageService {
             return false;
         }
 
+        // F1Whisper E1: freeze the PEER's advertised disappearing timer onto the incoming model at
+        // receive time (not read time).  Uses the peer column so a later local timer toggle cannot
+        // affect messages that arrived with an active peer advertisement.  expireStartedAt/expiresAt
+        // NOT set here — countdown still starts in markAsRead.
+        if (messageModel.getDisappearingTimerSeconds() == null) {
+            Integer peerTimer = peerDisappearingTimer(messageModel);
+            if (peerTimer != null && peerTimer > 0) {
+                DisappearingMessageService.freezeTimer(messageModel, peerTimer);
+                if (messageModel.getDisappearingTimerSeconds() != null) {
+                    save(messageModel);
+                    logger.info("Disappearing: E1 receive-freeze (peer) uid={} timer={}s", messageModel.getUid(), peerTimer);
+                }
+            }
+        }
+
         logger.info("processIncomingContactMessage: {} SUCCESS - Message ID = {}", message.getMessageId(), messageModel.getId());
         return true;
     }
@@ -1943,6 +2066,18 @@ public class MessageServiceImpl implements MessageService {
         }
 
         if (messageModel != null) {
+            // F1Whisper E1: freeze PEER's advertised group timer at receive time (same rationale as
+            // processIncomingContactMessage — uses peer column, not my-field).
+            if (messageModel.getDisappearingTimerSeconds() == null) {
+                Integer peerTimer = peerDisappearingTimer(messageModel);
+                if (peerTimer != null && peerTimer > 0) {
+                    DisappearingMessageService.freezeTimer(messageModel, peerTimer);
+                    if (messageModel.getDisappearingTimerSeconds() != null) {
+                        save(messageModel);
+                        logger.info("Disappearing: E1 group receive-freeze (peer) uid={} timer={}s", messageModel.getUid(), peerTimer);
+                    }
+                }
+            }
             logger.info("processIncomingGroupMessage: {} SUCCESS - Message ID = {}", message.getMessageId(), messageModel.getId());
             return true;
         } else {
@@ -4688,6 +4823,8 @@ public class MessageServiceImpl implements MessageService {
             messageModel.setSaved(true);
 
             messageReceiver.saveLocalModel(messageModel);
+            DisappearingMessageService.armOutgoingClock(messageModel); // F1Whisper: start disappearing countdown
+            DisappearingMessageService.getInstance().piggybackTimerReassert(messageReceiver); // F1Whisper E2
 
             messageReceiver.bumpLastUpdate();
 

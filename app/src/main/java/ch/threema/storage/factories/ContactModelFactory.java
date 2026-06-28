@@ -226,7 +226,11 @@ public class ContactModelFactory extends ModelFactory {
                 .setForwardSecurityState(cHelper.getInt(ContactModel.COLUMN_FORWARD_SECURITY_STATE))
                 .setJobTitle(cHelper.getString(ContactModel.COLUMN_JOB_TITLE))
                 .setDepartment(cHelper.getString(ContactModel.COLUMN_DEPARTMENT))
-                .setNotificationTriggerPolicyOverride(cHelper.getLong(ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE));
+                .setNotificationTriggerPolicyOverride(cHelper.getLong(ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE))
+                // F1Whisper: nullable per-conversation disappearing-messages timers (getInt returns a
+                // nullable Integer, so NULL is preserved rather than coerced to 0).
+                .setDisappearingMessagesTimerSeconds(cHelper.getInt(ContactModel.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS))
+                .setPeerDisappearingTimerSeconds(cHelper.getInt(ContactModel.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS));
 
             // Convert state to enum
             switch (cHelper.getString(ContactModel.COLUMN_STATE)) {
@@ -352,6 +356,8 @@ public class ContactModelFactory extends ModelFactory {
         contentValues.put(ContactModel.COLUMN_JOB_TITLE, contactModel.getJobTitle());
         contentValues.put(ContactModel.COLUMN_DEPARTMENT, contactModel.getDepartment());
         contentValues.put(ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE, contactModel.getNotificationTriggerPolicyOverride());
+        contentValues.put(ContactModel.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS, contactModel.getDisappearingMessagesTimerSeconds());
+        contentValues.put(ContactModel.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS, contactModel.getPeerDisappearingTimerSeconds());
         // Note: Sync state not implemented in "old model" anymore
 
         if (insert) {
@@ -459,6 +465,8 @@ public class ContactModelFactory extends ModelFactory {
                     "`" + ContactModel.COLUMN_DEPARTMENT + "` VARCHAR DEFAULT NULL," +
                     "`" + ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE + "` BIGINT DEFAULT NULL," +
                     "`" + ContactModel.COLUMN_WORK_LAST_FULL_SYNC_AT + "` DATETIME DEFAULT NULL," +
+                    "`" + ContactModel.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS + "` INTEGER DEFAULT NULL," +
+                    "`" + ContactModel.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL," +
                     "PRIMARY KEY (`" + ContactModel.COLUMN_IDENTITY + "`) );"
             };
         }

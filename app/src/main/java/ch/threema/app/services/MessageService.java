@@ -187,6 +187,21 @@ public interface MessageService {
         @Nullable String newGroupName
     );
 
+    /**
+     * F1Whisper: Create and save a DISAPPEARING_STATUS inline status message announcing a
+     * per-conversation timer change ("X set disappearing messages to 1 day" / "turned off").
+     *
+     * @param receiver         the message receiver (contact or group)
+     * @param changedByIdentity the identity that changed the timer; {@code null} = local user
+     * @param timerSeconds     new timer in seconds; 0 means "off"
+     * @return the newly inserted status message model
+     */
+    AbstractMessageModel createDisappearingStatus(
+        @NonNull MessageReceiver receiver,
+        @Nullable String changedByIdentity,
+        int timerSeconds
+    );
+
     AbstractMessageModel sendText(String message, MessageReceiver receiver) throws Exception;
 
     AbstractMessageModel sendLocation(@NonNull Location location, @Nullable String poiName, MessageReceiver receiver, CompletionHandler completionHandler) throws ThreemaException;

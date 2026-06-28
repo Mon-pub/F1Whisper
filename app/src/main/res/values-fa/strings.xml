@@ -1983,4 +1983,20 @@
     <string name="audio_trim_not_supported">برش برای این قالب صوتی پشتیبانی نمی‌شود. برای ارسال فایل کامل، برش را حذف کنید.</string>
     <string name="audio_trim_failed">برش این صدا ممکن نشد. چیزی ارسال نشد. لطفاً دوباره تلاش کنید یا برش را حذف کنید.</string>
     <string name="pinned_message_banner_label_counter">پیام سنجاق‌شده %1$d/%2$d</string>
+    <string name="disappearing_messages_title">پیام‌های ناپدیدشونده</string>
+    <string name="disappearing_messages_summary">پیام‌های جدید در این گفت‌وگو پس از زمان انتخاب‌شده و پس از خواندن ناپدید می‌شوند.</string>
+    <string name="disappearing_off">خاموش</string>
+    <string name="disappearing_duration_picker_title">تایمر ناپدیدشدن</string>
+    <string name="status_disappearing_set">%1$s پیام‌های ناپدیدشونده را روی %2$s تنظیم کرد</string>
+    <string name="status_disappearing_set_you">شما پیام‌های ناپدیدشونده را روی %1$s تنظیم کردید</string>
+    <string name="status_disappearing_off">%1$s پیام‌های ناپدیدشونده را خاموش کرد</string>
+    <string name="status_disappearing_off_you">شما پیام‌های ناپدیدشونده را خاموش کردید</string>
+    <string name="disappearing_messages_unsupported">پیام‌های ناپدیدشونده فقط بین کاربران F1Whisper کار می‌کنند و تضمین امنیتی نیستند.</string>
+    <string name="disappearing_duration_30s">۳۰ ثانیه</string>
+    <string name="disappearing_duration_5m">۵ دقیقه</string>
+    <string name="disappearing_duration_1h">۱ ساعت</string>
+    <string name="disappearing_duration_8h">۸ ساعت</string>
+    <string name="disappearing_duration_1d">۱ روز</string>
+    <string name="disappearing_duration_1w">۱ هفته</string>
+    <string name="disappearing_duration_4w">۴ هفته</string>
 </resources>

@@ -3,6 +3,7 @@ package ch.threema.app.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import ch.threema.app.services.DisappearingMessageService
 import ch.threema.app.utils.DownloadUtil
 import ch.threema.app.utils.PushUtil
 import ch.threema.base.utils.getThreemaLogger
@@ -18,6 +19,14 @@ class UpdateReceiver : BroadcastReceiver() {
 
             // force token register
             PushUtil.clearPushTokenSentDate(context)
+
+            // F1Whisper: sweep and delete any disappearing messages whose timer expired while the
+            // app was being updated, then re-arm the alarm.
+            try {
+                DisappearingMessageService.getInstance().purgeOverdueAndRearm()
+            } catch (e: Exception) {
+                logger.warn("Could not purge overdue disappearing messages after app update", e)
+            }
         }
     }
 }

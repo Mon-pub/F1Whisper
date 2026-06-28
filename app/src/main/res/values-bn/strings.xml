@@ -2020,4 +2020,20 @@
     <string name="audio_trim_not_supported">এই অডিও ফরম্যাটের জন্য ছাঁটাই সমর্থিত নয়। সম্পূর্ণ ফাইলটি পাঠাতে ছাঁটাই সরান।</string>
     <string name="audio_trim_failed">এই অডিওটি ছাঁটাই করা যায়নি। কিছুই পাঠানো হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন বা ছাঁটাই সরান।</string>
     <string name="pinned_message_banner_label_counter">পিন করা বার্তা %1$d/%2$d</string>
+    <string name="disappearing_messages_title">অদৃশ্য হওয়া বার্তা</string>
+    <string name="disappearing_messages_summary">এই চ্যাটের নতুন বার্তাগুলি পড়ার পর নির্বাচিত সময়ের মধ্যে অদৃশ্য হয়ে যাবে।</string>
+    <string name="disappearing_off">বন্ধ</string>
+    <string name="disappearing_duration_picker_title">অদৃশ্য হওয়ার টাইমার</string>
+    <string name="status_disappearing_set">%1$s অদৃশ্য বার্তা %2$s-এ সেট করেছেন</string>
+    <string name="status_disappearing_set_you">আপনি অদৃশ্য বার্তা %1$s-এ সেট করেছেন</string>
+    <string name="status_disappearing_off">%1$s অদৃশ্য বার্তা বন্ধ করেছেন</string>
+    <string name="status_disappearing_off_you">আপনি অদৃশ্য বার্তা বন্ধ করেছেন</string>
+    <string name="disappearing_messages_unsupported">অদৃশ্য বার্তা শুধুমাত্র F1Whisper ব্যবহারকারীদের মধ্যে কাজ করে এবং এটি কোনো নিরাপত্তা গ্যারান্টি নয়।</string>
+    <string name="disappearing_duration_30s">৩০ সেকেন্ড</string>
+    <string name="disappearing_duration_5m">৫ মিনিট</string>
+    <string name="disappearing_duration_1h">১ ঘন্টা</string>
+    <string name="disappearing_duration_8h">৮ ঘন্টা</string>
+    <string name="disappearing_duration_1d">১ দিন</string>
+    <string name="disappearing_duration_1w">১ সপ্তাহ</string>
+    <string name="disappearing_duration_4w">৪ সপ্তাহ</string>
 </resources>

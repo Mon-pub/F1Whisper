@@ -216,6 +216,13 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
             return false;
         }
 
+        // F1Whisper: if this media message is a disappearing message that just expired, delete it and
+        // close the viewer instead of opening an about-to-vanish item.
+        if (ch.threema.app.services.DisappearingMessageService.enforceIfExpired(currentMessageModel)) {
+            finish();
+            return false;
+        }
+
         this.isPrivateChat = dependencies.getConversationCategoryService().isPrivateChat(
             this.currentReceiver.getUniqueIdString()
         );

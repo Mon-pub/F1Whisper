@@ -2083,4 +2083,26 @@
     <!-- Banner label when several messages are pinned; %1$d is the 1-based position of the message currently shown, %2$d the total pinned count. Tapping the banner cycles through them. -->
     <string name="pinned_message_banner_label_counter">Pinned message %1$d/%2$d</string>
     <string name="pinned_message_banner_dismiss">Hide pinned message banner</string>
+    <!-- F1Whisper: disappearing messages (Signal-style per-conversation timer). Best-effort,
+         client-side, F1Whisper-to-F1Whisper only. -->
+    <string name="disappearing_messages_title">Disappearing messages</string>
+    <string name="disappearing_messages_summary">New messages in this chat will disappear after the selected time once they are read.</string>
+    <string name="disappearing_off">Off</string>
+    <string name="disappearing_duration_picker_title">Disappearing timer</string>
+    <!-- %1$s is the contact/member name, %2$s is the duration label (e.g. "1 day"). -->
+    <string name="status_disappearing_set">%1$s set disappearing messages to %2$s</string>
+    <!-- %1$s is the duration label (e.g. "1 day"). -->
+    <string name="status_disappearing_set_you">You set disappearing messages to %1$s</string>
+    <!-- %1$s is the contact/member name. -->
+    <string name="status_disappearing_off">%1$s turned off disappearing messages</string>
+    <string name="status_disappearing_off_you">You turned off disappearing messages</string>
+    <string name="disappearing_messages_unsupported">Disappearing messages only work between F1Whisper users and are not a security guarantee.</string>
+    <!-- Duration option labels for the disappearing-timer picker (also used in the status message). -->
+    <string name="disappearing_duration_30s">30 seconds</string>
+    <string name="disappearing_duration_5m">5 minutes</string>
+    <string name="disappearing_duration_1h">1 hour</string>
+    <string name="disappearing_duration_8h">8 hours</string>
+    <string name="disappearing_duration_1d">1 day</string>
+    <string name="disappearing_duration_1w">1 week</string>
+    <string name="disappearing_duration_4w">4 weeks</string>
 </resources>

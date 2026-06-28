@@ -1907,4 +1907,20 @@
     <string name="audio_trim_not_supported">Изрязването не се поддържа за този аудиоформат. Премахнете изрязването, за да изпратите целия файл.</string>
     <string name="audio_trim_failed">Това аудио не можа да бъде изрязано. Нищо не беше изпратено. Опитайте отново или премахнете изрязването.</string>
     <string name="pinned_message_banner_label_counter">Закачено съобщение %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Изчезващи съобщения</string>
+    <string name="disappearing_messages_summary">Новите съобщения в този чат ще изчезнат след избраното време, откакто бъдат прочетени.</string>
+    <string name="disappearing_off">Изкл.</string>
+    <string name="disappearing_duration_picker_title">Таймер за изчезване</string>
+    <string name="status_disappearing_set">%1$s зададе таймер за изчезващи съобщения: %2$s</string>
+    <string name="status_disappearing_set_you">Задали сте таймер за изчезващи съобщения: %1$s</string>
+    <string name="status_disappearing_off">%1$s изключи изчезващите съобщения</string>
+    <string name="status_disappearing_off_you">Изключихте изчезващите съобщения</string>
+    <string name="disappearing_messages_unsupported">Изчезващите съобщения работят само между потребители на F1Whisper и не са гаранция за сигурност.</string>
+    <string name="disappearing_duration_30s">30 секунди</string>
+    <string name="disappearing_duration_5m">5 минути</string>
+    <string name="disappearing_duration_1h">1 час</string>
+    <string name="disappearing_duration_8h">8 часа</string>
+    <string name="disappearing_duration_1d">1 ден</string>
+    <string name="disappearing_duration_1w">1 седмица</string>
+    <string name="disappearing_duration_4w">4 седмици</string>
 </resources>

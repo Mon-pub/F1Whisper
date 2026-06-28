@@ -27,6 +27,7 @@ public abstract class StatusDataModel {
         GroupCallStatusDataModel.TYPE, // 2
         ForwardSecurityStatusDataModel.TYPE, // 3
         GroupStatusDataModel.TYPE, // 4
+        DisappearingStatusDataModel.TYPE, // 5
     })
     public @interface StatusType {
     }
@@ -75,6 +76,9 @@ public abstract class StatusDataModel {
                         break;
                     case GroupStatusDataModel.TYPE:
                         data = new GroupStatusDataModel();
+                        break;
+                    case DisappearingStatusDataModel.TYPE:
+                        data = new DisappearingStatusDataModel();
                         break;
                 }
 

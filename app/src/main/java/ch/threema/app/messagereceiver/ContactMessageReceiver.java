@@ -135,6 +135,9 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
         m.setSaved(false);
         m.setUid(UUID.randomUUID().toString());
         m.setIdentity(contact.getIdentity());
+        // F1Whisper: stamp disappearing-timer on every outgoing message at creation time.
+        ch.threema.app.services.DisappearingMessageService.stampOutgoing(
+            m, contact.getDisappearingMessagesTimerSeconds());
         return m;
     }
 

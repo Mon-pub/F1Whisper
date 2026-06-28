@@ -2020,4 +2020,20 @@
     <string name="audio_trim_not_supported">Обрезка не поддерживается для этого аудиоформата. Удалите обрезку, чтобы отправить файл целиком.</string>
     <string name="audio_trim_failed">Не удалось обрезать это аудио. Ничего не отправлено. Повторите попытку или удалите обрезку.</string>
     <string name="pinned_message_banner_label_counter">Закреплённое сообщение %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Исчезающие сообщения</string>
+    <string name="disappearing_messages_summary">Новые сообщения в этом чате исчезнут по истечении выбранного времени после прочтения.</string>
+    <string name="disappearing_off">Выкл.</string>
+    <string name="disappearing_duration_picker_title">Таймер исчезновения</string>
+    <string name="status_disappearing_set">%1$s установил(а) таймер исчезающих сообщений: %2$s</string>
+    <string name="status_disappearing_set_you">Вы установили таймер исчезающих сообщений: %1$s</string>
+    <string name="status_disappearing_off">%1$s отключил(а) исчезающие сообщения</string>
+    <string name="status_disappearing_off_you">Вы отключили исчезающие сообщения</string>
+    <string name="disappearing_messages_unsupported">Исчезающие сообщения работают только между пользователями F1Whisper и не являются гарантией безопасности.</string>
+    <string name="disappearing_duration_30s">30 секунд</string>
+    <string name="disappearing_duration_5m">5 минут</string>
+    <string name="disappearing_duration_1h">1 час</string>
+    <string name="disappearing_duration_8h">8 часов</string>
+    <string name="disappearing_duration_1d">1 день</string>
+    <string name="disappearing_duration_1w">1 неделя</string>
+    <string name="disappearing_duration_4w">4 недели</string>
 </resources>

@@ -1687,4 +1687,20 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="audio_trim_not_supported">Beskjæring støttes ikke for dette lydformatet. Fjern beskjæringen for å sende hele filen.</string>
     <string name="audio_trim_failed">Kunne ikke beskjære denne lyden. Ingenting ble sendt. Prøv igjen, eller fjern beskjæringen.</string>
     <string name="pinned_message_banner_label_counter">Festet melding %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Selvslettende meldinger</string>
+    <string name="disappearing_messages_summary">Nye meldinger i denne chatten vil forsvinne etter valgt tid når de er lest.</string>
+    <string name="disappearing_off">Av</string>
+    <string name="disappearing_duration_picker_title">Selvslettingstimer</string>
+    <string name="status_disappearing_set">%1$s angav selvslettingstid til %2$s</string>
+    <string name="status_disappearing_set_you">Du angav selvslettingstid til %1$s</string>
+    <string name="status_disappearing_off">%1$s slo av selvslettende meldinger</string>
+    <string name="status_disappearing_off_you">Du slo av selvslettende meldinger</string>
+    <string name="disappearing_messages_unsupported">Selvslettende meldinger fungerer kun mellom F1Whisper-brukere og er ingen sikkerhetsgaranti.</string>
+    <string name="disappearing_duration_30s">30 sekunder</string>
+    <string name="disappearing_duration_5m">5 minutter</string>
+    <string name="disappearing_duration_1h">1 time</string>
+    <string name="disappearing_duration_8h">8 timer</string>
+    <string name="disappearing_duration_1d">1 dag</string>
+    <string name="disappearing_duration_1w">1 uke</string>
+    <string name="disappearing_duration_4w">4 uker</string>
 </resources>

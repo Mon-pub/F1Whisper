@@ -1428,4 +1428,20 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="audio_trim_not_supported">A vágás nem támogatott ennél a hangformátumnál. Távolítsa el a vágást a teljes fájl elküldéséhez.</string>
     <string name="audio_trim_failed">Nem sikerült levágni ezt a hangot. Semmi sem lett elküldve. Próbálja újra, vagy távolítsa el a vágást.</string>
     <string name="pinned_message_banner_label_counter">Rögzített üzenet %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Eltűnő üzenetek</string>
+    <string name="disappearing_messages_summary">Ebben a csevegésben az új üzenetek elolvasásuk után a kiválasztott idő elteltével eltűnnek.</string>
+    <string name="disappearing_off">Ki</string>
+    <string name="disappearing_duration_picker_title">Eltűnési időzítő</string>
+    <string name="status_disappearing_set">%1$s beállította az eltűnő üzenetek időzítőjét: %2$s</string>
+    <string name="status_disappearing_set_you">Beállítottad az eltűnő üzenetek időzítőjét: %1$s</string>
+    <string name="status_disappearing_off">%1$s kikapcsolta az eltűnő üzeneteket</string>
+    <string name="status_disappearing_off_you">Kikapcsoltad az eltűnő üzeneteket</string>
+    <string name="disappearing_messages_unsupported">Az eltűnő üzenetek csak F1Whisper felhasználók között működnek, és nem jelentenek biztonsági garanciát.</string>
+    <string name="disappearing_duration_30s">30 másodperc</string>
+    <string name="disappearing_duration_5m">5 perc</string>
+    <string name="disappearing_duration_1h">1 óra</string>
+    <string name="disappearing_duration_8h">8 óra</string>
+    <string name="disappearing_duration_1d">1 nap</string>
+    <string name="disappearing_duration_1w">1 hét</string>
+    <string name="disappearing_duration_4w">4 hét</string>
 </resources>

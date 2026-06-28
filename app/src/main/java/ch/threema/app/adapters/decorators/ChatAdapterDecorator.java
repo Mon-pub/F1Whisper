@@ -307,6 +307,16 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
             return;
         }
 
+        // F1Whisper: belt-and-suspenders disappearing-messages enforcement at decorate time. As in
+        // ComposeMessageAdapter.getView, this runs during the bind/layout pass, so we only CHECK here
+        // (pure predicate) and DEFER the hard-delete to after layout via a main-thread post — deleting
+        // inline would mutate the adapter's backing list mid-bind and crash the neighbor reads.
+        if (ch.threema.app.services.DisappearingMessageService.isExpired(getMessageModel())) {
+            final ch.threema.storage.models.AbstractMessageModel doomed = getMessageModel();
+            new android.os.Handler(android.os.Looper.getMainLooper())
+                .post(() -> ch.threema.app.services.DisappearingMessageService.enforceIfExpired(doomed));
+        }
+
         boolean isUserMessage = !getMessageModel().isStatusMessage()
             && getMessageModel().getType() != MessageType.STATUS
             && getMessageModel().getType() != MessageType.GROUP_CALL_STATUS;
@@ -422,6 +432,12 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
 
             if (viewHolder.starredIcon != null) {
                 viewHolder.starredIcon.setVisibility((messageModel.getDisplayTags() & DisplayTag.DISPLAY_TAG_STARRED) == DisplayTag.DISPLAY_TAG_STARRED ? View.VISIBLE : View.GONE);
+            }
+
+            // F1Whisper: clock badge for messages with a running disappearing timer (expireAt != null),
+            // mirroring the starred badge style/placement.
+            if (viewHolder.disappearingIcon != null) {
+                viewHolder.disappearingIcon.setVisibility(messageModel.isDisappearing() ? View.VISIBLE : View.GONE);
             }
 
             if (viewHolder.deliveredIndicator != null) {

@@ -35,6 +35,8 @@ public class GroupModelOld implements ReceiverModel {
     public static final String COLUMN_COLOR_INDEX = "colorIndex";
     public static final String COLUMN_USER_STATE = "userState";
     public static final String COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE = "notificationTriggerPolicyOverride";
+    public static final String COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS = "disappearingMessagesTimerSeconds"; /* F1Whisper: my own per-conversation disappearing-messages timer in seconds; null/0 = off */
+    public static final String COLUMN_PEER_DISAPPEARING_TIMER_SECONDS = "peerDisappearingTimerSeconds"; /* F1Whisper: the peer's last-advertised disappearing-messages timer in seconds; null/0 = off */
 
     private String groupDesc;
     private Date changedGroupDescTimestamp;
@@ -50,6 +52,10 @@ public class GroupModelOld implements ReceiverModel {
     private @NonNull IdColor idColor = IdColor.invalid();
     private @Nullable UserState userState;
     private @Nullable Long notificationTriggerPolicyOverride;
+    // F1Whisper: my own per-conversation disappearing-messages timer (seconds); null/0 = off.
+    private @Nullable Integer disappearingMessagesTimerSeconds;
+    // F1Whisper: the peer's last-advertised disappearing-messages timer (seconds); null/0 = off.
+    private @Nullable Integer peerDisappearingTimerSeconds;
 
     @Nullable
     public String getName() {
@@ -199,6 +205,37 @@ public class GroupModelOld implements ReceiverModel {
     @NonNull
     public NotificationTriggerPolicyOverride currentNotificationTriggerPolicyOverride() {
         return NotificationTriggerPolicyOverride.fromDbValueGroup(notificationTriggerPolicyOverride);
+    }
+
+    /**
+     * F1Whisper: the per-conversation default disappearing-messages timer in seconds.
+     * {@code null} or {@code 0} means disappearing messages are off for this group.
+     */
+    @Nullable
+    public Integer getDisappearingMessagesTimerSeconds() {
+        return disappearingMessagesTimerSeconds;
+    }
+
+    @NonNull
+    public GroupModelOld setDisappearingMessagesTimerSeconds(@Nullable Integer disappearingMessagesTimerSeconds) {
+        this.disappearingMessagesTimerSeconds = disappearingMessagesTimerSeconds;
+        return this;
+    }
+
+    /**
+     * F1Whisper: the peer's last-advertised disappearing-messages timer in seconds (the value that
+     * freezes onto INCOMING group messages). {@code null} or {@code 0} means no peer timer advertised /
+     * off. Tracked separately from {@link #getDisappearingMessagesTimerSeconds()}.
+     */
+    @Nullable
+    public Integer getPeerDisappearingTimerSeconds() {
+        return peerDisappearingTimerSeconds;
+    }
+
+    @NonNull
+    public GroupModelOld setPeerDisappearingTimerSeconds(@Nullable Integer peerDisappearingTimerSeconds) {
+        this.peerDisappearingTimerSeconds = peerDisappearingTimerSeconds;
+        return this;
     }
 
     public GroupIdentity getGroupIdentity() {

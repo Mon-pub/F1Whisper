@@ -1951,4 +1951,20 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="audio_trim_not_supported">O corte não é compatível com este formato de áudio. Remova o corte para enviar o arquivo completo.</string>
     <string name="audio_trim_failed">Não foi possível cortar este áudio. Nada foi enviado. Tente novamente ou remova o corte.</string>
     <string name="pinned_message_banner_label_counter">Mensagem fixada %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Mensagens temporárias</string>
+    <string name="disappearing_messages_summary">Novas mensagens nesta conversa desaparecerão após o tempo selecionado depois de serem lidas.</string>
+    <string name="disappearing_off">Desativado</string>
+    <string name="disappearing_duration_picker_title">Temporizador de desaparecimento</string>
+    <string name="status_disappearing_set">%1$s definiu o temporizador de mensagens temporárias para %2$s</string>
+    <string name="status_disappearing_set_you">Você definiu o temporizador de mensagens temporárias para %1$s</string>
+    <string name="status_disappearing_off">%1$s desativou as mensagens temporárias</string>
+    <string name="status_disappearing_off_you">Você desativou as mensagens temporárias</string>
+    <string name="disappearing_messages_unsupported">As mensagens temporárias funcionam apenas entre usuários do F1Whisper e não são uma garantia de segurança.</string>
+    <string name="disappearing_duration_30s">30 segundos</string>
+    <string name="disappearing_duration_5m">5 minutos</string>
+    <string name="disappearing_duration_1h">1 hora</string>
+    <string name="disappearing_duration_8h">8 horas</string>
+    <string name="disappearing_duration_1d">1 dia</string>
+    <string name="disappearing_duration_1w">1 semana</string>
+    <string name="disappearing_duration_4w">4 semanas</string>
 </resources>

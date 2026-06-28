@@ -1967,4 +1967,20 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="audio_trim_not_supported">此音频格式不支持裁剪。移除裁剪即可发送完整文件。</string>
     <string name="audio_trim_failed">无法裁剪此音频。未发送任何内容。请重试或移除裁剪。</string>
     <string name="pinned_message_banner_label_counter">置顶消息 %1$d/%2$d</string>
+    <string name="disappearing_messages_title">阅后即焚消息</string>
+    <string name="disappearing_messages_summary">此对话中的新消息在阅读后将于所选时间后消失。</string>
+    <string name="disappearing_off">关闭</string>
+    <string name="disappearing_duration_picker_title">消息自动删除计时器</string>
+    <string name="status_disappearing_set">%1$s 将阅后即焚时间设置为 %2$s</string>
+    <string name="status_disappearing_set_you">您将阅后即焚时间设置为 %1$s</string>
+    <string name="status_disappearing_off">%1$s 关闭了阅后即焚消息</string>
+    <string name="status_disappearing_off_you">您关闭了阅后即焚消息</string>
+    <string name="disappearing_messages_unsupported">阅后即焚消息仅在 F1Whisper 用户之间有效，不提供安全保证。</string>
+    <string name="disappearing_duration_30s">30 秒</string>
+    <string name="disappearing_duration_5m">5 分钟</string>
+    <string name="disappearing_duration_1h">1 小时</string>
+    <string name="disappearing_duration_8h">8 小时</string>
+    <string name="disappearing_duration_1d">1 天</string>
+    <string name="disappearing_duration_1w">1 周</string>
+    <string name="disappearing_duration_4w">4 周</string>
 </resources>

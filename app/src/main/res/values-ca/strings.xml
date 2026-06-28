@@ -1445,4 +1445,20 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="audio_trim_not_supported">Aquest format d\'àudio no admet la retallada. Elimina la retallada per enviar el fitxer sencer.</string>
     <string name="audio_trim_failed">No s\'ha pogut retallar aquest àudio. No s\'ha enviat res. Torna-ho a provar o elimina la retallada.</string>
     <string name="pinned_message_banner_label_counter">Missatge fixat %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Missatges efímers</string>
+    <string name="disappearing_messages_summary">Els missatges nous d\'aquest xat desapareixeran després de llegir-los, passat el temps seleccionat.</string>
+    <string name="disappearing_off">Desactivat</string>
+    <string name="disappearing_duration_picker_title">Temporitzador</string>
+    <string name="status_disappearing_set">%1$s ha activat els missatges efímers a %2$s</string>
+    <string name="status_disappearing_set_you">Heu activat els missatges efímers a %1$s</string>
+    <string name="status_disappearing_off">%1$s ha desactivat els missatges efímers</string>
+    <string name="status_disappearing_off_you">Heu desactivat els missatges efímers</string>
+    <string name="disappearing_messages_unsupported">Els missatges efímers només funcionen entre usuaris de F1Whisper i no són una garantia de seguretat.</string>
+    <string name="disappearing_duration_30s">30 segons</string>
+    <string name="disappearing_duration_5m">5 minuts</string>
+    <string name="disappearing_duration_1h">1 hora</string>
+    <string name="disappearing_duration_8h">8 hores</string>
+    <string name="disappearing_duration_1d">1 dia</string>
+    <string name="disappearing_duration_1w">1 setmana</string>
+    <string name="disappearing_duration_4w">4 setmanes</string>
 </resources>

@@ -1972,4 +1972,20 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="audio_trim_not_supported">Le rognage n\'est pas pris en charge pour ce format audio. Retirez le rognage pour envoyer le fichier complet.</string>
     <string name="audio_trim_failed">Impossible de rogner cet audio. Rien n\'a été envoyé. Veuillez réessayer ou retirer le rognage.</string>
     <string name="pinned_message_banner_label_counter">Message épinglé %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Messages éphémères</string>
+    <string name="disappearing_messages_summary">Les nouveaux messages de cette conversation disparaîtront après avoir été lus, au bout du délai sélectionné.</string>
+    <string name="disappearing_off">Désactivé</string>
+    <string name="disappearing_duration_picker_title">Minuterie</string>
+    <string name="status_disappearing_set">%1$s a activé les messages éphémères à %2$s</string>
+    <string name="status_disappearing_set_you">Vous avez activé les messages éphémères à %1$s</string>
+    <string name="status_disappearing_off">%1$s a désactivé les messages éphémères</string>
+    <string name="status_disappearing_off_you">Vous avez désactivé les messages éphémères</string>
+    <string name="disappearing_messages_unsupported">Les messages éphémères ne fonctionnent qu\'entre utilisateurs de F1Whisper et ne constituent pas une garantie de sécurité.</string>
+    <string name="disappearing_duration_30s">30 secondes</string>
+    <string name="disappearing_duration_5m">5 minutes</string>
+    <string name="disappearing_duration_1h">1 heure</string>
+    <string name="disappearing_duration_8h">8 heures</string>
+    <string name="disappearing_duration_1d">1 jour</string>
+    <string name="disappearing_duration_1w">1 semaine</string>
+    <string name="disappearing_duration_4w">4 semaines</string>
 </resources>

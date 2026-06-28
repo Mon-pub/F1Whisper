@@ -111,7 +111,10 @@ public class GroupModelFactory extends ModelFactory {
                     .setGroupDescTimestamp(cursorHelper.getDate(GroupModelOld.COLUMN_GROUP_DESC_CHANGED_TIMESTAMP))
                     .setColorIndex(cursorHelper.getInt(GroupModelOld.COLUMN_COLOR_INDEX))
                     .setUserState(UserState.getByValue(cursorHelper.getInt(GroupModelOld.COLUMN_USER_STATE)))
-                    .setNotificationTriggerPolicyOverride(cursorHelper.getLong(GroupModelOld.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE));
+                    .setNotificationTriggerPolicyOverride(cursorHelper.getLong(GroupModelOld.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE))
+                    // F1Whisper: nullable per-conversation disappearing-messages timers (0/NULL = off).
+                    .setDisappearingMessagesTimerSeconds(cursorHelper.getInt(GroupModelOld.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS))
+                    .setPeerDisappearingTimerSeconds(cursorHelper.getInt(GroupModelOld.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS));
 
                 return false;
             }
@@ -164,6 +167,8 @@ public class GroupModelFactory extends ModelFactory {
         // In case the user state is not set, we fall back to 'member'.
         contentValues.put(GroupModelOld.COLUMN_USER_STATE, groupModel.getUserState() != null ? groupModel.getUserState().getValue() : UserState.MEMBER.getValue());
         contentValues.put(GroupModelOld.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE, groupModel.getNotificationTriggerPolicyOverride());
+        contentValues.put(GroupModelOld.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS, groupModel.getDisappearingMessagesTimerSeconds());
+        contentValues.put(GroupModelOld.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS, groupModel.getPeerDisappearingTimerSeconds());
 
         return contentValues;
     }
@@ -289,7 +294,9 @@ public class GroupModelFactory extends ModelFactory {
                     "`" + GroupModelOld.COLUMN_GROUP_DESC_CHANGED_TIMESTAMP + "` BIGINT DEFAULT NULL, " +
                     "`" + GroupModelOld.COLUMN_COLOR_INDEX + "` INTEGER DEFAULT 0 NOT NULL, " +
                     "`" + GroupModelOld.COLUMN_USER_STATE + "` INTEGER DEFAULT 0 NOT NULL, " +
-                    "`" + GroupModelOld.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE + "` BIGINT DEFAULT NULL " +
+                    "`" + GroupModelOld.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE + "` BIGINT DEFAULT NULL, " +
+                    "`" + GroupModelOld.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS + "` INTEGER DEFAULT NULL, " +
+                    "`" + GroupModelOld.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL " +
                     ");",
                 "CREATE UNIQUE INDEX `apiGroupIdAndCreator` ON `" + GroupModelOld.TABLE + "` ( " +
                     "`" + GroupModelOld.COLUMN_API_GROUP_ID + "`, `" + GroupModelOld.COLUMN_CREATOR_IDENTITY + "` " +

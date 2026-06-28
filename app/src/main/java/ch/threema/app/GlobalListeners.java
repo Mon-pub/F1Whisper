@@ -205,17 +205,18 @@ public class GlobalListeners {
                 PreferenceService preferenceService = serviceManager.getPreferenceService();
 
                 if (newMessage.getType() != MessageType.GROUP_CALL_STATUS) {
-                    notificationService.showConversationNotification(
-                        ConversationNotificationUtil.convert(
-                            appContext,
-                            newMessage,
-                            contactService,
-                            groupService,
-                            conversationCategoryService,
-                            preferenceService.getContactNameFormat()
-                        ),
-                        updateExisting
+                    // F1Whisper: convert() returns null for expired disappearing messages.
+                    final var conversationNotification = ConversationNotificationUtil.convert(
+                        appContext,
+                        newMessage,
+                        contactService,
+                        groupService,
+                        conversationCategoryService,
+                        preferenceService.getContactNameFormat()
                     );
+                    if (conversationNotification != null) {
+                        notificationService.showConversationNotification(conversationNotification, updateExisting);
+                    }
                 }
 
                 // update widget on incoming message

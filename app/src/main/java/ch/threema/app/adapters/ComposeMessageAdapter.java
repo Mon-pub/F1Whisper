@@ -37,6 +37,7 @@ import ch.threema.app.adapters.decorators.BallotChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.ChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.ChatAdapterDecoratorListener;
 import ch.threema.app.adapters.decorators.DateSeparatorChatAdapterDecorator;
+import ch.threema.app.adapters.decorators.DisappearingStatusChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.DeletedChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.FileChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.FirstUnreadChatAdapterDecorator;
@@ -506,6 +507,17 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
         View itemView = convertView;
         ComposeMessageHolder holder = itemView != null ? (ComposeMessageHolder) itemView.getTag() : null;
         final AbstractMessageModel messageModel = values.get(position);
+
+        // F1Whisper: belt-and-suspenders disappearing-messages enforcement. We must NOT hard-delete
+        // during the layout pass — that mutates the backing list mid-bind and IOOBEs the neighbor
+        // reads in adjustMarginsForMessageGrouping. So we only CHECK here (pure predicate) and defer
+        // the actual delete to after this layout pass via parent.post(); the row vanishes next frame
+        // when the delete + notifyDataSetChanged lands. Render the about-to-be-removed row normally.
+        if (ch.threema.app.services.DisappearingMessageService.isExpired(messageModel)) {
+            final AbstractMessageModel doomed = messageModel;
+            parent.post(() -> ch.threema.app.services.DisappearingMessageService.enforceIfExpired(doomed));
+        }
+
         MessageType messageType = messageModel.getType();
 
         @ItemLayoutType int itemType = this.getItemType(messageModel);
@@ -555,6 +567,7 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                     holder.audioMessageIcon = itemView.findViewById(R.id.audio_message_icon);
                     holder.tapToResend = itemView.findViewById(R.id.tap_to_resend);
                     holder.starredIcon = itemView.findViewById(R.id.star_icon);
+                    holder.disappearingIcon = itemView.findViewById(R.id.disappearing_icon);
                     holder.editedText = itemView.findViewById(R.id.edited_text);
                     holder.emojiReactionGroup = itemView.findViewById(R.id.emoji_reactions);
                 }
@@ -690,6 +703,9 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 return new ForwardSecurityStatusChatAdapterDecorator(messageModel, chatAdapterDecoratorListener, linkifyListener, decoratorHelper);
             case GROUP_STATUS:
                 return new GroupStatusAdapterDecorator(messageModel, chatAdapterDecoratorListener, linkifyListener, decoratorHelper);
+            case DISAPPEARING_STATUS:
+                // F1Whisper: centered "X set disappearing messages to Y" / "...turned off" system message
+                return new DisappearingStatusChatAdapterDecorator(messageModel, chatAdapterDecoratorListener, linkifyListener, decoratorHelper);
             // Fallback to text chat adapter
             default:
                 if (messageModel.isStatusMessage()) {
@@ -716,10 +732,18 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
     private boolean adjustMarginsForMessageGrouping(ComposeMessageHolder holder, View itemView, @ItemLayoutType int itemType, @NonNull AbstractMessageModel currentItem) {
         boolean isFirstItemInGroup = true, hasPreviousItem = false, hasNextItem = false;
 
+        // F1Whisper: defensive bounds guard. A deferred disappearing-message delete can shrink
+        // `values` between layout passes, leaving a recycled holder with a stale position. Bail the
+        // grouping calc if the holder position is no longer valid so the neighbor reads below can
+        // never IndexOutOfBounds.
+        if (holder.position < 0 || holder.position >= values.size()) {
+            return isFirstItemInGroup;
+        }
+
         if (itemView != null) {
             int paddingBottom = bubblePaddingBottom;
             if (isUserMessage(itemType)) {
-                if (values.size() > holder.position + 1) {
+                if (holder.position + 1 < values.size()) {
                     AbstractMessageModel nextItem = values.get(holder.position + 1);
 
                     if (isUserMessage(getItemType(nextItem))) {
@@ -730,7 +754,7 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                     }
                 }
 
-                if (holder.position > 0) {
+                if (holder.position - 1 >= 0 && holder.position - 1 < values.size()) {
                     AbstractMessageModel previousItem = values.get(holder.position - 1);
 
                     if (isUserMessage(getItemType(previousItem))) {

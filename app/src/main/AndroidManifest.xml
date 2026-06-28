@@ -1031,6 +1031,10 @@
         <receiver
             android:name=".receivers.ThreemaPushReviveReceiver"
             android:exported="false" />
+        <!-- F1Whisper: fires when the next disappearing-message timer expires. -->
+        <receiver
+            android:name=".receivers.DisappearingMessageAlarmReceiver"
+            android:exported="false" />
         <receiver
             android:name=".receivers.WidgetProvider"
             android:exported="true">

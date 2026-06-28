@@ -2018,4 +2018,20 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="audio_trim_not_supported">Oříznutí není pro tento zvukový formát podporováno. Odeberte oříznutí, chcete-li odeslat celý soubor.</string>
     <string name="audio_trim_failed">Tento zvuk se nepodařilo oříznout. Nic nebylo odesláno. Zkuste to znovu nebo odeberte oříznutí.</string>
     <string name="pinned_message_banner_label_counter">Připnutá zpráva %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Mizející zprávy</string>
+    <string name="disappearing_messages_summary">Nové zprávy v tomto chatu zmizí po zvoleném čase od přečtení.</string>
+    <string name="disappearing_off">Vypnuto</string>
+    <string name="disappearing_duration_picker_title">Časovač mizení</string>
+    <string name="status_disappearing_set">%1$s nastavil(a) časovač mizejících zpráv: %2$s</string>
+    <string name="status_disappearing_set_you">Nastavili jste časovač mizejících zpráv: %1$s</string>
+    <string name="status_disappearing_off">%1$s vypnul(a) mizející zprávy</string>
+    <string name="status_disappearing_off_you">Vypnuli jste mizející zprávy</string>
+    <string name="disappearing_messages_unsupported">Mizející zprávy fungují pouze mezi uživateli F1Whisper a nejsou bezpečnostní zárukou.</string>
+    <string name="disappearing_duration_30s">30 sekund</string>
+    <string name="disappearing_duration_5m">5 minut</string>
+    <string name="disappearing_duration_1h">1 hodina</string>
+    <string name="disappearing_duration_8h">8 hodin</string>
+    <string name="disappearing_duration_1d">1 den</string>
+    <string name="disappearing_duration_1w">1 týden</string>
+    <string name="disappearing_duration_4w">4 týdny</string>
 </resources>

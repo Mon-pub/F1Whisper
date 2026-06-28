@@ -1982,4 +1982,20 @@
     <string name="audio_trim_not_supported">اس آڈیو فارمیٹ کے لیے تراشنا معاون نہیں ہے۔ مکمل فائل بھیجنے کے لیے تراش ہٹا دیں۔</string>
     <string name="audio_trim_failed">اس آڈیو کو تراشا نہیں جا سکا۔ کچھ نہیں بھیجا گیا۔ براہِ کرم دوبارہ کوشش کریں یا تراش ہٹا دیں۔</string>
     <string name="pinned_message_banner_label_counter">پن شدہ پیغام %1$d/%2$d</string>
+    <string name="disappearing_messages_title">غائب ہونے والے پیغامات</string>
+    <string name="disappearing_messages_summary">اس گفتگو میں نئے پیغامات پڑھے جانے کے بعد منتخب وقت میں غائب ہو جائیں گے۔</string>
+    <string name="disappearing_off">بند</string>
+    <string name="disappearing_duration_picker_title">غائب ہونے کا ٹائمر</string>
+    <string name="status_disappearing_set">%1$s نے غائب ہونے والے پیغامات %2$s پر سیٹ کیے</string>
+    <string name="status_disappearing_set_you">آپ نے غائب ہونے والے پیغامات %1$s پر سیٹ کیے</string>
+    <string name="status_disappearing_off">%1$s نے غائب ہونے والے پیغامات بند کر دیے</string>
+    <string name="status_disappearing_off_you">آپ نے غائب ہونے والے پیغامات بند کر دیے</string>
+    <string name="disappearing_messages_unsupported">غائب ہونے والے پیغامات صرف F1Whisper صارفین کے درمیان کام کرتے ہیں اور یہ سیکیورٹی گارنٹی نہیں ہے۔</string>
+    <string name="disappearing_duration_30s">۳۰ سیکنڈ</string>
+    <string name="disappearing_duration_5m">۵ منٹ</string>
+    <string name="disappearing_duration_1h">۱ گھنٹہ</string>
+    <string name="disappearing_duration_8h">۸ گھنٹے</string>
+    <string name="disappearing_duration_1d">۱ دن</string>
+    <string name="disappearing_duration_1w">۱ ہفتہ</string>
+    <string name="disappearing_duration_4w">۴ ہفتے</string>
 </resources>

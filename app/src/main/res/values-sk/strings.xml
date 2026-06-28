@@ -1939,4 +1939,20 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="audio_trim_not_supported">Orezanie nie je pre tento zvukový formát podporované. Odstráňte orezanie, ak chcete odoslať celý súbor.</string>
     <string name="audio_trim_failed">Tento zvuk sa nepodarilo orezať. Nič sa neodoslalo. Skúste to znova alebo odstráňte orezanie.</string>
     <string name="pinned_message_banner_label_counter">Pripnutá správa %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Miznúce správy</string>
+    <string name="disappearing_messages_summary">Nové správy v tomto chate zmiznú po zvolenom čase od prečítania.</string>
+    <string name="disappearing_off">Vypnuté</string>
+    <string name="disappearing_duration_picker_title">Časovač zmiznutia</string>
+    <string name="status_disappearing_set">%1$s nastavil(a) časovač miznúcich správ: %2$s</string>
+    <string name="status_disappearing_set_you">Nastavili ste časovač miznúcich správ: %1$s</string>
+    <string name="status_disappearing_off">%1$s vypol(a) miznúce správy</string>
+    <string name="status_disappearing_off_you">Vypli ste miznúce správy</string>
+    <string name="disappearing_messages_unsupported">Miznúce správy fungujú iba medzi používateľmi F1Whisper a nie sú bezpečnostnou zárukou.</string>
+    <string name="disappearing_duration_30s">30 sekúnd</string>
+    <string name="disappearing_duration_5m">5 minút</string>
+    <string name="disappearing_duration_1h">1 hodina</string>
+    <string name="disappearing_duration_8h">8 hodín</string>
+    <string name="disappearing_duration_1d">1 deň</string>
+    <string name="disappearing_duration_1w">1 týždeň</string>
+    <string name="disappearing_duration_4w">4 týždne</string>
 </resources>

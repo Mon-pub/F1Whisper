@@ -30,8 +30,10 @@ import ch.threema.domain.protocol.csp.messages.AbstractGroupMessage;
 import ch.threema.domain.protocol.csp.messages.AbstractMessage;
 import ch.threema.domain.protocol.csp.messages.BadMessageException;
 import ch.threema.domain.protocol.csp.messages.DeleteMessage;
+import ch.threema.domain.protocol.csp.messages.DisappearingTimerMessage;
 import ch.threema.domain.protocol.csp.messages.EmptyMessage;
 import ch.threema.domain.protocol.csp.messages.EditMessage;
+import ch.threema.domain.protocol.csp.messages.GroupDisappearingTimerMessage;
 import ch.threema.domain.protocol.csp.messages.GroupDeleteMessage;
 import ch.threema.domain.protocol.csp.messages.GroupEditMessage;
 import ch.threema.domain.protocol.csp.messages.GroupReactionMessage;
@@ -652,6 +654,18 @@ public class MessageCoder {
             // F1Whisper: group typing indicator
             case ProtocolDefines.MSGTYPE_GROUP_TYPING_INDICATOR: {
                 message = GroupTypingIndicatorMessage.fromByteArray(data, 1, realDataLength - 1);
+                break;
+            }
+
+            // F1Whisper: disappearing-messages timer control (1:1)
+            case ProtocolDefines.MSGTYPE_DISAPPEARING_TIMER: {
+                message = DisappearingTimerMessage.fromByteArray(data, 1, realDataLength - 1);
+                break;
+            }
+
+            // F1Whisper: disappearing-messages timer control (group)
+            case ProtocolDefines.MSGTYPE_GROUP_DISAPPEARING_TIMER: {
+                message = GroupDisappearingTimerMessage.fromByteArray(data, 1, realDataLength - 1);
                 break;
             }
 

@@ -70,6 +70,11 @@ abstract class AbstractMessageModelFactory extends ModelFactory {
                 messageModel.setReadAt(cursorFactory.getDate(AbstractMessageModel.COLUMN_READ_AT));
                 messageModel.setEditedAt(cursorFactory.getDate(AbstractMessageModel.COLUMN_EDITED_AT));
                 messageModel.setDeletedAt(cursorFactory.getDate(AbstractMessageModel.COLUMN_DELETED_AT));
+                // F1Whisper disappearing messages: raw epoch-millis timestamps + the frozen per-message timer.
+                messageModel.setExpiresAt(cursorFactory.getLong(AbstractMessageModel.COLUMN_EXPIRES_AT));
+                messageModel.setExpireStartedAt(cursorFactory.getLong(AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT));
+                Long disappearingTimerSeconds = cursorFactory.getLong(AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS);
+                messageModel.setDisappearingTimerSeconds(disappearingTimerSeconds != null ? disappearingTimerSeconds.intValue() : null);
                 messageModel.setForwardSecurityMode(forwardSecurityMode);
                 messageModel.setDisplayTags(cursorFactory.getInt(AbstractMessageModel.COLUMN_DISPLAY_TAGS));
 
@@ -116,6 +121,10 @@ abstract class AbstractMessageModelFactory extends ModelFactory {
         contentValues.put(AbstractMessageModel.COLUMN_READ_AT, DatabaseUtil.getDateTimeContentValue(messageModel.getReadAt()));
         contentValues.put(AbstractMessageModel.COLUMN_EDITED_AT, DatabaseUtil.getDateTimeContentValue(messageModel.getEditedAt()));
         contentValues.put(AbstractMessageModel.COLUMN_DELETED_AT, DatabaseUtil.getDateTimeContentValue(messageModel.getDeletedAt()));
+        // F1Whisper disappearing messages: epoch-millis timestamps stored raw + the frozen per-message timer (null = off).
+        contentValues.put(AbstractMessageModel.COLUMN_EXPIRES_AT, messageModel.getExpiresAt());
+        contentValues.put(AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT, messageModel.getExpireStartedAt());
+        contentValues.put(AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS, messageModel.getDisappearingTimerSeconds());
         contentValues.put(AbstractMessageModel.COLUMN_FORWARD_SECURITY_MODE, messageModel.getForwardSecurityMode() != null ? messageModel.getForwardSecurityMode().getValue() : null);
         contentValues.put(AbstractMessageModel.COLUMN_DISPLAY_TAGS, messageModel.getDisplayTags());
 

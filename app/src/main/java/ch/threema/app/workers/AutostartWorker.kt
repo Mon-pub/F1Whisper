@@ -15,6 +15,7 @@ import ch.threema.app.notifications.NotificationChannels
 import ch.threema.app.notifications.NotificationIDs
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.preference.service.SynchronizedSettingsService
+import ch.threema.app.services.DisappearingMessageService
 import ch.threema.app.services.ScheduledMessageService
 import ch.threema.app.services.UserService
 import ch.threema.app.utils.IntentDataUtil
@@ -88,6 +89,14 @@ class AutostartWorker(
             ScheduledMessageService.getInstance().rescheduleNextAlarm(applicationContext)
         } catch (e: Exception) {
             logger.warn("Could not re-arm scheduled messages after boot", e)
+        }
+
+        // F1Whisper: sweep and delete any disappearing messages whose timer expired during the
+        // boot gap, then re-arm the alarm for remaining messages.
+        try {
+            DisappearingMessageService.getInstance().purgeOverdueAndRearm()
+        } catch (e: Exception) {
+            logger.warn("Could not purge overdue disappearing messages after boot", e)
         }
 
         logger.info("Processing AutoStart - end")

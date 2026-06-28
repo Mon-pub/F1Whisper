@@ -66,6 +66,8 @@ public class ContactModel extends Contact implements ReceiverModel {
     public static final String COLUMN_DEPARTMENT = "department";
     public static final String COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE = "notificationTriggerPolicyOverride";
     public static final String COLUMN_WORK_LAST_FULL_SYNC_AT = "workLastFullSyncAt";
+    public static final String COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS = "disappearingMessagesTimerSeconds"; /* F1Whisper: my own per-conversation disappearing-messages timer in seconds; null/0 = off */
+    public static final String COLUMN_PEER_DISAPPEARING_TIMER_SECONDS = "peerDisappearingTimerSeconds"; /* F1Whisper: the peer's last-advertised disappearing-messages timer in seconds; null/0 = off */
 
     public static final byte[] NO_PROFILE_PICTURE_BLOB_ID = new byte[0];
 
@@ -129,6 +131,10 @@ public class ContactModel extends Contact implements ReceiverModel {
     private @Nullable String jobTitle;
     private @Nullable String department;
     private @Nullable Long notificationTriggerPolicyOverride;
+    // F1Whisper: my own per-conversation disappearing-messages timer (seconds); null/0 = off.
+    private @Nullable Integer disappearingMessagesTimerSeconds;
+    // F1Whisper: the peer's last-advertised disappearing-messages timer (seconds); null/0 = off.
+    private @Nullable Integer peerDisappearingTimerSeconds;
     private @NonNull AvailabilityStatus availabilityStatus = AvailabilityStatus.None.INSTANCE;
 
     private ContactModel(String identity, @NonNull byte[] publicKey) {
@@ -488,6 +494,35 @@ public class ContactModel extends Contact implements ReceiverModel {
         return this;
     }
 
+    /**
+     * F1Whisper: the per-conversation default disappearing-messages timer in seconds.
+     * {@code null} or {@code 0} means disappearing messages are off for this contact.
+     */
+    @Nullable
+    public Integer getDisappearingMessagesTimerSeconds() {
+        return disappearingMessagesTimerSeconds;
+    }
+
+    public ContactModel setDisappearingMessagesTimerSeconds(@Nullable Integer disappearingMessagesTimerSeconds) {
+        this.disappearingMessagesTimerSeconds = disappearingMessagesTimerSeconds;
+        return this;
+    }
+
+    /**
+     * F1Whisper: the peer's last-advertised disappearing-messages timer in seconds (the value that
+     * freezes onto INCOMING messages from this contact). {@code null} or {@code 0} means the peer has
+     * not advertised a timer / it is off. Tracked separately from {@link #getDisappearingMessagesTimerSeconds()}.
+     */
+    @Nullable
+    public Integer getPeerDisappearingTimerSeconds() {
+        return peerDisappearingTimerSeconds;
+    }
+
+    public ContactModel setPeerDisappearingTimerSeconds(@Nullable Integer peerDisappearingTimerSeconds) {
+        this.peerDisappearingTimerSeconds = peerDisappearingTimerSeconds;
+        return this;
+    }
+
     @NonNull
     public AvailabilityStatus getAvailabilityStatus() {
         return this.availabilityStatus;
@@ -520,7 +555,9 @@ public class ContactModel extends Contact implements ReceiverModel {
             this.isArchived,
             this.readReceipts,
             this.typingIndicators,
-            this.forwardSecurityState
+            this.forwardSecurityState,
+            this.disappearingMessagesTimerSeconds,
+            this.peerDisappearingTimerSeconds
         };
     }
 

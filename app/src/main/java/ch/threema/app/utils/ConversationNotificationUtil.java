@@ -25,6 +25,7 @@ import ch.threema.app.services.GroupService;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.services.notification.ConversationNotification;
 import ch.threema.app.services.notification.ConversationNotificationGroup;
+import ch.threema.app.services.DisappearingMessageService;
 import ch.threema.app.services.notification.NotificationService;
 import ch.threema.base.ThreemaException;
 
@@ -54,6 +55,13 @@ public class ConversationNotificationUtil {
         @NonNull ConversationCategoryService conversationCategoryService,
         @NonNull ContactNameFormat contactNameFormat
     ) {
+        // F1Whisper: suppress notification if the message has already expired.
+        // enforceIfExpired() deletes the model and returns true when expired.
+        if (DisappearingMessageService.enforceIfExpired(messageModel)) {
+            logger.debug("Suppressing notification for expired disappearing message uid={}", messageModel.getUid());
+            return null;
+        }
+
         ConversationNotification conversationNotification = null;
         if (messageModel instanceof MessageModel) {
             conversationNotification = create(context, (MessageModel) messageModel, contactService, conversationCategoryService, contactNameFormat);

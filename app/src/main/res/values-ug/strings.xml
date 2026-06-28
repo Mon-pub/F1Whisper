@@ -2019,4 +2019,20 @@
     <string name="audio_trim_not_supported">بۇ ئاۋاز فورماتى ئۈچۈن كېسىش قوللىمايدۇ. تولۇق ھۆججەتنى ئەۋەتىش ئۈچۈن كېسىشنى ئېلىۋېتىڭ.</string>
     <string name="audio_trim_failed">بۇ ئاۋازنى كېسىش بولمىدى. ھېچنېمە ئەۋەتىلمىدى. قايتا سىناڭ ياكى كېسىشنى ئېلىۋېتىڭ.</string>
     <string name="pinned_message_banner_label_counter">قادالغان ئۇچۇر %1$d/%2$d</string>
+    <string name="disappearing_messages_title">يوقالىدىغان ئۇچۇرلار</string>
+    <string name="disappearing_messages_summary">بۇ سۆھبەتتىكى يېڭى ئۇچۇرلار ئوقۇلغاندىن كېيىن تاللانغان ۋاقىت ئىچىدە يوقىلىپ كېتىدۇ.</string>
+    <string name="disappearing_off">ئوچۇرۇلغان</string>
+    <string name="disappearing_duration_picker_title">يوقىلىش ۋاقىت بەلگىسى</string>
+    <string name="status_disappearing_set">%1$s يوقالىدىغان ئۇچۇرنى %2$s غا بەلگىلىدى</string>
+    <string name="status_disappearing_set_you">سىز يوقالىدىغان ئۇچۇرنى %1$s غا بەلگىلىدىڭىز</string>
+    <string name="status_disappearing_off">%1$s يوقالىدىغان ئۇچۇرنى ئوچۇردى</string>
+    <string name="status_disappearing_off_you">سىز يوقالىدىغان ئۇچۇرنى ئوچۇردىڭىز</string>
+    <string name="disappearing_messages_unsupported">يوقالىدىغان ئۇچۇرلار پەقەت F1Whisper ئىشلەتكۈچىلىرى ئارىسىدا ئىشلەيدۇ ھەمدە بىخەتەرلىك كاپالىتى ئەمەس.</string>
+    <string name="disappearing_duration_30s">٣٠ سېكۇنت</string>
+    <string name="disappearing_duration_5m">٥ مىنۇت</string>
+    <string name="disappearing_duration_1h">١ سائەت</string>
+    <string name="disappearing_duration_8h">٨ سائەت</string>
+    <string name="disappearing_duration_1d">١ كۈن</string>
+    <string name="disappearing_duration_1w">١ ھەپتە</string>
+    <string name="disappearing_duration_4w">٤ ھەپتە</string>
 </resources>

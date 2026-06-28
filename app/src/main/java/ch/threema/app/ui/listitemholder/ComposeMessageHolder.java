@@ -28,6 +28,7 @@ public class ComposeMessageHolder extends AvatarListItemHolder {
     public View linkPreviewInfo;
     public TextView linkPreviewTitle, linkPreviewDescription, linkPreviewDomain;
     public ImageView deliveredIndicator, datePrefixIcon, starredIcon;
+    public ImageView disappearingIcon; // F1Whisper: clock badge for messages with a running disappearing timer
     public ImageView attachmentImage;
     public MaterialCardView messageBlockView;
     public ViewGroup contentView;

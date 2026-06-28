@@ -1955,4 +1955,20 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="audio_trim_not_supported">Bijsnijden wordt niet ondersteund voor dit audioformaat. Verwijder de bijsnede om het volledige bestand te verzenden.</string>
     <string name="audio_trim_failed">Dit audiobestand kon niet worden bijgesneden. Er is niets verzonden. Probeer het opnieuw of verwijder de bijsnede.</string>
     <string name="pinned_message_banner_label_counter">Vastgezet bericht %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Verdwijnende berichten</string>
+    <string name="disappearing_messages_summary">Nieuwe berichten in deze chat verdwijnen na het lezen na de geselecteerde tijd.</string>
+    <string name="disappearing_off">Uit</string>
+    <string name="disappearing_duration_picker_title">Timer</string>
+    <string name="status_disappearing_set">%1$s heeft verdwijnende berichten ingesteld op %2$s</string>
+    <string name="status_disappearing_set_you">Je hebt verdwijnende berichten ingesteld op %1$s</string>
+    <string name="status_disappearing_off">%1$s heeft verdwijnende berichten uitgeschakeld</string>
+    <string name="status_disappearing_off_you">Je hebt verdwijnende berichten uitgeschakeld</string>
+    <string name="disappearing_messages_unsupported">Verdwijnende berichten werken alleen tussen F1Whisper-gebruikers en zijn geen beveiligingsgarantie.</string>
+    <string name="disappearing_duration_30s">30 seconden</string>
+    <string name="disappearing_duration_5m">5 minuten</string>
+    <string name="disappearing_duration_1h">1 uur</string>
+    <string name="disappearing_duration_8h">8 uur</string>
+    <string name="disappearing_duration_1d">1 dag</string>
+    <string name="disappearing_duration_1w">1 week</string>
+    <string name="disappearing_duration_4w">4 weken</string>
 </resources>

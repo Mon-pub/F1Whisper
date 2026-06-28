@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import androidx.annotation.WorkerThread
 import ch.threema.app.ThreemaApplication
 import ch.threema.app.messagereceiver.ContactMessageReceiver
@@ -61,6 +60,13 @@ class ScheduledMessageService private constructor() {
                 else -> null
             }
     }
+
+    private val scheduler = AlarmScheduler(
+        requestCode = REQUEST_CODE_SCHEDULED,
+        buildIntent = { ctx ->
+            Intent(ctx, ScheduledMessageAlarmReceiver::class.java).setAction(ACTION_FIRE)
+        },
+    )
 
     @Throws(Exception::class)
     private fun factory(): ScheduledMessageModelFactory {
@@ -280,40 +286,28 @@ class ScheduledMessageService private constructor() {
      * Re-arm the single alarm for the earliest pending message, or cancel it if none remain.
      */
     fun rescheduleNextAlarm(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
-        val pendingIntent = buildPendingIntent(context)
-
-        val earliest: Long? = try {
-            ThreemaApplication.getServiceManager()
-                ?.databaseService
-                ?.scheduledMessageModelFactory
-                ?.earliestScheduledAt
-        } catch (e: Exception) {
-            logger.error("Could not read earliest scheduled message", e)
-            return
-        }
-
-        if (earliest == null) {
-            alarmManager.cancel(pendingIntent)
-            return
-        }
-
-        try {
-            if (canScheduleExactAlarms(context, alarmManager)) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, earliest, pendingIntent)
-            } else {
-                // exact alarms not permitted: fall back to an inexact alarm (may be delayed)
-                logger.warn("Exact alarms not permitted, scheduling inexact alarm")
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, earliest, pendingIntent)
+        scheduler.rescheduleNextAlarm(context) {
+            try {
+                ThreemaApplication.getServiceManager()
+                    ?.databaseService
+                    ?.scheduledMessageModelFactory
+                    ?.earliestScheduledAt
+            } catch (e: Exception) {
+                logger.error("Could not read earliest scheduled message", e)
+                null
             }
-        } catch (e: SecurityException) {
-            logger.error("Could not schedule alarm", e)
         }
     }
 
     private fun scheduleRetry(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
-        val pendingIntent = buildPendingIntent(context)
+        val intent = Intent(context, ScheduledMessageAlarmReceiver::class.java).setAction(ACTION_FIRE)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            REQUEST_CODE_SCHEDULED,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
         val retryAt = System.currentTimeMillis() + RETRY_DELAY_MILLIS
         try {
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, retryAt, pendingIntent)
@@ -321,23 +315,6 @@ class ScheduledMessageService private constructor() {
             logger.error("Could not schedule retry alarm", e)
         }
     }
-
-    private fun buildPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, ScheduledMessageAlarmReceiver::class.java).setAction(ACTION_FIRE)
-        return PendingIntent.getBroadcast(
-            context,
-            REQUEST_CODE_SCHEDULED,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-    }
-
-    private fun canScheduleExactAlarms(context: Context, alarmManager: AlarmManager): Boolean =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            alarmManager.canScheduleExactAlarms()
-        } else {
-            true
-        }
 }
 
 private const val RETRY_DELAY_MILLIS = 5 * 60 * 1000L

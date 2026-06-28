@@ -197,6 +197,7 @@ class IncomingForwardSecurityRejectTask(
             MessageType.GROUP_CALL_STATUS,
             MessageType.FORWARD_SECURITY_STATUS,
             MessageType.GROUP_STATUS,
+            MessageType.DISAPPEARING_STATUS,
             -> logger.warn("Received a reject for a status message")
         }
     }
@@ -242,6 +243,7 @@ class IncomingForwardSecurityRejectTask(
             MessageType.GROUP_CALL_STATUS,
             MessageType.FORWARD_SECURITY_STATUS,
             MessageType.GROUP_STATUS,
+            MessageType.DISAPPEARING_STATUS,
             -> logger.warn("Received a reject for a status message")
         }
     }

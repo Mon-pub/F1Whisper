@@ -442,6 +442,41 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         );
     }
 
+    /**
+     * F1Whisper disappearing messages: all 1:1 messages whose disappear deadline has already passed
+     * ({@code expiresAtUtc <= now} and {@code expiresAtUtc} is set). Used by the deletion engine's
+     * sweep-all-due fire and the startup purge.
+     */
+    public List<MessageModel> getMessagesExpiredBefore(long now) {
+        return convertList(getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            AbstractMessageModel.COLUMN_EXPIRES_AT + " IS NOT NULL"
+                + " AND " + AbstractMessageModel.COLUMN_EXPIRES_AT + "<=?",
+            new String[]{String.valueOf(now)},
+            null,
+            null,
+            AbstractMessageModel.COLUMN_EXPIRES_AT + " ASC"));
+    }
+
+    /**
+     * F1Whisper disappearing messages: the soonest pending expiry across all 1:1 messages
+     * ({@code MIN(expiresAtUtc)} where set), or {@code null} if nothing is scheduled. Used to arm
+     * the next alarm.
+     */
+    @Nullable
+    public Long getEarliestExpiry() {
+        try (Cursor cursor = getReadableDatabase().rawQuery(
+            "SELECT MIN(`" + AbstractMessageModel.COLUMN_EXPIRES_AT + "`) FROM " + this.getTableName()
+                + " WHERE `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` IS NOT NULL",
+            null)) {
+            if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+                return cursor.getLong(0);
+            }
+        }
+        return null;
+    }
+
     private MessageModel getFirst(String selection, String[] selectionArgs) {
         Cursor cursor = getReadableDatabase().query(
             this.getTableName(),
@@ -497,7 +532,11 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
                     "`" + MessageModel.COLUMN_FORWARD_SECURITY_MODE + "` TINYINT DEFAULT 0 ," +
                     "`" + MessageModel.COLUMN_DISPLAY_TAGS + "` TINYINT DEFAULT 0 ," +
                     "`" + MessageModel.COLUMN_EDITED_AT + "` DATETIME ," +
-                    "`" + MessageModel.COLUMN_DELETED_AT + "` DATETIME );",
+                    "`" + MessageModel.COLUMN_DELETED_AT + "` DATETIME ," +
+                    // F1Whisper disappearing messages (mirror DatabaseUpdateToVersion122)
+                    "`" + MessageModel.COLUMN_EXPIRES_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + MessageModel.COLUMN_EXPIRE_STARTED_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + MessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL );",
 
                 // indices
                 "CREATE INDEX `contact_message_uid_idx` ON `" + MessageModel.TABLE + "` ( `" + MessageModel.COLUMN_UID + "` )",
@@ -516,7 +555,10 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
                     + "`(`" + AbstractMessageModel.COLUMN_TYPE
                     + "`, `" + AbstractMessageModel.COLUMN_STATE
                     + "`, `" + AbstractMessageModel.COLUMN_OUTBOX
-                    + "`)"
+                    + "`)",
+                // F1Whisper disappearing messages: the alarm engine arms/sweeps on expiresAtUtc.
+                "CREATE INDEX `" + MessageModel.TABLE + "_expiresAt_idx` ON `" + MessageModel.TABLE
+                    + "` ( `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` )"
             };
         }
     }

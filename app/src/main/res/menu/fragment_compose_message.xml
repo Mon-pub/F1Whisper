@@ -54,6 +54,15 @@
             app:iconTint="?attr/colorOnSurface"
             app:showAsAction="never" />
 
+        <!-- F1Whisper: disappearing-messages duration picker entry point -->
+        <item
+            android:id="@+id/menu_disappearing_messages"
+            android:icon="@drawable/ic_disappearing"
+            android:orderInCategory="72"
+            android:title="@string/disappearing_messages_title"
+            app:iconTint="?attr/colorOnSurface"
+            app:showAsAction="never" />
+
         <item
             android:id="@+id/menu_gallery"
             android:icon="@drawable/ic_collections"

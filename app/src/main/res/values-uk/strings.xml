@@ -2054,4 +2054,20 @@
     <string name="audio_trim_not_supported">Обрізання не підтримується для цього аудіоформату. Видаліть обрізання, щоб надіслати файл цілком.</string>
     <string name="audio_trim_failed">Не вдалося обрізати це аудіо. Нічого не надіслано. Повторіть спробу або видаліть обрізання.</string>
     <string name="pinned_message_banner_label_counter">Закріплене повідомлення %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Зникаючі повідомлення</string>
+    <string name="disappearing_messages_summary">Нові повідомлення в цьому чаті зникнуть через вибраний час після прочитання.</string>
+    <string name="disappearing_off">Вимк.</string>
+    <string name="disappearing_duration_picker_title">Таймер зникнення</string>
+    <string name="status_disappearing_set">%1$s встановив(ла) таймер зникаючих повідомлень: %2$s</string>
+    <string name="status_disappearing_set_you">Ви встановили таймер зникаючих повідомлень: %1$s</string>
+    <string name="status_disappearing_off">%1$s вимкнув(ла) зникаючі повідомлення</string>
+    <string name="status_disappearing_off_you">Ви вимкнули зникаючі повідомлення</string>
+    <string name="disappearing_messages_unsupported">Зникаючі повідомлення працюють лише між користувачами F1Whisper і не є гарантією безпеки.</string>
+    <string name="disappearing_duration_30s">30 секунд</string>
+    <string name="disappearing_duration_5m">5 хвилин</string>
+    <string name="disappearing_duration_1h">1 година</string>
+    <string name="disappearing_duration_8h">8 годин</string>
+    <string name="disappearing_duration_1d">1 день</string>
+    <string name="disappearing_duration_1w">1 тиждень</string>
+    <string name="disappearing_duration_4w">4 тижні</string>
 </resources>

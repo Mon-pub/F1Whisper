@@ -1969,4 +1969,20 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="audio_trim_not_supported">Bu ses biçimi için kırpma desteklenmiyor. Dosyanın tamamını göndermek için kırpmayı kaldırın.</string>
     <string name="audio_trim_failed">Bu ses kırpılamadı. Hiçbir şey gönderilmedi. Lütfen tekrar deneyin veya kırpmayı kaldırın.</string>
     <string name="pinned_message_banner_label_counter">Sabitlenmiş mesaj %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Kaybolan mesajlar</string>
+    <string name="disappearing_messages_summary">Bu sohbetteki yeni mesajlar okunduktan sonra seçilen süre içinde kaybolacaktır.</string>
+    <string name="disappearing_off">Kapalı</string>
+    <string name="disappearing_duration_picker_title">Kaybolan mesaj zamanlayıcısı</string>
+    <string name="status_disappearing_set">%1$s kaybolan mesajları %2$s olarak ayarladı</string>
+    <string name="status_disappearing_set_you">Kaybolan mesajları %1$s olarak ayarladınız</string>
+    <string name="status_disappearing_off">%1$s kaybolan mesajları kapattı</string>
+    <string name="status_disappearing_off_you">Kaybolan mesajları kapattınız</string>
+    <string name="disappearing_messages_unsupported">Kaybolan mesajlar yalnızca F1Whisper kullanıcıları arasında çalışır ve bir güvenlik garantisi değildir.</string>
+    <string name="disappearing_duration_30s">30 saniye</string>
+    <string name="disappearing_duration_5m">5 dakika</string>
+    <string name="disappearing_duration_1h">1 saat</string>
+    <string name="disappearing_duration_8h">8 saat</string>
+    <string name="disappearing_duration_1d">1 gün</string>
+    <string name="disappearing_duration_1w">1 hafta</string>
+    <string name="disappearing_duration_4w">4 hafta</string>
 </resources>

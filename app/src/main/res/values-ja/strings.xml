@@ -1719,4 +1719,20 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="audio_trim_not_supported">この音声形式ではトリミングがサポートされていません。ファイル全体を送信するにはトリミングを解除してください。</string>
     <string name="audio_trim_failed">この音声をトリミングできませんでした。何も送信されていません。もう一度試すか、トリミングを解除してください。</string>
     <string name="pinned_message_banner_label_counter">ピン留めされたメッセージ %1$d/%2$d</string>
+    <string name="disappearing_messages_title">消えるメッセージ</string>
+    <string name="disappearing_messages_summary">このチャットの新しいメッセージは、既読後に設定した時間が経過すると消えます。</string>
+    <string name="disappearing_off">オフ</string>
+    <string name="disappearing_duration_picker_title">消去タイマー</string>
+    <string name="status_disappearing_set">%1$s が消えるメッセージを %2$s に設定しました</string>
+    <string name="status_disappearing_set_you">消えるメッセージを %1$s に設定しました</string>
+    <string name="status_disappearing_off">%1$s が消えるメッセージをオフにしました</string>
+    <string name="status_disappearing_off_you">消えるメッセージをオフにしました</string>
+    <string name="disappearing_messages_unsupported">消えるメッセージはF1Whisperユーザー間でのみ機能し、セキュリティの保証ではありません。</string>
+    <string name="disappearing_duration_30s">30秒</string>
+    <string name="disappearing_duration_5m">5分</string>
+    <string name="disappearing_duration_1h">1時間</string>
+    <string name="disappearing_duration_8h">8時間</string>
+    <string name="disappearing_duration_1d">1日</string>
+    <string name="disappearing_duration_1w">1週間</string>
+    <string name="disappearing_duration_4w">4週間</string>
 </resources>

@@ -1989,4 +1989,20 @@
     <string name="audio_trim_not_supported">Il ritaglio non è supportato per questo formato audio. Rimuovi il ritaglio per inviare il file completo.</string>
     <string name="audio_trim_failed">Non è stato possibile ritagliare questo audio. Non è stato inviato nulla. Riprova o rimuovi il ritaglio.</string>
     <string name="pinned_message_banner_label_counter">Messaggio fissato %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Messaggi temporanei</string>
+    <string name="disappearing_messages_summary">I nuovi messaggi in questa chat scompariranno dopo essere stati letti, trascorso il tempo selezionato.</string>
+    <string name="disappearing_off">Disattivato</string>
+    <string name="disappearing_duration_picker_title">Timer</string>
+    <string name="status_disappearing_set">%1$s ha impostato i messaggi temporanei a %2$s</string>
+    <string name="status_disappearing_set_you">Hai impostato i messaggi temporanei a %1$s</string>
+    <string name="status_disappearing_off">%1$s ha disattivato i messaggi temporanei</string>
+    <string name="status_disappearing_off_you">Hai disattivato i messaggi temporanei</string>
+    <string name="disappearing_messages_unsupported">I messaggi temporanei funzionano solo tra utenti di F1Whisper e non costituiscono una garanzia di sicurezza.</string>
+    <string name="disappearing_duration_30s">30 secondi</string>
+    <string name="disappearing_duration_5m">5 minuti</string>
+    <string name="disappearing_duration_1h">1 ora</string>
+    <string name="disappearing_duration_8h">8 ore</string>
+    <string name="disappearing_duration_1d">1 giorno</string>
+    <string name="disappearing_duration_1w">1 settimana</string>
+    <string name="disappearing_duration_4w">4 settimane</string>
 </resources>

@@ -2019,4 +2019,20 @@
     <string name="audio_trim_not_supported">Bu audio formati uchun qirqish qo\'llab-quvvatlanmaydi. To\'liq faylni yuborish uchun qirqishni olib tashlang.</string>
     <string name="audio_trim_failed">Bu audioni qirqib bo\'lmadi. Hech narsa yuborilmadi. Iltimos, qayta urinib ko\'ring yoki qirqishni olib tashlang.</string>
     <string name="pinned_message_banner_label_counter">Qadalgan xabar %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Yo\'qoladigan xabarlar</string>
+    <string name="disappearing_messages_summary">Bu suhbatdagi yangi xabarlar o\'qilgandan so\'ng tanlangan vaqt o\'tgach yo\'qoladi.</string>
+    <string name="disappearing_off">O\'chiq</string>
+    <string name="disappearing_duration_picker_title">Yo\'qolish taymer</string>
+    <string name="status_disappearing_set">%1$s yo\'qoladigan xabarlarni %2$s ga o\'rnatdi</string>
+    <string name="status_disappearing_set_you">Yo\'qoladigan xabarlarni %1$s ga o\'rnattingiz</string>
+    <string name="status_disappearing_off">%1$s yo\'qoladigan xabarlarni o\'chirdi</string>
+    <string name="status_disappearing_off_you">Yo\'qoladigan xabarlarni o\'chirdingiz</string>
+    <string name="disappearing_messages_unsupported">Yo\'qoladigan xabarlar faqat F1Whisper foydalanuvchilari o\'rtasida ishlaydi va xavfsizlik kafolati emas.</string>
+    <string name="disappearing_duration_30s">30 soniya</string>
+    <string name="disappearing_duration_5m">5 daqiqa</string>
+    <string name="disappearing_duration_1h">1 soat</string>
+    <string name="disappearing_duration_8h">8 soat</string>
+    <string name="disappearing_duration_1d">1 kun</string>
+    <string name="disappearing_duration_1w">1 hafta</string>
+    <string name="disappearing_duration_4w">4 hafta</string>
 </resources>
