@@ -32,6 +32,17 @@ object GlobalBroadcastReceivers {
     // silently unregistered by the framework, so it must not be a local.
     private var connectionNetworkCallback: ConnectionNetworkCallback? = null
 
+    /**
+     * F1Whisper: ask the network callback to force a reconnect (re-resolving DNS) through its
+     * serialized/debounced executor. Called when the app returns to the foreground after a Doze
+     * background in which the connection used a cached IP ([ch.threema.app.connection.CachingDnsResolver]).
+     * No-op if the callback is not registered yet.
+     */
+    @JvmStatic
+    fun requestConnectionReconnect(reason: String) {
+        connectionNetworkCallback?.requestReconnect(reason)
+    }
+
     @JvmStatic
     fun registerBroadcastReceivers(context: Context) {
         registerConnectivityChangeReceiver(context)

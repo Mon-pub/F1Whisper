@@ -5,7 +5,6 @@ import ch.threema.app.BuildConfig
 import ch.threema.app.multidevice.MultiDeviceManager
 import ch.threema.app.services.ServerAddressProviderService
 import ch.threema.app.startup.AppStartupMonitor
-import ch.threema.base.utils.AsyncResolver
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.domain.protocol.Version
 import ch.threema.domain.protocol.connection.BaseServerConnectionConfiguration
@@ -130,7 +129,7 @@ class CspD2mDualConnectionSupplier(
             deviceCookieManager,
             incomingMessageProcessor,
             taskManager,
-            AsyncResolver::getAllByName,
+            CachingDnsResolver::getAllByName,
             isIpv6Preferred,
             ProxyAwareSocketFactory::makeSocket,
         )

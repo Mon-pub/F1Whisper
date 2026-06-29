@@ -4,6 +4,8 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import ch.threema.app.AppConstants
 import ch.threema.app.GlobalAppState
+import ch.threema.app.GlobalBroadcastReceivers
+import ch.threema.app.connection.CachingDnsResolver
 import ch.threema.app.di.awaitSessionScopeReady
 import ch.threema.app.di.getOrNull
 import ch.threema.app.services.LifetimeService
@@ -90,6 +92,15 @@ class AppProcessLifecycleObserver(
         GlobalAppState.isAppResumed = true
 
         connectionHolder.acquire()
+
+        // F1Whisper: if the last DNS resolution fell back to a cached IP (a background Doze window
+        // where name resolution was frozen), force one fresh-resolve reconnect now that the app is in
+        // the foreground (no Doze restriction → DNS works), so we never stay pinned to a stale IP.
+        // Routed through the network callback's serialized executor → no race with its own reconnect.
+        if (CachingDnsResolver.wasLastResolveFromCache()) {
+            logger.info("Foreground: last DNS resolve used a cached IP; requesting a fresh-resolve reconnect")
+            GlobalBroadcastReceivers.requestConnectionReconnect("foreground-dns-refresh")
+        }
 
         reloadAppRestrictions()
     }

@@ -178,6 +178,14 @@ class ConnectionNetworkCallback(
         executor.shutdownNow()
     }
 
+    /**
+     * F1Whisper: force a reconnect through the SAME serialized/debounced/floored path the network
+     * callback uses, so callers (e.g. the foreground DNS-refresh hook) never race the network
+     * callback's reconnect. Used to re-resolve DNS after a Doze background where the socket connected
+     * via a cached IP ([ch.threema.app.connection.CachingDnsResolver]).
+     */
+    fun requestReconnect(reason: String) = scheduleReconnect(reason)
+
     private fun scheduleReconnect(reason: String) {
         // Gate 1: only act if a connection is actually desired (the forced ThreemaPushService holds
         // an unpauseable lifetime slot for the whole onprem session, so isActive is true even while
