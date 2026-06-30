@@ -1569,6 +1569,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Die App kann keine permanente Verbindung zu den Servern aufrechterhalten, was für die Funktion von ${app_name_short} Push jedoch erforderlich ist. Befindet sich die App im Hintergrund, werden Sie nicht über neue Nachrichten informiert. Um dies zu beheben, tippen Sie auf «Akkunutzung der App» und wählen Sie «Uneingeschränkt».</string>
     <string name="problemsolver_to_settings">Zu den Einstellungen</string>
+    <string name="problemsolver_title_oem_autostart">Hintergrundausführung erlauben</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s-Geräte können F1Whisper an der Ausführung im Hintergrund hindern, wodurch Nachrichtenbenachrichtigungen selbst dann blockiert werden, wenn die Akkuoptimierung bereits deaktiviert ist. Öffne die Anleitung und erlaube F1Whisper den automatischen Start und die Ausführung im Hintergrund.</string>
+    <string name="problemsolver_oem_autostart_action">Anleitung öffnen</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Ausblenden</string>
     <string name="prefs_advanced_options">Erweiterte Optionen</string>

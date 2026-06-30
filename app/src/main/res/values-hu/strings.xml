@@ -1444,4 +1444,8 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="disappearing_duration_1d">1 nap</string>
     <string name="disappearing_duration_1w">1 hét</string>
     <string name="disappearing_duration_4w">4 hét</string>
+    <string name="problemsolver_title_oem_autostart">Háttérben futás engedélyezése</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">A(z) %1$s eszközök megakadályozhatják, hogy a F1Whisper a háttérben fusson, ami az üzenetértesítéseket akkor is letiltja, ha az akkumulátoroptimalizálás már ki van kapcsolva. Nyisd meg az útmutatót, és engedélyezd a F1Whisper számára az automatikus indítást és a háttérben futást.</string>
+    <string name="problemsolver_oem_autostart_action">Beállítási útmutató megnyitása</string>
 </resources>

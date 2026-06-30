@@ -1445,6 +1445,10 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Appen har ikke tillatelse til å opprettholde en permanent tilkobling til serverne, noe som er nødvendig for at ${app_name_short} Push skal fungere. Du vil ikke få varsel om nye meldinger så lenge appen er i bakgrunnen. For å løse dette, trykk på \"Batteribruk\" og velg \"Ubegrenset\".</string>
     <string name="problemsolver_to_settings">Til innstillinger</string>
+    <string name="problemsolver_title_oem_autostart">Tillat kjøring i bakgrunnen</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s-enheter kan hindre F1Whisper i å kjøre i bakgrunnen, noe som blokkerer meldingsvarsler selv når batterioptimalisering allerede er slått av. Åpne veiledningen og la F1Whisper starte automatisk og kjøre i bakgrunnen.</string>
+    <string name="problemsolver_oem_autostart_action">Åpne oppsettsveiledningen</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="prefs_advanced_options">Avanserte innstillinger</string>
     <string name="push_service">Push-tjeneste</string>

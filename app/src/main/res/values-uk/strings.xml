@@ -1584,6 +1584,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Цьому додатку заборонено підтримувати постійне з\'єднання із серверами, що необхідно для роботи ${app_name_short} Push. Ви не отримуватимете сповіщення про нові повідомлення, коли додаток працює у фоновому режимі. Щоб виправити це, натисніть \"Використання акумулятора додатком\" і виберіть \"Необмежено\".</string>
     <string name="problemsolver_to_settings">Відкрити налаштування</string>
+    <string name="problemsolver_title_oem_autostart">Дозволити роботу у фоновому режимі</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Пристрої %1$s можуть зупиняти роботу F1Whisper у фоновому режимі, через що сповіщення про повідомлення блокуються, навіть коли оптимізацію акумулятора вже вимкнено. Відкрийте інструкцію та дозвольте F1Whisper автозапуск і роботу у фоновому режимі.</string>
+    <string name="problemsolver_oem_autostart_action">Відкрити інструкцію з налаштування</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Закрити</string>
     <string name="prefs_advanced_options">Розширені налаштування</string>

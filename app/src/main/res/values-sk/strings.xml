@@ -1524,6 +1524,10 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Aplikácia nemá povolené udržiavať trvalé pripojenie k serverom, ktoré je potrebné na fungovanie služby ${app_name_short} Push. Keď je aplikácia na pozadí, nebudete informovaní o nových správach. Ak to chcete napraviť, klepnite v informáciach o aplikácii na položku \"Batéria\" a vyberte možnosť \"Neobmedzené\".</string>
     <string name="problemsolver_to_settings">K nastaveniam</string>
+    <string name="problemsolver_title_oem_autostart">Povoliť beh na pozadí</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Zariadenia %1$s môžu brániť aplikácii F1Whisper v behu na pozadí, čo blokuje upozornenia na správy aj vtedy, keď je optimalizácia batérie už vypnutá. Otvorte návod a povoľte aplikácii F1Whisper automatické spustenie a beh na pozadí.</string>
+    <string name="problemsolver_oem_autostart_action">Otvoriť návod na nastavenie</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="prefs_advanced_options">Rozšírené možnosti</string>
     <string name="push_service">Služba Push</string>

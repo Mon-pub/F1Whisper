@@ -1539,6 +1539,10 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Uygulamanın, ${app_name_short} Push\'un çalışması için gerekli olan sunucularla kalıcı bir bağlantı kurmasına izin verilmez. Uygulama arka plandayken yeni mesajlardan haberdar olmazsınız. Bunu düzeltmek için \"Uygulama pil kullanımı\" seçeneğine dokunun ve \"Kısıtlanmamış\" seçeneğini seçin.</string>
     <string name="problemsolver_to_settings">Ayarlara</string>
+    <string name="problemsolver_title_oem_autostart">Arka planda çalışmaya izin ver</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s cihazlar F1Whisper uygulamasının arka planda çalışmasını engelleyebilir; bu da pil optimizasyonu zaten kapalı olsa bile mesaj bildirimlerini engeller. Kılavuzu açın ve F1Whisper uygulamasının otomatik başlamasına ve arka planda çalışmasına izin verin.</string>
+    <string name="problemsolver_oem_autostart_action">Kurulum kılavuzunu aç</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Reddet</string>
     <string name="prefs_advanced_options">Gelişmiş seçenekler</string>

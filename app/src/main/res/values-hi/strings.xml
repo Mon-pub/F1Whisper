@@ -1546,6 +1546,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">ऐप को सर्वर के साथ स्थायी कनेक्शन बनाए रखने की अनुमति नहीं है जो ${app_name_short} Push के काम करने के लिए आवश्यक है। पृष्ठभूमि में होने पर आपको नए संदेशों के बारे में सूचित नहीं किया जाएगा। इसे ठीक करने के लिए, “ऐप बैटरी उपयोग” पर टैप करें और “अप्रतिबंधित” चुनें।</string>
     <string name="problemsolver_to_settings">सेटिंग्स पर जाएँ</string>
+    <string name="problemsolver_title_oem_autostart">बैकग्राउंड में चलने की अनुमति दें</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s डिवाइस F1Whisper को बैकग्राउंड में चलने से रोक सकते हैं, जिससे बैटरी ऑप्टिमाइज़ेशन पहले से बंद होने पर भी मैसेज नोटिफ़िकेशन रुक जाते हैं। गाइड खोलें और F1Whisper को अपने आप शुरू होने तथा बैकग्राउंड में चलने की अनुमति दें।</string>
+    <string name="problemsolver_oem_autostart_action">सेटअप गाइड खोलें</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">खारिज करें</string>
     <string name="prefs_advanced_options">उन्नत विकल्प</string>

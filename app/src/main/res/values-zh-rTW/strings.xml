@@ -1564,6 +1564,10 @@ ${app_name_short} 支援的所有表情符號。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">此應用程式被禁止與伺服器永久保持連線，以至 ${app_name_short} Push 無法正常執行。當此應用程式在背景執行時，您將不會收到新訊息的通知。如要解決問題，請先按「應用程式電池使用量」，然後選擇「無限制」。</string>
     <string name="problemsolver_to_settings">前往設定</string>
+    <string name="problemsolver_title_oem_autostart">允許背景執行</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s 裝置可能會阻止 F1Whisper 在背景執行，即使已關閉電池最佳化，也會導致訊息通知被攔截。請開啟指南，允許 F1Whisper 自動啟動並在背景執行。</string>
+    <string name="problemsolver_oem_autostart_action">開啟設定指南</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">忽略</string>
     <string name="prefs_advanced_options">進階選項</string>

@@ -1550,6 +1550,10 @@ Veuillez saisir une question pour votre enquête.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">L\'application n\'est pas autorisée à maintenir une connexion permanente avec les serveurs, ce qui est nécessaire au fonctionnement de ${app_name_short} Push. Vous ne serez pas informé des nouveaux messages lorsque l\'application est en arrière-plan. Pour y remédier, touchez « Utilisation de la batterie par l\'application » et sélectionnez « Sans restriction ».</string>
     <string name="problemsolver_to_settings">Aux paramètres</string>
+    <string name="problemsolver_title_oem_autostart">Autoriser l\'exécution en arrière-plan</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Les appareils %1$s peuvent empêcher F1Whisper de fonctionner en arrière-plan, ce qui bloque les notifications de messages même lorsque l\'optimisation de la batterie est déjà désactivée. Ouvrez le guide et autorisez F1Whisper à démarrer automatiquement et à s\'exécuter en arrière-plan.</string>
+    <string name="problemsolver_oem_autostart_action">Ouvrir le guide de configuration</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Ignorer</string>
     <string name="prefs_advanced_options">Options avancées</string>

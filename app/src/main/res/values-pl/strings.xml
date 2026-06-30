@@ -1544,6 +1544,10 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Aplikacja nie ma uprawnień do utrzymywania stałego połączenia z serwerami, które jest wymagane do działania ${app_name_short} Push. Nie będziesz informowany o nowych wiadomościach, gdy aplikacja działa w tle. Aby to naprawić, dotknij \"Wykorzystanie baterii przez aplikację\" i wybierz \"Bez ograniczeń\".</string>
     <string name="problemsolver_to_settings">Do ustawień</string>
+    <string name="problemsolver_title_oem_autostart">Zezwól na działanie w tle</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Urządzenia %1$s mogą uniemożliwiać aplikacji F1Whisper działanie w tle, co blokuje powiadomienia o wiadomościach nawet wtedy, gdy optymalizacja baterii jest już wyłączona. Otwórz przewodnik i zezwól aplikacji F1Whisper na automatyczne uruchamianie i działanie w tle.</string>
+    <string name="problemsolver_oem_autostart_action">Otwórz przewodnik konfiguracji</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Odrzuć</string>
     <string name="prefs_advanced_options">Opcje zaawansowane</string>

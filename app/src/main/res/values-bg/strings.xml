@@ -1533,6 +1533,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">На приложението не му е разрешено да поддържа постоянна връзка със сървърите, а това е необходимо на ${app_name_short} Push, за да работи. Вие няма да бъдете информирани за нови съобщения, когато приложението е във фонов режим. За да го поправите, натиснете на „Използване на батерията“ и изберете „Неограничено“.</string>
     <string name="problemsolver_to_settings">Към настройките</string>
+    <string name="problemsolver_title_oem_autostart">Разрешаване на работа във фонов режим</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Устройствата %1$s може да спрат F1Whisper да работи във фонов режим, което блокира известията за съобщения дори когато оптимизацията на батерията вече е изключена. Отворете ръководството и разрешете на F1Whisper автоматично стартиране и работа във фонов режим.</string>
+    <string name="problemsolver_oem_autostart_action">Отваряне на ръководството</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Премахни</string>
     <string name="prefs_advanced_options">Разширени опции</string>

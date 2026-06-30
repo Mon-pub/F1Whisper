@@ -1483,6 +1483,10 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">このアプリは、${app_name_short} Pushが機能するために必要なサーバーへの恒常的な接続を維持することが許可されていません。アプリがバックグラウンドにあるときに新しいメッセージの通知が届かない可能性があります。これを修正するには、\"アプリのバッテリー使用量\"をタップし、\"制限なし\"を選択してください。</string>
     <string name="problemsolver_to_settings">設定へ</string>
+    <string name="problemsolver_title_oem_autostart">バックグラウンド実行を許可</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s のデバイスでは F1Whisper のバックグラウンド実行が停止されることがあり、電池の最適化を既にオフにしていてもメッセージ通知が届かなくなります。ガイドを開き、F1Whisper の自動起動とバックグラウンド実行を許可してください。</string>
+    <string name="problemsolver_oem_autostart_action">セットアップガイドを開く</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="prefs_advanced_options">高度なオプション</string>
     <string name="push_service">プッシュサービス</string>

@@ -1548,6 +1548,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">D’App cha kei permanenti Verbindig zude Server ufrächterhalte, was für d’Funktion vo ${app_name_short} Push aber erforderlich isch. Befindet sich d’App im Hindergrund, werded Sie nöd über neui Nachrichte informiert. Zum das z’behebe, tipped Sie uf «Akkunutzung der App» und wähled Sie «Uneingeschränkt».</string>
     <string name="problemsolver_to_settings">Zude Iistellige</string>
+    <string name="problemsolver_title_oem_autostart">Hintergrundbetrieb erlaube</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s-Grät chönd F1Whisper am Laufe im Hintergrund hindere, wodür Nachrichtebenachrichtigunge sogar denn blockiert werded, wenn d Akkuoptimierig scho usgschaltet isch. Mach d Aaleitig uf und erlaub F1Whisper s automatische Starte und s Laufe im Hintergrund.</string>
+    <string name="problemsolver_oem_autostart_action">Aaleitig öffne</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Usblände</string>
     <string name="prefs_advanced_options">Erwiitereti Optione</string>

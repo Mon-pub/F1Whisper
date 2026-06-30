@@ -3406,8 +3406,18 @@ public class ComposeMessageFragment extends Fragment implements
             openBallotNoticeView.update();
         }
 
-        //check if the message already added
-        if (this.listInitializedAt != null && message.getCreatedAt().before(this.listInitializedAt)) {
+        // check if the message already added
+        // F1Whisper: exempt outbox messages from the "already loaded" guard. This guard skips
+        // pre-existing history during async list loads by comparing createdAt against the raw-clock
+        // listInitializedAt watermark. Since v6.4.3-30 (TrustedClock), an outgoing message's
+        // createdAt is stamped on the server-corrected clock (system + offset); on a phone whose
+        // clock runs ahead of the OnPrem server the offset is negative, so a just-composed outgoing
+        // message's createdAt lands BEFORE the raw watermark and was silently dropped from the live
+        // list (it only appeared after closing+reopening the chat, which reloads from the DB). An
+        // outbox message reaching onNew was just created this session by fireOnCreatedMessage and can
+        // never be pre-load history, so the historical-dedup check must not apply to it. The incoming
+        // path (raw-clock createdAt vs raw-clock watermark) is left untouched.
+        if (!message.isOutbox() && this.listInitializedAt != null && message.getCreatedAt().before(this.listInitializedAt)) {
             return false;
         }
 

@@ -1582,6 +1582,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">অ্যাপটিকে সার্ভারের সাথে একটি স্থায়ী সংযোগ বজায় রাখার অনুমতি দেওয়া হয়নি যা ${app_name_short} Push কাজ করার জন্য প্রয়োজন। অ্যাপটি পটভূমিতে থাকলে আপনাকে নতুন বার্তা সম্পর্কে জানানো হবে না। এটি সমাধান করতে, “অ্যাপ ব্যাটারি ব্যবহার”-এ চাপুন এবং “অসীমিত” নির্বাচন করুন।</string>
     <string name="problemsolver_to_settings">সেটিংসে যান</string>
+    <string name="problemsolver_title_oem_autostart">ব্যাকগ্রাউন্ডে চালু রাখার অনুমতি দিন</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s ডিভাইসগুলি F1Whisper-কে ব্যাকগ্রাউন্ডে চলতে বাধা দিতে পারে, যা ব্যাটারি অপ্টিমাইজেশন ইতিমধ্যে বন্ধ থাকলেও মেসেজ নোটিফিকেশন আটকে দেয়। গাইডটি খুলুন এবং F1Whisper-কে স্বয়ংক্রিয়ভাবে চালু হতে ও ব্যাকগ্রাউন্ডে চলতে দিন।</string>
+    <string name="problemsolver_oem_autostart_action">সেটআপ গাইড খুলুন</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">খারিজ করুন</string>
     <string name="prefs_advanced_options">উন্নত বিকল্প</string>

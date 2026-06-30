@@ -1550,6 +1550,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Приложению не разрешено поддерживать постоянное подключение к серверам, которое требуется для работы ${app_name_short} Push. Вы не будете получать уведомления о новых сообщениях, когда приложение работает в фоновом режиме. Чтобы это исправить, нажмите «Использование батареи приложением» и выберите «Неограниченно».</string>
     <string name="problemsolver_to_settings">К настройкам</string>
+    <string name="problemsolver_title_oem_autostart">Разрешить работу в фоне</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Устройства %1$s могут останавливать работу F1Whisper в фоновом режиме, из-за чего уведомления о сообщениях не приходят, даже если оптимизация батареи уже отключена. Откройте инструкцию и разрешите F1Whisper автозапуск и работу в фоне.</string>
+    <string name="problemsolver_oem_autostart_action">Открыть инструкцию по настройке</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Скрыть</string>
     <string name="prefs_advanced_options">Дополнительные настройки</string>

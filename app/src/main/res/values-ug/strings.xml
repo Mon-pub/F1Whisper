@@ -1570,6 +1570,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">دېتالنىڭ ${app_name_short} Push نىڭ ئىشلىشى ئۈچۈن زۆرۈر بولغان مۇلازىمېتىرلارغا مۇقىم ئۇلىنىش ساقلىشىغا يول قويۇلمايدۇ. دېتال ئارقا سۇپىدا بولغاندا يېڭى ئۇچۇرلاردىن خەۋەردار بولالمايسىز. ئوڭشاش ئۈچۈن، “دېتال توك ئىشلىتىشى” نى چېكىپ “چەكلىمىسىز” نى تاللاڭ.</string>
     <string name="problemsolver_to_settings">تەڭشەككە</string>
+    <string name="problemsolver_title_oem_autostart">ئارقا سۇپىدا ئىجرا قىلىشقا رۇخسەت قىلىش</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s ئۈسكۈنىلىرى F1Whisper نىڭ ئارقا سۇپىدا ئىجرا بولۇشىنى توختىتىپ قويۇشى مۇمكىن، بۇ توك تېجەش تەڭشىكى ئاللىبۇرۇن ئېتىۋېتىلگەن بولسىمۇ ئۇچۇر ئۇقتۇرۇشلىرىنى توسۇپ قويىدۇ. قوللانمىنى ئېچىپ، F1Whisper نىڭ ئۆزلۈكىدىن قوزغىلىشى ۋە ئارقا سۇپىدا ئىجرا بولۇشىغا رۇخسەت قىلىڭ.</string>
+    <string name="problemsolver_oem_autostart_action">تەڭشەش قوللانمىسىنى ئېچىش</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">يېپىش</string>
     <string name="prefs_advanced_options">ئالىي تاللانمىلار</string>

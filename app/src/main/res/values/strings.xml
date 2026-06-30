@@ -1656,6 +1656,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">The app is not allowed to maintain a permanent connection to the servers which is required for ${app_name_short} Push to work. You will not be informed of new messages when the app is in the background. To fix this, tap on “App battery usage” and select “Unrestricted.”</string>
     <string name="problemsolver_to_settings">To settings</string>
+    <string name="problemsolver_title_oem_autostart">Allow background running</string>
+    <!-- %1$s is the device manufacturer name (e.g. "HONOR", "Xiaomi"). It is filled in at runtime and must be left as the placeholder %1$s, not translated. -->
+    <string name="problemsolver_explain_oem_autostart">%1$s devices can stop F1Whisper from running in the background, which blocks message notifications even when battery optimization is already turned off. Open the guide and allow F1Whisper to auto-start and run in the background.</string>
+    <string name="problemsolver_oem_autostart_action">Open setup guide</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Dismiss</string>
     <string name="prefs_advanced_options">Advanced options</string>

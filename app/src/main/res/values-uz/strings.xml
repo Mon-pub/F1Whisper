@@ -1578,6 +1578,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Ilovaga ${app_name_short} Push ishlashi uchun zarur boʻlgan serverlarga doimiy ulanishni saqlashga ruxsat berilmagan. Ilova fonda boʻlganda yangi xabarlar haqida xabardor qilinmaysiz. Buni tuzatish uchun “Ilova batareya foydalanishi” ni bosing va “Cheksiz” ni tanlang.</string>
     <string name="problemsolver_to_settings">Sozlamalarga</string>
+    <string name="problemsolver_title_oem_autostart">Fon rejimida ishlashga ruxsat berish</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s qurilmalari F1Whisper ilovasini fon rejimida ishlashdan to\'xtatishi mumkin, bu esa batareya optimallashtiruvi allaqachon o\'chirilgan bo\'lsa ham xabar bildirishnomalarini bloklaydi. Qo\'llanmani oching va F1Whisper ilovasiga avtomatik ishga tushish va fon rejimida ishlashga ruxsat bering.</string>
+    <string name="problemsolver_oem_autostart_action">Sozlash qo\'llanmasini ochish</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Yopish</string>
     <string name="prefs_advanced_options">Kengaytirilgan variantlar</string>

@@ -1550,6 +1550,10 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">De app kan geen permanente verbinding met de servers onderhouden en dit is nodig om ${app_name_short} Push te laten werken. U wordt niet op de hoogte gebracht van nieuwe berichten wanneer de app op de achtergrond is. Tik op \'Batterijgebruik van de app\' en selecteer \'Onbeperkt\' om dit probleem op te lossen.</string>
     <string name="problemsolver_to_settings">Naar de instellingen</string>
+    <string name="problemsolver_title_oem_autostart">Uitvoeren op de achtergrond toestaan</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s-apparaten kunnen voorkomen dat F1Whisper op de achtergrond draait, waardoor berichtmeldingen worden geblokkeerd, zelfs wanneer de batterijoptimalisatie al is uitgeschakeld. Open de handleiding en sta F1Whisper toe om automatisch te starten en op de achtergrond te draaien.</string>
+    <string name="problemsolver_oem_autostart_action">Configuratiegids openen</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Afwijzen</string>
     <string name="prefs_advanced_options">Geavanceerde opties</string>

@@ -1461,4 +1461,8 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="disappearing_duration_1d">1 dia</string>
     <string name="disappearing_duration_1w">1 setmana</string>
     <string name="disappearing_duration_4w">4 setmanes</string>
+    <string name="problemsolver_title_oem_autostart">Permetre l\'execució en segon pla</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Els dispositius %1$s poden impedir que F1Whisper s\'executi en segon pla, cosa que bloqueja les notificacions de missatges encara que l\'optimització de bateria ja estigui desactivada. Obre la guia i permet que F1Whisper s\'iniciï automàticament i s\'executi en segon pla.</string>
+    <string name="problemsolver_oem_autostart_action">Obre la guia de configuració</string>
 </resources>

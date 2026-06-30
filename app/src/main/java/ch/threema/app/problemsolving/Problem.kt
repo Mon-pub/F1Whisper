@@ -6,6 +6,10 @@ import ch.threema.android.ResolvableString
 import ch.threema.android.ResourceIdString
 import ch.threema.app.R
 import ch.threema.app.logging.DebugLogHelper.Companion.FORCE_ENABLE_FILE_NAME
+import ch.threema.app.utils.OemAutostartUtil
+
+/** Dismiss key for [Problem.OEM_AUTOSTART_RESTRICTED] (the only dismissable problem). */
+private const val OEM_AUTOSTART_DISMISS_KEY = "oem_autostart"
 
 /**
  * F1Whisper: ALL problems are NON-dismissable. F1Whisper delivers every background notification
@@ -16,12 +20,19 @@ import ch.threema.app.logging.DebugLogHelper.Companion.FORCE_ENABLE_FILE_NAME
  * {@code dismissKey} on any problem, so the warning stays visible until the underlying issue is
  * actually fixed, at which point it auto-clears (the problem list is recomputed each time).
  *
- * The {@code dismissKey} parameter is kept (always null now) because {@code GetProblemsUseCase} and
- * {@code ProblemSolverActivity} still read it: a null key both keeps the problem from ever being
- * filtered out by a past dismissal and hides the per-problem dismiss button.
+ * The {@code dismissKey} parameter is kept (null for all auto-detectable problems) because
+ * {@code GetProblemsUseCase} and {@code ProblemSolverActivity} still read it: a null key both keeps
+ * the problem from ever being filtered out by a past dismissal and hides the per-problem dismiss
+ * button.
  *
- * @param dismissKey Always null in F1Whisper (no problem is dismissable). The key would otherwise
- * persist a user's dismissal decision.
+ * EXCEPTION: {@code OEM_AUTOSTART_RESTRICTED} carries a non-null {@code dismissKey}. Unlike every
+ * other problem, its resolved state is NOT queryable (there is no Android API to read an OEM's
+ * "App launch" / auto-start whitelist), so it cannot auto-clear. It is therefore user-dismissable
+ * with a timed re-surface (see {@code GetProblemsUseCase}) instead of auto-clearing, so it can both
+ * be acknowledged and re-nudge after an OEM update resets the setting.
+ *
+ * @param dismissKey Null for auto-detectable problems (not dismissable). Non-null only for
+ * {@code OEM_AUTOSTART_RESTRICTED} (not auto-detectable -> dismissable + timed re-surface).
  * @param solutionType The type of action the user can take to solve the problem, or null if it is not a solveable problem but a problem the user
  * needs to be made aware of.
  */
@@ -84,5 +95,23 @@ enum class Problem(
                 context.getString(R.string.app_name),
             )
         },
+    ),
+
+    /**
+     * F1Whisper: shown on Doze-hostile OEMs (HONOR/Huawei/Xiaomi/Oppo/Vivo/...) whose separate
+     * "App launch" / auto-start whitelist freezes the background socket even when the AOSP battery
+     * optimization is already disabled. The action opens the per-OEM dontkillmyapp.com guide in a
+     * browser. Dismissable with timed re-surface (its state is not queryable -> cannot auto-clear).
+     */
+    OEM_AUTOSTART_RESTRICTED(
+        titleRes = R.string.problemsolver_title_oem_autostart,
+        explanation = ResolvableString { context ->
+            context.getString(
+                R.string.problemsolver_explain_oem_autostart,
+                OemAutostartUtil.manufacturerDisplayName(),
+            )
+        },
+        dismissKey = OEM_AUTOSTART_DISMISS_KEY,
+        solutionType = SolutionType.ToExternalGuide(R.string.problemsolver_oem_autostart_action),
     ),
 }

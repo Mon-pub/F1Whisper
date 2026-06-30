@@ -1539,6 +1539,10 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">O app não tem permissão para manter uma conexão permanente com os servidores necessários para o funcionamento do ${app_name_short} Push. Você não receberá alertas de novas mensagens com o app em segundo plano. Para corrigir isso, toque em \"Uso de bateria do app\" e selecione \"Não restrito\".</string>
     <string name="problemsolver_to_settings">Ir a Configurações</string>
+    <string name="problemsolver_title_oem_autostart">Permitir execução em segundo plano</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Dispositivos %1$s podem impedir que o F1Whisper seja executado em segundo plano, o que bloqueia as notificações de mensagens mesmo quando a otimização de bateria já está desativada. Abra o guia e permita que o F1Whisper inicie automaticamente e seja executado em segundo plano.</string>
+    <string name="problemsolver_oem_autostart_action">Abrir guia de configuração</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Ignorar</string>
     <string name="prefs_advanced_options">Opções avançadas</string>

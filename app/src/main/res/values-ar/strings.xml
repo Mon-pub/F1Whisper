@@ -1570,6 +1570,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">لا يُسمح للتطبيق بالحفاظ على اتصال دائم بالخوادم وهو ما يلزم لعمل ${app_name_short} Push. لن تُبلَّغ بالرسائل الجديدة عندما يكون التطبيق في الخلفية. لإصلاح ذلك، اضغط على ”استخدام بطارية التطبيق“ واختر ”غير مقيَّد“.</string>
     <string name="problemsolver_to_settings">إلى الإعدادات</string>
+    <string name="problemsolver_title_oem_autostart">السماح بالعمل في الخلفية</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">قد تمنع أجهزة %1$s تطبيق F1Whisper من العمل في الخلفية، ممّا يحجب إشعارات الرسائل حتّى عند إيقاف تحسين البطارية. افتح الدليل واسمح لـ F1Whisper بالتشغيل التلقائي والعمل في الخلفية.</string>
+    <string name="problemsolver_oem_autostart_action">فتح دليل الإعداد</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">تجاهل</string>
     <string name="prefs_advanced_options">خيارات متقدمة</string>

@@ -25,6 +25,7 @@ import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.ui.InsetSides
 import ch.threema.app.ui.SpacingValues
 import ch.threema.app.ui.applyDeviceInsetsAsPadding
+import ch.threema.app.utils.OemAutostartUtil
 import ch.threema.app.utils.logScreenVisibility
 import ch.threema.base.utils.getThreemaLogger
 import com.google.android.material.appbar.MaterialToolbar
@@ -127,6 +128,10 @@ class ProblemSolverActivity : ThreemaToolbarActivity() {
                     setText(problem.solutionType.label)
                     setIconResource(R.drawable.ic_check)
                 }
+                is SolutionType.ToExternalGuide -> {
+                    setText(problem.solutionType.label)
+                    setIconResource(R.drawable.ic_link_outline)
+                }
             }
         }
 
@@ -190,6 +195,9 @@ class ProblemSolverActivity : ThreemaToolbarActivity() {
                     putExtra(DisableBatteryOptimizationsActivity.EXTRA_DISABLE_RATIONALE, true)
                 }
                 startActivity(intent)
+            }
+            Problem.OEM_AUTOSTART_RESTRICTED -> {
+                OemAutostartUtil.openOemGuide(this)
             }
             Problem.DEBUG_LOG_FORCE_ENABLED -> Unit
         }

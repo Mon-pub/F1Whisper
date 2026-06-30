@@ -1537,6 +1537,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">ایپ کو سرورز سے مستقل کنکشن برقرار رکھنے کی اجازت نہیں ہے جو ${app_name_short} Push کے کام کرنے کے لیے درکار ہے۔ جب ایپ بیک گراؤنڈ میں ہو تو آپ کو نئے پیغامات کی اطلاع نہیں دی جائے گی۔ اسے درست کرنے کے لیے، “ایپ بیٹری استعمال” پر ٹیپ کریں اور “غیر محدود” منتخب کریں۔</string>
     <string name="problemsolver_to_settings">ترتیبات پر جائیں</string>
+    <string name="problemsolver_title_oem_autostart">پس منظر میں چلنے کی اجازت دیں</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s آلات F1Whisper کو پس منظر میں چلنے سے روک سکتے ہیں، جس سے پیغامات کی اطلاعات اُس وقت بھی رک جاتی ہیں جب بیٹری کی بہتری پہلے ہی بند ہو۔ رہنمائی کھولیں اور F1Whisper کو خودکار طور پر شروع ہونے اور پس منظر میں چلنے کی اجازت دیں۔</string>
+    <string name="problemsolver_oem_autostart_action">سیٹ اپ رہنمائی کھولیں</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">برخاست کریں</string>
     <string name="prefs_advanced_options">اعلیٰ اختیارات</string>

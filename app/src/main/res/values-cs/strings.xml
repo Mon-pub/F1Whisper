@@ -1540,6 +1540,10 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Aplikaci není dovoleno udržovat trvalé připojení k serverům, které je nutné pro fungování ${app_name_short} Push. Když bude aplikace na pozadí, nebudete informováni o nových zprávách. Chcete‑li tento problém opravit, klepněte na „Využití baterie“ a vyberte „Neomezeno“.</string>
     <string name="problemsolver_to_settings">Do nastavení</string>
+    <string name="problemsolver_title_oem_autostart">Povolit běh na pozadí</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Zařízení %1$s mohou bránit aplikaci F1Whisper v běhu na pozadí, což blokuje oznámení o zprávách i v případě, že je optimalizace baterie již vypnutá. Otevřete návod a povolte aplikaci F1Whisper automatické spuštění a běh na pozadí.</string>
+    <string name="problemsolver_oem_autostart_action">Otevřít návod k nastavení</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Zavřít</string>
     <string name="prefs_advanced_options">Pokročilé možnosti</string>

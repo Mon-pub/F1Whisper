@@ -1538,6 +1538,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">برنامه مجاز به حفظ یک اتصال دائمی به سرورها که برای کار ${app_name_short} Push لازم است نیست. هنگامی که برنامه در پس‌زمینه است از پیام‌های جدید مطلع نخواهید شد. برای رفع این مشکل، روی «مصرف باتری برنامه» بزنید و «نامحدود» را انتخاب کنید.</string>
     <string name="problemsolver_to_settings">به تنظیمات</string>
+    <string name="problemsolver_title_oem_autostart">اجازهٔ اجرا در پس‌زمینه</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">دستگاه‌های %1$s ممکن است از اجرای F1Whisper در پس‌زمینه جلوگیری کنند، که حتی با وجود خاموش‌بودن بهینه‌سازی باتری، اعلان‌های پیام را مسدود می‌کند. راهنما را باز کنید و به F1Whisper اجازهٔ اجرای خودکار و اجرا در پس‌زمینه را بدهید.</string>
+    <string name="problemsolver_oem_autostart_action">باز کردن راهنمای راه‌اندازی</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">رد کردن</string>
     <string name="prefs_advanced_options">گزینه‌های پیشرفته</string>

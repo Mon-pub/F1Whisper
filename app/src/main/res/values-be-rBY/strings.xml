@@ -1548,6 +1548,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Праграме не дазволена падтрымліваць пастаяннае злучэнне з серверамі, якое неабходна для працы ${app_name_short} Push. Вы не будзеце атрымліваць апавяшчэнні аб новых паведамленнях, калі праграма знаходзіцца ў фонавым рэжыме. Каб выправіць гэта, націсніце «Выкарыстанне батарэі праграмай» і выберыце «Без абмежаванняў».</string>
     <string name="problemsolver_to_settings">Да налад</string>
+    <string name="problemsolver_title_oem_autostart">Дазволіць працу ў фоне</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Прылады %1$s могуць спыняць F1Whisper ад працы ў фоне, што блакуе апавяшчэнні пра паведамленні нават калі аптымізацыя батарэі ўжо адключаная. Адкрыйце інструкцыю і дазвольце F1Whisper аўтазапуск і працу ў фоне.</string>
+    <string name="problemsolver_oem_autostart_action">Адкрыць інструкцыю</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Адхіліць</string>
     <string name="prefs_advanced_options">Дадатковыя параметры</string>
