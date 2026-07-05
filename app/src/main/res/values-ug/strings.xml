@@ -2039,4 +2039,26 @@
     <string name="disappearing_duration_1d">١ كۈن</string>
     <string name="disappearing_duration_1w">١ ھەپتە</string>
     <string name="disappearing_duration_4w">٤ ھەپتە</string>
+    <string name="connectivity_probe_dialog_title">ئۇلىنىش دىئاگنوزى</string>
+    <string name="connectivity_probe_running">تەكشۈرۈش ئېلىپ بېرىلىۋاتىدۇ…</string>
+    <string name="connectivity_probe_done">تەكشۈرۈش تاماملاندى</string>
+    <string name="connectivity_probe_send_btn">دىئاگنوزنى ئەۋەتىش</string>
+    <string name="connectivity_probe_close_btn">تاقاش</string>
+    <string name="connectivity_probe_verdict_all_ok">مۇلازىمېتىرغا يېتىشكىلى بولىدۇ. ھېسابات ياكى ئۈسكۈنە تەڭشىكىنى تەكشۈرۈڭ.</string>
+    <string name="connectivity_probe_verdict_no_internet">بۇ توردا ئىشلەيدىغان تور يوق.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS زەھەرلىنىش گۇمانى: سىستېما DNS ئوخشىمىغان IP قايتۇرۇۋاتىدۇ.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI ئاساسىدىكى TLS توسۇش گۇمانى: بىزنىڭ ساھىبخانا ئىسمىمىز توسۇلغان.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">مۇلازىمېتىر IP سى بۇ توردا توسۇلغان.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">پاراڭ ئېغىزى (5222) توسۇلغان. HTTPS يەنىلا ئىشلەيدۇ.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">مۇلازىمېتىرغا يېتىشكىلى بولىدۇ، لېكىن بۇ تور بەك ئاستا ياكى چەكلەنگەن — باغلىنىشلار ۋاقىت ھالقىشى مۇمكىن. قايتا سىناڭ ياكى Wi-Fi بىلەن كۆچمە سانلىق مەلۇمات ئارىسىدا ئالماشتۇرۇپ بېقىڭ.</string>
+    <string name="connectivity_probe_verdict_partial_failure">بەزى تەكشۈرۈشلەر مەغلۇپ بولدى. تەھلىل ئۈچۈن دوكلاتنى ھەمبەھىرلەڭ.</string>
+    <string name="connectivity_probe_label_dns">DNS ھەل قىلغۇچلار</string>
+    <string name="connectivity_probe_label_tcp443">TCP ئېغىز 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">سەپلىمە ئاخىرلىق نۇقتىسى</string>
+    <string name="connectivity_probe_label_chat">پاراڭ ئېغىزى (5222)</string>
+    <string name="connectivity_probe_label_control">تور (كونترول)</string>
+    <string name="connectivity_probe_label_hints">قوشۇمچە بەلگىلەر</string>
+    <string name="connectivity_probe_hint_middlebox">باغلىنىش تېز، لېكىن شىفىرلانغان قول ئېلىشىش ئاستا — بۇ مەزكۇر باغلىنىشقا شەففاپ ۋاكالەتچى ياكى ھەرىكەت ئاقىمىنى شەكىللەندۈرگۈچى ئۈسكۈنە ئارىلاشقانلىقىدىن دېرەك بېرىشى مۇمكىن.</string>
+    <string name="connectivity_probe_hint_port53">باشقا ھەممە نەرسە ئاستا بولغاندا، ئۈسكۈنىنىڭ DNS ى گۇمانلىق دەرىجىدە تېز جاۋاب قايتۇردى — بۇ مەزكۇر تورنىڭ DNS سۈرۈشتۈرۈشلىرىگە ئارىلاشقانلىقىنى بىلدۈرۈشى مۇمكىن.</string>
 </resources>

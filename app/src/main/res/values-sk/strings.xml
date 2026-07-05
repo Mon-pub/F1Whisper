@@ -1959,4 +1959,26 @@ Vykonajte prosím zálohú vašich údajov vhodnou metódou.</string>
     <string name="disappearing_duration_1d">1 deň</string>
     <string name="disappearing_duration_1w">1 týždeň</string>
     <string name="disappearing_duration_4w">4 týždne</string>
+    <string name="connectivity_probe_dialog_title">Diagnostika pripojenia</string>
+    <string name="connectivity_probe_running">Prebiehajú kontroly…</string>
+    <string name="connectivity_probe_done">Kontroly dokončené</string>
+    <string name="connectivity_probe_send_btn">Odoslať diagnostiku</string>
+    <string name="connectivity_probe_close_btn">Zavrieť</string>
+    <string name="connectivity_probe_verdict_all_ok">Server je dostupný. Skontrolujte nastavenia účtu alebo zariadenia.</string>
+    <string name="connectivity_probe_verdict_no_internet">V tejto sieti nefunguje internet.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Podozrenie na otravu DNS: systémový DNS vracia iné IP adresy.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Podozrenie na blokovanie TLS podľa SNI: náš názov hostiteľa je blokovaný.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">IP adresa servera je v tejto sieti blokovaná.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Port četu (5222) je blokovaný. HTTPS stále funguje.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server je dostupný, ale táto sieť je výrazne pomalá alebo obmedzovaná — spojeniam môže vypršať čas. Skúste to znova alebo prepnite medzi Wi-Fi a mobilnými dátami.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Niektoré kontroly zlyhali. Zdieľajte správu na analýzu.</string>
+    <string name="connectivity_probe_label_dns">Prekladače DNS</string>
+    <string name="connectivity_probe_label_tcp443">Port TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Koncový bod konfigurácie</string>
+    <string name="connectivity_probe_label_chat">Port četu (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (kontrola)</string>
+    <string name="connectivity_probe_label_hints">Ďalšie signály</string>
+    <string name="connectivity_probe_hint_middlebox">Rýchle pripojenie, ale pomalé šifrované nadviazanie spojenia — toto spojenie môže odpočúvať transparentný proxy server alebo zariadenie na tvarovanie prevádzky.</string>
+    <string name="connectivity_probe_hint_port53">DNS zariadenia odpovedalo podozrivo rýchlo, zatiaľ čo všetko ostatné bolo pomalé — táto sieť môže odpočúvať DNS dotazy.</string>
 </resources>

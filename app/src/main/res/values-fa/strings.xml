@@ -2003,4 +2003,26 @@
     <string name="disappearing_duration_1d">۱ روز</string>
     <string name="disappearing_duration_1w">۱ هفته</string>
     <string name="disappearing_duration_4w">۴ هفته</string>
+    <string name="connectivity_probe_dialog_title">عیب‌یابی اتصال</string>
+    <string name="connectivity_probe_running">در حال انجام بررسی‌ها…</string>
+    <string name="connectivity_probe_done">بررسی‌ها کامل شد</string>
+    <string name="connectivity_probe_send_btn">ارسال عیب‌یابی</string>
+    <string name="connectivity_probe_close_btn">بستن</string>
+    <string name="connectivity_probe_verdict_all_ok">سرور در دسترس است. تنظیمات حساب یا دستگاه خود را بررسی کنید.</string>
+    <string name="connectivity_probe_verdict_no_internet">در این شبکه اینترنت کارآمدی وجود ندارد.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">احتمال مسموم‌سازی DNS: سیستم DNS آدرس‌های IP متفاوتی برمی‌گرداند.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">احتمال مسدودسازی TLS مبتنی بر SNI: نام میزبان ما مسدود شده است.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">آدرس IP سرور در این شبکه مسدود است.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">درگاه گفتگو (5222) مسدود است. HTTPS همچنان کار می‌کند.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">سرور در دسترس است، اما این شبکه بسیار کند است یا محدود شده — ممکن است اتصال‌ها با وقفه مواجه شوند. دوباره تلاش کنید، یا بین Wi-Fi و داده تلفن همراه جابه‌جا شوید.</string>
+    <string name="connectivity_probe_verdict_partial_failure">برخی بررسی‌ها ناموفق بود. گزارش را برای تحلیل به اشتراک بگذارید.</string>
+    <string name="connectivity_probe_label_dns">حل‌کننده‌های DNS</string>
+    <string name="connectivity_probe_label_tcp443">درگاه TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">نقطه پایانی پیکربندی</string>
+    <string name="connectivity_probe_label_chat">درگاه گفتگو (5222)</string>
+    <string name="connectivity_probe_label_control">اینترنت (کنترل)</string>
+    <string name="connectivity_probe_label_hints">نشانه‌های اضافی</string>
+    <string name="connectivity_probe_hint_middlebox">اتصال سریع است، اما دست‌دهی رمزنگاری‌شده کند است — این می‌تواند نشانهٔ دخالت یک پراکسی شفاف یا دستگاه شکل‌دهی ترافیک در این اتصال باشد.</string>
+    <string name="connectivity_probe_hint_port53">DNS دستگاه با سرعتی مشکوک پاسخ داد در حالی که همه‌چیز دیگر کند بود — این می‌تواند نشان‌دهندهٔ دخالت این شبکه در جست‌وجوهای DNS باشد.</string>
 </resources>

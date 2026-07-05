@@ -2051,4 +2051,26 @@
     <string name="disappearing_duration_1d">१ दिन</string>
     <string name="disappearing_duration_1w">१ सप्ताह</string>
     <string name="disappearing_duration_4w">४ सप्ताह</string>
+    <string name="connectivity_probe_dialog_title">कनेक्शन डायग्नोस्टिक्स</string>
+    <string name="connectivity_probe_running">जाँच चल रही है…</string>
+    <string name="connectivity_probe_done">जाँच पूरी हुई</string>
+    <string name="connectivity_probe_send_btn">डायग्नोस्टिक्स भेजें</string>
+    <string name="connectivity_probe_close_btn">बंद करें</string>
+    <string name="connectivity_probe_verdict_all_ok">सर्वर तक पहुँचा जा सकता है। अपने खाते या डिवाइस की सेटिंग जाँचें।</string>
+    <string name="connectivity_probe_verdict_no_internet">इस नेटवर्क पर कोई कार्यशील इंटरनेट नहीं है।</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS विषाक्तता का संदेह: सिस्टम DNS अलग-अलग IP लौटा रहा है।</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-आधारित TLS अवरोधन का संदेह: हमारा होस्टनाम अवरुद्ध है।</string>
+    <string name="connectivity_probe_verdict_ip_blocked">इस नेटवर्क पर सर्वर का IP अवरुद्ध है।</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">चैट पोर्ट (5222) अवरुद्ध है। HTTPS अब भी काम कर रहा है।</string>
+    <string name="connectivity_probe_verdict_slow_throttled">सर्वर तक पहुँचा जा सकता है, लेकिन यह नेटवर्क बेहद धीमा है या सीमित (थ्रॉटल्ड) किया गया है — कनेक्शन टाइमआउट हो सकते हैं। फिर से प्रयास करें, या Wi-Fi और मोबाइल डेटा के बीच बदलें।</string>
+    <string name="connectivity_probe_verdict_partial_failure">कुछ जाँचें विफल रहीं। विश्लेषण के लिए रिपोर्ट साझा करें।</string>
+    <string name="connectivity_probe_label_dns">DNS रिज़ॉल्वर</string>
+    <string name="connectivity_probe_label_tcp443">TCP पोर्ट 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">कॉन्फ़िग एंडपॉइंट</string>
+    <string name="connectivity_probe_label_chat">चैट पोर्ट (5222)</string>
+    <string name="connectivity_probe_label_control">इंटरनेट (नियंत्रण)</string>
+    <string name="connectivity_probe_label_hints">अतिरिक्त संकेत</string>
+    <string name="connectivity_probe_hint_middlebox">कनेक्शन तेज़ है, लेकिन एन्क्रिप्टेड हैंडशेक धीमा है — यह संकेत दे सकता है कि कोई ट्रांसपेरेंट प्रॉक्सी या ट्रैफ़िक-शेपिंग डिवाइस इस कनेक्शन में हस्तक्षेप कर रहा है।</string>
+    <string name="connectivity_probe_hint_port53">डिवाइस के DNS ने संदिग्ध रूप से तेज़ी से जवाब दिया जबकि बाकी सब कुछ धीमा था — इसका मतलब हो सकता है कि यह नेटवर्क DNS लुकअप में हस्तक्षेप कर रहा है।</string>
 </resources>

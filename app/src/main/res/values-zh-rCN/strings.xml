@@ -1987,4 +1987,26 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="disappearing_duration_1d">1 天</string>
     <string name="disappearing_duration_1w">1 周</string>
     <string name="disappearing_duration_4w">4 周</string>
+    <string name="connectivity_probe_dialog_title">连接诊断</string>
+    <string name="connectivity_probe_running">正在运行检查…</string>
+    <string name="connectivity_probe_done">检查完成</string>
+    <string name="connectivity_probe_send_btn">发送诊断</string>
+    <string name="connectivity_probe_close_btn">关闭</string>
+    <string name="connectivity_probe_verdict_all_ok">服务器可访问。请检查您的账户或设备设置。</string>
+    <string name="connectivity_probe_verdict_no_internet">此网络上没有可用的互联网连接。</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">疑似 DNS 投毒：系统 DNS 返回了不同的 IP。</string>
+    <string name="connectivity_probe_verdict_sni_blocking">疑似基于 SNI 的 TLS 封锁：我们的主机名被封锁。</string>
+    <string name="connectivity_probe_verdict_ip_blocked">服务器 IP 在此网络上被封锁。</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">聊天端口 (5222) 被封锁。HTTPS 仍可正常使用。</string>
+    <string name="connectivity_probe_verdict_slow_throttled">服务器可以访问，但当前网络严重缓慢或被限速，连接可能会超时。请重试，或在 Wi-Fi 和移动数据之间切换。</string>
+    <string name="connectivity_probe_verdict_partial_failure">部分检查失败。请分享报告以供分析。</string>
+    <string name="connectivity_probe_label_dns">DNS 解析器</string>
+    <string name="connectivity_probe_label_tcp443">TCP 端口 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">配置端点</string>
+    <string name="connectivity_probe_label_chat">聊天端口 (5222)</string>
+    <string name="connectivity_probe_label_control">互联网（对照）</string>
+    <string name="connectivity_probe_label_hints">其他信号</string>
+    <string name="connectivity_probe_hint_middlebox">连接速度很快，但加密握手较慢——这可能表明有透明代理或流量整形设备正在拦截此连接。</string>
+    <string name="connectivity_probe_hint_port53">在其他一切都很慢的情况下，设备的 DNS 响应速度快得可疑——这可能表明该网络正在拦截 DNS 查询。</string>
 </resources>

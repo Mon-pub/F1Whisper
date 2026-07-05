@@ -2074,4 +2074,26 @@
     <string name="disappearing_duration_1d">1 день</string>
     <string name="disappearing_duration_1w">1 тиждень</string>
     <string name="disappearing_duration_4w">4 тижні</string>
+    <string name="connectivity_probe_dialog_title">Діагностика з’єднання</string>
+    <string name="connectivity_probe_running">Виконання перевірок…</string>
+    <string name="connectivity_probe_done">Перевірки завершено</string>
+    <string name="connectivity_probe_send_btn">Надіслати діагностику</string>
+    <string name="connectivity_probe_close_btn">Закрити</string>
+    <string name="connectivity_probe_verdict_all_ok">Сервер доступний. Перевірте налаштування облікового запису або пристрою.</string>
+    <string name="connectivity_probe_verdict_no_internet">У цій мережі немає робочого інтернету.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Підозра на отруєння DNS: системний DNS повертає інші IP-адреси.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Підозра на блокування TLS за SNI: наше ім’я хоста заблоковано.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">IP-адресу сервера заблоковано в цій мережі.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Порт чату (5222) заблоковано. HTTPS усе ще працює.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Сервер доступний, але ця мережа значно повільна або обмежена — з’єднання можуть уриватися через тайм-аут. Спробуйте ще раз або перемкніться між Wi-Fi і мобільним інтернетом.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Деякі перевірки не пройдено. Поділіться звітом для аналізу.</string>
+    <string name="connectivity_probe_label_dns">DNS-резолвери</string>
+    <string name="connectivity_probe_label_tcp443">Порт TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Кінцева точка конфігурації</string>
+    <string name="connectivity_probe_label_chat">Порт чату (5222)</string>
+    <string name="connectivity_probe_label_control">Інтернет (контроль)</string>
+    <string name="connectivity_probe_label_hints">Додаткові ознаки</string>
+    <string name="connectivity_probe_hint_middlebox">З’єднання швидке, але зашифроване рукостискання повільне — це може означати, що з’єднання перехоплює прозорий проксі-сервер або пристрій формування трафіку.</string>
+    <string name="connectivity_probe_hint_port53">DNS пристрою відповів підозріло швидко, тоді як усе інше було повільним — це може означати, що мережа перехоплює DNS-запити.</string>
 </resources>

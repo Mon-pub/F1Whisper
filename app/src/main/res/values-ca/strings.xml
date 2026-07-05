@@ -1465,4 +1465,26 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
     <string name="problemsolver_explain_oem_autostart">Els dispositius %1$s poden impedir que F1Whisper s\'executi en segon pla, cosa que bloqueja les notificacions de missatges encara que l\'optimització de bateria ja estigui desactivada. Obre la guia i permet que F1Whisper s\'iniciï automàticament i s\'executi en segon pla.</string>
     <string name="problemsolver_oem_autostart_action">Obre la guia de configuració</string>
+    <string name="connectivity_probe_dialog_title">Diagnòstic de connexió</string>
+    <string name="connectivity_probe_running">S\'estan fent comprovacions…</string>
+    <string name="connectivity_probe_done">Comprovacions completades</string>
+    <string name="connectivity_probe_send_btn">Envia el diagnòstic</string>
+    <string name="connectivity_probe_close_btn">Tanca</string>
+    <string name="connectivity_probe_verdict_all_ok">El servidor és accessible. Comproveu la configuració del compte o del dispositiu.</string>
+    <string name="connectivity_probe_verdict_no_internet">No hi ha connexió a internet en aquesta xarxa.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Se sospita enverinament de DNS: el DNS del sistema retorna IP diferents.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Se sospita bloqueig de TLS basat en SNI: el nostre nom d\'amfitrió està bloquejat.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">La IP del servidor està bloquejada en aquesta xarxa.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">El port de xat (5222) està bloquejat. HTTPS encara funciona.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">El servidor és accessible, però la xarxa és molt lenta o està limitada; les connexions poden esgotar el temps d\'espera. Torneu-ho a provar o canvieu entre Wi-Fi i dades mòbils.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Algunes comprovacions han fallat. Compartiu l\'informe per analitzar-lo.</string>
+    <string name="connectivity_probe_label_dns">Resolutors DNS</string>
+    <string name="connectivity_probe_label_tcp443">Port TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Punt final de configuració</string>
+    <string name="connectivity_probe_label_chat">Port de xat (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (control)</string>
+    <string name="connectivity_probe_label_hints">Senyals addicionals</string>
+    <string name="connectivity_probe_hint_middlebox">Connexió ràpida però encaixada de mans xifrada lenta: és possible que un servidor intermediari transparent o un dispositiu de modelatge de trànsit estigui interceptant aquesta connexió.</string>
+    <string name="connectivity_probe_hint_port53">El DNS del dispositiu ha respost sospitosament ràpid mentre tota la resta anava lenta: és possible que aquesta xarxa estigui interceptant les consultes DNS.</string>
 </resources>

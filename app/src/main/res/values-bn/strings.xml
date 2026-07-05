@@ -2040,4 +2040,26 @@
     <string name="disappearing_duration_1d">১ দিন</string>
     <string name="disappearing_duration_1w">১ সপ্তাহ</string>
     <string name="disappearing_duration_4w">৪ সপ্তাহ</string>
+    <string name="connectivity_probe_dialog_title">সংযোগ ডায়াগনস্টিকস</string>
+    <string name="connectivity_probe_running">পরীক্ষা চলছে…</string>
+    <string name="connectivity_probe_done">পরীক্ষা সম্পন্ন হয়েছে</string>
+    <string name="connectivity_probe_send_btn">ডায়াগনস্টিকস পাঠান</string>
+    <string name="connectivity_probe_close_btn">বন্ধ করুন</string>
+    <string name="connectivity_probe_verdict_all_ok">সার্ভারে পৌঁছানো যাচ্ছে। আপনার অ্যাকাউন্ট বা ডিভাইসের সেটিংস দেখুন।</string>
+    <string name="connectivity_probe_verdict_no_internet">এই নেটওয়ার্কে কোনো কার্যকর ইন্টারনেট নেই।</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS বিষক্রিয়ার সন্দেহ: সিস্টেম DNS ভিন্ন IP ফেরত দিচ্ছে।</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-ভিত্তিক TLS ব্লকিংয়ের সন্দেহ: আমাদের হোস্টনেম ব্লক করা হয়েছে।</string>
+    <string name="connectivity_probe_verdict_ip_blocked">এই নেটওয়ার্কে সার্ভারের IP ব্লক করা হয়েছে।</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">চ্যাট পোর্ট (5222) ব্লক করা হয়েছে। HTTPS এখনও কাজ করছে।</string>
+    <string name="connectivity_probe_verdict_slow_throttled">সার্ভার নাগালযোগ্য, তবে নেটওয়ার্কটি খুবই ধীর অথবা থ্রটল করা হচ্ছে — সংযোগ টাইমআউট হতে পারে। আবার চেষ্টা করুন, অথবা Wi-Fi ও মোবাইল ডেটার মধ্যে পরিবর্তন করুন।</string>
+    <string name="connectivity_probe_verdict_partial_failure">কিছু পরীক্ষা ব্যর্থ হয়েছে। বিশ্লেষণের জন্য রিপোর্টটি শেয়ার করুন।</string>
+    <string name="connectivity_probe_label_dns">DNS রিজলভার</string>
+    <string name="connectivity_probe_label_tcp443">TCP পোর্ট 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">কনফিগ এন্ডপয়েন্ট</string>
+    <string name="connectivity_probe_label_chat">চ্যাট পোর্ট (5222)</string>
+    <string name="connectivity_probe_label_control">ইন্টারনেট (নিয়ন্ত্রণ)</string>
+    <string name="connectivity_probe_label_hints">অতিরিক্ত সংকেত</string>
+    <string name="connectivity_probe_hint_middlebox">সংযোগ দ্রুত, কিন্তু এনক্রিপ্টেড হ্যান্ডশেক ধীর — এটি ইঙ্গিত করতে পারে যে একটি ট্রান্সপারেন্ট প্রক্সি বা ট্রাফিক-শেপিং ডিভাইস এই সংযোগে হস্তক্ষেপ করছে।</string>
+    <string name="connectivity_probe_hint_port53">ডিভাইসের DNS সন্দেহজনকভাবে দ্রুত সাড়া দিয়েছে যখন বাকি সবকিছু ধীর ছিল — এর মানে হতে পারে এই নেটওয়ার্ক DNS অনুসন্ধানে হস্তক্ষেপ করছে।</string>
 </resources>

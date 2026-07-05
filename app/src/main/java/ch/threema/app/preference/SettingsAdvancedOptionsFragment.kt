@@ -41,6 +41,7 @@ import ch.threema.app.activities.DisableBatteryOptimizationsActivity
 import ch.threema.app.asynctasks.SendToSupportBackgroundTask
 import ch.threema.app.asynctasks.SendToSupportResult
 import ch.threema.app.dev.hasDevFeatures
+import ch.threema.app.diagnostics.ConnectivityDiagnosticsDialog
 import ch.threema.app.dialogs.CancelableHorizontalProgressDialog
 import ch.threema.app.dialogs.GenericAlertDialog
 import ch.threema.app.dialogs.GenericAlertDialog.DialogClickListener
@@ -261,29 +262,75 @@ class SettingsAdvancedOptionsFragment :
             }
         }
 
-        // F1Whisper: one-tap connection & notification diagnostics export. Independent of the debug
-        // log toggle (it snapshots live runtime state), so it stays enabled at all times. The report
-        // is zipped exactly like the debug-log export and shared via the same flow.
+        // F1Whisper: connection & notification diagnostics entry. On OnPrem builds this becomes the
+        // active connectivity troubleshooter — it runs a battery of network probes (multi-resolver
+        // DNS, TCP, TLS+SNI, HTTPS, chat 5222) against the cached OPPF hosts, shows a heuristic
+        // verdict, and lets the user share the report. This is DIAGNOSIS ONLY (no circumvention). On
+        // non-OnPrem builds (no OPPF host) it falls back to the passive one-tap snapshot export.
         connectionDiagnosticsPreference.onClick {
-            logger.info("Preparing connection diagnostics")
-            lifecycleScope.launch {
-                GenericProgressDialog.newInstance(R.string.preparing_messages, R.string.please_wait)
-                    .show(parentFragmentManager, DIALOG_TAG_SHARE_LOG)
-                try {
-                    val zipFile = ExportConnectionDiagnosticsUseCase(
-                        requireContext().applicationContext,
-                        dispatcherProvider,
-                        sharedPreferences,
-                        preferenceService,
-                        timeProvider,
-                    ).call()
-                    ShareUtil.shareFile(requireContext(), zipFile, "connection_diagnostics.zip", "application/zip")
-                } catch (e: Exception) {
-                    showToast(R.string.an_error_occurred)
-                    logger.error("Failed to export connection diagnostics", e)
-                } finally {
-                    DialogUtil.dismissDialog(parentFragmentManager, DIALOG_TAG_SHARE_LOG, true)
-                }
+            if (BuildFlavor.current.isOnPrem) {
+                showConnectivityTroubleshooter()
+            } else {
+                exportPassiveConnectionDiagnostics()
+            }
+        }
+    }
+
+    /**
+     * F1Whisper: launch the active connectivity troubleshooter dialog against the cached OPPF host.
+     * The dialog resolves the cached & verified OnPrem config at runtime for the real chat/dir/blob
+     * hosts (falling back to hosts derived from the OPPF host when no cached config is available).
+     */
+    private fun showConnectivityTroubleshooter() {
+        logger.info("Launching connectivity troubleshooter")
+        val oppfHost = extractOppfHost()
+        if (oppfHost == null) {
+            // No OPPF URL configured yet — nothing to probe; fall back to the passive snapshot.
+            exportPassiveConnectionDiagnostics()
+            return
+        }
+        ConnectivityDiagnosticsDialog.newInstance(host = oppfHost, useCachedConfig = true)
+            .show(parentFragmentManager, ConnectivityDiagnosticsDialog.DIALOG_TAG)
+    }
+
+    /**
+     * Derive the bare OPPF host from the stored OPPF URL (e.g.
+     * `https://thm.f1tech.info/prov/config.oppf` -> `thm.f1tech.info`). Returns null when no URL is
+     * stored or it cannot be parsed.
+     */
+    private fun extractOppfHost(): String? = try {
+        preferenceService.getOppfUrl()
+            ?.let { java.net.URL(it).host }
+            ?.takeIf { it.isNotBlank() }
+    } catch (e: Exception) {
+        logger.warn("Could not derive OPPF host for connectivity troubleshooter", e)
+        null
+    }
+
+    /**
+     * F1Whisper: one-tap connection & notification diagnostics export. Independent of the debug log
+     * toggle (it snapshots live runtime state), so it stays enabled at all times. The report is
+     * zipped exactly like the debug-log export and shared via the same flow.
+     */
+    private fun exportPassiveConnectionDiagnostics() {
+        logger.info("Preparing connection diagnostics")
+        lifecycleScope.launch {
+            GenericProgressDialog.newInstance(R.string.preparing_messages, R.string.please_wait)
+                .show(parentFragmentManager, DIALOG_TAG_SHARE_LOG)
+            try {
+                val zipFile = ExportConnectionDiagnosticsUseCase(
+                    requireContext().applicationContext,
+                    dispatcherProvider,
+                    sharedPreferences,
+                    preferenceService,
+                    timeProvider,
+                ).call()
+                ShareUtil.shareFile(requireContext(), zipFile, "connection_diagnostics.zip", "application/zip")
+            } catch (e: Exception) {
+                showToast(R.string.an_error_occurred)
+                logger.error("Failed to export connection diagnostics", e)
+            } finally {
+                DialogUtil.dismissDialog(parentFragmentManager, DIALOG_TAG_SHARE_LOG, true)
             }
         }
     }

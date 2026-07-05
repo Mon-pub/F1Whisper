@@ -36,6 +36,7 @@ import ch.threema.app.BuildConfig;
 import ch.threema.app.R;
 import ch.threema.app.activities.wizard.components.WizardButtonXml;
 import ch.threema.app.di.DependencyContainer;
+import ch.threema.app.diagnostics.ConnectivityDiagnosticsDialog;
 import ch.threema.app.dialogs.GenericProgressDialog;
 import ch.threema.app.restrictions.AppRestrictionService;
 import ch.threema.app.services.license.LicenseService;
@@ -679,9 +680,56 @@ public class EnterSerialActivity extends ThreemaActivity {
                     ConfigUtils.recreateActivity(EnterSerialActivity.this);
                 } else {
                     changeState(error);
+                    // F1Whisper: on an OnPrem setup failure (typically "Failed to fetch OnPrem
+                    // config" — the OPPF fetch is blocked/censored), offer the connectivity
+                    // troubleshooter so the user can diagnose and share what is blocking the path.
+                    // Pre-auth: no identity yet, so the dialog derives ancillary hosts from the
+                    // entered host (no cached config).
+                    if (ConfigUtils.isOnPremBuild()) {
+                        offerConnectivityTroubleshooter(onPremServer);
+                    }
                 }
             }
         }.execute();
+    }
+
+    /**
+     * F1Whisper: prompt the user to run the connectivity troubleshooter after an OnPrem setup
+     * failure, then launch {@link ConnectivityDiagnosticsDialog} against the entered server host.
+     * Guarded so a missing/blank host silently skips the offer (nothing to probe).
+     */
+    private void offerConnectivityTroubleshooter(@Nullable String onPremServer) {
+        final String host = extractProbeHost(onPremServer);
+        if (host == null) {
+            return;
+        }
+        new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.connectivity_probe_dialog_title)
+            .setMessage(R.string.connectivity_probe_verdict_partial_failure)
+            .setPositiveButton(R.string.connectivity_probe_dialog_title, (dialog, which) ->
+                ConnectivityDiagnosticsDialog.show(getSupportFragmentManager(), host, false))
+            .setNegativeButton(R.string.close, null)
+            .show();
+    }
+
+    /**
+     * Derive the bare host to probe from the entered server value (e.g. "thm.f1tech.info",
+     * "https://thm.f1tech.info" or a full ".../prov/config.oppf" URL all collapse to
+     * "thm.f1tech.info"). Returns null when no usable host can be derived.
+     */
+    @Nullable
+    private String extractProbeHost(@Nullable String onPremServer) {
+        if (onPremServer == null || onPremServer.isBlank()) {
+            return null;
+        }
+        try {
+            final String oppfUrl = getUrlToOppf(onPremServer);
+            final String host = Uri.parse(oppfUrl).getHost();
+            return (host != null && !host.isBlank()) ? host : null;
+        } catch (Exception e) {
+            logger.warn("Could not derive probe host from server input", e);
+            return null;
+        }
     }
 
     /**

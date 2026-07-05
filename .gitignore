@@ -31,3 +31,6 @@ keystore.properties
 keystore/
 .claude/worktrees/
 test-apks/
+
+# Local agent plans/notes (never publish)
+.claude/

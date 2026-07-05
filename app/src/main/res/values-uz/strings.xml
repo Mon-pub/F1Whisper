@@ -2039,4 +2039,26 @@
     <string name="disappearing_duration_1d">1 kun</string>
     <string name="disappearing_duration_1w">1 hafta</string>
     <string name="disappearing_duration_4w">4 hafta</string>
+    <string name="connectivity_probe_dialog_title">Ulanish diagnostikasi</string>
+    <string name="connectivity_probe_running">Tekshiruvlar bajarilmoqda…</string>
+    <string name="connectivity_probe_done">Tekshiruvlar yakunlandi</string>
+    <string name="connectivity_probe_send_btn">Diagnostikani yuborish</string>
+    <string name="connectivity_probe_close_btn">Yopish</string>
+    <string name="connectivity_probe_verdict_all_ok">Server mavjud. Hisob yoki qurilma sozlamalaringizni tekshiring.</string>
+    <string name="connectivity_probe_verdict_no_internet">Bu tarmoqda ishlaydigan internet yo‘q.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS zaharlanishiga shubha: tizim DNS boshqa IP’larni qaytarmoqda.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI asosidagi TLS bloklashga shubha: xost nomimiz bloklangan.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Server IP’si bu tarmoqda bloklangan.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chat porti (5222) bloklangan. HTTPS hali ham ishlaydi.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Serverga ulanish mumkin, ammo bu tarmoq juda sekin yoki cheklangan (throttled) — ulanishlar vaqti tugashi mumkin. Qayta urinib ko‘ring yoki Wi-Fi va mobil internet o‘rtasida almashtiring.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Ba’zi tekshiruvlar muvaffaqiyatsiz tugadi. Tahlil uchun hisobotni ulashing.</string>
+    <string name="connectivity_probe_label_dns">DNS hal qiluvchilari</string>
+    <string name="connectivity_probe_label_tcp443">TCP port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Konfiguratsiya so‘nggi nuqtasi</string>
+    <string name="connectivity_probe_label_chat">Chat porti (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (nazorat)</string>
+    <string name="connectivity_probe_label_hints">Qo‘shimcha signallar</string>
+    <string name="connectivity_probe_hint_middlebox">Ulanish tez, ammo shifrlangan handshake sekin — bu ulanishga shaffof proksi yoki trafikni shakllantiruvchi qurilma aralashayotganidan darak berishi mumkin.</string>
+    <string name="connectivity_probe_hint_port53">Qurilmaning DNS so‘rovi shubhali darajada tez javob berdi, holbuki hamma narsa sekin edi — bu tarmoq DNS so‘rovlariga aralashayotganini bildirishi mumkin.</string>
 </resources>

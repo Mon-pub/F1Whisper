@@ -2002,4 +2002,26 @@
     <string name="disappearing_duration_1d">۱ دن</string>
     <string name="disappearing_duration_1w">۱ ہفتہ</string>
     <string name="disappearing_duration_4w">۴ ہفتے</string>
+    <string name="connectivity_probe_dialog_title">کنکشن کی تشخیص</string>
+    <string name="connectivity_probe_running">جانچ جاری ہے…</string>
+    <string name="connectivity_probe_done">جانچ مکمل ہوئی</string>
+    <string name="connectivity_probe_send_btn">تشخیص بھیجیں</string>
+    <string name="connectivity_probe_close_btn">بند کریں</string>
+    <string name="connectivity_probe_verdict_all_ok">سرور تک رسائی ممکن ہے۔ اپنے اکاؤنٹ یا آلے کی ترتیبات دیکھیں۔</string>
+    <string name="connectivity_probe_verdict_no_internet">اس نیٹ ورک پر کوئی کام کرنے والا انٹرنیٹ نہیں ہے۔</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS زہر آلودگی کا شبہ: سسٹم DNS مختلف IP لوٹا رہا ہے۔</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI پر مبنی TLS بلاکنگ کا شبہ: ہمارا ہوسٹ نام بلاک ہے۔</string>
+    <string name="connectivity_probe_verdict_ip_blocked">اس نیٹ ورک پر سرور کا IP بلاک ہے۔</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">چیٹ پورٹ (5222) بلاک ہے۔ HTTPS اب بھی کام کر رہا ہے۔</string>
+    <string name="connectivity_probe_verdict_slow_throttled">سرور تک رسائی ممکن ہے، لیکن یہ نیٹ ورک بہت سست ہے یا محدود (تھروٹلڈ) کیا گیا ہے — کنکشن ٹائم آؤٹ ہو سکتے ہیں۔ دوبارہ کوشش کریں، یا Wi-Fi اور موبائل ڈیٹا کے درمیان تبدیل کریں۔</string>
+    <string name="connectivity_probe_verdict_partial_failure">کچھ جانچیں ناکام رہیں۔ تجزیے کے لیے رپورٹ شیئر کریں۔</string>
+    <string name="connectivity_probe_label_dns">DNS ریزولورز</string>
+    <string name="connectivity_probe_label_tcp443">TCP پورٹ 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">کنفیگ اینڈ پوائنٹ</string>
+    <string name="connectivity_probe_label_chat">چیٹ پورٹ (5222)</string>
+    <string name="connectivity_probe_label_control">انٹرنیٹ (کنٹرول)</string>
+    <string name="connectivity_probe_label_hints">اضافی اشارے</string>
+    <string name="connectivity_probe_hint_middlebox">کنکشن تیز ہے، لیکن خفیہ کردہ (اینکرپٹڈ) ہینڈ شیک سست ہے — یہ ظاہر کر سکتا ہے کہ ایک شفاف پراکسی یا ٹریفک شیپنگ ڈیوائس اس کنکشن میں مداخلت کر رہی ہے۔</string>
+    <string name="connectivity_probe_hint_port53">ڈیوائس کے DNS نے مشکوک حد تک تیزی سے جواب دیا جبکہ باقی سب کچھ سست تھا — اس کا مطلب یہ ہو سکتا ہے کہ یہ نیٹ ورک DNS تلاش میں مداخلت کر رہا ہے۔</string>
 </resources>

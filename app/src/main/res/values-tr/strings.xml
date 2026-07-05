@@ -1989,4 +1989,26 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="disappearing_duration_1d">1 gün</string>
     <string name="disappearing_duration_1w">1 hafta</string>
     <string name="disappearing_duration_4w">4 hafta</string>
+    <string name="connectivity_probe_dialog_title">Bağlantı tanılaması</string>
+    <string name="connectivity_probe_running">Denetimler çalışıyor…</string>
+    <string name="connectivity_probe_done">Denetimler tamamlandı</string>
+    <string name="connectivity_probe_send_btn">Tanılamayı gönder</string>
+    <string name="connectivity_probe_close_btn">Kapat</string>
+    <string name="connectivity_probe_verdict_all_ok">Sunucuya erişilebiliyor. Hesap veya cihaz ayarlarınızı kontrol edin.</string>
+    <string name="connectivity_probe_verdict_no_internet">Bu ağda çalışan bir internet yok.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS zehirlenmesi şüphesi: sistem DNS\'i farklı IP\'ler döndürüyor.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI tabanlı TLS engelleme şüphesi: ana bilgisayar adımız engellendi.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Sunucu IP\'si bu ağda engellendi.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Sohbet bağlantı noktası (5222) engellendi. HTTPS hâlâ çalışıyor.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Sunucuya erişilebiliyor ancak bu ağ ciddi şekilde yavaş veya kısıtlanmış — bağlantılar zaman aşımına uğrayabilir. Tekrar deneyin veya Wi-Fi ile mobil veri arasında geçiş yapın.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Bazı denetimler başarısız oldu. Analiz için raporu paylaşın.</string>
+    <string name="connectivity_probe_label_dns">DNS çözümleyicileri</string>
+    <string name="connectivity_probe_label_tcp443">TCP bağlantı noktası 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Yapılandırma uç noktası</string>
+    <string name="connectivity_probe_label_chat">Sohbet bağlantı noktası (5222)</string>
+    <string name="connectivity_probe_label_control">İnternet (kontrol)</string>
+    <string name="connectivity_probe_label_hints">Ek sinyaller</string>
+    <string name="connectivity_probe_hint_middlebox">Bağlantı hızlı ama şifreli el sıkışma yavaş — bu, bir şeffaf proxy\'nin veya trafik şekillendirme cihazının bu bağlantıya müdahale ettiğini gösterebilir.</string>
+    <string name="connectivity_probe_hint_port53">Her şey yavaşken cihazın DNS\'i şüphe uyandıracak kadar hızlı yanıt verdi — bu ağ, DNS sorgularına müdahale ediyor olabilir.</string>
 </resources>

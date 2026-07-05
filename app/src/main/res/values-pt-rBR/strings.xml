@@ -1971,4 +1971,26 @@ Por favor, insira uma pergunta para a sua enquete.</string>
     <string name="disappearing_duration_1d">1 dia</string>
     <string name="disappearing_duration_1w">1 semana</string>
     <string name="disappearing_duration_4w">4 semanas</string>
+    <string name="connectivity_probe_dialog_title">Diagnóstico de conexão</string>
+    <string name="connectivity_probe_running">Executando verificações…</string>
+    <string name="connectivity_probe_done">Verificações concluídas</string>
+    <string name="connectivity_probe_send_btn">Enviar diagnóstico</string>
+    <string name="connectivity_probe_close_btn">Fechar</string>
+    <string name="connectivity_probe_verdict_all_ok">O servidor está acessível. Verifique as configurações da sua conta ou dispositivo.</string>
+    <string name="connectivity_probe_verdict_no_internet">Não há internet funcionando nesta rede.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Suspeita de envenenamento de DNS: o DNS do sistema retorna IPs diferentes.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Suspeita de bloqueio de TLS baseado em SNI: nosso nome de host está bloqueado.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">O IP do servidor está bloqueado nesta rede.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">A porta de chat (5222) está bloqueada. O HTTPS ainda funciona.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">O servidor está acessível, mas a rede está extremamente lenta ou limitada — as conexões podem expirar. Tente novamente ou alterne entre Wi-Fi e dados móveis.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Algumas verificações falharam. Compartilhe o relatório para análise.</string>
+    <string name="connectivity_probe_label_dns">Resolvedores DNS</string>
+    <string name="connectivity_probe_label_tcp443">Porta TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Endpoint de configuração</string>
+    <string name="connectivity_probe_label_chat">Porta de chat (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (controle)</string>
+    <string name="connectivity_probe_label_hints">Sinais adicionais</string>
+    <string name="connectivity_probe_hint_middlebox">Conexão rápida, mas handshake criptografado lento — um proxy transparente ou um dispositivo de modelagem de tráfego pode estar interceptando esta conexão.</string>
+    <string name="connectivity_probe_hint_port53">O DNS do dispositivo respondeu suspeitosamente rápido enquanto tudo o mais estava lento — esta rede pode estar interceptando consultas DNS.</string>
 </resources>

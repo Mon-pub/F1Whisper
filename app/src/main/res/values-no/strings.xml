@@ -1707,4 +1707,26 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="disappearing_duration_1d">1 dag</string>
     <string name="disappearing_duration_1w">1 uke</string>
     <string name="disappearing_duration_4w">4 uker</string>
+    <string name="connectivity_probe_dialog_title">Tilkoblingsdiagnostikk</string>
+    <string name="connectivity_probe_running">Kjører kontroller…</string>
+    <string name="connectivity_probe_done">Kontroller fullført</string>
+    <string name="connectivity_probe_send_btn">Send diagnostikk</string>
+    <string name="connectivity_probe_close_btn">Lukk</string>
+    <string name="connectivity_probe_verdict_all_ok">Serveren er tilgjengelig. Sjekk konto- eller enhetsinnstillingene dine.</string>
+    <string name="connectivity_probe_verdict_no_internet">Ingen fungerende internett på dette nettverket.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Mistanke om DNS-forgiftning: system-DNS returnerer andre IP-er.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Mistanke om SNI-basert TLS-blokkering: vertsnavnet vårt er blokkert.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Server-IP-en er blokkert på dette nettverket.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chatport (5222) er blokkert. HTTPS fungerer fortsatt.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Serveren er tilgjengelig, men nettverkstilkoblingen er svært treg eller strupet — tilkoblinger kan derfor tidsavbrytes. Prøv igjen, eller bytt mellom Wi-Fi og mobildata.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Noen kontroller mislyktes. Del rapporten for analyse.</string>
+    <string name="connectivity_probe_label_dns">DNS-oppslag</string>
+    <string name="connectivity_probe_label_tcp443">TCP-port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Konfigurasjonsendepunkt</string>
+    <string name="connectivity_probe_label_chat">Chatport (5222)</string>
+    <string name="connectivity_probe_label_control">Internett (kontroll)</string>
+    <string name="connectivity_probe_label_hints">Flere indikatorer</string>
+    <string name="connectivity_probe_hint_middlebox">Rask tilkobling, men treg kryptert håndtrykk — en transparent proxy eller en enhet for trafikkstrupning kan avskjære denne tilkoblingen.</string>
+    <string name="connectivity_probe_hint_port53">Enhetens DNS-oppslag svarte mistenkelig raskt mens alt annet var tregt — dette nettverket kan avskjære DNS-oppslag.</string>
 </resources>

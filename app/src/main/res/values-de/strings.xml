@@ -2022,4 +2022,26 @@
     <string name="disappearing_duration_1d">1 Tag</string>
     <string name="disappearing_duration_1w">1 Woche</string>
     <string name="disappearing_duration_4w">4 Wochen</string>
+    <string name="connectivity_probe_dialog_title">Verbindungsdiagnose</string>
+    <string name="connectivity_probe_running">Prüfungen laufen…</string>
+    <string name="connectivity_probe_done">Prüfungen abgeschlossen</string>
+    <string name="connectivity_probe_send_btn">Diagnose senden</string>
+    <string name="connectivity_probe_close_btn">Schließen</string>
+    <string name="connectivity_probe_verdict_all_ok">Server ist erreichbar. Überprüfe deine Konto- oder Geräteeinstellungen.</string>
+    <string name="connectivity_probe_verdict_no_internet">In diesem Netzwerk funktioniert das Internet nicht.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS-Vergiftung vermutet: Das System-DNS liefert unterschiedliche IPs.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-basierte TLS-Blockierung vermutet: Unser Hostname wird blockiert.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Die Server-IP ist in diesem Netzwerk blockiert.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chat-Port (5222) ist blockiert. HTTPS funktioniert weiterhin.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server ist erreichbar, aber das Netzwerk ist stark verlangsamt oder gedrosselt – Verbindungen können in ein Zeitlimit laufen. Versuche es erneut oder wechsle zwischen WLAN und Mobilfunk.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Einige Prüfungen sind fehlgeschlagen. Teile den Bericht zur Analyse.</string>
+    <string name="connectivity_probe_label_dns">DNS-Resolver</string>
+    <string name="connectivity_probe_label_tcp443">TCP-Port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Konfigurations-Endpunkt</string>
+    <string name="connectivity_probe_label_chat">Chat-Port (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (Kontrolle)</string>
+    <string name="connectivity_probe_label_hints">Weitere Hinweise</string>
+    <string name="connectivity_probe_hint_middlebox">Schnelle Verbindung, aber langsamer verschlüsselter Handshake – möglicherweise fängt ein transparenter Proxy oder ein Traffic-Shaping-Gerät diese Verbindung ab.</string>
+    <string name="connectivity_probe_hint_port53">Das DNS des Geräts hat verdächtig schnell geantwortet, während alles andere langsam war – möglicherweise fängt dieses Netzwerk DNS-Anfragen ab.</string>
 </resources>

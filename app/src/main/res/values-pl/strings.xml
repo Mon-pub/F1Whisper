@@ -2032,4 +2032,26 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="disappearing_duration_1d">1 dzień</string>
     <string name="disappearing_duration_1w">1 tydzień</string>
     <string name="disappearing_duration_4w">4 tygodnie</string>
+    <string name="connectivity_probe_dialog_title">Diagnostyka połączenia</string>
+    <string name="connectivity_probe_running">Trwają kontrole…</string>
+    <string name="connectivity_probe_done">Kontrole zakończone</string>
+    <string name="connectivity_probe_send_btn">Wyślij diagnostykę</string>
+    <string name="connectivity_probe_close_btn">Zamknij</string>
+    <string name="connectivity_probe_verdict_all_ok">Serwer jest osiągalny. Sprawdź ustawienia konta lub urządzenia.</string>
+    <string name="connectivity_probe_verdict_no_internet">Brak działającego internetu w tej sieci.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Podejrzenie zatrucia DNS: systemowy DNS zwraca różne adresy IP.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Podejrzenie blokowania TLS na podstawie SNI: nasza nazwa hosta jest zablokowana.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Adres IP serwera jest zablokowany w tej sieci.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Port czatu (5222) jest zablokowany. HTTPS nadal działa.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Serwer jest osiągalny, ale połączenie sieciowe jest bardzo wolne lub ograniczane — połączenia mogą przez to przekraczać limit czasu. Spróbuj ponownie albo przełącz się między Wi-Fi a danymi komórkowymi.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Niektóre kontrole nie powiodły się. Udostępnij raport do analizy.</string>
+    <string name="connectivity_probe_label_dns">Resolwery DNS</string>
+    <string name="connectivity_probe_label_tcp443">Port TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Punkt końcowy konfiguracji</string>
+    <string name="connectivity_probe_label_chat">Port czatu (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (kontrola)</string>
+    <string name="connectivity_probe_label_hints">Dodatkowe wskazówki</string>
+    <string name="connectivity_probe_hint_middlebox">Szybkie połączenie, ale wolne szyfrowane uzgadnianie (handshake) — możliwe, że to połączenie przechwytuje przezroczyste proxy lub urządzenie ograniczające ruch (traffic shaping).</string>
+    <string name="connectivity_probe_hint_port53">Zapytanie DNS urządzenia zostało obsłużone podejrzanie szybko, podczas gdy wszystko inne działało wolno — ta sieć może przechwytywać zapytania DNS.</string>
 </resources>

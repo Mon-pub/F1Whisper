@@ -1992,4 +1992,26 @@ Veuillez saisir une question pour votre enquête.</string>
     <string name="disappearing_duration_1d">1 jour</string>
     <string name="disappearing_duration_1w">1 semaine</string>
     <string name="disappearing_duration_4w">4 semaines</string>
+    <string name="connectivity_probe_dialog_title">Diagnostic de connexion</string>
+    <string name="connectivity_probe_running">Vérifications en cours…</string>
+    <string name="connectivity_probe_done">Vérifications terminées</string>
+    <string name="connectivity_probe_send_btn">Envoyer le diagnostic</string>
+    <string name="connectivity_probe_close_btn">Fermer</string>
+    <string name="connectivity_probe_verdict_all_ok">Le serveur est accessible. Vérifiez les paramètres de votre compte ou de votre appareil.</string>
+    <string name="connectivity_probe_verdict_no_internet">Aucune connexion internet ne fonctionne sur ce réseau.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Empoisonnement DNS suspecté : le DNS système renvoie des IP différentes.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Blocage TLS basé sur SNI suspecté : notre nom d\'hôte est bloqué.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">L\'IP du serveur est bloquée sur ce réseau.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Le port de chat (5222) est bloqué. HTTPS fonctionne toujours.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Le serveur est joignable, mais le réseau est très lent ou bridé : les connexions risquent d\'expirer. Réessayez, ou basculez entre le Wi-Fi et les données mobiles.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Certaines vérifications ont échoué. Partagez le rapport pour analyse.</string>
+    <string name="connectivity_probe_label_dns">Résolveurs DNS</string>
+    <string name="connectivity_probe_label_tcp443">Port TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Point de terminaison de configuration</string>
+    <string name="connectivity_probe_label_chat">Port de chat (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (contrôle)</string>
+    <string name="connectivity_probe_label_hints">Signaux supplémentaires</string>
+    <string name="connectivity_probe_hint_middlebox">Connexion rapide mais négociation chiffrée lente : un proxy transparent ou un dispositif de mise en forme du trafic pourrait intercepter cette connexion.</string>
+    <string name="connectivity_probe_hint_port53">Le DNS de l\'appareil a répondu étrangement vite alors que tout le reste était lent : ce réseau pourrait intercepter les requêtes DNS.</string>
 </resources>

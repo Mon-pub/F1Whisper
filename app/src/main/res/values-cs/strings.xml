@@ -2038,4 +2038,26 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="disappearing_duration_1d">1 den</string>
     <string name="disappearing_duration_1w">1 týden</string>
     <string name="disappearing_duration_4w">4 týdny</string>
+    <string name="connectivity_probe_dialog_title">Diagnostika připojení</string>
+    <string name="connectivity_probe_running">Probíhají kontroly…</string>
+    <string name="connectivity_probe_done">Kontroly dokončeny</string>
+    <string name="connectivity_probe_send_btn">Odeslat diagnostiku</string>
+    <string name="connectivity_probe_close_btn">Zavřít</string>
+    <string name="connectivity_probe_verdict_all_ok">Server je dostupný. Zkontrolujte nastavení účtu nebo zařízení.</string>
+    <string name="connectivity_probe_verdict_no_internet">V této síti nefunguje internet.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Podezření na otravu DNS: systémový DNS vrací jiné IP adresy.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Podezření na blokování TLS podle SNI: náš název hostitele je blokován.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">IP adresa serveru je v této síti blokována.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Port chatu (5222) je blokován. HTTPS stále funguje.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server je dostupný, ale síť je velmi pomalá nebo omezená – spojení mohou vypršet. Zkuste to znovu, nebo přepněte mezi Wi-Fi a mobilními daty.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Některé kontroly selhaly. Sdílejte zprávu k analýze.</string>
+    <string name="connectivity_probe_label_dns">Překladače DNS</string>
+    <string name="connectivity_probe_label_tcp443">Port TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Koncový bod konfigurace</string>
+    <string name="connectivity_probe_label_chat">Port chatu (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (kontrola)</string>
+    <string name="connectivity_probe_label_hints">Další signály</string>
+    <string name="connectivity_probe_hint_middlebox">Rychlé připojení, ale pomalé šifrované handshake – toto připojení může odposlouchávat transparentní proxy nebo zařízení pro tvarování provozu.</string>
+    <string name="connectivity_probe_hint_port53">DNS zařízení odpovědělo podezřele rychle, zatímco vše ostatní bylo pomalé – tato síť může zachytávat DNS dotazy.</string>
 </resources>

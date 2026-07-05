@@ -2,11 +2,13 @@ package ch.threema.app.di.modules
 
 import ch.threema.app.dev.hasDevFeatures
 import ch.threema.app.di.Qualifiers
+import ch.threema.app.net.DotPreferredResolver
 import ch.threema.app.onprem.OnPremCertPinning
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.domain.protocol.csp.ProtocolDefines
 import kotlin.time.Duration.Companion.seconds
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
@@ -33,6 +35,9 @@ private fun buildBaseOkHttpClient(): OkHttpClient =
             connectTimeout(ProtocolDefines.CONNECT_TIMEOUT.seconds)
             writeTimeout(ProtocolDefines.WRITE_TIMEOUT.seconds)
             readTimeout(ProtocolDefines.READ_TIMEOUT.seconds)
+            // Resolve names DoT-first (plain DNS is hijacked on the target networks). The
+            // OPPF/directory/blob clients all derive from this base client, so they inherit it.
+            dns(Dns { hostname -> DotPreferredResolver.resolve(hostname) })
             if (hasDevFeatures()) {
                 val interceptor = HttpLoggingInterceptor(logger::debug)
                 interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC)

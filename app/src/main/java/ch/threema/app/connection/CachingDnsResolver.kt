@@ -1,6 +1,7 @@
 package ch.threema.app.connection
 
 import ch.threema.app.ThreemaApplication
+import ch.threema.app.net.DotPreferredResolver
 import ch.threema.base.utils.AsyncResolver
 import ch.threema.base.utils.getThreemaLogger
 import java.net.InetAddress
@@ -49,12 +50,37 @@ object CachingDnsResolver {
 
     /**
      * Drop-in replacement for [AsyncResolver.getAllByName] (same signature, used as the CSP
-     * connection's resolver). Resolves live; on success refreshes the per-host cache; on failure
-     * returns the cached address(es) if any, otherwise rethrows the original failure.
+     * connection's resolver).
+     *
+     * Resolution order (F1Whisper): [DotPreferredResolver] (the system resolver on the FAST path,
+     * with a NON-BLOCKING background DoT check that refreshes this last-good-IP cache and a
+     * synchronous DoT fallback only when the system resolver fails) -> then the ORIGINAL behaviour
+     * unchanged: live [AsyncResolver.getAllByName] (refreshing the cache on success), and on its
+     * failure the cached address(es) if any, otherwise rethrow the original failure.
+     *
+     * DoT never blocks the fast path; it is a background verifier + a fallback (plain DNS is hijacked
+     * on the censored networks this build targets, so a poisoned first answer self-heals on the next
+     * reconnect once the background check has corrected the cache).
      */
     @JvmStatic
     @Throws(Exception::class)
     fun getAllByName(host: String): Array<InetAddress> {
+        // System-resolver fast path with a non-blocking background DoT check (DotPreferredResolver
+        // does NOT call back here — no recursion — it uses the system resolver and the pinned DoT
+        // server directly). A successful resolve warms the last-good cache so a later Doze reconnect
+        // can reuse the IP by literal.
+        try {
+            val resolved = DotPreferredResolver.resolve(host)
+            if (resolved.isNotEmpty()) {
+                val addrs = resolved.toTypedArray()
+                persist(host, addrs)
+                lastResolveFromCache = false
+                return addrs
+            }
+        } catch (e: Exception) {
+            logger.debug("Resolve failed for {}: {}; trying the app resolver", host, e.message)
+        }
+
         return try {
             val resolved = AsyncResolver.getAllByName(host)
             if (resolved.isNotEmpty()) {

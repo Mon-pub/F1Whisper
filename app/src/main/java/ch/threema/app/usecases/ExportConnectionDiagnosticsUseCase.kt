@@ -12,6 +12,8 @@ import androidx.core.content.getSystemService
 import ch.threema.app.BuildConfig
 import ch.threema.app.BuildFlavor
 import ch.threema.app.R
+import ch.threema.app.diagnostics.ConnectivityProbeReportWriter
+import ch.threema.app.diagnostics.ProbeReport
 import ch.threema.app.ThreemaApplication
 import ch.threema.app.files.AppDirectoryProvider
 import ch.threema.app.notifications.NotificationChannels
@@ -53,11 +55,21 @@ class ExportConnectionDiagnosticsUseCase(
     private val timeProvider: TimeProvider,
 ) {
     @Throws(IOException::class, SecurityException::class)
-    suspend fun call(): File = withContext(dispatcherProvider.io) {
-        // The report is a fixed set of short key/value lines (no message contents, no loops), so it
-        // is inherently tiny. The overall cap is pure belt-and-suspenders against any pathological
-        // field so the export can never balloon in memory or on disk.
-        val report = buildReport().let {
+    suspend fun call(probeReport: ProbeReport? = null): File = withContext(dispatcherProvider.io) {
+        // The passive report is a fixed set of short key/value lines (no message contents, no loops),
+        // so it is inherently tiny. When a [probeReport] is supplied (the connectivity troubleshooter),
+        // append the ACTIVE network-probe section so the shared log carries BOTH the passive OS /
+        // notification / battery snapshot AND the DNS / TLS-SNI / port censorship probes in one file —
+        // exactly what a post-registration "no messages / can't connect" (censorship) report needs.
+        // The overall cap is pure belt-and-suspenders against any pathological field.
+        val report = buildString {
+            append(buildReport())
+            probeReport?.let {
+                appendLine()
+                appendLine()
+                append(ConnectivityProbeReportWriter.render(it))
+            }
+        }.let {
             if (it.length > MAX_REPORT_CHARS) it.take(MAX_REPORT_CHARS) + "\n[report truncated]" else it
         }
         val zipFile = File(AppDirectoryProvider(appContext).cacheDirectory, ZIP_FILE_NAME)

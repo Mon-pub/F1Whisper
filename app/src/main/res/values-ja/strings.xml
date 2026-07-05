@@ -1739,4 +1739,26 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="disappearing_duration_1d">1日</string>
     <string name="disappearing_duration_1w">1週間</string>
     <string name="disappearing_duration_4w">4週間</string>
+    <string name="connectivity_probe_dialog_title">接続診断</string>
+    <string name="connectivity_probe_running">チェックを実行中…</string>
+    <string name="connectivity_probe_done">チェックが完了しました</string>
+    <string name="connectivity_probe_send_btn">診断を送信</string>
+    <string name="connectivity_probe_close_btn">閉じる</string>
+    <string name="connectivity_probe_verdict_all_ok">サーバーに到達できます。アカウントまたはデバイスの設定を確認してください。</string>
+    <string name="connectivity_probe_verdict_no_internet">このネットワークでは有効なインターネット接続がありません。</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS ポイズニングの疑い: システム DNS が異なる IP を返しています。</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI ベースの TLS ブロックの疑い: 当社のホスト名がブロックされています。</string>
+    <string name="connectivity_probe_verdict_ip_blocked">このネットワークではサーバーの IP がブロックされています。</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">チャットポート (5222) がブロックされています。HTTPS はまだ利用できます。</string>
+    <string name="connectivity_probe_verdict_slow_throttled">サーバーには到達できますが、ネットワーク接続が著しく低速か制限されているため、接続がタイムアウトする可能性があります。もう一度試すか、Wi-Fi とモバイルデータを切り替えてください。</string>
+    <string name="connectivity_probe_verdict_partial_failure">一部のチェックに失敗しました。分析のためにレポートを共有してください。</string>
+    <string name="connectivity_probe_label_dns">DNS リゾルバー</string>
+    <string name="connectivity_probe_label_tcp443">TCP ポート 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">設定エンドポイント</string>
+    <string name="connectivity_probe_label_chat">チャットポート (5222)</string>
+    <string name="connectivity_probe_label_control">インターネット (対照)</string>
+    <string name="connectivity_probe_label_hints">その他の兆候</string>
+    <string name="connectivity_probe_hint_middlebox">接続自体は高速ですが、暗号化ハンドシェイクが遅くなっています。透過型プロキシやトラフィックシェーピング装置がこの接続に介入している可能性があります。</string>
+    <string name="connectivity_probe_hint_port53">他のすべてが低速な中、デバイスの DNS 応答だけが不自然に速く返ってきました。このネットワークが DNS 通信を横取りしている可能性があります。</string>
 </resources>

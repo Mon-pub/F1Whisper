@@ -1049,6 +1049,9 @@ dependencies {
     implementation(libs.glide)
     ksp(libs.glide.ksp)
 
+    // F1Whisper: DNS-over-HTTPS for the connectivity troubleshooter (BOM-managed version).
+    implementation(libs.okhttp3.dnsoverhttps)
+
     // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)

@@ -12,6 +12,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLHandshakeException
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.X509TrustManager
+import kotlin.time.Duration.Companion.seconds
 import okhttp3.OkHttpClient
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -90,6 +91,10 @@ object OnPremCertPinning : KoinComponent {
             hostnameProvider = hostnameProvider,
         )
         return baseClient.buildNew {
+            // Fetching the OPPF can be slow on a throttled network, so we raise the timeouts beyond the base client's defaults.
+            connectTimeout(oppfConnectTimeout)
+            readTimeout(oppfReadTimeout)
+            writeTimeout(oppfWriteTimeout)
             sslSocketFactory(createSocketFactory(trustManager), trustManager)
             addInterceptor(OnPremCertPinningInterceptor(hostnameProvider))
             addInterceptor(
@@ -153,4 +158,9 @@ object OnPremCertPinning : KoinComponent {
         )
         return createSocketFactory(trustManager)
     }
+
+    // Fetching the OPPF can be slow on a throttled network, so these are raised above the base client's timeouts.
+    private val oppfConnectTimeout = 30.seconds
+    private val oppfReadTimeout = 45.seconds
+    private val oppfWriteTimeout = 45.seconds
 }

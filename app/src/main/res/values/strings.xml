@@ -2109,4 +2109,30 @@
     <string name="disappearing_duration_1d">1 day</string>
     <string name="disappearing_duration_1w">1 week</string>
     <string name="disappearing_duration_4w">4 weeks</string>
+
+    <!-- F1Whisper connectivity troubleshooter (diagnosis only). Shown from the registration error
+         and the connection-failure entry points. Runs a battery of network probes and produces a
+         shareable report. Do NOT translate the port number "5222" or brand names. -->
+    <string name="connectivity_probe_dialog_title">Connection diagnostics</string>
+    <string name="connectivity_probe_running">Running checks…</string>
+    <string name="connectivity_probe_done">Checks complete</string>
+    <string name="connectivity_probe_send_btn">Send diagnostics</string>
+    <string name="connectivity_probe_close_btn">Close</string>
+    <string name="connectivity_probe_verdict_all_ok">Server is reachable. Check your account or device settings.</string>
+    <string name="connectivity_probe_verdict_no_internet">No working internet on this network.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS poisoning suspected: system DNS returns different IPs.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-based TLS blocking suspected: our hostname is blocked.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Server IP is blocked on this network.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chat port (5222) is blocked. HTTPS still works.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server reachable but the network is severely slow/throttled — connections may time out. Try again, or switch between Wi-Fi and mobile data.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Some checks failed. Share the report for analysis.</string>
+    <string name="connectivity_probe_label_dns">DNS resolvers</string>
+    <string name="connectivity_probe_label_tcp443">TCP port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Config endpoint</string>
+    <string name="connectivity_probe_label_chat">Chat port (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (control)</string>
+    <string name="connectivity_probe_label_hints">Additional signals</string>
+    <string name="connectivity_probe_hint_middlebox">Fast connection but slow encrypted handshake — a transparent proxy or traffic-shaping device may be intercepting this connection.</string>
+    <string name="connectivity_probe_hint_port53">The device\'s DNS answered suspiciously fast while everything else was slow — this network may be intercepting DNS lookups.</string>
 </resources>

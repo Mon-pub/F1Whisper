@@ -1975,4 +1975,26 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en gro
     <string name="disappearing_duration_1d">1 dag</string>
     <string name="disappearing_duration_1w">1 week</string>
     <string name="disappearing_duration_4w">4 weken</string>
+    <string name="connectivity_probe_dialog_title">Verbindingsdiagnose</string>
+    <string name="connectivity_probe_running">Controles uitvoeren…</string>
+    <string name="connectivity_probe_done">Controles voltooid</string>
+    <string name="connectivity_probe_send_btn">Diagnose verzenden</string>
+    <string name="connectivity_probe_close_btn">Sluiten</string>
+    <string name="connectivity_probe_verdict_all_ok">Server is bereikbaar. Controleer je account- of apparaatinstellingen.</string>
+    <string name="connectivity_probe_verdict_no_internet">Geen werkend internet op dit netwerk.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Vermoedelijke DNS-vergiftiging: systeem-DNS geeft andere IP\'s terug.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Vermoedelijke SNI-gebaseerde TLS-blokkering: onze hostnaam wordt geblokkeerd.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Het server-IP is geblokkeerd op dit netwerk.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chatpoort (5222) is geblokkeerd. HTTPS werkt nog steeds.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server is bereikbaar, maar de netwerkverbinding is ernstig traag of wordt afgeknepen — verbindingen kunnen daardoor time-outen. Probeer het opnieuw, of schakel tussen wifi en mobiele data.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Sommige controles zijn mislukt. Deel het rapport voor analyse.</string>
+    <string name="connectivity_probe_label_dns">DNS-resolvers</string>
+    <string name="connectivity_probe_label_tcp443">TCP-poort 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Configuratie-eindpunt</string>
+    <string name="connectivity_probe_label_chat">Chatpoort (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (controle)</string>
+    <string name="connectivity_probe_label_hints">Aanvullende signalen</string>
+    <string name="connectivity_probe_hint_middlebox">Snelle verbinding, maar trage versleutelde handshake — mogelijk onderschept een transparante proxy of een traffic-shaping-apparaat deze verbinding.</string>
+    <string name="connectivity_probe_hint_port53">De DNS-opvraging van het apparaat werd verdacht snel beantwoord terwijl al het overige traag was — dit netwerk onderschept mogelijk DNS-opvragingen.</string>
 </resources>

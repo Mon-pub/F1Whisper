@@ -1448,4 +1448,26 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
     <string name="problemsolver_explain_oem_autostart">A(z) %1$s eszközök megakadályozhatják, hogy a F1Whisper a háttérben fusson, ami az üzenetértesítéseket akkor is letiltja, ha az akkumulátoroptimalizálás már ki van kapcsolva. Nyisd meg az útmutatót, és engedélyezd a F1Whisper számára az automatikus indítást és a háttérben futást.</string>
     <string name="problemsolver_oem_autostart_action">Beállítási útmutató megnyitása</string>
+    <string name="connectivity_probe_dialog_title">Kapcsolatdiagnosztika</string>
+    <string name="connectivity_probe_running">Ellenőrzések futtatása…</string>
+    <string name="connectivity_probe_done">Ellenőrzések befejezve</string>
+    <string name="connectivity_probe_send_btn">Diagnosztika küldése</string>
+    <string name="connectivity_probe_close_btn">Bezárás</string>
+    <string name="connectivity_probe_verdict_all_ok">A kiszolgáló elérhető. Ellenőrizd a fiók vagy az eszköz beállításait.</string>
+    <string name="connectivity_probe_verdict_no_internet">Ezen a hálózaton nincs működő internet.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS-mérgezés gyanúja: a rendszer DNS-e eltérő IP-ket ad vissza.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-alapú TLS-blokkolás gyanúja: a gazdanevünk blokkolva van.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">A kiszolgáló IP-címe blokkolva van ezen a hálózaton.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">A csevegési port (5222) blokkolva van. A HTTPS továbbra is működik.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">A kiszolgáló elérhető, de a hálózati kapcsolat rendkívül lassú vagy korlátozva van — a kapcsolatok emiatt túllépheti az időkorlátot. Próbáld újra, vagy válts a Wi-Fi és a mobiladatok között.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Néhány ellenőrzés sikertelen. Oszd meg a jelentést elemzéshez.</string>
+    <string name="connectivity_probe_label_dns">DNS-feloldók</string>
+    <string name="connectivity_probe_label_tcp443">TCP-port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Konfigurációs végpont</string>
+    <string name="connectivity_probe_label_chat">Csevegési port (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (kontroll)</string>
+    <string name="connectivity_probe_label_hints">További jelzések</string>
+    <string name="connectivity_probe_hint_middlebox">Gyors kapcsolat, de lassú titkosított kézfogás — ez arra utal, hogy egy átlátszó proxy vagy forgalomalakító eszköz avatkozik be a kapcsolatba.</string>
+    <string name="connectivity_probe_hint_port53">Az eszköz DNS-lekérdezése gyanúsan gyorsan válaszolt, miközben minden más lassú volt — ez arra utal, hogy ez a hálózat elfogja a DNS-lekérdezéseket.</string>
 </resources>

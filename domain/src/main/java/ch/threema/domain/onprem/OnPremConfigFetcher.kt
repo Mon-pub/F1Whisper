@@ -64,12 +64,31 @@ class OnPremConfigFetcher(
             return cachedConfig
         }
         logger.info("Fetching OPPF")
-        return fetch(
-            okHttpClient = pinnedOkHttpClient,
-            oppfUrl = serverParameters.oppfUrl,
-            username = serverParameters.username,
-            password = serverParameters.password,
-        )
+        return fetchWithRetries()
+    }
+
+    /**
+     * Fetches the OPPF from the regular endpoint, retrying up to [maxFetchRetries] times if fetching fails with an I/O error
+     * (e.g. a timeout on a throttled network). Any other failure (e.g. an authorization error) is rethrown immediately.
+     */
+    @Throws(ThreemaException::class)
+    private fun fetchWithRetries(attempt: Int = 0): OnPremConfig {
+        try {
+            return fetch(
+                okHttpClient = pinnedOkHttpClient,
+                oppfUrl = serverParameters.oppfUrl,
+                username = serverParameters.username,
+                password = serverParameters.password,
+            )
+        } catch (e: ThreemaException) {
+            if (e is UnauthorizedFetchException || e.cause !is IOException || attempt >= maxFetchRetries) {
+                throw e
+            }
+            val backoff = retryBackoffs[attempt]
+            logger.warn("Failed to fetch OPPF (attempt ${attempt + 1}), retrying in $backoff", e)
+            Thread.sleep(backoff.inWholeMilliseconds)
+            return fetchWithRetries(attempt + 1)
+        }
     }
 
     /**
@@ -165,5 +184,12 @@ class OnPremConfigFetcher(
     companion object {
         private val unauthorizedMinRetryInterval = 3.minutes
         private val fallbackDelay = 10.seconds
+
+        /**
+         * Maximum number of retries when fetching the OPPF fails with an I/O error (e.g. a timeout on a throttled network).
+         * This means up to [maxFetchRetries] + 1 attempts are made in total.
+         */
+        private const val maxFetchRetries = 2
+        private val retryBackoffs = listOf(1.seconds, 3.seconds)
     }
 }

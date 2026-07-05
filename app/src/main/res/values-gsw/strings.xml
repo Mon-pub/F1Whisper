@@ -1988,4 +1988,26 @@
     <string name="disappearing_duration_1d">1 Tag</string>
     <string name="disappearing_duration_1w">1 Wuche</string>
     <string name="disappearing_duration_4w">4 Wuche</string>
+    <string name="connectivity_probe_dialog_title">Verbindigsdiagnose</string>
+    <string name="connectivity_probe_running">Prüefige laufe…</string>
+    <string name="connectivity_probe_done">Prüefige abgschlosse</string>
+    <string name="connectivity_probe_send_btn">Diagnose schicke</string>
+    <string name="connectivity_probe_close_btn">Zumache</string>
+    <string name="connectivity_probe_verdict_all_ok">Server isch erreichbar. Überprüef dini Konto- oder Grätiischtellige.</string>
+    <string name="connectivity_probe_verdict_no_internet">I däm Netzwärk gaht s Internet nöd.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS-Vergiftig vermuetet: S System-DNS git anderi IPs zrugg.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-basierti TLS-Blockierig vermuetet: Üse Hostname wird blockiert.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">D Server-IP isch i däm Netzwärk blockiert.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chat-Port (5222) isch blockiert. HTTPS gaht na.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server isch erreichbar, aber s Nätzwärk isch extrem langsam oder wird ussbremst — Verbindige chönd abbräche. Probiers nomol, oder wächsle zwüsche WLAN und Mobilfunk.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Es paar Prüefige sind fählgschlage. Teil de Bricht zur Analyse.</string>
+    <string name="connectivity_probe_label_dns">DNS-Resolver</string>
+    <string name="connectivity_probe_label_tcp443">TCP-Port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Konfigurations-Ändpunkt</string>
+    <string name="connectivity_probe_label_chat">Chat-Port (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (Kontrolle)</string>
+    <string name="connectivity_probe_label_hints">Witeri Hiwiis</string>
+    <string name="connectivity_probe_hint_middlebox">Schnälli Verbindig, aber langsamer verschlüsselte Handshake — mögli, dass es en transparänte Proxy oder es Traffic-Shaping-Gerät git, wo die Verbindig abfangt.</string>
+    <string name="connectivity_probe_hint_port53">S Gerät sini DNS-Afroog isch verdächtig schnäll beantwortet worde, während alles ander langsam gsi isch — das dütet druf hi, dass i däm Nätzwärk DNS-Afroge abgfangt wärded.</string>
 </resources>

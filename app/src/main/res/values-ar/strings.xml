@@ -2135,4 +2135,26 @@
     <string name="disappearing_duration_1d">يوم واحد</string>
     <string name="disappearing_duration_1w">أسبوع واحد</string>
     <string name="disappearing_duration_4w">٤ أسابيع</string>
+    <string name="connectivity_probe_dialog_title">تشخيص الاتصال</string>
+    <string name="connectivity_probe_running">جارٍ إجراء الفحوصات…</string>
+    <string name="connectivity_probe_done">اكتملت الفحوصات</string>
+    <string name="connectivity_probe_send_btn">إرسال التشخيص</string>
+    <string name="connectivity_probe_close_btn">إغلاق</string>
+    <string name="connectivity_probe_verdict_all_ok">الخادم قابل للوصول. تحقّق من إعدادات حسابك أو جهازك.</string>
+    <string name="connectivity_probe_verdict_no_internet">لا يوجد إنترنت يعمل على هذه الشبكة.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">يُشتبه في تسميم DNS: نظام DNS يُعيد عناوين IP مختلفة.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">يُشتبه في حجب TLS المستند إلى SNI: اسم مضيفنا محجوب.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">عنوان IP للخادم محجوب على هذه الشبكة.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">منفذ الدردشة (5222) محجوب. لا يزال HTTPS يعمل.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">الخادم قابل للوصول، لكن الشبكة بطيئة جدًا أو مُقيَّدة — قد تنتهي مهلة الاتصالات. أعد المحاولة، أو بدِّل بين Wi-Fi وبيانات الجوّال.</string>
+    <string name="connectivity_probe_verdict_partial_failure">فشلت بعض الفحوصات. شارِك التقرير للتحليل.</string>
+    <string name="connectivity_probe_label_dns">خوادم DNS</string>
+    <string name="connectivity_probe_label_tcp443">منفذ TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">نقطة نهاية الإعدادات</string>
+    <string name="connectivity_probe_label_chat">منفذ الدردشة (5222)</string>
+    <string name="connectivity_probe_label_control">الإنترنت (تحقّق مرجعي)</string>
+    <string name="connectivity_probe_label_hints">إشارات إضافية</string>
+    <string name="connectivity_probe_hint_middlebox">الاتصال سريع، لكن مصافحة التشفير بطيئة — قد يشير هذا إلى وجود وكيل شفاف أو جهاز لتشكيل حركة البيانات يعترض هذا الاتصال.</string>
+    <string name="connectivity_probe_hint_port53">استجاب نظام DNS في الجهاز بسرعة مريبة بينما كان كل شيء آخر بطيئًا — قد يعني هذا أن الشبكة تعترض طلبات DNS.</string>
 </resources>

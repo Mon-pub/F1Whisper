@@ -1927,4 +1927,26 @@
     <string name="disappearing_duration_1d">1 ден</string>
     <string name="disappearing_duration_1w">1 седмица</string>
     <string name="disappearing_duration_4w">4 седмици</string>
+    <string name="connectivity_probe_dialog_title">Диагностика на връзката</string>
+    <string name="connectivity_probe_running">Извършване на проверки…</string>
+    <string name="connectivity_probe_done">Проверките приключиха</string>
+    <string name="connectivity_probe_send_btn">Изпращане на диагностика</string>
+    <string name="connectivity_probe_close_btn">Затваряне</string>
+    <string name="connectivity_probe_verdict_all_ok">Сървърът е достъпен. Проверете настройките на акаунта или устройството си.</string>
+    <string name="connectivity_probe_verdict_no_internet">Няма работещ интернет в тази мрежа.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Подозира се отравяне на DNS: системният DNS връща различни IP адреси.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Подозира се блокиране на TLS чрез SNI: нашето име на хост е блокирано.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">IP адресът на сървъра е блокиран в тази мрежа.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Портът за чат (5222) е блокиран. HTTPS все още работи.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Сървърът е достъпен, но мрежата е изключително бавна или ограничена — връзките може да прекъснат поради изтичане на времето. Опитайте отново или превключете между Wi-Fi и мобилни данни.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Някои проверки не успяха. Споделете отчета за анализ.</string>
+    <string name="connectivity_probe_label_dns">DNS резолвери</string>
+    <string name="connectivity_probe_label_tcp443">TCP порт 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Крайна точка за конфигурация</string>
+    <string name="connectivity_probe_label_chat">Порт за чат (5222)</string>
+    <string name="connectivity_probe_label_control">Интернет (контрол)</string>
+    <string name="connectivity_probe_label_hints">Допълнителни сигнали</string>
+    <string name="connectivity_probe_hint_middlebox">Бърза връзка, но бавно криптирано ръкостискане — възможно е прозрачен прокси или устройство за оформяне на трафика да прихваща тази връзка.</string>
+    <string name="connectivity_probe_hint_port53">DNS на устройството отговори подозрително бързо, докато всичко останало беше бавно — възможно е тази мрежа да прихваща DNS заявките.</string>
 </resources>
