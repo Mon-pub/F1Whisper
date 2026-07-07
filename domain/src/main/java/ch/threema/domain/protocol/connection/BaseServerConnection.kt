@@ -79,6 +79,27 @@ internal abstract class BaseServerConnection(
     private var reconnectAttemptsSinceLastLogin = 0
     private var ioJob: Job? = null
 
+    /**
+     * F1Whisper: wall-clock timestamp of the last inbound signal received on this connection. Written
+     * by the [ch.threema.domain.protocol.connection.layer.MonitoringLayer] on every echo reply (the
+     * ~60s CSP keepalive heartbeat) and once here when LOGGEDIN is reached (fresh start before the
+     * first echo). Read by the foreground lifecycle observer to detect a Doze-dead-but-still-LOGGEDIN
+     * socket. AtomicLong -> the cross-thread write (dispatcher context) and read (main thread) are
+     * always visible; a stale read at worst delays a reconnect by one cycle, which is acceptable.
+     */
+    private val lastInboundActivityAtMillis = java.util.concurrent.atomic.AtomicLong(0L)
+
+    override fun getLastInboundActivityAtMillis(): Long = lastInboundActivityAtMillis.get()
+
+    /**
+     * F1Whisper: record that an inbound signal was received now (wall-clock). Called from the
+     * monitoring layer on echo replies. Uses [System.currentTimeMillis] so the value counts real time
+     * including Doze sleep (do not use nanoTime/uptime, which freeze while the device sleeps).
+     */
+    fun recordInboundActivity() {
+        lastInboundActivityAtMillis.set(System.currentTimeMillis())
+    }
+
     private var connectionJob: Job? = null
 
     private val canConnect: Boolean
@@ -177,6 +198,9 @@ internal abstract class BaseServerConnection(
                         controller.cspAuthenticated.await()
                         onCspAuthenticated()
                         reconnectAttemptsSinceLastLogin = 0
+                        // F1Whisper: seed inbound-activity timestamp on login so a freshly-logged-in
+                        // connection isn't flagged stale before the first ~60s echo reply arrives.
+                        recordInboundActivity()
                         setConnectionState(ConnectionState.LOGGEDIN)
                     }
                     // Monitor close events of the socket

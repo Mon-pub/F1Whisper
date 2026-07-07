@@ -32,6 +32,12 @@ open class ConvertibleServerConnection(
     override val isNewConnectionSession: Boolean
         get() = connection?.isNewConnectionSession ?: true
 
+    // F1Whisper: delegate the last-inbound-activity read to the currently wrapped connection (0L if
+    // none is active yet). getConnection() returns this wrapper, so the delegation is required for the
+    // foreground staleness gate to see the real BaseServerConnection value.
+    override fun getLastInboundActivityAtMillis(): Long =
+        connection?.getLastInboundActivityAtMillis() ?: 0L
+
     override fun disableReconnect() {
         connection?.disableReconnect()
     }

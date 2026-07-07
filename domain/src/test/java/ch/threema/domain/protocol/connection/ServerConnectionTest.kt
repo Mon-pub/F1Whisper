@@ -14,6 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.runTest
 
@@ -71,11 +72,26 @@ internal abstract class ServerConnectionTest {
     fun testChatServerConnection() = runTest(timeout = 1.seconds) {
         prepareServerKeys(skPublicPrimary, skSecretPrimary)
 
+        // F1Whisper: no inbound activity has been recorded before the connection reaches LOGGEDIN.
         val connection = createChatServerConnection()
+        assertEquals(0L, connection.getLastInboundActivityAtMillis())
+        val beforeHandshake = System.currentTimeMillis()
         val connectionStates = observeConnectionStates(connection)
         connection.start()
 
         assertHandshake()
+
+        // F1Whisper: reaching LOGGEDIN seeds the last-inbound-activity timestamp with a recent
+        // wall-clock value, so the foreground staleness gate never falsely flags a fresh login.
+        val lastInboundActivity = connection.getLastInboundActivityAtMillis()
+        assertTrue(
+            lastInboundActivity >= beforeHandshake,
+            "Expected last inbound activity ($lastInboundActivity) to be seeded at/after login start ($beforeHandshake)",
+        )
+        assertTrue(
+            lastInboundActivity <= System.currentTimeMillis(),
+            "Expected last inbound activity ($lastInboundActivity) not to be in the future",
+        )
 
         // stop the connection
         connection.stop()

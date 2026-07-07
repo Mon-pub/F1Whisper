@@ -1,6 +1,7 @@
 package ch.threema.domain.protocol.connection.layer
 
 import ch.threema.common.emptyByteArray
+import ch.threema.domain.protocol.connection.BaseServerConnection
 import ch.threema.domain.protocol.connection.PayloadProcessingException
 import ch.threema.domain.protocol.connection.PipeProcessor
 import ch.threema.domain.protocol.connection.ProcessingPipe
@@ -202,6 +203,11 @@ internal class MonitoringLayer(
         lastRcvdEchoSeq = buffer.int
         val rttMs = Date().time - buffer.long
         logger.info("Received echo reply (seq: {}, rtt: {} ms) ", lastRcvdEchoSeq, rttMs)
+
+        // F1Whisper: an echo reply is the reliable liveness heartbeat (~60s CSP keepalive). Stamp the
+        // connection's last-inbound-activity so the foreground observer can tell a Doze-dead socket
+        // (LOGGEDIN but no inbound for a staleness window) from a healthy idle-but-alive one.
+        (connection as? BaseServerConnection)?.recordInboundActivity()
     }
 
     private fun startMonitoring() {
