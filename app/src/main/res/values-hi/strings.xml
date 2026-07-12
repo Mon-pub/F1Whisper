@@ -2003,21 +2003,21 @@
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">छोटा करें</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">चेकलिस्ट</string>
-    <string name="checklist_create_as">चेकलिस्ट के रूप में बनाएँ</string>
-    <string name="checklist_fork_only">चेकलिस्ट केवल F1Whisper उपयोगकर्ताओं के बीच काम करती है।</string>
-    <string name="checklist_toggle_item">चेकलिस्ट आइटम टॉगल करें</string>
+    <string name="checklist">कार्य सूची</string>
+    <string name="checklist_create_as">कार्य सूची के रूप में बनाएँ</string>
+    <string name="checklist_fork_only">कार्य सूची केवल F1Whisper उपयोगकर्ताओं के बीच काम करती है।</string>
+    <string name="checklist_toggle_item">सूची आइटम टॉगल करें</string>
     <string name="checklist_checked_by">%1$s द्वारा चेक किया गया</string>
-    <string name="checklist_created_successfully">चेकलिस्ट बन गई</string>
-    <string name="checklist_placeholder">चेकलिस्ट</string>
+    <string name="checklist_created_successfully">कार्य सूची बन गई</string>
+    <string name="checklist_placeholder">कार्य सूची</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">संदेश पिन करें</string>
     <string name="unpin_message">अनपिन करें</string>
     <string name="pinned_message_banner_label">पिन किया गया संदेश</string>
     <string name="pinned_message_banner_dismiss">पिन किया गया संदेश बैनर छिपाएँ</string>
     <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
-    <string name="checklist_subject_hint">चेकलिस्ट शीर्षक दर्ज करें</string>
-    <string name="checklist_wizard0_explain">एक साझा टू-डू सूची बनाएं। चैट में सभी लोग किसी भी समय आइटम चेक और अनचेक कर सकते हैं, और चेक किए गए आइटम नीचे चले जाते हैं।</string>
+    <string name="checklist_subject_hint">कार्य सूची का शीर्षक दर्ज करें</string>
+    <string name="checklist_wizard0_explain">एक साझा कार्य सूची बनाएं। चैट में सभी लोग किसी भी समय आइटम चेक और अनचेक कर सकते हैं, और चेक किए गए आइटम नीचे चले जाते हैं।</string>
     <string name="checklist_add_items">आइटम जोड़ें</string>
     <string name="checklist_item_add">एक आइटम जोड़ें</string>
     <string name="checklist_item_count_error">कृपया कम से कम एक आइटम जोड़ें</string>
@@ -2027,9 +2027,9 @@
     <string name="checklist_delete_item_title">आइटम हटाएं?</string>
     <string name="checklist_delete_item_message">क्या आप वाकई \"%1$s\" को हटाना चाहते हैं?</string>
     <string name="checklist_delete_button">हटाएं</string>
-    <string name="checklist_reorder_item">चेकलिस्ट आइटम ले जाएं</string>
+    <string name="checklist_reorder_item">सूची आइटम ले जाएं</string>
     <string name="checklist_cannot_reorder">इस आइटम को नहीं ले जाया जा सकता</string>
-    <string name="checklist_edit_title">चेकलिस्ट संपादित करें</string>
+    <string name="checklist_edit_title">कार्य सूची संपादित करें</string>
     <string name="checklist_edit_apply">लागू करें</string>
     <string name="checklist_rename_item_title">आइटम का नाम बदलें</string>
     <string name="audio_trim_not_supported">इस ऑडियो प्रारूप के लिए ट्रिमिंग समर्थित नहीं है। पूरी फ़ाइल भेजने के लिए ट्रिम हटाएँ।</string>
@@ -2051,6 +2051,10 @@
     <string name="disappearing_duration_1d">१ दिन</string>
     <string name="disappearing_duration_1w">१ सप्ताह</string>
     <string name="disappearing_duration_4w">४ सप्ताह</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">गायब होगा</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">पढ़ने के %1$s बाद</string>
     <string name="connectivity_probe_dialog_title">कनेक्शन डायग्नोस्टिक्स</string>
     <string name="connectivity_probe_running">जाँच चल रही है…</string>
     <string name="connectivity_probe_done">जाँच पूरी हुई</string>

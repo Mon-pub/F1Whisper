@@ -378,6 +378,15 @@ class ThreemaApplication : Application() {
                     appStartupMonitor.awaitSystem(AppSystem.DATABASE_UPDATES)
 
                     markUploadingFilesAsFailed(databaseService = get())
+                    // F1Whisper auto-resend: after the DB is ready (and the mark-failed pass above
+                    // has run), schedule one scan so a message left unsent by the previous process
+                    // (in flight or connectivity-SENDFAILED, <24h, non-terminal) is re-sent silently
+                    // once the connection comes up. Debounced/single-in-flight inside the service.
+                    try {
+                        serviceManager.autoResendService.scheduleScan("app-start")
+                    } catch (e: Exception) {
+                        logger.debug("Could not schedule auto-resend at app start", e)
+                    }
                     SessionWakeUpServiceImpl.getInstance().processPendingWakeupsAsync()
                     serviceManager.threemaSafeService.schedulePeriodicUpload()
                     scheduleWorkers(appContext, serviceManager.preferenceService, preferenceStore)
@@ -475,6 +484,16 @@ class ThreemaApplication : Application() {
                         } else {
                             logger.debug("Push token is still fresh. No update needed")
                         }
+                    }
+
+                    // F1Whisper auto-resend: connectivity is back - silently re-send any unsent
+                    // outgoing messages (media/file/ballot that failed on a transient network error,
+                    // or anything left in flight by a process death). Debounced + single-in-flight
+                    // inside the service, so firing on every LOGGEDIN is cheap and event-driven only.
+                    try {
+                        getServiceManager()?.autoResendService?.scheduleScan("reconnect")
+                    } catch (e: Exception) {
+                        logger.debug("Could not schedule auto-resend on reconnect", e)
                     }
                 }
             }

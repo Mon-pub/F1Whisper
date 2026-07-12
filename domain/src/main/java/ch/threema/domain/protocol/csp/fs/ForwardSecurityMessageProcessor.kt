@@ -720,8 +720,36 @@ class ForwardSecurityMessageProcessor(
                 statusListener.messagesSkipped(message.sessionId, contact, numTurns)
             }
         } catch (ratchetRotationException: KDFRatchet.RatchetRotationException) {
+            // The message carries a counter that is behind our current ratchet position, so we can
+            // no longer derive the key needed to decrypt it (ratchets only turn forward). Mirror the
+            // decryption-failure branch below: `Reject` and terminate the session so the sender
+            // resends in a fresh session. Without the reject the sender never learns the message was
+            // lost and never resends (silent loss). Returning NONE (instead of throwing) routes this
+            // through the caller's `message == null` path, which stores the outer nonce, so an
+            // at-least-once redelivery of this same message is filtered by the nonce dedup check
+            // before it reaches this code again and therefore never sends a second reject.
+            logger.warn(
+                "Rejecting message in session {} with {}, cause: Out of order FS message (message-id={})",
+                session,
+                contact.identity,
+                envelopeMessage.messageId,
+            )
             statusListener.messageOutOfOrder(message.sessionId, contact, envelopeMessage.messageId)
-            throw BadMessageException("Out of order FS message, cannot decrypt", ratchetRotationException)
+            sendReject(
+                contact,
+                message.sessionId,
+                envelopeMessage,
+                Reject.Cause.STATE_MISMATCH,
+                handle,
+            )
+            dhSessionStoreInterface.deleteDHSession(
+                identityStore.getIdentityString(),
+                contact.identity,
+                session.id,
+            )
+            // TODO(SE-354): Should we supply an error cause for the UI here? Otherwise this looks as if the remote willingly terminated.
+            statusListener.sessionTerminated(message.sessionId, contact, false, true)
+            return ForwardSecurityDecryptionResult.NONE
         }
 
         // A new key is used for each message, so the nonce can be zero
@@ -826,6 +854,14 @@ class ForwardSecurityMessageProcessor(
                 .decodeEncapsulated(plaintext, envelopeMessage, processedVersions.appliedVersion)
                 .also { it.forwardSecurityMode = mode }
         } catch (e: BadMessageException) {
+            // The plaintext decrypted successfully and the ratchet has already been turned, so the
+            // session is healthy; only the inner message is undecodable (unknown/disallowed type or
+            // malformed body). We deliberately do NOT send a `Reject` here: unlike the out-of-order
+            // and decryption-failure branches (session out of sync), rejecting a healthy session
+            // would tear it down over a single undecodable body, and because the ratchet already
+            // advanced a resend cannot reproduce this counter anyway. The returned NONE-message
+            // result still carries the ratchet identifier, so the caller acks + stores the nonce +
+            // turns the ratchet (dedup-safe), matching the pre-existing behaviour.
             logger.warn("Inner message is invalid", e)
             null
         }

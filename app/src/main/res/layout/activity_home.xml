@@ -42,6 +42,15 @@
             layout="@layout/notice_mandatory_update"
             tools:visibility="gone" />
 
+        <!-- F1Whisper: background voice "now playing" banner — visible while a voice message keeps
+             playing after leaving its chat. Self-managing (observes VoiceMessagePlaybackHolder). -->
+        <ch.threema.app.ui.VoicePlayerBannerView
+            android:id="@+id/voice_player_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <include

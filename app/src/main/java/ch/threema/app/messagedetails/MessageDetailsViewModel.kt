@@ -113,6 +113,13 @@ data class MessageTimestampsUiModel(
     val modifiedAt: Date? = null,
     val editedAt: Date? = null,
     val deletedAt: Date? = null,
+    // F1Whisper disappearing messages: the absolute deletion time once the countdown has started
+    // (from the message's [AbstractMessageModel.expiresAt]), or null while it has not started.
+    val expiresAt: Date? = null,
+    // F1Whisper disappearing messages: the frozen per-message timer in seconds, used to render the
+    // "<duration> after read" hint for a disappearing message whose countdown has not started yet
+    // (typically an incoming unread message where [expiresAt] is still null). Null if not disappearing.
+    val disappearsAfterSeconds: Int? = null,
 ) {
     fun hasProperties(): Boolean {
         return createdAt != null ||
@@ -122,7 +129,9 @@ data class MessageTimestampsUiModel(
             readAt != null ||
             modifiedAt != null ||
             editedAt != null ||
-            deletedAt != null
+            deletedAt != null ||
+            expiresAt != null ||
+            disappearsAfterSeconds != null
     }
 }
 
@@ -180,6 +189,18 @@ fun AbstractMessageModel?.toMessageTimestampsUiModel(): MessageTimestampsUiModel
         )
     }
 
+    // F1Whisper disappearing messages: surface the deletion time (once the countdown has started)
+    // or, for a frozen-but-unstarted timer (typically an incoming unread message), the "after read"
+    // duration. Suppressed for an already-deleted message where the countdown is moot.
+    val expiresAtDate: Date? =
+        if (!this.isDeleted && this.isDisappearing) this.expiresAt?.let(::Date) else null
+    val disappearsAfterSeconds: Int? =
+        if (!this.isDeleted && this.isDisappearing && this.expiresAt == null) {
+            this.disappearingTimerSeconds
+        } else {
+            null
+        }
+
     return if (this.isOutbox) {
         val shouldShowAdditionalTimestamps =
             this.state != MessageState.SENT && !(this.type == MessageType.BALLOT && this is GroupMessageModel)
@@ -206,6 +227,8 @@ fun AbstractMessageModel?.toMessageTimestampsUiModel(): MessageTimestampsUiModel
             modifiedAt = if (shouldShowAdditionalTimestamps && shouldShowModifiedAt) this.modifiedAt else null,
             editedAt = this.editedAt,
             deletedAt = this.deletedAt,
+            expiresAt = expiresAtDate,
+            disappearsAfterSeconds = disappearsAfterSeconds,
         )
     } else {
         MessageTimestampsUiModel(
@@ -214,6 +237,8 @@ fun AbstractMessageModel?.toMessageTimestampsUiModel(): MessageTimestampsUiModel
             readAt = if (this.state != MessageState.READ) this.modifiedAt else null,
             editedAt = this.editedAt,
             deletedAt = this.deletedAt,
+            expiresAt = expiresAtDate,
+            disappearsAfterSeconds = disappearsAfterSeconds,
         )
     }
 }

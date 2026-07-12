@@ -60,6 +60,11 @@ class VoiceRecorderViewModel(
     private var trimStartMs: Long = 0L
     private var trimEndMs: Long = TRIM_END_UNSET
 
+    // F1Whisper: when this voice note is being recorded as a reply to a quoted message, the quoted
+    // message's 16-hex apiMessageId (set by the activity from the launching intent). Applied to the
+    // sent MediaItem so the voice answer carries the reply-quote E2E via "qi". Null when not replying.
+    var replyQuoteApiMessageId: String? = null
+
     private var mediaRecorder: MediaRecorder? = null
     var mediaPlayer: MediaPlayerStateWrapper? = null
         private set
@@ -425,6 +430,8 @@ class VoiceRecorderViewModel(
                     minimumValue = DateUtils.SECOND_IN_MILLIS,
                 )
                 isListenOnce = listenOnce
+                // F1Whisper: carry the reply-quote when this voice note answers a quoted message.
+                quotedMessageId = replyQuoteApiMessageId
             }
             messageService.sendMediaAsync(
                 /* mediaItems = */

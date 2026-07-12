@@ -78,6 +78,17 @@ public class FileDataModel implements MediaMessageDataInterface {
     public static final String METADATA_KEY_PREVIEW_TITLE = "lp_t";
     public static final String METADATA_KEY_PREVIEW_DESCRIPTION = "lp_d";
 
+    /**
+     * Custom (F1Whisper) metadata carrying the quoted message's 16-lowercase-hex apiMessageId when a
+     * media/file/voice message is sent as a reply-quote (Signal-style "reply with any type"). Identical
+     * encoding to the text-quote {@code "> quote #<id>"} convention, so text and media quotes resolve
+     * through the same {@code getMessageModelByApiMessageIdAndReceiver} path and populate the same
+     * {@code AbstractMessageModel.quotedMessageId} column on receive. Rides inside the E2E-encrypted file
+     * metadata map ("x"), invisible to the server. Older clients ignore it and just show media + caption.
+     * Dropped on forward (a forwarded copy must not carry a cross-conversation quote reference).
+     */
+    public static final String METADATA_KEY_QUOTED_MESSAGE_ID = "qi";
+
     private byte[] fileBlobId;
     private byte[] encryptionKey;
     private String mimeType;
@@ -373,6 +384,15 @@ public class FileDataModel implements MediaMessageDataInterface {
     @Nullable
     public String getLinkPreviewDescription() {
         return getMetaDataString(METADATA_KEY_PREVIEW_DESCRIPTION);
+    }
+
+    /**
+     * @return the quoted message's apiMessageId (16-lowercase-hex) when this media/file/voice message
+     * was sent as a reply-quote, or {@code null} when absent. Safe to call on any file message.
+     */
+    @Nullable
+    public String getQuotedApiMessageId() {
+        return getMetaDataString(METADATA_KEY_QUOTED_MESSAGE_ID);
     }
 
     /**

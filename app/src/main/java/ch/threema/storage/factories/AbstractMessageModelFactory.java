@@ -246,6 +246,117 @@ abstract class AbstractMessageModelFactory extends ModelFactory {
         }
     }
 
+    /**
+     * F1Whisper auto-resend: the states in which a FILE/media message's blob-upload phase has NOT
+     * completed and therefore NO persistent send task has been scheduled yet - so the message is
+     * genuinely unsent and safe to re-drive. Deliberately EXCLUDES {@link MessageState#SENDING}:
+     * once a message is SENDING its persistent {@code OutgoingCspMessageTask} owns delivery (it
+     * survives process death and auto-retries connectivity via the task queue), so auto-resending it
+     * would double-send. Also EXCLUDES {@link MessageState#TRANSCODING}: a half-transcoded video has
+     * no uploadable blob to resume (upstream's own {@code markUnscheduledFileMessagesAsFailed}
+     * recovers only PENDING/UPLOADING for the same reason). Text/location/ballot never need this scan
+     * - they go straight to the task queue at creation - which is why the candidate query is
+     * additionally pinned to {@link MessageType#FILE}: FILE is the only type whose send has a
+     * separate, process-death-fragile blob-upload phase driven by
+     * {@link ch.threema.app.services.MessageSendingServiceExponentialBackOff}.
+     */
+    private static final String UNSENT_MEDIA_STATE_IN =
+        AbstractMessageModel.COLUMN_STATE + " IN ("
+            + "'" + MessageState.PENDING + "',"
+            + "'" + MessageState.UPLOADING + "',"
+            + "'" + MessageState.SENDFAILED + "'"
+            + ")";
+
+    /** Restrict auto-resend to FILE messages (the only type using the fragile blob-upload backoff). */
+    private static final String AUTO_RESEND_TYPE_FILE =
+        AbstractMessageModel.COLUMN_TYPE + " = " + MessageType.FILE.ordinal();
+
+    /**
+     * F1Whisper auto-resend: the SQL WHERE clause selecting outgoing FILE messages that are eligible
+     * for silent auto-resend once connectivity returns. A candidate is:
+     *
+     *  - outgoing ({@code outbox = 1}), not a status message, not deleted;
+     *  - a FILE message (see {@link #AUTO_RESEND_TYPE_FILE});
+     *  - in an unsent blob-phase state (see {@link #UNSENT_MEDIA_STATE_IN}) - NEVER SENDING;
+     *  - NOT marked terminal (the {@code DISPLAY_TAG_SEND_FAILED_TERMINAL} bit is clear), so
+     *    FS / cancelled / MessageTooLong failures are excluded;
+     *  - younger than the age cutoff (Signal-parity 24h lifespan), passed as a bind arg.
+     *
+     * The state list + type are literals (from trusted enums), the age cutoff is a bind arg.
+     */
+    private static final String AUTO_RESEND_WHERE =
+        AbstractMessageModel.COLUMN_OUTBOX + " = 1"
+            + " AND " + AbstractMessageModel.COLUMN_IS_STATUS_MESSAGE + " = 0"
+            + " AND " + AbstractMessageModel.COLUMN_DELETED_AT + " IS NULL"
+            + " AND " + AUTO_RESEND_TYPE_FILE
+            + " AND (" + AbstractMessageModel.COLUMN_DISPLAY_TAGS + " & " + DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL + ") = 0"
+            + " AND " + UNSENT_MEDIA_STATE_IN
+            + " AND " + AbstractMessageModel.COLUMN_CREATED_AT + " > ?";
+
+    /**
+     * F1Whisper auto-resend: order candidates oldest-first by their immutable compose time so a
+     * batch resend preserves the original send order.
+     */
+    private static final String AUTO_RESEND_ORDER_BY =
+        AbstractMessageModel.COLUMN_CREATED_AT + " ASC, " + AbstractMessageModel.COLUMN_ID + " ASC";
+
+    /**
+     * F1Whisper auto-resend: run the auto-resend candidate query for this factory's table and
+     * return the raw cursor (oldest first). Callers wrap it with their typed {@code convertList}.
+     *
+     * @param minCreatedAtMillis exclusive lower bound on {@code createdAtUtc} (epoch millis); rows
+     *                           older than this are excluded (the 24h lifespan cutoff).
+     */
+    @WorkerThread
+    protected android.database.Cursor queryAutoResendCandidates(long minCreatedAtMillis) {
+        return getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            AUTO_RESEND_WHERE,
+            new String[]{String.valueOf(minCreatedAtMillis)},
+            null,
+            null,
+            AUTO_RESEND_ORDER_BY
+        );
+    }
+
+    /**
+     * F1Whisper auto-resend: the WHERE clause selecting outgoing FILE messages that were
+     * auto-eligible but have now exhausted the 24h auto-resend window WITHOUT ever succeeding - i.e.
+     * still in an unsent blob-phase state, not terminal, and OLDER than the age cutoff. These are
+     * handed to the nag path so the user is finally told once (Signal/Telegram give up silently
+     * after the window; we surface it). Mirrors {@link #AUTO_RESEND_WHERE} but flips the age
+     * comparison.
+     */
+    private static final String AGED_OUT_UNSENT_WHERE =
+        AbstractMessageModel.COLUMN_OUTBOX + " = 1"
+            + " AND " + AbstractMessageModel.COLUMN_IS_STATUS_MESSAGE + " = 0"
+            + " AND " + AbstractMessageModel.COLUMN_DELETED_AT + " IS NULL"
+            + " AND " + AUTO_RESEND_TYPE_FILE
+            + " AND (" + AbstractMessageModel.COLUMN_DISPLAY_TAGS + " & " + DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL + ") = 0"
+            + " AND " + UNSENT_MEDIA_STATE_IN
+            + " AND " + AbstractMessageModel.COLUMN_CREATED_AT + " <= ?";
+
+    /**
+     * F1Whisper auto-resend: query the aged-out unsent messages for this table (see
+     * {@link #AGED_OUT_UNSENT_WHERE}). Callers wrap it with their typed {@code convertList}.
+     *
+     * @param maxCreatedAtMillis inclusive upper bound on {@code createdAtUtc}; rows at or before
+     *                           this are past the 24h window.
+     */
+    @WorkerThread
+    protected android.database.Cursor queryAgedOutUnsentMessages(long maxCreatedAtMillis) {
+        return getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            AGED_OUT_UNSENT_WHERE,
+            new String[]{String.valueOf(maxCreatedAtMillis)},
+            null,
+            null,
+            AUTO_RESEND_ORDER_BY
+        );
+    }
+
     @WorkerThread
     public int unstarAllMessages() {
         String query =

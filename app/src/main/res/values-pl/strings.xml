@@ -1984,13 +1984,13 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">Minimalizuj</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">Lista kontrolna</string>
-    <string name="checklist_create_as">Utwórz jako listę kontrolną</string>
-    <string name="checklist_fork_only">Listy kontrolne działają tylko między użytkownikami F1Whisper.</string>
+    <string name="checklist">Lista zadań</string>
+    <string name="checklist_create_as">Utwórz jako listę zadań</string>
+    <string name="checklist_fork_only">Listy zadań działają tylko między użytkownikami F1Whisper.</string>
     <string name="checklist_toggle_item">Przełącz element listy</string>
     <string name="checklist_checked_by">Zaznaczone przez %1$s</string>
-    <string name="checklist_created_successfully">Lista kontrolna utworzona</string>
-    <string name="checklist_placeholder">Lista kontrolna</string>
+    <string name="checklist_created_successfully">Lista zadań utworzona</string>
+    <string name="checklist_placeholder">Lista zadań</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">Przypnij wiadomość</string>
     <string name="unpin_message">Odepnij</string>
@@ -2032,6 +2032,10 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="disappearing_duration_1d">1 dzień</string>
     <string name="disappearing_duration_1w">1 tydzień</string>
     <string name="disappearing_duration_4w">4 tygodnie</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Znika</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s po przeczytaniu</string>
     <string name="connectivity_probe_dialog_title">Diagnostyka połączenia</string>
     <string name="connectivity_probe_running">Trwają kontrole…</string>
     <string name="connectivity_probe_done">Kontrole zakończone</string>

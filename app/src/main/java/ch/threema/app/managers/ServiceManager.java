@@ -72,6 +72,7 @@ import ch.threema.app.services.LifetimeServiceImpl;
 import ch.threema.app.services.LocaleService;
 import ch.threema.app.services.LocaleServiceImpl;
 import ch.threema.app.services.LockAppService;
+import ch.threema.app.services.AutoResendService;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.services.MessageServiceImpl;
 import ch.threema.app.services.NotificationPreferenceService;
@@ -173,6 +174,9 @@ public class ServiceManager {
     private UserService userService;
     @Nullable
     private MessageService messageService;
+    // F1Whisper auto-resend orchestrator (reconnect/startup silent resend of unsent messages).
+    @Nullable
+    private AutoResendService autoResendService;
     private final Lazy<SynchronizedSettingsService> synchronizedSettingsServiceLazy = lazy(this::createSynchronizedSettingsService);
     @Nullable
     private LocaleService localeService;
@@ -477,6 +481,57 @@ public class ServiceManager {
         }
 
         return this.messageService;
+    }
+
+    /**
+     * F1Whisper auto-resend: the orchestrator that silently re-sends unsent outgoing messages once
+     * connectivity returns. Backed by the two message tables (candidate query) and the message
+     * service (per-message resend). Trigger it via {@link AutoResendService#scheduleScan} on every
+     * CSP {@code LOGGEDIN} transition and once at app start.
+     */
+    @NonNull
+    public AutoResendService getAutoResendService() throws ThreemaException {
+        ensureNotClosed();
+        if (this.autoResendService == null) {
+            final DatabaseService databaseService = KoinJavaComponent.get(DatabaseService.class);
+            final MessageService messageService = getMessageService();
+            final AutoResendService.CandidateSource candidateSource = new AutoResendService.CandidateSource() {
+                @NonNull
+                @Override
+                public java.util.List<ch.threema.storage.models.AbstractMessageModel> findAutoResendCandidates(long minCreatedAtMillis) {
+                    java.util.List<ch.threema.storage.models.AbstractMessageModel> candidates = new java.util.ArrayList<>();
+                    candidates.addAll(databaseService.getMessageModelFactory().getAutoResendCandidates(minCreatedAtMillis));
+                    candidates.addAll(databaseService.getGroupMessageModelFactory().getAutoResendCandidates(minCreatedAtMillis));
+                    return candidates;
+                }
+
+                @NonNull
+                @Override
+                public java.util.List<ch.threema.storage.models.AbstractMessageModel> findAgedOutUnsentMessages(long maxCreatedAtMillis) {
+                    java.util.List<ch.threema.storage.models.AbstractMessageModel> agedOut = new java.util.ArrayList<>();
+                    agedOut.addAll(databaseService.getMessageModelFactory().getAgedOutUnsentMessages(maxCreatedAtMillis));
+                    agedOut.addAll(databaseService.getGroupMessageModelFactory().getAgedOutUnsentMessages(maxCreatedAtMillis));
+                    return agedOut;
+                }
+            };
+            final AutoResendService.Resender resender = new AutoResendService.Resender() {
+                @Override
+                public void autoResend(@NonNull ch.threema.storage.models.AbstractMessageModel messageModel) throws Exception {
+                    messageService.autoResendMessage(messageModel, AutoResendService.TRIGGER_SOURCE);
+                }
+
+                @Override
+                public void markAgedOutFailed(@NonNull ch.threema.storage.models.AbstractMessageModel messageModel) {
+                    messageService.markAgedOutUnsentFailed(messageModel);
+                }
+            };
+            this.autoResendService = new AutoResendService(
+                candidateSource,
+                resender,
+                java.util.concurrent.Executors.newSingleThreadScheduledExecutor()
+            );
+        }
+        return this.autoResendService;
     }
 
     @NonNull

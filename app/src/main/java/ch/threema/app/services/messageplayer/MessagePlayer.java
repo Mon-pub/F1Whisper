@@ -36,6 +36,12 @@ import ch.threema.storage.models.data.media.MediaMessageDataInterface;
 public abstract class MessagePlayer {
     private static final Logger logger = getThreemaLogger("MessagePlayer");
 
+    // F1Whisper: shared listener key used by the chat-message decorator. Centralised here so the
+    // background-voice teardown can drop exactly the decorator's listeners (which capture the chat's
+    // view holder) without touching the internal "service" listener. Must match the value the
+    // decorator registers its listeners under (see AudioChatAdapterDecorator.LISTENER_TAG).
+    public static final String LISTENER_TAG_DECORATOR = "decorator";
+
     public static final int SOURCE_UNDEFINED = 0;
     public static final int SOURCE_UI_TOGGLE = 1;
     public static final int SOURCE_LIFECYCLE = 2;
@@ -481,6 +487,29 @@ public abstract class MessagePlayer {
                 iterator.next();
                 iterator.remove();
             }
+        }
+    }
+
+    /**
+     * F1Whisper: remove every listener registered under {@code key} from all listener maps. Used to
+     * drop the chat decorator's listeners (which hold the chat's view holder) from a player that is
+     * kept alive for background playback after its chat is gone, without disturbing other listeners.
+     */
+    public void removeListeners(String key) {
+        synchronized (this.playbackListeners) {
+            this.playbackListeners.remove(key);
+        }
+        synchronized (this.playerListeners) {
+            this.playerListeners.remove(key);
+        }
+        synchronized (this.downloadListeners) {
+            this.downloadListeners.remove(key);
+        }
+        synchronized (this.decryptingListeners) {
+            this.decryptingListeners.remove(key);
+        }
+        synchronized (this.transcodeListeners) {
+            this.transcodeListeners.remove(key);
         }
     }
 

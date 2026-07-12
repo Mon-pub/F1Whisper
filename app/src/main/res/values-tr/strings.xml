@@ -1941,20 +1941,20 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">Küçült</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">Kontrol listesi</string>
-    <string name="checklist_create_as">Kontrol listesi olarak oluştur</string>
-    <string name="checklist_fork_only">Kontrol listeleri yalnızca F1Whisper kullanıcıları arasında çalışır.</string>
-    <string name="checklist_toggle_item">Kontrol listesi öğesini değiştir</string>
+    <string name="checklist">Yapılacaklar listesi</string>
+    <string name="checklist_create_as">Yapılacaklar listesi olarak oluştur</string>
+    <string name="checklist_fork_only">Yapılacaklar listeleri yalnızca F1Whisper kullanıcıları arasında çalışır.</string>
+    <string name="checklist_toggle_item">Liste öğesini değiştir</string>
     <string name="checklist_checked_by">%1$s tarafından işaretlendi</string>
-    <string name="checklist_created_successfully">Kontrol listesi oluşturuldu</string>
-    <string name="checklist_placeholder">Kontrol listesi</string>
+    <string name="checklist_created_successfully">Yapılacaklar listesi oluşturuldu</string>
+    <string name="checklist_placeholder">Yapılacaklar listesi</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">Mesajı sabitle</string>
     <string name="unpin_message">Sabitlemeyi kaldır</string>
     <string name="pinned_message_banner_label">Sabitlenmiş mesaj</string>
     <string name="pinned_message_banner_dismiss">Sabitlenmiş mesaj başlığını gizle</string>
     <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
-    <string name="checklist_subject_hint">Bir kontrol listesi başlığı girin</string>
+    <string name="checklist_subject_hint">Bir yapılacaklar listesi başlığı girin</string>
     <string name="checklist_wizard0_explain">Paylaşılan bir yapılacaklar listesi oluşturun. Sohbetteki herkes öğeleri istediği zaman işaretleyip işaretini kaldırabilir ve işaretlenen öğeler alta taşınır.</string>
     <string name="checklist_add_items">Öğe ekle</string>
     <string name="checklist_item_add">Bir öğe ekle</string>
@@ -1967,7 +1967,7 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="checklist_delete_button">Sil</string>
     <string name="checklist_reorder_item">Liste öğesini taşı</string>
     <string name="checklist_cannot_reorder">Bu öğe taşınamaz</string>
-    <string name="checklist_edit_title">Kontrol listesini düzenle</string>
+    <string name="checklist_edit_title">Yapılacaklar listesini düzenle</string>
     <string name="checklist_edit_apply">Uygula</string>
     <string name="checklist_rename_item_title">Ögeyi yeniden adlandır</string>
     <string name="audio_trim_not_supported">Bu ses biçimi için kırpma desteklenmiyor. Dosyanın tamamını göndermek için kırpmayı kaldırın.</string>
@@ -1989,6 +1989,10 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="disappearing_duration_1d">1 gün</string>
     <string name="disappearing_duration_1w">1 hafta</string>
     <string name="disappearing_duration_4w">4 hafta</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Kaybolur</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">okunduktan %1$s sonra</string>
     <string name="connectivity_probe_dialog_title">Bağlantı tanılaması</string>
     <string name="connectivity_probe_running">Denetimler çalışıyor…</string>
     <string name="connectivity_probe_done">Denetimler tamamlandı</string>

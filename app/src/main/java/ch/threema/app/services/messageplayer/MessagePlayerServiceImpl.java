@@ -145,6 +145,12 @@ public class MessagePlayerServiceImpl implements MessagePlayerService {
                     messageModel.getFileData().getRenderingType() == FileData.RENDERING_MEDIA) {
                     o.setData(messageModel.getFileData());
                 }
+                // F1Whisper: a voice player kept alive for background playback carries the controller
+                // of a now-destroyed fragment. On re-entering its chat, re-bind it to this fragment's
+                // live controller so the bubble regains working controls + an advancing seekbar.
+                if (o instanceof AudioMessagePlayer && mediaControllerFuture != null) {
+                    ((AudioMessagePlayer) o).rebindMediaControllerIfChanged(mediaControllerFuture);
+                }
                 logger.debug("recycling existing player {}", key);
             }
             if (o != null) {
@@ -221,6 +227,51 @@ public class MessagePlayerServiceImpl implements MessagePlayerService {
                     mp.removeListeners();
                     logger.debug("Keep downloading player {}", pair.getKey());
                 }
+            }
+        }
+    }
+
+    @Override
+    public void releaseExcept(int keepMessageId) {
+        logger.debug("release all players except {}", keepMessageId);
+        synchronized (this.messagePlayers) {
+            Iterator<Map.Entry<Integer, MessagePlayer>> iterator = messagePlayers.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<Integer, MessagePlayer> pair = iterator.next();
+                MessagePlayer mp = pair.getValue();
+                if (pair.getKey() == keepMessageId && mp instanceof AudioMessagePlayer) {
+                    // Keep this voice playing in the background: detach its controller + drop the
+                    // decorator listeners (which hold the destroyed chat's view holder) and the
+                    // activity ref, but do NOT stop it or delete its decrypted file.
+                    ((AudioMessagePlayer) mp).detachController();
+                    mp.removeListeners(MessagePlayer.LISTENER_TAG_DECORATOR);
+                    mp.setCurrentActivity(null, null);
+                    logger.debug("Keeping background voice player {}", pair.getKey());
+                    continue;
+                }
+                mp.stop();
+                if (mp.release()) {
+                    iterator.remove();
+                    logger.debug("Releasing player {}", pair.getKey());
+                } else {
+                    mp.setCurrentActivity(null, null);
+                    mp.removeListeners();
+                    logger.debug("Keep downloading player {}", pair.getKey());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void releasePlayer(int messageId) {
+        logger.debug("release background player {}", messageId);
+        synchronized (this.messagePlayers) {
+            MessagePlayer mp = messagePlayers.remove(messageId);
+            if (mp != null) {
+                // The kept player's controller was detached (see releaseExcept), so release() only
+                // resets state + deletes the decrypted file — it does not touch a released controller.
+                mp.removeListeners();
+                mp.release();
             }
         }
     }

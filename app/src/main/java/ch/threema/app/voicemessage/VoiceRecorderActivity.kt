@@ -155,6 +155,10 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
 
         wasRecreated = savedInstanceState != null
 
+        // F1Whisper: when the recorder was launched as a reply to a quoted message, forward the quoted
+        // apiMessageId to the view model so the sent voice note carries the reply-quote (via "qi").
+        viewModel.replyQuoteApiMessageId = IntentDataUtil.getQuotedApiMessageIdFromIntent(intent)
+
         // F1Whisper: do NOT prompt for BLUETOOTH_CONNECT (the "Nearby devices" permission) just to
         // record a voice message. It is only needed to route recording through a connected Bluetooth
         // headset (SCO); recording works fine with the built-in mic without it. Signal records voice

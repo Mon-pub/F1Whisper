@@ -1939,20 +1939,20 @@ ${app_name_short} 支援的所有表情符號。</string>
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">最小化</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">清單</string>
-    <string name="checklist_create_as">建立為清單</string>
-    <string name="checklist_fork_only">清單功能僅在F1Whisper用戶之間有效。</string>
-    <string name="checklist_toggle_item">切換清單項目</string>
+    <string name="checklist">待辦清單</string>
+    <string name="checklist_create_as">建立為待辦清單</string>
+    <string name="checklist_fork_only">待辦清單功能僅在F1Whisper用戶之間有效。</string>
+    <string name="checklist_toggle_item">切換待辦清單項目</string>
     <string name="checklist_checked_by">%1$s已勾選</string>
-    <string name="checklist_created_successfully">清單已建立</string>
-    <string name="checklist_placeholder">清單</string>
+    <string name="checklist_created_successfully">待辦清單已建立</string>
+    <string name="checklist_placeholder">待辦清單</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">置頂訊息</string>
     <string name="unpin_message">取消置頂</string>
     <string name="pinned_message_banner_label">已置頂訊息</string>
     <string name="pinned_message_banner_dismiss">隱藏置頂訊息橫幅</string>
     <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
-    <string name="checklist_subject_hint">輸入清單標題</string>
+    <string name="checklist_subject_hint">輸入待辦清單標題</string>
     <string name="checklist_wizard0_explain">建立共享待辦清單。聊天中的所有人都可以隨時勾選和取消勾選項目，已勾選的項目會移到底部。</string>
     <string name="checklist_add_items">新增項目</string>
     <string name="checklist_item_add">新增一個項目</string>
@@ -1963,9 +1963,9 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="checklist_delete_item_title">刪除項目？</string>
     <string name="checklist_delete_item_message">確定要刪除「%1$s」嗎？</string>
     <string name="checklist_delete_button">刪除</string>
-    <string name="checklist_reorder_item">移動清單項目</string>
+    <string name="checklist_reorder_item">移動待辦清單項目</string>
     <string name="checklist_cannot_reorder">此項目無法移動</string>
-    <string name="checklist_edit_title">編輯清單</string>
+    <string name="checklist_edit_title">編輯待辦清單</string>
     <string name="checklist_edit_apply">套用</string>
     <string name="checklist_rename_item_title">重新命名項目</string>
     <string name="audio_trim_not_supported">此音訊格式不支援裁剪。移除裁剪即可傳送完整檔案。</string>
@@ -1987,6 +1987,10 @@ ${app_name_short} 支援的所有表情符號。</string>
     <string name="disappearing_duration_1d">1 天</string>
     <string name="disappearing_duration_1w">1 週</string>
     <string name="disappearing_duration_4w">4 週</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">即焚時間</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">閱讀後 %1$s</string>
     <string name="connectivity_probe_dialog_title">連線診斷</string>
     <string name="connectivity_probe_running">正在執行檢查…</string>
     <string name="connectivity_probe_done">檢查完成</string>

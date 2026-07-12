@@ -171,6 +171,10 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
     private boolean useExternalCamera;
     private MenuItem settingsItem, editFilenameItem;
     private MediaFilterQuery lastMediaFilter;
+    // F1Whisper: apiMessageId of the message being replied-to when this media send was launched from
+    // an active quote (camera / gallery-edit / file / external-camera). Applied to every sent item.
+    @Nullable
+    private String pendingQuoteApiMessageId;
     private TextView itemCountText;
 
     private RootViewDeferringInsetsCallback rootInsetsDeferringCallback = null;
@@ -238,6 +242,8 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
         this.messageReceivers = IntentDataUtil.getMessageReceiversFromIntent(intent);
         // check if we previously filtered media in MediaAttachActivity to reuse the filter when adding additional media items
         this.lastMediaFilter = IntentDataUtil.getLastMediaFilterFromIntent(intent);
+        // F1Whisper: a reply-quote id present when this media send was launched from an active quote.
+        this.pendingQuoteApiMessageId = IntentDataUtil.getQuotedApiMessageIdFromIntent(intent);
 
         if (this.pickFromCamera && savedInstanceState == null) {
             launchCamera();
@@ -1041,6 +1047,14 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
     private void sendMedia() {
         if (mediaAdapterManager.size() < 1) {
             return;
+        }
+
+        // F1Whisper: if this send was launched from an active quote, tag every item with the quoted
+        // apiMessageId so the answer (photo/video/file) carries the reply-quote E2E via "qi".
+        if (pendingQuoteApiMessageId != null) {
+            for (MediaItem mediaItem : mediaAdapterManager.getItems()) {
+                mediaItem.setQuotedMessageId(pendingQuoteApiMessageId);
+            }
         }
 
         dependencies.getMessageService().sendMediaAsync(mediaAdapterManager.getItems(), messageReceivers, null);

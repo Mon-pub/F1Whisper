@@ -230,6 +230,7 @@ import ch.threema.app.services.ballot.BallotService;
 import ch.threema.app.services.license.LicenseService;
 import ch.threema.app.services.messageplayer.MessagePlayer;
 import ch.threema.app.services.messageplayer.MessagePlayerService;
+import ch.threema.app.services.messageplayer.VoiceMessagePlaybackHolder;
 import ch.threema.app.services.notification.NotificationService;
 import ch.threema.app.ui.AvatarView;
 import ch.threema.app.ui.BottomSheetItem;
@@ -396,6 +397,11 @@ public class ComposeMessageFragment extends Fragment implements
     public static final String EXTRA_OVERRIDE_BACK_TO_HOME_BEHAVIOR = "backOverride";
     public static final String EXTRA_LAST_MEDIA_SEARCH_QUERY = "searchMediaQuery";
     public static final String EXTRA_LAST_MEDIA_TYPE_QUERY = "searchMediaType";
+    // F1Whisper: result-extra set by MediaAttachActivity when it actually SENT media (so a reply-quote
+    // was consumed). Lets the fragment tell a genuine back-out (reopen the quote) from a completed send
+    // (don't reopen) without trusting the unreliable ATTACH_MEDIA result code (the two direct-send
+    // paths send media but still finish() with RESULT_CANCELED).
+    public static final String EXTRA_MEDIA_WAS_SENT = "mediaWasSent";
 
     private static final int PERMISSION_REQUEST_SAVE_MESSAGE = 2;
     private static final int PERMISSION_REQUEST_ATTACH_VOICE_MESSAGE = 7;
@@ -415,6 +421,8 @@ public class ComposeMessageFragment extends Fragment implements
     private static final String BUNDLE_LIST_RECEIVER_ID = "list_receiver_id";
     private static final String BUNDLE_LIST_TOP = "list_top";
     private static final String BUNDLE_LIST_LONG_CLICK_ITEM = "list_long_click_item";
+    // F1Whisper: persist the in-flight reply-quote id across process death during the attach detour.
+    private static final String BUNDLE_PENDING_QUOTE_API_MESSAGE_ID = "pending_quote_api_message_id";
 
     @NonNull
     private final DependencyContainer dependencies = KoinJavaComponent.get(DependencyContainer.class);
@@ -547,6 +555,12 @@ public class ComposeMessageFragment extends Fragment implements
     private TooltipPopup availabilityStatusTooltipPopup;
     private EmojiReactionsPopup emojiReactionsPopup;
     private QuotePopup quotePopup;
+    // F1Whisper: transient carrier for the quoted message's apiMessageId while a media/file/voice
+    // answer is being composed in a sub-activity (Signal-style "reply with any type"). Captured from
+    // the popup BEFORE it is dismissed (dismissQuotePopup nulls the popup, and the camera/voice launch
+    // helpers are also re-entered from the permission callback after the popup is gone), threaded into
+    // the sub-activity as an Intent extra, and cleared when the sub-activity returns.
+    private @Nullable String pendingQuoteApiMessageId;
     private OpenBallotNoticeView openBallotNoticeView;
     private ReportSpamView reportSpamView;
     private AvailabilityStatusContactBannerView availabilityStatusBannerView;
@@ -1467,6 +1481,10 @@ public class ComposeMessageFragment extends Fragment implements
                 if (actionMode != null) {
                     actionMode.finish();
                 }
+                // F1Whisper: capture the active quote BEFORE dismissQuotePopup nulls the popup, so an
+                // in-chat camera answer carries the reply-quote. attachCamera() reads this field from
+                // both the direct call below and the permission-callback re-entry.
+                pendingQuoteApiMessageId = getActiveQuoteApiMessageId();
                 dismissQuotePopup();
                 if (!validateSendingPermission()) {
                     return;
@@ -2127,8 +2145,21 @@ public class ComposeMessageFragment extends Fragment implements
                 return;
             }
 
+            // F1Whisper: if a normal (non-listen-once) voice message is actively playing, keep it
+            // going in the background (see the "now playing" banner). We release the OTHER players
+            // (so nothing accumulates) but keep the playing one WITH its decrypted file (releasing it
+            // would delete the file the shared player is still reading) and mark it a detached
+            // background session so the holder cleans it up when it truly ends.
+            final VoiceMessagePlaybackHolder voicePlaybackHolder = VoiceMessagePlaybackHolder.getInstance(getAppContext());
+            final boolean keepVoicePlaying = voicePlaybackHolder.isPlayingContinuable();
+
             if (this.messagePlayerService != null) {
-                this.messagePlayerService.release();
+                if (keepVoicePlaying) {
+                    this.messagePlayerService.releaseExcept(voicePlaybackHolder.currentMessageId());
+                    voicePlaybackHolder.markDetached();
+                } else {
+                    this.messagePlayerService.release();
+                }
             }
 
             if (this.thumbnailCache != null) {
@@ -2169,7 +2200,7 @@ public class ComposeMessageFragment extends Fragment implements
                 draftUpdateTextWatcher.stop();
             }
 
-            releaseMedia3Controller();
+            releaseMedia3Controller(keepVoicePlaying);
         } catch (Exception x) {
             logger.error("Exception", x);
         }
@@ -2399,10 +2430,14 @@ public class ComposeMessageFragment extends Fragment implements
                             actionMode.finish();
                         }
 
+                        // F1Whisper: capture the active quote before dismissing the popup, then thread
+                        // it into the attach flow so a media/file answer carries the reply-quote.
+                        pendingQuoteApiMessageId = getActiveQuoteApiMessageId();
                         dismissQuotePopup();
 
                         Intent intent = new Intent(activity, MediaAttachActivity.class);
                         IntentDataUtil.addMessageReceiverToIntent(intent, messageReceiver);
+                        IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
                         if (ComposeMessageFragment.this.lastMediaFilter != null) {
                             intent = IntentDataUtil.addLastMediaFilterToIntent(intent, ComposeMessageFragment.this.lastMediaFilter);
                         }
@@ -2519,13 +2554,15 @@ public class ComposeMessageFragment extends Fragment implements
             }
         }
 
-        final int attachButtonVisibility = isQuotePopupShown() ?
-            View.GONE : View.VISIBLE;
+        // F1Whisper: keep the attach button visible while quoting so a media/file answer can be sent
+        // as a reply (the quote is threaded into the attach flow). Previously hidden while quoting.
+        final int attachButtonVisibility = View.VISIBLE;
 
+        // F1Whisper: keep the camera button visible while quoting (blank text) so a camera answer can
+        // be sent as a reply. Previously hidden while quoting.
         final int cameraButtonVisibility =
             (messageText.getText() == null ||
                 messageText.getText().length() == 0) &&
-                !isQuotePopupShown() &&
                 isCameraPermissionGranted ?
                 View.VISIBLE : View.GONE;
 
@@ -2577,21 +2614,15 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     private void updateSendButton(CharSequence text) {
-        if (isQuotePopupShown()) {
-            if (TestUtil.isBlankOrNull(text)) {
-                sendButton.setEnabled(false);
-            } else {
-                sendButton.setSend();
-                sendButton.setEnabled(true);
-            }
+        // F1Whisper: while quoting with blank text, show the mic (record) icon enabled so a voice-note
+        // answer is reachable as a reply (previously the send button was disabled while quoting). With
+        // non-blank text it stays a send button. Quote and non-quote states now behave identically.
+        if (TestUtil.isBlankOrNull(text)) {
+            sendButton.setRecord();
+            sendButton.setEnabled(true);
         } else {
-            if (TestUtil.isBlankOrNull(text)) {
-                sendButton.setRecord();
-                sendButton.setEnabled(true);
-            } else {
-                sendButton.setSend();
-                sendButton.setEnabled(true);
-            }
+            sendButton.setSend();
+            sendButton.setEnabled(true);
         }
         if (emojiButton != null) {
             emojiButton.setVisibility(ConfigUtils.isDefaultEmojiStyle() ? View.VISIBLE : View.GONE);
@@ -2675,6 +2706,7 @@ public class ComposeMessageFragment extends Fragment implements
             this.listInstanceReceiverId = bundle.getString(BUNDLE_LIST_RECEIVER_ID);
             this.listInstanceTop = bundle.getInt(BUNDLE_LIST_TOP);
             this.longClickItem = bundle.getInt(BUNDLE_LIST_LONG_CLICK_ITEM);
+            this.pendingQuoteApiMessageId = bundle.getString(BUNDLE_PENDING_QUOTE_API_MESSAGE_ID);
         }
     }
 
@@ -2685,13 +2717,25 @@ public class ComposeMessageFragment extends Fragment implements
             return;
         }
 
+        // F1Whisper: switching to another chat (singleTop) — keep a normal voice message playing in
+        // the background if one is active. We release the OTHER players but keep the playing one with
+        // its decrypted file, and do NOT stop the controller; its "now playing" banner then shows in
+        // the new chat.
+        final VoiceMessagePlaybackHolder voicePlaybackHolder = VoiceMessagePlaybackHolder.getInstance(getAppContext());
+        final boolean keepVoicePlaying = voicePlaybackHolder.isPlayingContinuable();
+
         if (this.messagePlayerService != null) {
-            this.messagePlayerService.stopAll();
-            this.messagePlayerService.release();
+            if (keepVoicePlaying) {
+                this.messagePlayerService.releaseExcept(voicePlaybackHolder.currentMessageId());
+                voicePlaybackHolder.markDetached();
+            } else {
+                this.messagePlayerService.stopAll();
+                this.messagePlayerService.release();
+            }
         }
 
         MediaController mediaController = getMedia3Controller();
-        if (mediaController != null) {
+        if (mediaController != null && !keepVoicePlaying) {
             mediaController.stop();
             mediaController.clearMediaItems();
         }
@@ -3566,7 +3610,27 @@ public class ComposeMessageFragment extends Fragment implements
                 }
             }
 
+            // F1Whisper: enforce a single unread divider across initial load, pagination and
+            // quote-jump. markFirstUnread appends a FirstUnreadMessageModel to EVERY loaded page that
+            // contains an unread row, but only one divider may ever render. Drop an incoming divider
+            // when the list already carries one (initial-open still gets its single divider because
+            // clear() emptied the list first).
+            boolean dividerAlreadyPresent = false;
+            for (AbstractMessageModel existing : this.messageValues) {
+                if (existing instanceof FirstUnreadMessageModel) {
+                    dividerAlreadyPresent = true;
+                    break;
+                }
+            }
+
             for (AbstractMessageModel m : values) {
+                if (m instanceof FirstUnreadMessageModel) {
+                    if (dividerAlreadyPresent) {
+                        continue;
+                    }
+                    dividerAlreadyPresent = true;
+                }
+
                 Date createdAt = m.getCreatedAt();
                 if (createdAt != null) {
                     if (!dayFormatter.format(createdAt).equals(dayFormatter.format(date))) {
@@ -3818,6 +3882,19 @@ public class ComposeMessageFragment extends Fragment implements
                 }
 
                 @Override
+                public void quoteClick(View view, int position, AbstractMessageModel messageModel) {
+                    // F1Whisper: the reply-quote header on a media bubble was tapped. While selecting,
+                    // toggle selection like any bubble tap; otherwise jump to the quoted message (the
+                    // whole-bubble tap opens the attachment, so the header is the sole jump affordance).
+                    if (actionMode != null) {
+                        onListItemClick(view, position, messageModel);
+                    } else {
+                        logger.info("Quote header clicked");
+                        jumpToQuotedMessage(messageModel);
+                    }
+                }
+
+                @Override
                 public void longClick(View view, int position, AbstractMessageModel messageModel) {
                     logger.info("Message long-clicked");
                     onListItemLongClick(view, position);
@@ -4004,12 +4081,17 @@ public class ComposeMessageFragment extends Fragment implements
             synchronized (this.messageValues) {
                 int entryCount = convListView.getCount();
                 int arithmeticPosition = Math.min(entryCount - unreadCount, this.messageValues.size() - 1);
-                int position = arithmeticPosition;
-                while (position >= 0) {
-                    if (this.messageValues.get(position) instanceof FirstUnreadMessageModel) {
+
+                // Locate the async-inserted divider by its unique sentinel type anywhere in the list.
+                // The old entryCount - unreadCount seed assumed the unread block is contiguous at the
+                // bottom; with an interleaved backlog the divider sits above the arithmetic guess, so
+                // we search the whole list instead. There is only ever one divider.
+                int position = -1;
+                for (int i = 0; i < this.messageValues.size(); i++) {
+                    if (this.messageValues.get(i) instanceof FirstUnreadMessageModel) {
+                        position = i;
                         break;
                     }
-                    position--;
                 }
 
                 if (position > 0) {
@@ -4140,40 +4222,55 @@ public class ComposeMessageFragment extends Fragment implements
                         }
                     });
                 }
-            } else if (messageModel.getQuotedMessageId() != null) {
-                QuoteUtil.QuoteContent quoteContent = QuoteUtil.getQuoteContent(
-                    messageModel,
-                    messageReceiver,
-                    false,
-                    thumbnailCache,
-                    getContext(),
-                    this.messageService,
-                    this.userService,
-                    this.fileService,
-                    this.preferenceService.getContactNameFormat()
-                );
-                if (quoteContent != null) {
-                    if (searchActionMode != null) {
-                        searchActionMode.finish();
-                    }
-
-                    AbstractMessageModel quotedMessageModel = messageService.getMessageModelByApiMessageIdAndReceiver(messageModel.getQuotedMessageId(), messageReceiver);
-                    logger.info("Trying to jump to quoted message");
-                    // F1Whisper: a disappearing quoted message that is now overdue is removed here so
-                    // the jump degrades to "message deleted" instead of reviving a gone message.
-                    if (quotedMessageModel != null && DisappearingMessageService.enforceIfExpired(quotedMessageModel)) {
-                        quotedMessageModel = null;
-                    }
-                    if (quotedMessageModel != null) {
-                        ComposeMessageAdapter.ConversationListFilter filter = (ComposeMessageAdapter.ConversationListFilter) composeMessageAdapter.getQuoteFilter(quoteContent);
-                        searchV2Quote(quotedMessageModel.getApiMessageId(), filter);
-                    } else {
-                        Toast.makeText(getContext().getApplicationContext(), R.string.quoted_message_deleted, Toast.LENGTH_SHORT).show();
-                    }
-                }
+            } else if (messageModel.getQuotedMessageId() != null && messageModel.getType() == MessageType.TEXT) {
+                // F1Whisper: only a TEXT quote jumps on a whole-bubble tap. A media/file/voice reply
+                // also carries quotedMessageId now, but its body tap must OPEN the attachment - it jumps
+                // only via the dedicated quote-header tap (quoteClick -> jumpToQuotedMessage). Without
+                // this TEXT gate, every media-reply body tap would open the media AND scroll away.
+                jumpToQuotedMessage(messageModel);
             } else if ((messageModel.getType() == MessageType.TEXT && !messageModel.isStatusMessage()) || messageModel.isDeleted()) {
                 logger.info("Opening message details screen");
                 showMessageDetailScreen(messageModel);
+            }
+        }
+    }
+
+    /**
+     * F1Whisper: jump the conversation to the message quoted by {@code messageModel}. Shared by the
+     * whole-bubble tap on a TEXT quote and the dedicated quote-header tap on a media/file/voice reply
+     * (both resolve the same quotedMessageId column). Reuses the existing searchV2Quote paging search;
+     * shows the "message deleted" toast when the target is gone or overdue-disappearing.
+     */
+    @UiThread
+    private void jumpToQuotedMessage(@NonNull AbstractMessageModel messageModel) {
+        QuoteUtil.QuoteContent quoteContent = QuoteUtil.getQuoteContent(
+            messageModel,
+            messageReceiver,
+            false,
+            thumbnailCache,
+            getContext(),
+            this.messageService,
+            this.userService,
+            this.fileService,
+            this.preferenceService.getContactNameFormat()
+        );
+        if (quoteContent != null) {
+            if (searchActionMode != null) {
+                searchActionMode.finish();
+            }
+
+            AbstractMessageModel quotedMessageModel = messageService.getMessageModelByApiMessageIdAndReceiver(messageModel.getQuotedMessageId(), messageReceiver);
+            logger.info("Trying to jump to quoted message");
+            // A disappearing quoted message that is now overdue is removed here so the jump degrades to
+            // "message deleted" instead of reviving a gone message.
+            if (quotedMessageModel != null && DisappearingMessageService.enforceIfExpired(quotedMessageModel)) {
+                quotedMessageModel = null;
+            }
+            if (quotedMessageModel != null) {
+                ComposeMessageAdapter.ConversationListFilter filter = (ComposeMessageAdapter.ConversationListFilter) composeMessageAdapter.getQuoteFilter(quoteContent);
+                searchV2Quote(quotedMessageModel.getApiMessageId(), filter);
+            } else {
+                Toast.makeText(getContext().getApplicationContext(), R.string.quoted_message_deleted, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -4443,6 +4540,11 @@ public class ComposeMessageFragment extends Fragment implements
         if (!TestUtil.isBlankOrNull(this.messageText.getText())) {
             prepareSendTextMessage();
         } else {
+            // F1Whisper: capture the active quote BEFORE requesting audio permission - the permission
+            // dialog can dismiss the popup before the callback re-enters attachVoiceMessage(), so a
+            // capture inside attachVoiceMessage() would be lost on the permission path. attachVoiceMessage()
+            // reads this field (never the popup) so both the direct and permission-callback paths carry it.
+            pendingQuoteApiMessageId = getActiveQuoteApiMessageId();
             if (ConfigUtils.requestAudioPermissions(requireActivity(), this, PERMISSION_REQUEST_ATTACH_VOICE_MESSAGE)) {
                 attachVoiceMessage();
             }
@@ -4996,6 +5098,9 @@ public class ComposeMessageFragment extends Fragment implements
 
         Intent intent = new Intent(activity, VoiceRecorderActivity.class);
         IntentDataUtil.addMessageReceiverToIntent(intent, messageReceiver);
+        // F1Whisper: thread the reply-quote (captured in sendMessage() before the permission request)
+        // into the voice recorder so a voice-note answer carries it.
+        IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
         activity.startActivityForResult(intent, ACTIVITY_ID_VOICE_RECORDER);
         activity.overridePendingTransition(R.anim.fast_fade_in, R.anim.fast_fade_out);
     }
@@ -5320,6 +5425,36 @@ public class ComposeMessageFragment extends Fragment implements
 
     private boolean isQuotePopupShown() {
         return quotePopup != null && quotePopup.isShowing();
+    }
+
+    /**
+     * F1Whisper: the apiMessageId of the currently-quoted message, or {@code null} if no quote popup
+     * is showing. Read at each media/voice launch site (before dismissing the popup) so a non-text
+     * answer can carry the reply-quote.
+     */
+    private @Nullable String getActiveQuoteApiMessageId() {
+        if (isQuotePopupShown()) {
+            final QuotePopup.QuoteInfo quoteInfo = quotePopup.getQuoteInfo();
+            if (quoteInfo != null && quoteInfo.getMessageModel() != null) {
+                return quoteInfo.getMessageModel().getApiMessageId();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * F1Whisper: re-show the quote popup for the given apiMessageId (used to restore a reply-quote
+     * when the user backs out of a media/camera sub-activity without sending). No-op if the id is
+     * null or the target is no longer quoteable.
+     */
+    private void reopenQuotePopupById(@Nullable String apiMessageId) {
+        if (apiMessageId == null || messageReceiver == null) {
+            return;
+        }
+        final AbstractMessageModel quotedMessageModel = messageService.getMessageModelByApiMessageIdAndReceiver(apiMessageId, messageReceiver);
+        if (quotedMessageModel != null && QuoteUtil.isQuoteable(quotedMessageModel)) {
+            showQuotePopup(quotedMessageModel, false);
+        }
     }
 
     private void startForwardMessage() {
@@ -6415,6 +6550,9 @@ public class ComposeMessageFragment extends Fragment implements
             previewIntent.putExtra(AppConstants.INTENT_DATA_TEXT, this.actionBarTitleTextView.getText().toString());
         }
         previewIntent.putExtra(AppConstants.INTENT_DATA_PICK_FROM_CAMERA, true);
+        // F1Whisper: carry the reply-quote (captured in the camera button listener / permission
+        // callback) so an in-chat camera answer renders the quote header for the recipient.
+        IntentDataUtil.addQuotedApiMessageIdToIntent(previewIntent, pendingQuoteApiMessageId);
         activity.startActivityForResult(previewIntent, ThreemaActivity.ACTIVITY_ID_SEND_MEDIA);
     }
 
@@ -6603,12 +6741,47 @@ public class ComposeMessageFragment extends Fragment implements
                 logger.info("Voice recording received for attaching");
                 this.messagePlayerService.resumeAll(getActivity(), messageReceiver, SOURCE_AUDIORECORDER);
             }
+            // F1Whisper: the voice recorder always finishes with RESULT_CANCELED (send and back are
+            // indistinguishable) and only launches with blank compose text (so no draft quote was
+            // persisted), so we do not reopen the quote popup here - a reply-quote, if any, already
+            // rode the send via the "qi" metadata. Just drop the transient pending id.
+            pendingQuoteApiMessageId = null;
+        }
+        if (requestCode == ThreemaActivity.ACTIVITY_ID_SEND_MEDIA) {
+            // F1Whisper: the in-chat camera answer returns here (attachCamera -> SendMediaActivity).
+            // SendMediaActivity's result codes are reliable: RESULT_OK on send (it also removed the
+            // draft), RESULT_CANCELED on back. Reopen the quote popup if the user backed out so the
+            // reply is not lost; otherwise it already rode the send via "qi".
+            if (resultCode != Activity.RESULT_OK) {
+                reopenQuotePopupById(pendingQuoteApiMessageId);
+            }
+            pendingQuoteApiMessageId = null;
         }
         if (requestCode == ThreemaActivity.ACTIVITY_ID_ATTACH_MEDIA) {
+            // F1Whisper: the reply-quote is NOT carried by the draft across the attach detour - the
+            // attach click's dismissQuotePopup() runs before onPause()'s updateMessageDraft(), which
+            // rewrites the draft with a null quote. So we carry it in pendingQuoteApiMessageId and
+            // reopen the popup here on a genuine back-out. "Media was sent" is signalled explicitly by
+            // MediaAttachActivity (EXTRA_MEDIA_WAS_SENT) because its result code is unreliable (the two
+            // direct-send paths, gallery quick-send + drawing, send media but still finish() CANCELED).
+            final boolean mediaWasSent = intent != null && intent.getBooleanExtra(EXTRA_MEDIA_WAS_SENT, false);
             restoreMessageDraft(true);
+            if (!mediaWasSent) {
+                // Genuine back-out, or a deferred location/ballot answer that did not consume the quote:
+                // restore the reply-quote. (Works for blank compose text too, unlike a draft-based reopen.)
+                reopenQuotePopupById(pendingQuoteApiMessageId);
+            }
+            pendingQuoteApiMessageId = null;
             if (resultCode == Activity.RESULT_OK) {
                 logger.info("Media file(s) received for attaching");
-                this.lastMediaFilter = IntentDataUtil.getLastMediaFilterFromIntent(intent);
+                // F1Whisper: only overwrite the remembered filter when the result actually carries one.
+                // Upstream never delivered a filter-less RESULT_OK here; the EXTRA_MEDIA_WAS_SENT
+                // signalling introduced RESULT_OK intents without filter extras, which must not wipe
+                // the filter memory.
+                final MediaFilterQuery lastFilterFromResult = IntentDataUtil.getLastMediaFilterFromIntent(intent);
+                if (lastFilterFromResult != null) {
+                    this.lastMediaFilter = lastFilterFromResult;
+                }
             }
         }
     }
@@ -7429,6 +7602,8 @@ public class ComposeMessageFragment extends Fragment implements
         outState.putString(BUNDLE_LIST_RECEIVER_ID, this.listInstanceReceiverId);
         outState.putInt(BUNDLE_LIST_TOP, this.listInstanceTop);
         outState.putInt(BUNDLE_LIST_LONG_CLICK_ITEM, this.longClickItem);
+        // F1Whisper: survive process death while a media/camera reply is being composed in a sub-activity.
+        outState.putString(BUNDLE_PENDING_QUOTE_API_MESSAGE_ID, this.pendingQuoteApiMessageId);
 
         super.onSaveInstanceState(outState);
     }
@@ -7966,11 +8141,17 @@ public class ComposeMessageFragment extends Fragment implements
         return null;
     }
 
-    private void releaseMedia3Controller() {
+    private void releaseMedia3Controller(boolean keepVoicePlaying) {
         MediaController mediaController = getMedia3Controller();
         if (mediaController != null) {
-            mediaController.stop();
-            mediaController.clearMediaItems();
+            // F1Whisper: when keeping a voice message playing in the background, only release THIS
+            // fragment's controller handle. Stopping/clearing it would stop the shared player; the
+            // app-scoped VoiceMessagePlaybackHolder keeps its own controller connected so the media3
+            // service is not auto-stopped by the last-controller-disconnect.
+            if (!keepVoicePlaying) {
+                mediaController.stop();
+                mediaController.clearMediaItems();
+            }
             mediaController.release();
         }
 
@@ -7978,12 +8159,16 @@ public class ComposeMessageFragment extends Fragment implements
             MediaController.releaseFuture(mediaControllerFuture);
         }
 
-        try {
-            if (!getAppContext().stopService(new Intent(getAppContext(), VoiceMessagePlayerService.class))) {
-                logger.debug("VoiceMessagePlayer already stopped.");
+        if (!keepVoicePlaying) {
+            // Normal teardown: drop the background holder controller too, then stop the service.
+            VoiceMessagePlaybackHolder.getInstance(getAppContext()).disconnectQuietly();
+            try {
+                if (!getAppContext().stopService(new Intent(getAppContext(), VoiceMessagePlayerService.class))) {
+                    logger.debug("VoiceMessagePlayer already stopped.");
+                }
+            } catch (Exception e) {
+                logger.error("Unable to stop VoiceMessagePlayer", e);
             }
-        } catch (Exception e) {
-            logger.error("Unable to stop VoiceMessagePlayer", e);
         }
     }
 }

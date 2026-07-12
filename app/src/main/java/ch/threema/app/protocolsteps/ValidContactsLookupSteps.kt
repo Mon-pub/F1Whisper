@@ -27,8 +27,18 @@ import ch.threema.domain.stores.ContactStore
 import ch.threema.domain.taskmanager.NetworkException
 import ch.threema.domain.taskmanager.ProtocolException
 import ch.threema.domain.types.IdentityString
+import java.io.IOException
+import org.json.JSONException
 
 private val logger = getThreemaLogger("ValidContactsLookupSteps")
+
+// Matches the status code embedded by APIConnector.postJson in the message of the IOException it
+// throws for any non-2xx response ("HTTP POST failed. Server response code: <code>"). A connectivity
+// error carries no such code, so a null result is treated as transient.
+private val WORK_API_STATUS_CODE_REGEX = Regex("""Server response code:\s*(\d+)""")
+
+internal fun extractWorkApiStatusCode(message: String?): Int? =
+    message?.let { WORK_API_STATUS_CODE_REGEX.find(it)?.groupValues?.get(1)?.toIntOrNull() }
 
 sealed class ContactOrInit(val identity: IdentityString)
 
@@ -162,6 +172,37 @@ class ValidContactsLookupSteps(
                     /* identities = */
                     unknownIdentities.toTypedArray(),
                 )
+            } catch (e: NetworkException) {
+                // Already a network-class error; surface it so the task manager reconnects and
+                // retries without acking (rethrown by catchAllExceptNetworkException).
+                throw e
+            } catch (e: IOException) {
+                // A non-200 work-API response (fetchWorkContacts -> postJson throws a plain
+                // IOException carrying the status code in its message on any non-200) or a
+                // connectivity error (no status code in the message). This is NOT a valid "sender is
+                // not a work contact" answer (that is a 200 with an empty contact list, which
+                // returns normally).
+                //
+                // Only retry TRANSIENT failures. A permanent 4xx (bad work credentials, a
+                // removed/misconfigured endpoint, a bad route) would otherwise be retried forever:
+                // the redelivered message is never acked, so the connection reconnects roughly once
+                // a second and blocks all incoming-message processing. For a permanent 4xx we
+                // restore the pre-fix behavior and rethrow the original exception so it falls to the
+                // umbrella catch below, which acks and drops the message instead of looping.
+                // TODO(ANDR-3262): Handle different work api server result codes
+                val statusCode = extractWorkApiStatusCode(e.message)
+                if (statusCode != null && statusCode in 400..499) {
+                    logger.warn("Permanent work contact fetch error (HTTP {}); dropping message", statusCode)
+                    throw e
+                }
+                logger.warn("Transient error during work contact fetch; will retry", e)
+                throw ProtocolException(e.message ?: "Could not fetch work contacts")
+            } catch (e: JSONException) {
+                // The work-API response body could not be parsed (e.g. an empty or malformed body
+                // returned alongside a 5xx). Treat it as transient and retry rather than dropping
+                // the message.
+                logger.warn("Malformed work contact response; will retry", e)
+                throw ProtocolException(e.message ?: "Malformed work contacts response")
             } catch (e: Exception) {
                 // TODO(ANDR-3262): Handle different work api server result codes
                 logger.warn("Exception during work contact fetch", e)

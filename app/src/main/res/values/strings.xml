@@ -2109,6 +2109,10 @@
     <string name="disappearing_duration_1d">1 day</string>
     <string name="disappearing_duration_1w">1 week</string>
     <string name="disappearing_duration_4w">4 weeks</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Disappears</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s after read</string>
 
     <!-- F1Whisper connectivity troubleshooter (diagnosis only). Shown from the registration error
          and the connection-failure entry points. Runs a battery of network probes and produces a

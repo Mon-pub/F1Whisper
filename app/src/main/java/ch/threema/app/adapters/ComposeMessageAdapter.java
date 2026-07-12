@@ -194,6 +194,9 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
     public interface OnClickListener {
         void click(View view, int position, AbstractMessageModel messageModel);
 
+        // F1Whisper: dedicated tap on the media reply-quote header (jump to the quoted message).
+        void quoteClick(View view, int position, AbstractMessageModel messageModel);
+
         void longClick(View view, int position, AbstractMessageModel messageModel);
 
         boolean touch(View view, MotionEvent motionEvent, AbstractMessageModel messageModel);
@@ -561,6 +564,14 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                     holder.quoteBar = itemView.findViewById(R.id.quote_bar);
                     holder.quoteThumbnail = itemView.findViewById(R.id.quote_thumbnail);
                     holder.quoteTypeImage = itemView.findViewById(R.id.quote_type_image);
+                    // F1Whisper: generalized reply-quote header views (present in every user-message
+                    // layout via the shared conversation_bubble_header include; toggled by the decorator).
+                    holder.quoteHeaderContainer = itemView.findViewById(R.id.quote_header_container);
+                    holder.quoteHeaderBar = itemView.findViewById(R.id.quote_header_bar);
+                    holder.quoteHeaderSender = itemView.findViewById(R.id.quote_header_sender);
+                    holder.quoteHeaderSnippet = itemView.findViewById(R.id.quote_header_snippet);
+                    holder.quoteHeaderTypeImage = itemView.findViewById(R.id.quote_header_type_image);
+                    holder.quoteHeaderThumbnail = itemView.findViewById(R.id.quote_header_thumbnail);
                     holder.transcoderView = itemView.findViewById(R.id.transcoder_view);
                     holder.readOnContainer = itemView.findViewById(R.id.read_on_container);
                     holder.readOnButton = itemView.findViewById(R.id.read_on_button);
@@ -622,6 +633,9 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 final View v = holder.messageBlockView;
 
                 decorator.setOnClickElement(messageModel12 -> onClickListener.click(v, position, messageModel12));
+
+                // F1Whisper: dedicated media quote-header tap -> jump to the quoted message.
+                decorator.setOnClickQuoteElement(quotedMessageModel -> onClickListener.quoteClick(v, position, quotedMessageModel));
 
                 decorator.setOnLongClickElement(messageModel13 -> onClickListener.longClick(v, position, messageModel13));
 

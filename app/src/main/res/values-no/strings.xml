@@ -754,6 +754,7 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <string name="play">Spill av</string>
     <string name="pause">Pause</string>
     <string name="retry">Prøv igjen</string>
+    <string name="voice_message">Lydmelding</string>
     <string name="voice_message_record">Spill inn lydmelding</string>
     <string name="open_navdrawer">Åpne navigasjonsskuffe</string>
     <string name="profile_picture">Profilbilde</string>
@@ -1707,6 +1708,10 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="disappearing_duration_1d">1 dag</string>
     <string name="disappearing_duration_1w">1 uke</string>
     <string name="disappearing_duration_4w">4 uker</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Forsvinner</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s etter lesing</string>
     <string name="connectivity_probe_dialog_title">Tilkoblingsdiagnostikk</string>
     <string name="connectivity_probe_running">Kjører kontroller…</string>
     <string name="connectivity_probe_done">Kontroller fullført</string>

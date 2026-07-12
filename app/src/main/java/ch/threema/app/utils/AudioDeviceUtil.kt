@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
+import androidx.annotation.RequiresApi
 import ch.threema.app.R
 
 /**
@@ -67,4 +68,42 @@ fun getDefaultAudioDevice(audioDevices: Set<AudioDevice>): AudioDevice {
         AudioDevice.WIRED_HEADSET,
         AudioDevice.EARPIECE,
     ).firstOrNull { it in audioDevices } ?: AudioDevice.SPEAKER_PHONE
+}
+
+/**
+ * Find the platform communication device (API 31+) matching a logical [AudioDevice].
+ *
+ * Permission-free: getAvailableCommunicationDevices()/setCommunicationDevice() carry no
+ * permission requirement, unlike the classic BluetoothHeadset profile proxy. This is what lets
+ * Bluetooth call audio work without BLUETOOTH_CONNECT (and detects LE Audio headsets, which the
+ * classic profile proxy cannot see).
+ *
+ * A2DP is deliberately not mapped to BLUETOOTH: it is a media-only profile and not a valid
+ * setCommunicationDevice() candidate. Paired watch companions are excluded so a watch never wins
+ * Bluetooth selection.
+ */
+@RequiresApi(Build.VERSION_CODES.S)
+fun findCommunicationDevice(audioManager: AudioManager, device: AudioDevice): AudioDeviceInfo? {
+    val types = when (device) {
+        AudioDevice.BLUETOOTH -> intArrayOf(
+            AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
+            AudioDeviceInfo.TYPE_BLE_HEADSET,
+            AudioDeviceInfo.TYPE_HEARING_AID,
+        )
+        AudioDevice.WIRED_HEADSET -> intArrayOf(
+            AudioDeviceInfo.TYPE_WIRED_HEADSET,
+            AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
+            AudioDeviceInfo.TYPE_USB_HEADSET,
+        )
+        AudioDevice.EARPIECE -> intArrayOf(AudioDeviceInfo.TYPE_BUILTIN_EARPIECE)
+        AudioDevice.SPEAKER_PHONE -> intArrayOf(
+            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
+            // Some devices expose the loudspeaker only under the SAFE type (compile-time int constant).
+            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER_SAFE,
+        )
+        AudioDevice.NONE -> return null
+    }
+    return audioManager.availableCommunicationDevices.firstOrNull {
+        it.type in types && !it.productName.contains(" Watch", ignoreCase = true)
+    }
 }

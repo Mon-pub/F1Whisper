@@ -1,0 +1,23 @@
+<!--
+  ~ F1Whisper disappearing-messages countdown frame 00/12 (0% elapsed).
+  ~ A 24dp clock face (circle outline + top knob + a pie sector that empties clockwise as the
+  ~ timer runs down). Frame 00 = full disc, frame 60 = empty outline. Redrawn fresh (Signal's
+  ~ ExpirationTimerView scheme, not its assets). White fill so the caller's tint applies.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:strokeColor="@android:color/white"
+        android:strokeWidth="1.4"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M12,4 A8,8 0 1 1 11.999,4 Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M10,1.5 L14,1.5 L14,3.2 L10,3.2 Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,5 A7,7 0 1 1 11.999,5 Z" />
+</vector>

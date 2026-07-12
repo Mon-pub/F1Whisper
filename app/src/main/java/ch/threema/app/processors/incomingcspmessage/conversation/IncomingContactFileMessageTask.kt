@@ -121,6 +121,12 @@ class IncomingContactFileMessageTask(
             this.fileData = fileDataModel
             messageContentsType = MimeUtil.getContentTypeFromFileData(fileDataModel)
 
+            // F1Whisper: a media/file/voice reply-quote carries the quoted message's apiMessageId in
+            // the "qi" file metadata key. Copy it into the type-agnostic quotedMessageId column so the
+            // existing quote resolver/render path shows the quote header above the media bubble (same
+            // path as text quotes). Absent key => null => no header (unchanged behavior).
+            fileDataModel.quotedApiMessageId?.let { quotedMessageId = it }
+
             postedAt = message.date
             createdAt = now()
 

@@ -7,9 +7,11 @@ import static ch.threema.app.ThreemaApplication.getAppContext;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackException;
@@ -65,7 +67,11 @@ public class AudioMessagePlayer extends MessagePlayer {
     @NonNull
     private final MessageService messageService;
     private final ConversationCategoryService conversationCategoryService;
-    private final ListenableFuture<MediaController> mediaControllerFuture;
+    // F1Whisper: not final — re-bound to a fresh fragment controller on chat re-entry
+    // (rebindMediaControllerIfChanged) and nulled while the player is kept alive detached in the
+    // background (detachController), so getMediaController() must tolerate a null future.
+    @Nullable
+    private ListenableFuture<MediaController> mediaControllerFuture;
 
     protected AudioMessagePlayer(
         @NonNull Context context,
@@ -220,6 +226,18 @@ public class AudioMessagePlayer extends MessagePlayer {
                 metadataBuilder.setArtworkData(BitmapUtil.bitmapToByteArray(artworkBitmap, Bitmap.CompressFormat.JPEG, 80), MediaMetadata.PICTURE_TYPE_FRONT_COVER);
             }
 
+            // F1Whisper: carry the message identity in the media metadata so the app-scoped
+            // VoiceMessagePlaybackHolder (which has no access to the chat adapter) can drive the
+            // background "now playing" banner: identify the chat, resolve the message for tap-to-jump,
+            // and exclude listen-once voices from background continuation.
+            final boolean isListenOnce = isListenOnceVoice();
+            final Bundle extras = new Bundle();
+            extras.putInt(VoiceMessagePlaybackHolder.EXTRA_MESSAGE_ID, getMessageModel().getId());
+            extras.putString(VoiceMessagePlaybackHolder.EXTRA_MESSAGE_TYPE, getMessageModel().getClass().toString());
+            extras.putString(VoiceMessagePlaybackHolder.EXTRA_CHAT_UNIQUE_ID, currentMessageReceiver.getUniqueIdString());
+            extras.putBoolean(VoiceMessagePlaybackHolder.EXTRA_LISTEN_ONCE, isListenOnce);
+            metadataBuilder.setExtras(extras);
+
             final MediaItem mediaItem = new MediaItem.Builder()
                 .setMediaMetadata(metadataBuilder.build())
                 .setMediaId(decryptedFileUri.toString())
@@ -240,10 +258,30 @@ public class AudioMessagePlayer extends MessagePlayer {
             mediaController.addListener(playerListener);
             mediaController.prepare();
 
+            // F1Whisper: keep an app-scoped controller connected while a normal voice message plays
+            // so playback survives leaving the chat (media3 auto-stops the service only when the LAST
+            // controller disconnects). Listen-once voices are intentionally NOT continued.
+            if (!isListenOnce) {
+                VoiceMessagePlaybackHolder.getInstance(getAppContext()).ensureConnected();
+            }
+
             logger.info("MediaController prepared");
         } else {
             logger.info("Unable to get MediaController");
         }
+    }
+
+    /**
+     * F1Whisper: true if this message is an (unburned) listen-once voice message. Listen-once voices
+     * are excluded from background continuation and from the "now playing" banner.
+     */
+    private boolean isListenOnceVoice() {
+        final AbstractMessageModel messageModel = getMessageModel();
+        if (messageModel == null || messageModel.getType() != MessageType.FILE) {
+            return false;
+        }
+        final FileDataModel fileDataModel = messageModel.getFileData();
+        return fileDataModel != null && fileDataModel.isListenOnce();
     }
 
     /**
@@ -539,9 +577,10 @@ public class AudioMessagePlayer extends MessagePlayer {
 
     @Nullable
     public MediaController getMediaController() {
-        if (mediaControllerFuture.isDone()) {
+        final ListenableFuture<MediaController> future = mediaControllerFuture;
+        if (future != null && future.isDone()) {
             try {
-                return mediaControllerFuture.get();
+                return future.get();
             } catch (ExecutionException e) {
                 logger.error("Media Controller exception", e);
             } catch (InterruptedException e) {
@@ -552,6 +591,92 @@ public class AudioMessagePlayer extends MessagePlayer {
             }
         }
         return null;
+    }
+
+    /**
+     * F1Whisper: detach this player from its (about-to-be-released) controller so it can be kept in
+     * the background without poking a dead controller or running a stale position poller. Playback
+     * itself continues on the shared media3 session; only THIS player's observation is dropped.
+     */
+    public void detachController() {
+        logger.info("Detaching controller for background playback");
+        if (this.mediaPositionListener != null) {
+            this.mediaPositionListener.interrupt();
+            this.mediaPositionListener = null;
+        }
+        final MediaController mediaController = getMediaController();
+        if (mediaController != null) {
+            try {
+                mediaController.removeListener(playerListener);
+            } catch (Exception e) {
+                logger.debug("Could not remove listener on detach", e);
+            }
+        }
+        this.mediaControllerFuture = null;
+    }
+
+    /**
+     * F1Whisper: on re-entering the chat this kept player belongs to, re-bind it to the fresh
+     * fragment's live controller and reconcile the bubble state with the shared session (still
+     * playing / paused / already moved on). No-op if the controller future is unchanged.
+     */
+    public void rebindMediaControllerIfChanged(@NonNull ListenableFuture<MediaController> newFuture) {
+        if (newFuture == this.mediaControllerFuture) {
+            return;
+        }
+        logger.info("Re-binding controller on chat re-entry");
+        // Drop our listener from the previous controller if it is still around.
+        final MediaController previous = getMediaController();
+        if (previous != null) {
+            try {
+                previous.removeListener(playerListener);
+            } catch (Exception e) {
+                logger.debug("Could not remove listener on rebind", e);
+            }
+        }
+        this.mediaControllerFuture = newFuture;
+        newFuture.addListener(this::reconcileAfterRebind, ContextCompat.getMainExecutor(getContext()));
+    }
+
+    private void reconcileAfterRebind() {
+        final MediaController mediaController = getMediaController();
+        if (mediaController == null || !mediaController.isConnected()) {
+            return;
+        }
+        final int playbackState = mediaController.getPlaybackState();
+        final boolean isEndedOrIdle = playbackState == Player.STATE_ENDED || playbackState == Player.STATE_IDLE;
+        final RebindAction action = VoiceBannerLogic.reconcileRebind(
+            playerMediaMatchesControllerMedia(),
+            mediaController.isPlaying(),
+            isEndedOrIdle
+        );
+        if (action == RebindAction.STOP) {
+            // The shared player has ended or moved to another message: make sure the bubble is not
+            // stuck showing "playing". Also clear the detached mark — this player is being recycled
+            // under the decorator right now, so it is re-owned by the chat; its normal in-chat
+            // lifecycle releases + deletes on the next chat exit (pre-feature parity). Do NOT release
+            // it here (it is mid-recycle).
+            VoiceMessagePlaybackHolder.getInstance(getAppContext()).markReattached(getMessageModel().getId());
+            super.stop();
+            return;
+        }
+
+        mediaController.addListener(playerListener);
+        final long controllerDuration = mediaController.getDuration();
+        if (controllerDuration != TIME_UNSET) {
+            this.duration = (int) controllerDuration;
+        }
+        this.position = (int) mediaController.getCurrentPosition();
+        this.hasPlayed = true;
+
+        VoiceMessagePlaybackHolder.getInstance(getAppContext()).markReattached(getMessageModel().getId());
+
+        if (action == RebindAction.RESUME) {
+            makeResume(SOURCE_LIFECYCLE);
+            initPositionListener();
+        } else {
+            makePause(SOURCE_LIFECYCLE);
+        }
     }
 }
 

@@ -24,6 +24,23 @@ import java.util.Date
 private val logger = getThreemaLogger("IncomingGroupMessageUtils")
 
 /**
+ * Throttle window for a group sync request that is triggered by a desync-caused message discard
+ * (group unknown, user or sender not a member). Kept short (5 minutes) so a member whose group view
+ * is stale recovers quickly instead of dropping every incoming group message for a full hour.
+ *
+ * Worst case a malicious/misbehaving member can force the group creator to re-broadcast one
+ * GroupSetup per group every 5 minutes; this is bounded and acceptable (the creator side applies a
+ * matching 5-minute answer throttle per (group, sender), see IncomingGroupSyncRequestTask).
+ */
+private val DESYNC_SYNC_REQUEST_THROTTLE_MILLIS = 5 * DateUtils.MINUTE_IN_MILLIS
+
+/**
+ * Default throttle window for group sync requests that are not triggered by a message discard
+ * (kept at the upstream value of one hour).
+ */
+private val DEFAULT_SYNC_REQUEST_THROTTLE_MILLIS = DateUtils.HOUR_IN_MILLIS
+
+/**
  * Run the common group receive steps. If the returned group is not null, then the common group receive steps have been run successfully. If null is
  * returned, this indicates that the message should be discarded.
  */
@@ -78,12 +95,14 @@ suspend fun runCommonGroupReceiveSteps(
     // If the group could not be found
     if (groupModelData == null) {
         logger.warn("Group not found.")
+        logger.debug("group-desync-discard: group unknown (creator={}, id={}, from={})", creatorIdentity, groupId, fromIdentity)
         if (!isCreator) {
             logger.info("Running group sync request steps because group couldn't be found.")
             runGroupSyncRequestSteps(
                 groupIdentity = GroupIdentity(creatorIdentity, groupId.toLong()),
                 serviceManager = serviceManager,
                 handle = handle,
+                syncRequestThrottleMillis = DESYNC_SYNC_REQUEST_THROTTLE_MILLIS,
             )
         }
         return null
@@ -92,6 +111,7 @@ suspend fun runCommonGroupReceiveSteps(
     // If the group is marked as left
     if (!groupModelData.isMember) {
         logger.warn("The user is not a member of the group. User state: {}", groupModelData.userState)
+        logger.debug("group-desync-discard: user not a member (creator={}, id={}, from={})", creatorIdentity, groupId, fromIdentity)
         val sender = getContactForIdentity(fromIdentity, serviceManager)
         if (isCreator) {
             logger.info("Sending group setup message without members.")
@@ -134,6 +154,7 @@ suspend fun runCommonGroupReceiveSteps(
 
     if (!groupModelData.otherMembersAndCreator.contains(fromIdentity)) {
         logger.warn("The sender is not a member of the group.")
+        logger.debug("group-desync-discard: sender not a member (creator={}, id={}, from={})", creatorIdentity, groupId, fromIdentity)
         val sender = getContactForIdentity(fromIdentity, serviceManager)
         if (isCreator) {
             logger.info("Sending a group setup message without members.")
@@ -159,6 +180,7 @@ suspend fun runCommonGroupReceiveSteps(
                 groupIdentity = groupModelData.groupIdentity,
                 serviceManager = serviceManager,
                 handle = handle,
+                syncRequestThrottleMillis = DESYNC_SYNC_REQUEST_THROTTLE_MILLIS,
             )
         }
 
@@ -178,6 +200,7 @@ suspend fun runGroupSyncRequestSteps(
     groupIdentity: GroupIdentity,
     serviceManager: ServiceManager,
     handle: ActiveTaskCodec,
+    syncRequestThrottleMillis: Long = DEFAULT_SYNC_REQUEST_THROTTLE_MILLIS,
 ) {
     if (groupIdentity.creatorIdentity == serviceManager.userService.identity) {
         logger.error("Cannot run the group sync request steps for a group where the user is the creator")
@@ -189,15 +212,15 @@ suspend fun runGroupSyncRequestSteps(
         return
     }
 
-    // If the group has been recently resynced (less than one hour ago), abort these steps
+    // If the group has been recently resynced (within the throttle window), abort these steps.
     val syncFactory = serviceManager.databaseService.outgoingGroupSyncRequestLogModelFactory
     val syncModel = syncFactory[groupIdentity]
 
     val lastSyncedTimestamp = syncModel?.lastRequest?.time ?: 0
     val now = Date()
-    val oneHourAgoTimestamp = now.time - DateUtils.HOUR_IN_MILLIS
+    val throttleCutoffTimestamp = now.time - syncRequestThrottleMillis
 
-    if (lastSyncedTimestamp > oneHourAgoTimestamp) {
+    if (lastSyncedTimestamp > throttleCutoffTimestamp) {
         logger.info("Group has already been synced at {}", lastSyncedTimestamp)
         return
     }
@@ -229,6 +252,7 @@ private suspend fun runGroupSyncRequestSteps(
     groupIdentity: GroupIdentity,
     serviceManager: ServiceManager,
     handle: ActiveTaskCodec,
+    syncRequestThrottleMillis: Long = DEFAULT_SYNC_REQUEST_THROTTLE_MILLIS,
 ) {
     runGroupSyncRequestSteps(
         groupCreator = groupIdentity.creatorIdentity.toBasicContact(
@@ -239,5 +263,6 @@ private suspend fun runGroupSyncRequestSteps(
         groupIdentity = groupIdentity,
         serviceManager = serviceManager,
         handle = handle,
+        syncRequestThrottleMillis = syncRequestThrottleMillis,
     )
 }

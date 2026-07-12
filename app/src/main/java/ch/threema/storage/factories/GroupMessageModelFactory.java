@@ -237,6 +237,28 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return null;
     }
 
+    /**
+     * F1Whisper auto-resend: outgoing group messages eligible for silent auto-resend (see
+     * {@code AbstractMessageModelFactory#queryAutoResendCandidates}), oldest compose-time first.
+     *
+     * @param minCreatedAtMillis exclusive lower bound on createdAtUtc (24h lifespan cutoff).
+     */
+    @NonNull
+    public List<GroupMessageModel> getAutoResendCandidates(long minCreatedAtMillis) {
+        return convertList(queryAutoResendCandidates(minCreatedAtMillis));
+    }
+
+    /**
+     * F1Whisper auto-resend: outgoing group messages that are still unsent but have exhausted the
+     * 24h auto-resend window (see {@code AbstractMessageModelFactory#queryAgedOutUnsentMessages}).
+     *
+     * @param maxCreatedAtMillis inclusive upper bound on createdAtUtc (past the 24h window).
+     */
+    @NonNull
+    public List<GroupMessageModel> getAgedOutUnsentMessages(long maxCreatedAtMillis) {
+        return convertList(queryAgedOutUnsentMessages(maxCreatedAtMillis));
+    }
+
     public long countMessages(int groupId) {
         return DatabaseUtil.count(getReadableDatabase().rawQuery(
             "SELECT COUNT(*) FROM " + this.getTableName()

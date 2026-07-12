@@ -2045,6 +2045,10 @@
     <string name="disappearing_duration_1d">1 дзень</string>
     <string name="disappearing_duration_1w">1 тыдзень</string>
     <string name="disappearing_duration_4w">4 тыдні</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Знікне</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s пасля прачытання</string>
     <string name="connectivity_probe_dialog_title">Дыягностыка злучэння</string>
     <string name="connectivity_probe_running">Выкананне праверак…</string>
     <string name="connectivity_probe_done">Праверкі завершаны</string>

@@ -26,6 +26,7 @@ import ch.threema.domain.helpers.UnusedTaskCodec;
 import ch.threema.domain.models.Contact;
 import ch.threema.domain.models.GroupId;
 import ch.threema.domain.models.MessageId;
+import ch.threema.domain.protocol.connection.data.OutboundMessage;
 import ch.threema.domain.protocol.csp.coders.MessageBox;
 import ch.threema.domain.protocol.csp.coders.MessageCoder;
 import ch.threema.domain.protocol.csp.messages.AbstractMessage;
@@ -329,6 +330,68 @@ public class ForwardSecurityMessageProcessorTest {
 
         // At this point, Bob should not have enqueued any further messages
         Assert.assertEquals(0, bobContext.handle.getOutboundMessages().size());
+    }
+
+    @Test
+    public void testOutOfOrderMessageSendsReject() throws ThreemaException, MissingPublicKeyException, BadMessageException {
+        // Establish a 4DH session between Alice and Bob.
+        test4DH();
+
+        // Alice sends two messages in order. Both are enqueued towards Bob.
+        sendTextMessage(ALICE_MESSAGE_6, aliceContext, DummyUsers.BOB);
+        sendTextMessage(ALICE_MESSAGE_7, aliceContext, DummyUsers.BOB);
+
+        List<OutboundMessage> aliceOutbound = aliceContext.handle.getOutboundMessages();
+        Assert.assertEquals(2, aliceOutbound.size());
+
+        // Deliver Alice's SECOND message to Bob first. This advances Bob's peer ratchet past the
+        // counter of the first (still undelivered) message, so exactly one message slot is skipped.
+        OutboundMessage secondMessage = aliceOutbound.remove(1);
+        aliceContext.handle.getOutboundMessages().add(0, secondMessage);
+        AbstractMessage decapSecond = processOneReceivedMessage(aliceContext.handle, bobContext, 1, false);
+        Assert.assertEquals(ALICE_MESSAGE_7, ((TextMessage) decapSecond).getText());
+
+        // Bob should not have produced any control message so far.
+        Assert.assertEquals(0, bobContext.handle.getOutboundMessages().size());
+
+        // Now the FIRST message finally arrives at Bob. Its counter is behind Bob's ratchet, so it
+        // can no longer be decrypted (out of order). Instead of silently dropping it, Bob must send
+        // a Reject so Alice resends. Processing must NOT throw.
+        MessageBox firstMessageBox = getFromOutboundMessage(aliceContext.handle.getOutboundMessages().remove(0));
+        Assert.assertNotNull(firstMessageBox);
+        MessageCoder messageCoder = new MessageCoder(bobContext.contactStore, bobContext.identityStore);
+        ForwardSecurityEnvelopeMessage firstEnvelope = (ForwardSecurityEnvelopeMessage) messageCoder.decode(firstMessageBox);
+        ForwardSecurityDecryptionResult result = processMessage(
+            bobContext.fsmp,
+            Objects.requireNonNull(bobContext.contactStore.getContactForIdentity(firstEnvelope.getFromIdentity())),
+            firstEnvelope,
+            bobContext.handle
+        );
+
+        // No inner message is produced, and the ratchet identifier is null (matching the
+        // decryption-failure branch) so the caller acks + stores the outer nonce (dedup-safe).
+        Assert.assertNull(result.getMessage());
+        Assert.assertNull(result.getPeerRatchetIdentifier());
+
+        // Bob should have enqueued exactly one FS message: a Reject for the out-of-order message.
+        // The reject is addressed to Alice, so it must be decoded with Alice's context (recipient).
+        List<OutboundMessage> bobOutbound = bobContext.handle.getOutboundMessages();
+        Assert.assertEquals(1, bobOutbound.size());
+        MessageBox rejectBox = getFromOutboundMessage(bobOutbound.get(0));
+        Assert.assertNotNull(rejectBox);
+        MessageCoder aliceCoder = new MessageCoder(aliceContext.contactStore, aliceContext.identityStore);
+        ForwardSecurityEnvelopeMessage rejectEnvelope = (ForwardSecurityEnvelopeMessage) aliceCoder.decode(rejectBox);
+        Assert.assertTrue(rejectEnvelope.getData() instanceof ForwardSecurityDataReject);
+        ForwardSecurityDataReject reject = (ForwardSecurityDataReject) rejectEnvelope.getData();
+        Assert.assertEquals(firstEnvelope.getMessageId(), reject.getRejectedApiMessageId());
+
+        // Bob should have deleted the session (it is out of sync); a new one is negotiated on resend.
+        Assert.assertNull(bobContext.dhSessionStore.getDHSession(
+            DummyUsers.BOB.getIdentity(),
+            DummyUsers.ALICE.getIdentity(),
+            reject.getSessionId(),
+            testCodec
+        ));
     }
 
     @Test

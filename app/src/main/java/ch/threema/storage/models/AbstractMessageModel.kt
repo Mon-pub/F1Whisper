@@ -361,6 +361,28 @@ internal constructor(
     }
 
     /**
+     * F1Whisper auto-resend: true if this message's last send failed for a TERMINAL reason (the
+     * DISPLAY_TAG_SEND_FAILED_TERMINAL bit is set). Such a SENDFAILED message is never
+     * auto-resent by the reconnect scan; a SENDFAILED message WITHOUT the bit is treated as a
+     * connectivity failure and is eligible for silent auto-resend.
+     */
+    val isSendFailedTerminal: Boolean
+        get() = (displayTags and DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL) == DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL
+
+    /**
+     * F1Whisper auto-resend: set or clear the DISPLAY_TAG_SEND_FAILED_TERMINAL bit without touching
+     * other display-tag bits. Set it alongside marking SENDFAILED for a terminal cause; clear it
+     * whenever the message re-enters a send flow so a later transient failure stays auto-eligible.
+     */
+    fun setSendFailedTerminal(terminal: Boolean) {
+        displayTags = if (terminal) {
+            displayTags or DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL
+        } else {
+            displayTags and DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL.inv()
+        }
+    }
+
+    /**
      * This only makes sense (finds its use) when multi device is active.
      * The api call to download a blob without multi-device does not require a scope.
      *

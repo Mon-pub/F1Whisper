@@ -232,9 +232,19 @@ public class Message extends Converter {
                 );
 
                 if (quoteContent != null) {
-                    // If a message contains a quote, we want to use the message body
-                    // that does not include the quote itself
-                    builder.put(BODY, quoteContent.bodyText);
+                    // If a TEXT message contains a quote, we want to use the message body that does not
+                    // include the quote signature (quoteContent.bodyText).
+                    // F1Whisper: for a media/file quote-reply, quoteContent.bodyText is the FILE's
+                    // serialized FileDataModel JSON blob (== message.getBody()), whereas the normal
+                    // path getBody(message) returns null for FILE. Overriding BODY with the blob would
+                    // leak that raw JSON to Threema Web, so only apply the override for TEXT; media
+                    // quotes fall through to the normal getBody() (null) path. The QUOTE attach below
+                    // still carries the resolved quote card.
+                    if (message.getType() == ch.threema.storage.models.MessageType.TEXT) {
+                        builder.put(BODY, quoteContent.bodyText);
+                    } else {
+                        builder.put(BODY, getBody(message));
+                    }
 
                     // Attach quote
                     if (detailLevel != DETAILS_NO_QUOTE) {

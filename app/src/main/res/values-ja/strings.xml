@@ -784,6 +784,7 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="play">再生</string>
     <string name="pause">中断</string>
     <string name="retry">もう一度</string>
+    <string name="voice_message">音声メッセージ</string>
     <string name="voice_message_record">音声メッセージを録音</string>
     <string name="open_navdrawer">ナビゲーション・ドロワーを開く</string>
     <string name="profile_picture">プロフィール画像</string>
@@ -1739,6 +1740,10 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="disappearing_duration_1d">1日</string>
     <string name="disappearing_duration_1w">1週間</string>
     <string name="disappearing_duration_4w">4週間</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">消える</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">既読から%1$s後</string>
     <string name="connectivity_probe_dialog_title">接続診断</string>
     <string name="connectivity_probe_running">チェックを実行中…</string>
     <string name="connectivity_probe_done">チェックが完了しました</string>

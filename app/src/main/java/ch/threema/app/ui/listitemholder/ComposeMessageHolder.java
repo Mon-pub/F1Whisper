@@ -13,6 +13,7 @@ import ch.threema.app.emojireactions.EmojiReactionGroup;
 import ch.threema.app.services.messageplayer.MessagePlayer;
 import ch.threema.app.ui.AudioProgressBarView;
 import ch.threema.app.ui.ControllerView;
+import ch.threema.app.ui.DisappearingTimerBadgeView;
 import ch.threema.app.ui.TranscoderView;
 
 public class ComposeMessageHolder extends AvatarListItemHolder {
@@ -28,13 +29,18 @@ public class ComposeMessageHolder extends AvatarListItemHolder {
     public View linkPreviewInfo;
     public TextView linkPreviewTitle, linkPreviewDescription, linkPreviewDomain;
     public ImageView deliveredIndicator, datePrefixIcon, starredIcon;
-    public ImageView disappearingIcon; // F1Whisper: clock badge for messages with a running disappearing timer
+    public DisappearingTimerBadgeView disappearingIcon; // F1Whisper: animated countdown clock for messages with a disappearing timer
     public ImageView attachmentImage;
     public MaterialCardView messageBlockView;
     public ViewGroup contentView;
     public AudioProgressBarView seekBar;
     public View quoteBar;
     public ImageView quoteThumbnail, quoteTypeImage;
+    // F1Whisper: generalized reply-quote header rendered above non-text bubbles (photo/video/file/
+    // voice). Distinct ids from the text-quote card so File/Location/Ballot decorators do not collide.
+    public View quoteHeaderContainer, quoteHeaderBar;
+    public TextView quoteHeaderSender, quoteHeaderSnippet;
+    public ImageView quoteHeaderTypeImage, quoteHeaderThumbnail;
     public TranscoderView transcoderView;
     public FrameLayout readOnContainer;
     public Chip readOnButton;

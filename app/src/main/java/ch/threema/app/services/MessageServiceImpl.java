@@ -292,10 +292,31 @@ public class MessageServiceImpl implements MessageService {
         // init queue
         messageSendingService = new MessageSendingServiceExponentialBackOff(new MessageSendingService.MessageSendingServiceState() {
             @Override
-            public void processingFailed(AbstractMessageModel messageModel, MessageReceiver<AbstractMessageModel> receiver) {
+            public void processingFailed(AbstractMessageModel messageModel, MessageReceiver<AbstractMessageModel> receiver, @Nullable Exception cause) {
                 //remove send machine
                 removeSendMachine(messageModel);
-                updateOutgoingMessageState(messageModel, MessageState.SENDFAILED, new Date());
+
+                // F1Whisper auto-resend: if the backoff exhausted its attempts because of a
+                // transient connectivity failure (connection down / blob HTTP / auth-token), do
+                // NOT mark SENDFAILED. Leave the message in its current sending/uploading/pending
+                // state so the reconnect auto-resend scan re-runs the send silently once the
+                // connection returns (the message keeps its original apiMessageId, so the receiver
+                // dedupes if the earlier attempt actually landed). Only terminal failures (unknown
+                // recipient, FS, ballot NotAllowed, MessageTooLong, encryption, user cancel) fall
+                // through to SENDFAILED, exactly as upstream.
+                if (SendFailureClassifier.isConnectivityFailure(cause)) {
+                    logger.info(
+                        "{} send failed with a connectivity-class error; leaving pending for the reconnect scan",
+                        messageModel.getUid()
+                    );
+                    // Normalise the transient-failed state to PENDING so the scan's eligibility
+                    // check is uniform and the UI shows the message as still in flight (not failed).
+                    // Clear any stale terminal marker from a prior attempt.
+                    markConnectivityPending(messageModel);
+                    return;
+                }
+
+                markTerminalSendFailed(messageModel);
             }
 
             @Override
@@ -305,6 +326,49 @@ public class MessageServiceImpl implements MessageService {
                 }
             }
         });
+    }
+
+    /**
+     * F1Whisper auto-resend: mark an outgoing message SENDFAILED for a TERMINAL cause. The
+     * DISPLAY_TAG_SEND_FAILED_TERMINAL bit is set centrally by
+     * {@link #updateOutgoingMessageState} on entry to SENDFAILED, so the reconnect scan never
+     * auto-resends it and the unsent-message notification still nags. Idempotent.
+     */
+    private void markTerminalSendFailed(@NonNull AbstractMessageModel messageModel) {
+        if (messageModel.isDeleted()) {
+            return;
+        }
+        updateOutgoingMessageState(messageModel, MessageState.SENDFAILED, new Date());
+    }
+
+    /**
+     * F1Whisper auto-resend: after a transient connectivity failure, keep the message in flight
+     * (not SENDFAILED) so the reconnect scan re-runs the send once the connection returns. The
+     * message stays in its current in-flight state (PENDING/UPLOADING/SENDING) - all of which the
+     * scan treats as "stuck, resend" - which renders as a sending indicator rather than a red
+     * failure (Telegram clock semantics). A SENDFAILED left over from a prior terminal attempt is
+     * pushed back to PENDING (the only transition {@code canChangeToState} allows into PENDING).
+     * Clears any stale terminal marker and does not fire an unsent-message nag. Idempotent.
+     */
+    private void markConnectivityPending(@NonNull AbstractMessageModel messageModel) {
+        if (messageModel.isDeleted()) {
+            return;
+        }
+        // A previous attempt may have set the terminal bit; clear it since this failure is transient.
+        boolean clearedTerminal = messageModel.isSendFailedTerminal();
+        if (clearedTerminal) {
+            messageModel.setSendFailedTerminal(false);
+        }
+        // Only SENDFAILED -> PENDING is a permitted transition; the other in-flight states
+        // (PENDING/UPLOADING/SENDING) are already scan-eligible and are left untouched so we never
+        // fight canChangeToState or resurrect a SENT message.
+        if (messageModel.getState() == MessageState.SENDFAILED) {
+            updateOutgoingMessageState(messageModel, MessageState.PENDING, new Date());
+        } else if (clearedTerminal) {
+            // Persist the cleared bit; updateOutgoingMessageState was not called above.
+            save(messageModel);
+            fireOnModifiedMessage(messageModel);
+        }
     }
 
     private void cache(AbstractMessageModel m) {
@@ -947,19 +1011,149 @@ public class MessageServiceImpl implements MessageService {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.cancel(NotificationIDs.UNSENT_MESSAGE_NOTIFICATION_ID);
 
+        // Manual (user-tapped) resend: only from a failed state, exactly as before.
         if (messageModel.getState() == MessageState.SENDFAILED || messageModel.getState() == MessageState.FS_KEY_MISMATCH) {
-            if (messageModel.getType() == MessageType.FILE) {
-                resendFileMessage(messageModel, receiver, completionHandler, recipientIdentities);
-            } else if (messageModel.getType() == MessageType.BALLOT) {
-                BallotModel ballotModel = ballotService.get(messageModel.getBallotData().getBallotId());
-                if (ballotModel != null) {
-                    resendBallotMessage(messageModel, ballotModel, receiver, messageId, triggerSource);
-                }
-            } else if (messageModel.getType() == MessageType.TEXT) {
-                resendTextMessage(messageModel, receiver, recipientIdentities);
-            } else if (messageModel.getType() == MessageType.LOCATION) {
-                resendLocationMessage(messageModel, receiver, completionHandler, recipientIdentities);
+            dispatchResend(messageModel, receiver, completionHandler, recipientIdentities, messageId, triggerSource);
+        }
+    }
+
+    /**
+     * F1Whisper auto-resend: silently re-send a single auto-eligible outgoing message once
+     * connectivity has returned. Unlike the manual {@link #resendMessage} path this:
+     *
+     *  - accepts only a FILE message whose blob-upload phase never completed (state PENDING or
+     *    UPLOADING after a process death, or a connectivity-class SENDFAILED), never a terminal
+     *    SENDFAILED and never a SENDING message (whose persistent task owns delivery) - see
+     *    {@link AutoResendService#isAutoResendEligible}, the double-send guard;
+     *  - REUSES the message's ORIGINAL apiMessageId end-to-end (never mints a random one), so if the
+     *    earlier attempt actually reached the server the receiver dedupes the redelivery. The file
+     *    resend already reuses the persisted id; the id passed to {@code dispatchResend} only governs
+     *    the (unreached, since we are FILE-only) ballot path, so we pass the model's own id.
+     *
+     * The manual tap-to-resend path is left completely unchanged.
+     */
+    /**
+     * F1Whisper auto-resend: re-read a scan snapshot fresh from the database (bypassing the model
+     * cache via getByUid) so an auto-resend eligibility re-check sees the CURRENT persisted state, not
+     * the possibly-stale snapshot captured when the scan queried. Returns null if the row no longer
+     * exists (e.g. the user deleted the message) or the type is not auto-resendable.
+     */
+    @WorkerThread
+    @Nullable
+    private AbstractMessageModel reloadMessageModelForAutoResend(@NonNull AbstractMessageModel scanSnapshot) {
+        final String uid = scanSnapshot.getUid();
+        if (uid == null) {
+            return null;
+        }
+        if (scanSnapshot instanceof GroupMessageModel) {
+            return getGroupMessageModel(uid);
+        } else if (scanSnapshot instanceof MessageModel) {
+            return getContactMessageModel(uid);
+        }
+        // Distribution-list / other types are never auto-resent; let the caller's eligibility check
+        // reject the snapshot itself rather than reloading a type we do not handle here.
+        return scanSnapshot;
+    }
+
+    @Override
+    @WorkerThread
+    public void autoResendMessage(
+        @NonNull AbstractMessageModel scanSnapshot,
+        @NonNull TriggerSource triggerSource
+    ) throws Exception {
+        // The scan iterates DETACHED snapshots captured at query time; the user may have
+        // deleted/cancelled the message between the query and now (remove() drops the row,
+        // deleteMessageContentsAndRelatedData sets deletedAt + state=null, cancelMessageUpload marks
+        // it terminal SENDFAILED). Re-read the model FRESH from the DB (getByUid bypasses the cache)
+        // and re-verify eligibility against that fresh state so we never re-encrypt/re-upload content
+        // the user believes gone, independently of the file-presence check inside resendFileMessage.
+        AbstractMessageModel messageModel = reloadMessageModelForAutoResend(scanSnapshot);
+        if (messageModel == null) {
+            logger.debug("Auto-resend skipped (message gone) for {}", scanSnapshot.getUid());
+            return;
+        }
+
+        // Single source of truth for eligibility (FILE-only, unsent blob-phase state, non-terminal,
+        // never SENDING) - the critical double-send guard. See AutoResendService#isAutoResendEligible.
+        if (!AutoResendService.isAutoResendEligible(messageModel)) {
+            logger.debug("Auto-resend skipped (ineligible) for message {} type {} state {}",
+                messageModel.getUid(), messageModel.getType(), messageModel.getState());
+            return;
+        }
+
+        // Distribution-list messages cannot be resent (mirrors the manual path).
+        if (messageModel instanceof DistributionListMessageModel) {
+            logger.debug("Auto-resend skipped for distribution-list message {}", messageModel.getUid());
+            return;
+        }
+
+        MessageState state = messageModel.getState();
+        MessageReceiver<AbstractMessageModel> receiver = getMessageReceiver(messageModel);
+        if (receiver == null) {
+            logger.warn("Auto-resend skipped: no receiver for message {}", messageModel.getUid());
+            return;
+        }
+
+        Collection<String> recipientIdentities;
+        if (messageModel instanceof GroupMessageModel) {
+            GroupModelOld groupModel = groupService.getById(((GroupMessageModel) messageModel).getGroupId());
+            if (groupModel == null || !groupService.isGroupMember(groupModel)) {
+                logger.debug("Auto-resend skipped: group gone / not a member for {}", messageModel.getUid());
+                return;
             }
+            recipientIdentities = groupService.getMembersWithoutUser(groupModel);
+        } else {
+            recipientIdentities = Collections.singleton(messageModel.getIdentity());
+        }
+
+        // Reuse the ORIGINAL message id. If it is somehow missing the message was never sent once,
+        // so there is nothing to dedupe against; the type-specific resend re-derives/mints as usual.
+        MessageId originalMessageId = messageModel.getMessageId();
+        MessageId messageId = originalMessageId != null ? originalMessageId : MessageId.random();
+
+        logger.info("Auto-resending message {} (state {})", messageModel.getUid(), state);
+        dispatchResend(messageModel, receiver, null, recipientIdentities, messageId, triggerSource);
+    }
+
+    @Override
+    @WorkerThread
+    public void markAgedOutUnsentFailed(@NonNull AbstractMessageModel messageModel) {
+        // Only give up on a message that is still genuinely eligible (FILE, unsent blob-phase,
+        // non-terminal); it may have been resent or manually retried between the scan query and now.
+        if (!AutoResendService.isAutoResendEligible(messageModel)) {
+            return;
+        }
+        logger.info("Message {} exhausted the auto-resend window; marking terminally failed", messageModel.getUid());
+        // updateOutgoingMessageState sets the terminal marker centrally and fires onModified, which
+        // drives the unsent-message notification in HomeActivity.
+        markTerminalSendFailed(messageModel);
+    }
+
+    /**
+     * Route a (manual or auto) resend to the type-specific resend method. Shared by
+     * {@link #resendMessage} and {@link #autoResendMessage}. The {@code messageId} governs only the
+     * ballot path (the other types reuse the model's persisted apiMessageId).
+     */
+    @WorkerThread
+    private void dispatchResend(
+        @NonNull AbstractMessageModel messageModel,
+        @NonNull MessageReceiver<AbstractMessageModel> receiver,
+        @Nullable CompletionHandler completionHandler,
+        @NonNull Collection<String> recipientIdentities,
+        @NonNull MessageId messageId,
+        @NonNull TriggerSource triggerSource
+    ) throws Exception {
+        if (messageModel.getType() == MessageType.FILE) {
+            resendFileMessage(messageModel, receiver, completionHandler, recipientIdentities);
+        } else if (messageModel.getType() == MessageType.BALLOT) {
+            BallotModel ballotModel = ballotService.get(messageModel.getBallotData().getBallotId());
+            if (ballotModel != null) {
+                resendBallotMessage(messageModel, ballotModel, receiver, messageId, triggerSource);
+            }
+        } else if (messageModel.getType() == MessageType.TEXT) {
+            resendTextMessage(messageModel, receiver, recipientIdentities);
+        } else if (messageModel.getType() == MessageType.LOCATION) {
+            resendLocationMessage(messageModel, receiver, completionHandler, recipientIdentities);
         }
     }
 
@@ -1375,6 +1569,21 @@ public class MessageServiceImpl implements MessageService {
             if (MessageUtil.canChangeToState(messageModel.getState(), state, messageModel instanceof GroupMessageModel)) {
                 messageModel.setState(state);
                 hasChanges = true;
+
+                // F1Whisper auto-resend: the terminal-failure marker is maintained centrally here
+                // because every transition INTO SENDFAILED is terminal by construction - the media
+                // pipeline's transient connectivity failures never reach SENDFAILED (they go through
+                // markConnectivityPending instead). So set the terminal bit whenever we enter
+                // SENDFAILED (so the reconnect scan skips it and the nag still fires), and clear it
+                // whenever the message leaves the failed state (manual/auto resend -> SENDING/
+                // PENDING, or a success state), so a later transient failure stays auto-eligible.
+                if (state == MessageState.SENDFAILED) {
+                    if (!messageModel.isSendFailedTerminal()) {
+                        messageModel.setSendFailedTerminal(true);
+                    }
+                } else if (messageModel.isSendFailedTerminal()) {
+                    messageModel.setSendFailedTerminal(false);
+                }
             } else {
                 logger.warn(
                     "State transition from {} to {}, ignoring",
@@ -2841,27 +3050,23 @@ public class MessageServiceImpl implements MessageService {
     @NonNull
     private List<AbstractMessageModel> markFirstUnread(@NonNull List<AbstractMessageModel> messageModels) {
         synchronized (messageModels) {
-            int firstUnreadMessagePosition = -1;
-            for (int n = 0; n < messageModels.size(); n++) {
-                AbstractMessageModel m = messageModels.get(n);
-
-                if (m != null) {
-                    if (m.isOutbox()) {
-                        break;
-                    } else {
-                        if (m.isRead()) {
-                            break;
-                        } else if (!m.isStatusMessage()) {
-                            firstUnreadMessagePosition = n;
-                        }
-                    }
-                }
+            // Anchor the divider immediately older than the OLDEST unread row in the window (not just
+            // the newest contiguous run). Our send-time ordering can legitimately interleave a
+            // read/outgoing row in the middle of a reconnect backlog of unread messages, so a scan
+            // that stops at the first read/outgoing row would leave older unread rows above the
+            // divider. See UnreadDividerLocator.
+            final List<UnreadDividerLocator.MessageFlags> flags = new ArrayList<>(messageModels.size());
+            for (AbstractMessageModel m : messageModels) {
+                flags.add(m == null
+                    ? UnreadDividerLocator.MessageFlags.NOT_UNREAD
+                    : new UnreadDividerLocator.MessageFlags(m.isOutbox(), m.isRead(), m.isStatusMessage(), m.isSaved()));
             }
 
-            if (firstUnreadMessagePosition > -1) {
+            final int insertIndex = UnreadDividerLocator.findDividerInsertIndex(flags);
+            if (insertIndex > -1) {
                 FirstUnreadMessageModel firstUnreadMessageModel = new FirstUnreadMessageModel();
-                firstUnreadMessageModel.setCreatedAt(messageModels.get(firstUnreadMessagePosition).getCreatedAt());
-                messageModels.add(firstUnreadMessagePosition + 1, firstUnreadMessageModel);
+                firstUnreadMessageModel.setCreatedAt(messageModels.get(insertIndex - 1).getCreatedAt());
+                messageModels.add(insertIndex, firstUnreadMessageModel);
             }
         }
 
@@ -4257,6 +4462,14 @@ public class MessageServiceImpl implements MessageService {
                         metaData.put(FileDataModel.METADATA_KEY_PREVIEW_DESCRIPTION, mediaItem.getLinkPreviewDescription());
                     }
                 }
+                // F1Whisper: carry the reply-quote apiMessageId E2E in the file metadata when this
+                // media/file/voice was sent as an answer to a quoted message (Signal-style reply with
+                // any type). The receiving client copies "qi" into its quotedMessageId column and
+                // renders the quote header above the media bubble. Forward drops it (fresh MediaItem).
+                final String quotedMessageId = mediaItem.getQuotedMessageId();
+                if (quotedMessageId != null && !quotedMessageId.isBlank()) {
+                    metaData.put(FileDataModel.METADATA_KEY_QUOTED_MESSAGE_ID, quotedMessageId);
+                }
                 fileDataModel.setMetaData(metaData);
 
                 // F1Whisper: the per-receiver models were serialized (setFileData) in
@@ -4266,6 +4479,12 @@ public class MessageServiceImpl implements MessageService {
                 // model's body is reserialized with the full metadata before it is saved/sent.
                 for (AbstractMessageModel messageModel : messageModels.values()) {
                     messageModel.setFileData(fileDataModel);
+                    // F1Whisper: populate the sender's own quotedMessageId column so the reply-quote
+                    // header + tap-to-jump render on the sender's copy too (mirrors the recipient, which
+                    // gets it from the "qi" metadata). Persisted by the save() in encryptAndSend below.
+                    if (quotedMessageId != null && !quotedMessageId.isBlank()) {
+                        messageModel.setQuotedMessageId(quotedMessageId);
+                    }
                 }
 
                 if (thumbnailData != null) {

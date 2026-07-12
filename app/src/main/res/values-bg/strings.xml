@@ -816,6 +816,7 @@
     <string name="play">Възпроизведете</string>
     <string name="pause">Паузирайте</string>
     <string name="retry">Повторете</string>
+    <string name="voice_message">Гласово съобщение</string>
     <string name="voice_message_record">Запишете гласово съобщение</string>
     <string name="open_navdrawer">Отворете навигационния панел</string>
     <string name="profile_picture">Профилна снимка</string>
@@ -1879,13 +1880,13 @@
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">Минимизиране</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">Контролен списък</string>
-    <string name="checklist_create_as">Създай като контролен списък</string>
-    <string name="checklist_fork_only">Контролните списъци работят само между потребители на F1Whisper.</string>
+    <string name="checklist">Списък със задачи</string>
+    <string name="checklist_create_as">Създай като списък със задачи</string>
+    <string name="checklist_fork_only">Списъците със задачи работят само между потребители на F1Whisper.</string>
     <string name="checklist_toggle_item">Превключване на елемент от списъка</string>
     <string name="checklist_checked_by">Отбелязано от %1$s</string>
-    <string name="checklist_created_successfully">Контролният списък е създаден</string>
-    <string name="checklist_placeholder">Контролен списък</string>
+    <string name="checklist_created_successfully">Списъкът със задачи е създаден</string>
+    <string name="checklist_placeholder">Списък със задачи</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">Закачи съобщение</string>
     <string name="unpin_message">Откачи</string>
@@ -1927,6 +1928,10 @@
     <string name="disappearing_duration_1d">1 ден</string>
     <string name="disappearing_duration_1w">1 седмица</string>
     <string name="disappearing_duration_4w">4 седмици</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Изчезва</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s след прочитане</string>
     <string name="connectivity_probe_dialog_title">Диагностика на връзката</string>
     <string name="connectivity_probe_running">Извършване на проверки…</string>
     <string name="connectivity_probe_done">Проверките приключиха</string>

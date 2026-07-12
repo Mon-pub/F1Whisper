@@ -46,8 +46,10 @@
         app:tint="@color/bubble_send_text_colorstatelist"
         tools:visibility="visible" />
 
-    <!-- F1Whisper: disappearing-messages clock badge, shown when this message has a running timer -->
-    <ImageView
+    <!-- F1Whisper: animated disappearing-messages countdown clock, shown when this message has a
+         (running or frozen-but-unstarted) disappearing timer. The custom view frame-swaps 13 clock
+         faces as the timer runs down; a static full disc before the countdown has started. -->
+    <ch.threema.app.ui.DisappearingTimerBadgeView
         android:id="@+id/disappearing_icon"
         android:layout_width="20dp"
         android:layout_height="20dp"
@@ -57,7 +59,7 @@
         android:contentDescription="@string/disappearing_messages_title"
         android:padding="2dp"
         android:visibility="gone"
-        app:srcCompat="@drawable/ic_disappearing"
+        app:srcCompat="@drawable/ic_timer_00"
         app:tint="@color/bubble_send_text_colorstatelist"
         tools:visibility="visible" />
 

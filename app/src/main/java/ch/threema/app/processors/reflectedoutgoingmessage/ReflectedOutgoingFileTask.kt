@@ -84,6 +84,11 @@ internal class ReflectedOutgoingFileTask(
         )
         return messageModel.apply {
             this.fileData = fileDataModel
+            // F1Whisper: the sender's own reply-quote apiMessageId rides the "qi" file metadata key on
+            // the reflected-outgoing copy. Populate the type-agnostic quotedMessageId column so this
+            // linked device also renders the quote header above the media bubble (matches the sender's
+            // primary device). Absent => null => no header.
+            fileDataModel.quotedApiMessageId?.let { quotedMessageId = it }
             messageFlags = fileMessage.messageFlags
             correlationId = fileData.correlationId
         }

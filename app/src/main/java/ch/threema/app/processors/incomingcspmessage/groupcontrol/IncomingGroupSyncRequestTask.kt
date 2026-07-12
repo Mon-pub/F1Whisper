@@ -25,6 +25,13 @@ import java.util.Date
 
 private val logger = getThreemaLogger("IncomingGroupSyncRequestTask")
 
+/**
+ * Throttle window for the group creator answering a group-sync-request from a given member. Kept
+ * short (5 minutes, reduced from the upstream one hour) so a desynced member recovers quickly. The
+ * worst case is bounded: one GroupSetup re-broadcast per (group, sender) per 5 minutes.
+ */
+private val GROUP_SYNC_REQUEST_ANSWER_THROTTLE_MILLIS = 5 * DateUtils.MINUTE_IN_MILLIS
+
 class IncomingGroupSyncRequestTask(
     message: GroupSyncRequestMessage,
     triggerSource: TriggerSource,
@@ -83,14 +90,18 @@ suspend fun handleIncomingGroupSyncRequest(
     }
 
     // If a group-sync-request from this sender and group has already been handled within the
-    // last hour, log a notice and abort these steps
+    // throttle window, log a notice and abort these steps. The window is kept short (5 minutes,
+    // reduced from the upstream one hour) so a desynced member recovers quickly. Worst case a
+    // single member forces the creator to answer (one GroupSetup re-broadcast) at most once per
+    // 5 minutes per (group, sender): bounded and acceptable, and answering only ever re-sends the
+    // authoritative group state.
     val groupSyncLog = incomingGroupSyncRequestLogModelFactory.getByGroupIdAndSenderIdentity(
         localDbGroupId = group.getDatabaseId(),
         senderIdentity = sender.identity,
     )
     val now = System.currentTimeMillis()
-    val oneHourAgo = now - DateUtils.HOUR_IN_MILLIS
-    if (groupSyncLog.lastHandledRequest > oneHourAgo) {
+    val throttleCutoff = now - GROUP_SYNC_REQUEST_ANSWER_THROTTLE_MILLIS
+    if (groupSyncLog.lastHandledRequest > throttleCutoff) {
         logger.info("Group sync request already handled at {}", groupSyncLog.lastHandledRequest)
         return ReceiveStepsResult.DISCARD
     }

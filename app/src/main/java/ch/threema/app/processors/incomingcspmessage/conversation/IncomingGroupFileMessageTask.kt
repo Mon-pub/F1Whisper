@@ -142,6 +142,11 @@ class IncomingGroupFileMessageTask(
             this.fileData = fileDataModel
             messageContentsType = MimeUtil.getContentTypeFromFileData(fileDataModel)
 
+            // F1Whisper: copy the "qi" reply-quote apiMessageId into the type-agnostic quotedMessageId
+            // column so the media bubble renders the quote header (same path as text quotes). See
+            // IncomingContactFileMessageTask for the full rationale. Absent => null => no header.
+            fileDataModel.quotedApiMessageId?.let { quotedMessageId = it }
+
             postedAt = message.date
             createdAt = now()
 

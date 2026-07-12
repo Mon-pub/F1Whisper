@@ -59,7 +59,10 @@ public class MessageSendingServiceExponentialBackOff implements MessageSendingSe
                 }
                 logger.debug("{} Exponential backoff failed", process.getMessageModel().getUid());
 
-                messageSendingServiceState.processingFailed(process.getMessageModel(), process.getReceiver());
+                // F1Whisper auto-resend: forward the final exception so the state handler can
+                // distinguish a transient connectivity failure (leave pending for the reconnect
+                // scan) from a terminal one (mark SENDFAILED immediately, as upstream).
+                messageSendingServiceState.processingFailed(process.getMessageModel(), process.getReceiver(), e);
             }
         }, 5, process.getMessageModel().getUid());
 

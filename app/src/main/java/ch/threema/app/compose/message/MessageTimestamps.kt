@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import ch.threema.app.R
 import ch.threema.app.compose.common.colorReferenceResource
 import ch.threema.app.messagedetails.MessageTimestampsUiModel
+import ch.threema.app.utils.DisappearingMessageUtil
 import ch.threema.app.utils.LocaleUtil
 import ch.threema.common.capitalize
 import ch.threema.common.now
@@ -121,6 +122,27 @@ fun MessageTimestampsList(
                 timestamp = model.deletedAt,
                 iconResId = if (displayIcons) R.drawable.ic_delete_outline else null,
             )
+        }
+        // F1Whisper disappearing messages: the deletion time once the countdown has started, else a
+        // "<duration> after read" hint for a frozen-but-unstarted timer (typically incoming unread).
+        model.expiresAt?.let {
+            MessageTimestampsRow(
+                label = stringResource(R.string.message_details_disappears_at),
+                timestamp = model.expiresAt,
+                iconResId = if (displayIcons) R.drawable.ic_timer_00 else null,
+            )
+        }
+        if (model.expiresAt == null) {
+            model.disappearsAfterSeconds?.let { seconds ->
+                MessageDetailsRow(
+                    label = stringResource(R.string.message_details_disappears_at),
+                    value = stringResource(
+                        R.string.message_details_disappears_after_read,
+                        DisappearingMessageUtil.getDurationLabel(LocalContext.current, seconds),
+                    ),
+                    iconResId = if (displayIcons) R.drawable.ic_timer_00 else null,
+                )
+            }
         }
     }
 }

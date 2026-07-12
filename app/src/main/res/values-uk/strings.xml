@@ -2026,13 +2026,13 @@
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">Згорнути</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">Контрольний список</string>
-    <string name="checklist_create_as">Створити як контрольний список</string>
-    <string name="checklist_fork_only">Контрольні списки працюють лише між користувачами F1Whisper.</string>
+    <string name="checklist">Список завдань</string>
+    <string name="checklist_create_as">Створити як список завдань</string>
+    <string name="checklist_fork_only">Списки завдань працюють лише між користувачами F1Whisper.</string>
     <string name="checklist_toggle_item">Перемкнути елемент списку</string>
     <string name="checklist_checked_by">Відмічено %1$s</string>
-    <string name="checklist_created_successfully">Контрольний список створено</string>
-    <string name="checklist_placeholder">Контрольний список</string>
+    <string name="checklist_created_successfully">Список завдань створено</string>
+    <string name="checklist_placeholder">Список завдань</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">Закріпити повідомлення</string>
     <string name="unpin_message">Відкріпити</string>
@@ -2074,6 +2074,10 @@
     <string name="disappearing_duration_1d">1 день</string>
     <string name="disappearing_duration_1w">1 тиждень</string>
     <string name="disappearing_duration_4w">4 тижні</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Зникає</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s після прочитання</string>
     <string name="connectivity_probe_dialog_title">Діагностика з’єднання</string>
     <string name="connectivity_probe_running">Виконання перевірок…</string>
     <string name="connectivity_probe_done">Перевірки завершено</string>

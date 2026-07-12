@@ -46,7 +46,8 @@ import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
     private static final Logger logger = getThreemaLogger("AudioChatAdapterDecorator");
 
-    private static final String LISTENER_TAG = "decorator";
+    // F1Whisper: centralised so the background-voice teardown can drop exactly these listeners.
+    private static final String LISTENER_TAG = MessagePlayer.LISTENER_TAG_DECORATOR;
 
     public interface UserInteractionListener {
         void interact();

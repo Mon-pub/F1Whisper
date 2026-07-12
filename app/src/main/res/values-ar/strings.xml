@@ -2135,6 +2135,10 @@
     <string name="disappearing_duration_1d">يوم واحد</string>
     <string name="disappearing_duration_1w">أسبوع واحد</string>
     <string name="disappearing_duration_4w">٤ أسابيع</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">تختفي</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">‏%1$s بعد القراءة</string>
     <string name="connectivity_probe_dialog_title">تشخيص الاتصال</string>
     <string name="connectivity_probe_running">جارٍ إجراء الفحوصات…</string>
     <string name="connectivity_probe_done">اكتملت الفحوصات</string>

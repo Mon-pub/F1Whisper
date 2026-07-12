@@ -2022,6 +2022,10 @@
     <string name="disappearing_duration_1d">1 Tag</string>
     <string name="disappearing_duration_1w">1 Woche</string>
     <string name="disappearing_duration_4w">4 Wochen</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Verschwindet</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s nach dem Lesen</string>
     <string name="connectivity_probe_dialog_title">Verbindungsdiagnose</string>
     <string name="connectivity_probe_running">Prüfungen laufen…</string>
     <string name="connectivity_probe_done">Prüfungen abgeschlossen</string>

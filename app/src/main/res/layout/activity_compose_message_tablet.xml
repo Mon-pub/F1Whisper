@@ -29,6 +29,13 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- F1Whisper: background voice "now playing" banner (see phone layout). -->
+    <ch.threema.app.ui.VoicePlayerBannerView
+        android:id="@+id/voice_player_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"

@@ -1991,20 +1991,20 @@
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">كىچىكلىتىش</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">تىزىملىك</string>
-    <string name="checklist_create_as">تىزىملىك قىلىپ قۇرۇش</string>
-    <string name="checklist_fork_only">تىزىملىك پەقەت F1Whisper ئىشلەتكۈچىلەر ئارىسىدا ئىشلەيدۇ.</string>
+    <string name="checklist">ئىش تىزىملىكى</string>
+    <string name="checklist_create_as">ئىش تىزىملىكى قىلىپ قۇرۇش</string>
+    <string name="checklist_fork_only">ئىش تىزىملىكى پەقەت F1Whisper ئىشلەتكۈچىلەر ئارىسىدا ئىشلەيدۇ.</string>
     <string name="checklist_toggle_item">تىزىملىك تۈرىنى ئالماشتۇرۇش</string>
     <string name="checklist_checked_by">%1$s بەلگىلىگەن</string>
-    <string name="checklist_created_successfully">تىزىملىك قۇرۇلدى</string>
-    <string name="checklist_placeholder">تىزىملىك</string>
+    <string name="checklist_created_successfully">ئىش تىزىملىكى قۇرۇلدى</string>
+    <string name="checklist_placeholder">ئىش تىزىملىكى</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">ئۇچۇرنى قىستۇرۇش</string>
     <string name="unpin_message">قىستۇرۇشنى ئايرىش</string>
     <string name="pinned_message_banner_label">قىستۇرۇلغان ئۇچۇر</string>
     <string name="pinned_message_banner_dismiss">قىستۇرۇلغان ئۇچۇر بانىرىنى يوشۇرۇش</string>
     <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
-    <string name="checklist_subject_hint">تەكشۈرۈش تىزىملىكى ماۋزۇسىنى كىرگۈزۈڭ</string>
+    <string name="checklist_subject_hint">ئىش تىزىملىكى ماۋزۇسىنى كىرگۈزۈڭ</string>
     <string name="checklist_wizard0_explain">ئورتاق قىلىدىغان ئىش تىزىملىكى قۇرۇڭ. سۆھبەتتىكى ھەممە كىشى خالىغان ۋاقىتتا تۈرلەرنى بەلگىلىيەلەيدۇ ياكى بەلگىنى ئېلىۋېتەلەيدۇ، بەلگىلەنگەن تۈرلەر ئاستىغا يۆتكىلىدۇ.</string>
     <string name="checklist_add_items">تۈر قوشۇش</string>
     <string name="checklist_item_add">بىر تۈر قوشۇش</string>
@@ -2017,7 +2017,7 @@
     <string name="checklist_delete_button">ئۆچۈرۈش</string>
     <string name="checklist_reorder_item">تىزىملىك تۈرىنى يۆتكەش</string>
     <string name="checklist_cannot_reorder">بۇ تۈرنى يۆتكىگىلى بولمايدۇ</string>
-    <string name="checklist_edit_title">تىزىملىكنى تەھرىرلەش</string>
+    <string name="checklist_edit_title">ئىش تىزىملىكىنى تەھرىرلەش</string>
     <string name="checklist_edit_apply">قوللىنىش</string>
     <string name="checklist_rename_item_title">تۈرنىڭ ئىسمىنى ئۆزگەرتىش</string>
     <string name="audio_trim_not_supported">بۇ ئاۋاز فورماتى ئۈچۈن كېسىش قوللىمايدۇ. تولۇق ھۆججەتنى ئەۋەتىش ئۈچۈن كېسىشنى ئېلىۋېتىڭ.</string>
@@ -2039,6 +2039,10 @@
     <string name="disappearing_duration_1d">١ كۈن</string>
     <string name="disappearing_duration_1w">١ ھەپتە</string>
     <string name="disappearing_duration_4w">٤ ھەپتە</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">يوقىلىدۇ</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">ئوقۇغاندىن %1$s كېيىن</string>
     <string name="connectivity_probe_dialog_title">ئۇلىنىش دىئاگنوزى</string>
     <string name="connectivity_probe_running">تەكشۈرۈش ئېلىپ بېرىلىۋاتىدۇ…</string>
     <string name="connectivity_probe_done">تەكشۈرۈش تاماملاندى</string>

@@ -299,6 +299,36 @@ public interface MessageService {
         @NonNull TriggerSource triggerSource
     ) throws Exception;
 
+    /**
+     * F1Whisper auto-resend: silently re-send an auto-eligible unsent outgoing message once
+     * connectivity has returned (reconnect/startup scan), reusing the message's ORIGINAL
+     * apiMessageId so the receiver dedupes a redelivery. Accepts in-flight (process-death) states
+     * in addition to connectivity-class SENDFAILED; never resends a terminal failure. Unlike
+     * {@link #resendMessage} this is not a user interaction and mints no random message id.
+     *
+     * <p>Resolves the receiver and recipient identities from the model internally (single identity
+     * for 1:1, current group members for groups; distribution lists are not auto-resent).
+     *
+     * @param messageModel  the auto-eligible unsent message model
+     * @param triggerSource the trigger source (LOCAL for the auto path)
+     */
+    @WorkerThread
+    void autoResendMessage(
+        @NonNull AbstractMessageModel messageModel,
+        @NonNull TriggerSource triggerSource
+    ) throws Exception;
+
+    /**
+     * F1Whisper auto-resend: mark an outgoing message that has exhausted the 24h auto-resend window
+     * (still unsent, non-terminal) as terminally SENDFAILED, so the unsent-message notification
+     * finally nags the user once. No-op if the message was deleted or is no longer in an unsent
+     * state (it may have been resent or manually retried in the meantime).
+     *
+     * @param messageModel the aged-out unsent message model
+     */
+    @WorkerThread
+    void markAgedOutUnsentFailed(@NonNull AbstractMessageModel messageModel);
+
     AbstractMessageModel sendBallotMessage(
         @NonNull BallotModel ballotModel,
         @NonNull MessageId messageId,

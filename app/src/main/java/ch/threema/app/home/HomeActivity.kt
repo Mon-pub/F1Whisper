@@ -341,6 +341,14 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
                 if (!modifiedMessageModel.isStatusMessage &&
                     modifiedMessageModel.isOutbox
                 ) {
+                    // F1Whisper auto-resend: the unsent-message nag (notification 732) stays gated to
+                    // TERMINAL failures without any extra check here, because the auto-resend design
+                    // never lets a transient connectivity failure reach SENDFAILED - such a message
+                    // is kept in flight (PENDING/UPLOADING/SENDING) and re-sent on reconnect, so it
+                    // simply never enters the SENDFAILED branch. Only terminal failures (and messages
+                    // that have exhausted the 24h auto-resend window, marked terminally failed by the
+                    // scan) arrive here as SENDFAILED and nag. When such a message is later manually
+                    // or auto-resent it leaves SENDFAILED and the else-branch removes it from the nag.
                     if (modifiedMessageModel.state == MessageState.SENDFAILED) {
                         updateUnsentMessagesList(modifiedMessageModel, UnsentMessageAction.ADD)
                     } else {

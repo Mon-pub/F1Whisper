@@ -747,6 +747,7 @@
     <string name="play">Lejátszás</string>
     <string name="pause">Szünet</string>
     <string name="retry">Ismét</string>
+    <string name="voice_message">Hangüzenet</string>
     <string name="voice_message_record">Hangüzenet felvétele</string>
     <string name="open_navdrawer">Oldalmenü megnyitása</string>
     <string name="profile_picture">Profilkép</string>
@@ -1396,20 +1397,20 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">Minimalizálás</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">Ellenőrzőlista</string>
-    <string name="checklist_create_as">Létrehozás ellenőrzőlistaként</string>
-    <string name="checklist_fork_only">Az ellenőrzőlisták csak F1Whisper felhasználók között működnek.</string>
+    <string name="checklist">Teendőlista</string>
+    <string name="checklist_create_as">Létrehozás teendőlistaként</string>
+    <string name="checklist_fork_only">A teendőlisták csak F1Whisper felhasználók között működnek.</string>
     <string name="checklist_toggle_item">Elem be-/kikapcsolása</string>
     <string name="checklist_checked_by">%1$s jelölte be</string>
-    <string name="checklist_created_successfully">Ellenőrzőlista létrehozva</string>
-    <string name="checklist_placeholder">Ellenőrzőlista</string>
+    <string name="checklist_created_successfully">Teendőlista létrehozva</string>
+    <string name="checklist_placeholder">Teendőlista</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">Üzenet kitűzése</string>
     <string name="unpin_message">Kitűzés megszüntetése</string>
     <string name="pinned_message_banner_label">Kitűzött üzenet</string>
     <string name="pinned_message_banner_dismiss">Kitűzött üzenet szalaghirdetésének elrejtése</string>
     <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
-    <string name="checklist_subject_hint">Adja meg az ellenőrzőlista címét</string>
+    <string name="checklist_subject_hint">Adja meg a teendőlista címét</string>
     <string name="checklist_wizard0_explain">Hozzon létre egy megosztott teendőlistát. A csevegésben bárki bármikor be- és kipipálhatja a tételeket, a bepipált tételek pedig a lista aljára kerülnek.</string>
     <string name="checklist_add_items">Tételek hozzáadása</string>
     <string name="checklist_item_add">Tétel hozzáadása</string>
@@ -1444,6 +1445,10 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="disappearing_duration_1d">1 nap</string>
     <string name="disappearing_duration_1w">1 hét</string>
     <string name="disappearing_duration_4w">4 hét</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Eltűnik</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">olvasás után %1$s</string>
     <string name="problemsolver_title_oem_autostart">Háttérben futás engedélyezése</string>
     <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
     <string name="problemsolver_explain_oem_autostart">A(z) %1$s eszközök megakadályozhatják, hogy a F1Whisper a háttérben fusson, ami az üzenetértesítéseket akkor is letiltja, ha az akkumulátoroptimalizálás már ki van kapcsolva. Nyisd meg az útmutatót, és engedélyezd a F1Whisper számára az automatikus indítást és a háttérben futást.</string>

@@ -199,6 +199,47 @@ class QuoteUtilTest {
     }
 
     @Test
+    fun testExtractQuoteV2FileIncludeMessageModel() {
+        // F1Whisper: a media/file reply-quote resolves through the exact same extractQuoteV2 path as a
+        // text quote once its quotedMessageId column is set (populated on receive from the "qi"
+        // metadata). This guards the FILE branch of the shared resolver the media quote header relies on.
+        val quoterIdentity = "AABBCCDD"
+        val quotedIdentity = "AABBCCDD"
+        val quotedMessageId = "0011223344556677"
+        val quoteMessageId = "8899889988998899"
+        val quoteComment = "Here you go"
+
+        // Quoted FILE model (empty body -> FileDataModel.createEmpty -> default mime -> generic file
+        // view element with the file placeholder + a mime icon).
+        val quotedModel: AbstractMessageModel = MessageModel(false)
+        quotedModel.apiMessageId = quotedMessageId
+        quotedModel.identity = quotedIdentity
+        quotedModel.type = MessageType.FILE
+        quotedModel.body = ""
+
+        // Quoter FILE model that answers the quoted message (its quotedMessageId column is set, as the
+        // incoming task does from the "qi" metadata).
+        val quoterModel: AbstractMessageModel = MessageModel(false)
+        quoterModel.apiMessageId = quoteMessageId
+        quoterModel.identity = quoterIdentity
+        quoterModel.quotedMessageId = quotedMessageId
+        quoterModel.type = MessageType.FILE
+        quoterModel.body = ""
+
+        val content = extractQuoteV2(quoterModel, quotedModel, true, mockContactReceiver)
+        assertNotNull(content)
+        assertTrue(content.isQuoteV2)
+        assertFalse(content.isQuoteV1)
+        assertEquals("File", content.quotedText)
+        assertEquals(quotedIdentity, content.identity)
+        assertEquals(quotedMessageId, content.quotedMessageId)
+        assertEquals(quotedModel, content.quotedMessageModel)
+        assertEquals(mockContactReceiver, content.messageReceiver)
+        // The FILE branch always yields a (mime-category) icon.
+        assertNotNull(content.icon)
+    }
+
+    @Test
     fun testExtractQuoteV2Deleted() {
         // Test data
         val quoterIdentity = "AABBCCDD"
@@ -293,6 +334,7 @@ class QuoteUtilTest {
 
             // Ensure that certain strings used by the quote can be returned
             every { mockContext.getString(R.string.video_placeholder) } returns "Video"
+            every { mockContext.getString(R.string.file_placeholder) } returns "File"
             every { mockContext.getString(R.string.quoted_message_deleted) } returns "Deleted"
             every { mockContext.getString(R.string.quote_not_found) } returns "NoReceiverMatch"
 

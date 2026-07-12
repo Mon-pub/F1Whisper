@@ -89,6 +89,10 @@ internal class ReflectedOutgoingGroupFileTask(
         )
         return messageModel.apply {
             this.fileData = fileDataModel
+            // F1Whisper: populate quotedMessageId from the "qi" file metadata so this linked device
+            // renders the reply-quote header above the media bubble (matches the sender's primary
+            // device). See ReflectedOutgoingFileTask for rationale. Absent => null => no header.
+            fileDataModel.quotedApiMessageId?.let { quotedMessageId = it }
             messageFlags = groupFileMessage.messageFlags
             correlationId = fileData.correlationId
         }

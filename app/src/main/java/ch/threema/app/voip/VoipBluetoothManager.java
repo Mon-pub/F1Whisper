@@ -22,6 +22,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.media.AudioDeviceCallback;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
@@ -37,9 +39,12 @@ import java.util.Set;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import ch.threema.app.ThreemaApplication;
 import ch.threema.app.preference.service.PreferenceService;
+import ch.threema.app.utils.AudioDevice;
+import ch.threema.app.utils.AudioDeviceUtilKt;
 import ch.threema.app.utils.TestUtil;
 import ch.threema.app.voip.services.VoipCallService;
 import ch.threema.app.voip.services.VoipStateService;
@@ -61,6 +66,9 @@ public class VoipBluetoothManager {
     private static final int BLUETOOTH_SCO_TIMEOUT_MS = 4000;
     // Maximum number of SCO connection attempts.
     private static final int MAX_SCO_CONNECTION_ATTEMPTS = 2;
+    // Maximum number of times we re-assert our Bluetooth route after the platform silently reroutes
+    // off it (API 31+); bounds reroute ping-pong before we treat it as a disconnect.
+    private static final int MAX_BT_REASSERT_ATTEMPTS = 3;
 
     // Bluetooth connection state.
     public enum State {
@@ -96,6 +104,12 @@ public class VoipBluetoothManager {
     int scoConnectionAttempts;
     private State bluetoothState;
     private Long bluetoothAudioConnectedAt;
+    // API 31+ communication-device detection state (null on the legacy path).
+    @Nullable
+    private AudioDeviceCallback audioDeviceCallback;
+    @Nullable
+    private AudioManager.OnCommunicationDeviceChangedListener commDeviceChangedListener;
+    private int btReassertAttempts = 0;
     private String connectedBluetoothDeviceAddress;
     private final BluetoothProfile.ServiceListener bluetoothServiceListener;
     private BluetoothAdapter bluetoothAdapter;
@@ -382,6 +396,10 @@ public class VoipBluetoothManager {
     public void start() {
         ThreadUtils.checkIsOnMainThread();
         logger.debug("start");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            startCommDeviceApi();
+            return;
+        }
         if (!hasPermission(apprtcContext, android.Manifest.permission.BLUETOOTH) && !hasPermission(apprtcContext, Manifest.permission.BLUETOOTH_CONNECT)) {
             logger.warn("Process (pid={}) lacks BLUETOOTH permission", Process.myPid());
             return;
@@ -431,10 +449,63 @@ public class VoipBluetoothManager {
     }
 
     /**
+     * API 31+ start path. Detects Bluetooth availability via the permission-free
+     * communication-device API and registers two listeners: an AudioDeviceCallback for availability
+     * changes and an OnCommunicationDeviceChangedListener for silent active-route changes. This
+     * manager never routes on 31+, it only reports {@link State} and enforces abort policy;
+     * VoipAudioManager is the sole routing owner.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private void startCommDeviceApi() {
+        if (this.bluetoothState != State.UNINITIALIZED) {
+            logger.warn("Invalid BT state for start");
+            return;
+        }
+        this.scoConnectionAttempts = 0;
+        this.btReassertAttempts = 0;
+        this.bluetoothAudioConnectedAt = null;
+        this.audioDeviceCallback = new AudioDeviceCallback() {
+            @Override
+            public void onAudioDevicesAdded(AudioDeviceInfo[] added) {
+                onCommDevicesChanged();
+            }
+
+            @Override
+            public void onAudioDevicesRemoved(AudioDeviceInfo[] removed) {
+                onCommDevicesRemoved();
+            }
+        };
+        this.commDeviceChangedListener = active -> onActiveCommDeviceChanged(active);
+        // registerAudioDeviceCallback delivers on the given main-looper handler; the initial
+        // onAudioDevicesAdded is posted (lands after start() returns) so it cannot re-enter start().
+        this.audioManager.registerAudioDeviceCallback(this.audioDeviceCallback, this.handler);
+        // OnCommunicationDeviceChangedListener takes an Executor; post to the same main looper to
+        // preserve the single-thread invariant asserted throughout this manager.
+        this.audioManager.addOnCommunicationDeviceChangedListener(r -> this.handler.post(r), this.commDeviceChangedListener);
+        this.bluetoothState = hasBtCommDevice() ? State.HEADSET_AVAILABLE : State.HEADSET_UNAVAILABLE;
+        logger.debug("startCommDeviceApi done: BT state={}", bluetoothState);
+    }
+
+    /**
      * Stops and closes all components related to Bluetooth audio.
      */
     public void stop() {
         ThreadUtils.checkIsOnMainThread();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (audioDeviceCallback != null) {
+                audioManager.unregisterAudioDeviceCallback(audioDeviceCallback);
+                audioDeviceCallback = null;
+            }
+            if (commDeviceChangedListener != null) {
+                audioManager.removeOnCommunicationDeviceChangedListener(commDeviceChangedListener);
+                commDeviceChangedListener = null;
+            }
+            bluetoothAudioConnectedAt = null;
+            btReassertAttempts = 0;
+            bluetoothState = State.UNINITIALIZED;
+            // The active communication device is cleared by VoipAudioManager.stop() (single routing owner).
+            return;
+        }
         if (bluetoothState != State.UNINITIALIZED) {
             // Only unregister receiver if it has been registered (to reduce unnecessary stack traces in the log)
             unregisterReceiver(bluetoothHeadsetReceiver);
@@ -473,6 +544,9 @@ public class VoipBluetoothManager {
      */
     public boolean startScoAudio() {
         ThreadUtils.checkIsOnMainThread();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return startScoCommDeviceApi();
+        }
         logger.debug("startSco: BT state={}, attempts: {}, SCO is on: {}",
             bluetoothState, scoConnectionAttempts, isScoOn());
         if (scoConnectionAttempts >= MAX_SCO_CONNECTION_ATTEMPTS) {
@@ -501,10 +575,45 @@ public class VoipBluetoothManager {
     }
 
     /**
+     * API 31+ "want Bluetooth" path. The actual setCommunicationDevice(bt) is applied by
+     * VoipAudioManager in the same updateAudioDeviceState() pass (single routing owner). There is no
+     * async SCO negotiation under the comm-device API, so we collapse straight to SCO_CONNECTED;
+     * bluetoothAudioConnectedAt is stamped only once the active route is CONFIRMED to be Bluetooth
+     * (see onActiveCommDeviceChanged). The MAX_SCO_CONNECTION_ATTEMPTS cap is honoured so a device
+     * that persistently refuses routing is given up on instead of re-appearing on every event.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private boolean startScoCommDeviceApi() {
+        if (scoConnectionAttempts >= MAX_SCO_CONNECTION_ATTEMPTS) {
+            logger.error("BT route: no more attempts");
+            return false;
+        }
+        if (bluetoothState != State.HEADSET_AVAILABLE) {
+            return false;
+        }
+        if (!hasBtCommDevice()) {
+            return false;
+        }
+        scoConnectionAttempts++;
+        bluetoothState = State.SCO_CONNECTED;
+        return true;
+    }
+
+    /**
      * Stops Bluetooth SCO connection with remote device.
      */
     public void stopScoAudio() {
         ThreadUtils.checkIsOnMainThread();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Relinquish "want Bluetooth" only; the follow-up non-Bluetooth setAudioDeviceInternal
+            // overwrites the route, so we never clear it here.
+            if (bluetoothState == State.SCO_CONNECTED || bluetoothState == State.SCO_CONNECTING) {
+                bluetoothAudioConnectedAt = null;
+                btReassertAttempts = 0;
+                bluetoothState = hasBtCommDevice() ? State.HEADSET_AVAILABLE : State.HEADSET_UNAVAILABLE;
+            }
+            return;
+        }
         logger.debug("stopScoAudio: BT state={}, SCO is on: {}", bluetoothState, isScoOn());
         if (bluetoothState != State.SCO_CONNECTING && bluetoothState != State.SCO_CONNECTED) {
             return;
@@ -524,6 +633,16 @@ public class VoipBluetoothManager {
      */
     @SuppressLint("MissingPermission")
     public void updateDevice() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (bluetoothState == State.UNINITIALIZED) {
+                return;
+            }
+            // Recompute availability only while not actively routed to Bluetooth (matching legacy semantics).
+            if (bluetoothState != State.SCO_CONNECTED && bluetoothState != State.SCO_CONNECTING) {
+                bluetoothState = hasBtCommDevice() ? State.HEADSET_AVAILABLE : State.HEADSET_UNAVAILABLE;
+            }
+            return;
+        }
         if (bluetoothState == State.UNINITIALIZED || bluetoothHeadset == null) {
             return;
         }
@@ -616,6 +735,120 @@ public class VoipBluetoothManager {
     protected boolean hasPermission(Context context, String permission) {
         return apprtcContext.checkPermission(permission, Process.myPid(), Process.myUid())
             == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private boolean hasBtCommDevice() {
+        return AudioDeviceUtilKt.findCommunicationDevice(audioManager, AudioDevice.BLUETOOTH) != null;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private static boolean isBtType(int type) {
+        return type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO
+            || type == AudioDeviceInfo.TYPE_BLE_HEADSET
+            || type == AudioDeviceInfo.TYPE_HEARING_AID;
+    }
+
+    /**
+     * A communication device was added, or one was removed but Bluetooth is still present:
+     * recompute availability and let VoipAudioManager re-select. Never routes directly.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private void onCommDevicesChanged() {
+        ThreadUtils.checkIsOnMainThread();
+        if (bluetoothState == State.UNINITIALIZED) {
+            return;
+        }
+        if (bluetoothState != State.SCO_CONNECTED && bluetoothState != State.SCO_CONNECTING) {
+            boolean btNowPresent = hasBtCommDevice();
+            if (btNowPresent && bluetoothState != State.HEADSET_AVAILABLE) {
+                // A Bluetooth device newly entered the available set: reset the attempt counter so an
+                // earlier exhaustion does not outlive a physical reconnect (mirrors legacy STATE_CONNECTED).
+                scoConnectionAttempts = 0;
+            }
+            bluetoothState = btNowPresent ? State.HEADSET_AVAILABLE : State.HEADSET_UNAVAILABLE;
+        }
+        updateAudioDeviceState();
+    }
+
+    /**
+     * A device left the available set. The abort/fallback decision keys on Bluetooth AVAILABILITY,
+     * not on matching the removed device id: if we wanted Bluetooth and no Bluetooth device remains
+     * it is a real disconnect; otherwise a surviving Bluetooth device lets the call continue on it.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private void onCommDevicesRemoved() {
+        ThreadUtils.checkIsOnMainThread();
+        if (bluetoothState == State.UNINITIALIZED) {
+            return;
+        }
+        boolean btWasWanted = (bluetoothState == State.SCO_CONNECTED || bluetoothState == State.SCO_CONNECTING);
+        if (btWasWanted && !hasBtCommDevice()) {
+            handleBtDisconnected();
+        } else {
+            onCommDevicesChanged();
+        }
+    }
+
+    /**
+     * The system/OEM changed the ACTIVE communication device. This is the only signal that catches a
+     * silent reroute or an SCO-audio drop that does not remove the device (the AudioDeviceCallback
+     * cannot see these). If Bluetooth is still present but the platform rerouted off it, re-assert our
+     * selection up to MAX_BT_REASSERT_ATTEMPTS times, then treat it as a disconnect.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private void onActiveCommDeviceChanged(@Nullable AudioDeviceInfo active) {
+        ThreadUtils.checkIsOnMainThread();
+        if (bluetoothState == State.UNINITIALIZED) {
+            return;
+        }
+        boolean btWanted = (bluetoothState == State.SCO_CONNECTED);
+        boolean activeIsBt = active != null && isBtType(active.getType());
+        if (btWanted && activeIsBt) {
+            // Confirmed: Bluetooth is really the live route. Stamp the real connect time and reset both
+            // the reroute counter and the SCO attempt counter (mirrors the legacy STATE_AUDIO_CONNECTED
+            // reset, so a successful route never leaves the attempt cap exhausted). Transient SCO bounces
+            // that briefly leave Bluetooth are absorbed here.
+            if (bluetoothAudioConnectedAt == null) {
+                bluetoothAudioConnectedAt = System.nanoTime();
+            }
+            scoConnectionAttempts = 0;
+            btReassertAttempts = 0;
+        } else if (btWanted) {
+            if (hasBtCommDevice() && btReassertAttempts < MAX_BT_REASSERT_ATTEMPTS) {
+                btReassertAttempts++;
+                logger.warn("Comm device rerouted off BT (attempt {}); re-asserting", btReassertAttempts);
+                voipAudioManager.reassertCommunicationDevice();
+            } else {
+                handleBtDisconnected();
+            }
+        }
+        // btWanted == false: the user route is non-Bluetooth; we do not fight non-Bluetooth reroutes
+        // (earpiece/speaker are the platform default routes anyway).
+    }
+
+    /**
+     * Replicates the legacy abort-on-Bluetooth-disconnect (default true) plus the 1500ms bounce
+     * guard: a sub-1.5s or never-confirmed connect falls back to phone audio, a longer confirmed one
+     * ends the call when the preference is set. On 31+ a transient SCO bounce (device stays paired) is
+     * instead absorbed by the re-assertion in onActiveCommDeviceChanged, not by this timer.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private void handleBtDisconnected() {
+        Long msElapsed = (bluetoothAudioConnectedAt == null) ? null
+            : (System.nanoTime() - bluetoothAudioConnectedAt) / 1000 / 1000;
+        bluetoothAudioConnectedAt = null;
+        btReassertAttempts = 0;
+        bluetoothState = hasBtCommDevice() ? State.HEADSET_AVAILABLE : State.HEADSET_UNAVAILABLE;
+        if (msElapsed == null || msElapsed < 1500) {
+            updateAudioDeviceState();
+        } else if (voipStateService.getCallState().isCalling()
+            && preferenceService.shouldAbortCallOnBluetoothDisconnect()) {
+            logger.info("Ending call because of disconnected bluetooth headset.");
+            VoipUtil.sendVoipCommand(ThreemaApplication.getAppContext(), VoipCallService.class, VoipCallService.ACTION_HANGUP);
+        } else {
+            updateAudioDeviceState();
+        }
     }
 
     /**

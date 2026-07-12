@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ F1Whisper: the bubble header now stacks an optional "Forwarded" row on top of the existing
-  ~ group-sender row. The forwarded row is shown (by the decorator) for media/file/voice messages
-  ~ that carry the "fwd" metadata flag, in both 1:1 and group chats. The inner group_sender_view /
-  ~ group_sender_name ids are unchanged so existing code keeps working.
+  ~ F1Whisper: the bubble header now stacks an optional "Forwarded" row and an optional reply-quote
+  ~ header on top of the existing group-sender row. The forwarded row is shown (by the decorator) for
+  ~ media/file/voice messages that carry the "fwd" metadata flag; the quote header (spliced below the
+  ~ sender row) is shown for non-text bubbles carrying a "qi" reply-quote reference. Both in 1:1 and
+  ~ group chats. The inner group_sender_view / group_sender_name ids are unchanged so existing code
+  ~ keeps working.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -75,5 +77,8 @@
             tools:text="@tools:sample/full_names" />
 
     </LinearLayout>
+
+    <!-- F1Whisper: reply-quote header for non-text bubbles (bound + toggled by the decorator). -->
+    <include layout="@layout/conversation_bubble_quote_header" />
 
 </LinearLayout>

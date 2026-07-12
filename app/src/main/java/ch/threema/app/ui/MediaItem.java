@@ -69,6 +69,10 @@ public class MediaItem implements Parcelable {
     private String linkPreviewTitle;
     @Nullable
     private String linkPreviewDescription;
+    // F1Whisper: when set, this media is being sent as a reply-quote of an existing message. Holds the
+    // quoted message's 16-hex apiMessageId; carried E2E via the "qi" file metadata key at send time.
+    @Nullable
+    private String quotedMessageId;
 
     private static final Logger logger = getThreemaLogger("MediaItem");
 
@@ -295,6 +299,7 @@ public class MediaItem implements Parcelable {
         this.linkPreviewUrl = null;
         this.linkPreviewTitle = null;
         this.linkPreviewDescription = null;
+        this.quotedMessageId = null;
     }
 
 
@@ -324,6 +329,7 @@ public class MediaItem implements Parcelable {
         linkPreviewUrl = in.readString();
         linkPreviewTitle = in.readString();
         linkPreviewDescription = in.readString();
+        quotedMessageId = in.readString();
     }
 
     @Override
@@ -352,6 +358,7 @@ public class MediaItem implements Parcelable {
         dest.writeString(linkPreviewUrl);
         dest.writeString(linkPreviewTitle);
         dest.writeString(linkPreviewDescription);
+        dest.writeString(quotedMessageId);
     }
 
     @Override
@@ -651,6 +658,24 @@ public class MediaItem implements Parcelable {
         this.linkPreviewUrl = url;
         this.linkPreviewTitle = title;
         this.linkPreviewDescription = description;
+    }
+
+    /**
+     * F1Whisper: return the quoted message's 16-hex apiMessageId if this media is being sent as a
+     * reply-quote, or {@code null} otherwise.
+     */
+    @Nullable
+    public String getQuotedMessageId() {
+        return quotedMessageId;
+    }
+
+    /**
+     * F1Whisper: mark this media item as a reply-quote of the message with the given apiMessageId
+     * (16-lowercase-hex). Carried E2E via the "qi" file metadata key so the recipient renders the
+     * quote header above the media bubble.
+     */
+    public void setQuotedMessageId(@Nullable String quotedMessageId) {
+        this.quotedMessageId = quotedMessageId;
     }
 
     /**

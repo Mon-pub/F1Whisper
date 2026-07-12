@@ -1954,21 +1954,21 @@
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">چھوٹا کریں</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">چیک لسٹ</string>
-    <string name="checklist_create_as">چیک لسٹ کے طور پر بنائیں</string>
-    <string name="checklist_fork_only">چیک لسٹ صرف F1Whisper صارفین کے درمیان کام کرتی ہے۔</string>
-    <string name="checklist_toggle_item">چیک لسٹ آئٹم ٹوگل کریں</string>
+    <string name="checklist">کاموں کی فہرست</string>
+    <string name="checklist_create_as">کاموں کی فہرست کے طور پر بنائیں</string>
+    <string name="checklist_fork_only">کاموں کی فہرست صرف F1Whisper صارفین کے درمیان کام کرتی ہے۔</string>
+    <string name="checklist_toggle_item">فہرست آئٹم ٹوگل کریں</string>
     <string name="checklist_checked_by">%1$s نے نشان لگایا</string>
-    <string name="checklist_created_successfully">چیک لسٹ بن گئی</string>
-    <string name="checklist_placeholder">چیک لسٹ</string>
+    <string name="checklist_created_successfully">کاموں کی فہرست بن گئی</string>
+    <string name="checklist_placeholder">کاموں کی فہرست</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">پیغام پن کریں</string>
     <string name="unpin_message">پن ہٹائیں</string>
     <string name="pinned_message_banner_label">پن کیا گیا پیغام</string>
     <string name="pinned_message_banner_dismiss">پن کیے گئے پیغام کا بینر چھپائیں</string>
     <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
-    <string name="checklist_subject_hint">چیک لسٹ کا عنوان درج کریں</string>
-    <string name="checklist_wizard0_explain">ایک مشترکہ ٹو ڈو فہرست بنائیں۔ چیٹ میں موجود ہر کوئی کسی بھی وقت اشیاء کو چیک اور ان چیک کر سکتا ہے، اور چیک شدہ اشیاء نیچے چلی جاتی ہیں۔</string>
+    <string name="checklist_subject_hint">کاموں کی فہرست کا عنوان درج کریں</string>
+    <string name="checklist_wizard0_explain">ایک مشترکہ کاموں کی فہرست بنائیں۔ چیٹ میں موجود ہر کوئی کسی بھی وقت اشیاء کو چیک اور ان چیک کر سکتا ہے، اور چیک شدہ اشیاء نیچے چلی جاتی ہیں۔</string>
     <string name="checklist_add_items">اشیاء شامل کریں</string>
     <string name="checklist_item_add">ایک شے شامل کریں</string>
     <string name="checklist_item_count_error">براہ کرم کم از کم ایک شے شامل کریں</string>
@@ -1978,9 +1978,9 @@
     <string name="checklist_delete_item_title">آئٹم حذف کریں؟</string>
     <string name="checklist_delete_item_message">کیا آپ واقعی \"%1$s\" کو حذف کرنا چاہتے ہیں؟</string>
     <string name="checklist_delete_button">حذف کریں</string>
-    <string name="checklist_reorder_item">چیک لسٹ آئٹم منتقل کریں</string>
+    <string name="checklist_reorder_item">فہرست آئٹم منتقل کریں</string>
     <string name="checklist_cannot_reorder">اس آئٹم کو منتقل نہیں کیا جا سکتا</string>
-    <string name="checklist_edit_title">چیک لسٹ میں ترمیم کریں</string>
+    <string name="checklist_edit_title">کاموں کی فہرست میں ترمیم کریں</string>
     <string name="checklist_edit_apply">لاگو کریں</string>
     <string name="checklist_rename_item_title">آئٹم کا نام تبدیل کریں</string>
     <string name="audio_trim_not_supported">اس آڈیو فارمیٹ کے لیے تراشنا معاون نہیں ہے۔ مکمل فائل بھیجنے کے لیے تراش ہٹا دیں۔</string>
@@ -2002,6 +2002,10 @@
     <string name="disappearing_duration_1d">۱ دن</string>
     <string name="disappearing_duration_1w">۱ ہفتہ</string>
     <string name="disappearing_duration_4w">۴ ہفتے</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">غائب ہوگا</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">پڑھنے کے %1$s بعد</string>
     <string name="connectivity_probe_dialog_title">کنکشن کی تشخیص</string>
     <string name="connectivity_probe_running">جانچ جاری ہے…</string>
     <string name="connectivity_probe_done">جانچ مکمل ہوئی</string>

@@ -98,6 +98,11 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
     private HorizontalScrollView scrollView;
 
     private MessageReceiver messageReceiver;
+    // F1Whisper: apiMessageId of the message being replied-to when the attach flow was launched from
+    // an active quote. Threaded into each terminal media send so a media/file answer carries the
+    // reply-quote (Signal-style "reply with any type").
+    @Nullable
+    private String pendingQuoteApiMessageId;
 
     @NonNull
     private final DependencyContainer dependencies = KoinJavaComponent.get(DependencyContainer.class);
@@ -119,9 +124,16 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                     return;
                 }
                 MediaItem mediaItem = resultIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+                // F1Whisper: a drawing answer sent while quoting carries the reply-quote.
+                if (mediaItem != null && pendingQuoteApiMessageId != null) {
+                    mediaItem.setQuotedMessageId(pendingQuoteApiMessageId);
+                }
                 @SuppressWarnings("rawtypes")
                 MessageReceiver drawingReceiver = IntentDataUtil.getMessageReceiverFromIntent(MediaAttachActivity.this, resultIntent);
                 dependencies.getMessageService().sendMediaAsync(Collections.singletonList(mediaItem), Collections.singletonList(drawingReceiver));
+                // F1Whisper: this direct-send path does not go through SendMediaActivity, so signal the
+                // compose screen that media (and any reply-quote) was consumed - do NOT reopen the quote.
+                signalMediaSent();
             }
             finish();
         });
@@ -178,6 +190,7 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
     public void handleIntent() {
         Intent intent = this.getIntent();
         this.messageReceiver = IntentDataUtil.getMessageReceiverFromIntent(this, intent);
+        this.pendingQuoteApiMessageId = IntentDataUtil.getQuotedApiMessageIdFromIntent(intent);
 
         if (this.messageReceiver == null) {
             logger.error("invalid receiver");
@@ -505,8 +518,14 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                         IntentDataUtil.addLastMediaFilterToIntent(resultIntent,
                             intent.getStringExtra(ComposeMessageFragment.EXTRA_LAST_MEDIA_SEARCH_QUERY),
                             intent.getIntExtra(ComposeMessageFragment.EXTRA_LAST_MEDIA_TYPE_QUERY, -1));
-                        setResult(RESULT_OK, resultIntent);
                     }
+                    // F1Whisper: SendMediaActivity returns RESULT_OK only when it actually sent (and it
+                    // consumed the reply-quote). Signal that to the compose screen so it does not reopen
+                    // the quote popup; on a back-out (RESULT_CANCELED) the flag stays absent -> reopen.
+                    if (resultCode == RESULT_OK) {
+                        resultIntent.putExtra(ComposeMessageFragment.EXTRA_MEDIA_WAS_SENT, true);
+                    }
+                    setResult(RESULT_OK, resultIntent);
                     finish();
                     break;
             }
@@ -525,6 +544,26 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
     /* end section callback methods */
 
     /* start section attachment/sending methods */
+
+    /**
+     * F1Whisper: mark this MediaAttach result as "media was actually sent" so the compose screen does
+     * NOT reopen the reply-quote popup (the quote rode the send via "qi"). Called from the two direct
+     * send paths (gallery quick-send, in-attach drawing); the SendMediaActivity handoff signals it from
+     * the SEND_MEDIA result. The result intent also carries the current last-media-filter — setResult
+     * REPLACES any previously staged intent, so building a flag-only intent here would clobber the
+     * filter the compose screen re-applies on the next attach. Needed because plain result codes are
+     * unreliable here (these direct sends still finish() with RESULT_CANCELED).
+     */
+    private void signalMediaSent() {
+        Intent resultIntent = new Intent();
+        if (mediaAttachViewModel != null && mediaAttachViewModel.getLastQueryType() != null) {
+            IntentDataUtil.addLastMediaFilterToIntent(resultIntent,
+                mediaAttachViewModel.getLastQuery(),
+                mediaAttachViewModel.getLastQueryType());
+        }
+        resultIntent.putExtra(ComposeMessageFragment.EXTRA_MEDIA_WAS_SENT, true);
+        setResult(RESULT_OK, resultIntent);
+    }
 
     @UiThread
     public void onEdit(final ArrayList<Uri> uriList) {
@@ -548,6 +587,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                 AppConstants.INTENT_DATA_TEXT,
                 messageReceiver.getDisplayName(dependencies.getPreferenceService().getContactNameFormat())
             );
+            // F1Whisper: forward the reply-quote so the gallery-edit answer carries it through SendMediaActivity.
+            IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
             // pass on last filter to potentially re-use it when adding more media items
             if (mediaAttachViewModel.getLastQuery() != null) {
                 IntentDataUtil.addLastMediaFilterToIntent(intent,
@@ -568,7 +609,16 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
         List<MediaItem> mediaItems = MediaItem.getFromUris(list, this, false);
         if (!mediaItems.isEmpty()) {
+            // F1Whisper: a gallery quick-send answer sent while quoting carries the reply-quote.
+            if (pendingQuoteApiMessageId != null) {
+                for (MediaItem mediaItem : mediaItems) {
+                    mediaItem.setQuotedMessageId(pendingQuoteApiMessageId);
+                }
+            }
             dependencies.getMessageService().sendMediaAsync(mediaItems, Collections.singletonList(messageReceiver));
+            // F1Whisper: direct send (does not go through SendMediaActivity) - signal the compose screen
+            // that media/reply-quote was consumed so it does not reopen the quote popup.
+            signalMediaSent();
             finish();
         }
     }
@@ -599,6 +649,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         );
         intent.putExtra(AppConstants.INTENT_DATA_PICK_FROM_CAMERA, true);
         intent.putExtra(SendMediaActivity.EXTRA_USE_EXTERNAL_CAMERA, true);
+        // F1Whisper: forward the reply-quote so an external-camera answer carries it through SendMediaActivity.
+        IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
         startActivityForResult(intent, ThreemaActivity.ACTIVITY_ID_SEND_MEDIA);
     }
 
@@ -654,6 +706,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             AppConstants.INTENT_DATA_TEXT,
             messageReceiver.getDisplayName(dependencies.getPreferenceService().getContactNameFormat())
         );
+        // F1Whisper: forward the reply-quote so a file answer carries it through SendMediaActivity.
+        IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
         startActivityForResult(intent, ThreemaActivity.ACTIVITY_ID_SEND_MEDIA);
     }
 

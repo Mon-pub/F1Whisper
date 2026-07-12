@@ -39,6 +39,8 @@ import ch.threema.app.listeners.SensorListener.keyIsNear
 import ch.threema.app.notifications.NotificationChannels
 import ch.threema.app.notifications.NotificationIDs
 import ch.threema.app.preference.service.PreferenceService
+import ch.threema.app.services.messageplayer.ConnectedControllerFlags
+import ch.threema.app.services.messageplayer.VoiceBannerLogic
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.voicemessage.SamsungQuirkRenderersFactory
 import ch.threema.base.utils.getThreemaLogger
@@ -186,7 +188,6 @@ class VoiceMessagePlayerService :
             )
         }
 
-        val uniqueControllerIds: MutableSet<Int> = mutableSetOf()
         val mediaSessionCallback = object : Callback {
             override fun onAddMediaItems(
                 mediaSession: MediaSession,
@@ -205,14 +206,24 @@ class VoiceMessagePlayerService :
 
             override fun onPostConnect(session: MediaSession, controller: MediaSession.ControllerInfo) {
                 logger.info("Controller {} connected with hints: {}", controller.uid, controller.connectionHints)
-                uniqueControllerIds.add(controller.uid)
             }
 
             override fun onDisconnected(session: MediaSession, controller: MediaSession.ControllerInfo) {
                 logger.info("Controller {} disconnected", controller.uid)
-                uniqueControllerIds.remove(controller.uid)
-                if (uniqueControllerIds.isEmpty()) {
-                    logger.info("Stopping self because the last controller disconnected")
+                // F1Whisper: stop the service only when NO real client controller remains. All app
+                // controllers (a chat fragment's + the app-scoped background-playback holder's) share
+                // one process uid, so the previous uid-set was always a single element and the first
+                // disconnect wrongly stopped the service mid-playback. Count the actual distinct
+                // connected controllers, excluding the media-notification internal (always connected)
+                // and the one disconnecting right now.
+                val flags = session.connectedControllers.map { info ->
+                    ConnectedControllerFlags(
+                        isMediaNotification = session.isMediaNotificationController(info),
+                        isDisconnecting = info == controller,
+                    )
+                }
+                if (VoiceBannerLogic.shouldStopServiceOnDisconnect(flags)) {
+                    logger.info("Stopping self because no real controller remains")
                     pauseAllPlayersAndStopSelf()
                 }
             }

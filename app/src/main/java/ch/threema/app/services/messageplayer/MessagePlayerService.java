@@ -18,6 +18,22 @@ public interface MessagePlayerService {
 
     void release();
 
+    /**
+     * F1Whisper: release every player EXCEPT the one for {@code keepMessageId} (a voice message kept
+     * playing in the background). The kept player stays in the map with its decrypted file, but its
+     * chat-view (decorator) listeners and controller binding are detached so it neither leaks the
+     * destroyed chat's view tree nor pokes the released controller. All other players are fully
+     * released (stopped + files deleted) as in {@link #release()}.
+     */
+    void releaseExcept(int keepMessageId);
+
+    /**
+     * F1Whisper: release a single kept background player and delete its decrypted file. Called once
+     * the background session for {@code messageId} truly ends out-of-chat (natural end or banner
+     * close) so the plaintext audio does not linger in cache.
+     */
+    void releasePlayer(int messageId);
+
     void stopAll();
 
     void pauseAll(int source);

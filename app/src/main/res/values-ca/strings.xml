@@ -745,6 +745,7 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <string name="play">Reproduir</string>
     <string name="pause">Pausa</string>
     <string name="retry">Tornar a provar</string>
+    <string name="voice_message">Missatge de veu</string>
     <string name="voice_message_record">Gravar un missatge de veu</string>
     <string name="open_navdrawer">Obrir el calaix de navegació</string>
     <string name="profile_picture">Foto de perfil</string>
@@ -1413,13 +1414,13 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
     <string name="pip_minimize">Minimitza</string>
     <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
-    <string name="checklist">Llista de verificació</string>
-    <string name="checklist_create_as">Crea com a llista de verificació</string>
-    <string name="checklist_fork_only">Les llistes de verificació només funcionen entre usuaris de F1Whisper.</string>
+    <string name="checklist">Llista de tasques</string>
+    <string name="checklist_create_as">Crea com a llista de tasques</string>
+    <string name="checklist_fork_only">Les llistes de tasques només funcionen entre usuaris de F1Whisper.</string>
     <string name="checklist_toggle_item">Commuta element de la llista</string>
     <string name="checklist_checked_by">Marcat per %1$s</string>
-    <string name="checklist_created_successfully">Llista de verificació creada</string>
-    <string name="checklist_placeholder">Llista de verificació</string>
+    <string name="checklist_created_successfully">Llista de tasques creada</string>
+    <string name="checklist_placeholder">Llista de tasques</string>
     <!-- F1Whisper: local message pinning (no wire change) -->
     <string name="pin_message">Fixa el missatge</string>
     <string name="unpin_message">Desfixa</string>
@@ -1461,6 +1462,10 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
     <string name="disappearing_duration_1d">1 dia</string>
     <string name="disappearing_duration_1w">1 setmana</string>
     <string name="disappearing_duration_4w">4 setmanes</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Desapareix</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s després de llegir-lo</string>
     <string name="problemsolver_title_oem_autostart">Permetre l\'execució en segon pla</string>
     <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
     <string name="problemsolver_explain_oem_autostart">Els dispositius %1$s poden impedir que F1Whisper s\'executi en segon pla, cosa que bloqueja les notificacions de missatges encara que l\'optimització de bateria ja estigui desactivada. Obre la guia i permet que F1Whisper s\'iniciï automàticament i s\'executi en segon pla.</string>

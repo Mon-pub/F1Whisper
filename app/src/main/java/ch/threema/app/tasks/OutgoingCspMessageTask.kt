@@ -400,11 +400,29 @@ sealed class OutgoingCspMessageTask :
 
     /**
      * Set the message model state to [MessageState.SENDFAILED] and save the model to the database.
+     *
+     * F1Whisper auto-resend: this is the task-layer entry point into SENDFAILED (invoked from
+     * [onSendingStepsFailed]). Only NON-network exceptions reach it (network ones are retried by the
+     * persistent task queue), so every failure that lands here is TERMINAL by construction - re-driving
+     * the send cannot fix it. We therefore set the DISPLAY_TAG_SEND_FAILED_TERMINAL bit exactly as the
+     * central [MessageService.updateOutgoingMessageState] path does, so [AutoResendService] never
+     * silently re-uploads the blob and re-sends this message on every reconnect. We also fire
+     * onModified (which the central path does but plain [MessageService.save] does not) so the
+     * unsent-message nag surfaces immediately instead of only after the 24h aged-out sweep.
+     *
+     * The state is set unconditionally (matching the previous behaviour) rather than routing through
+     * updateOutgoingMessageState, whose canChangeToState gate would skip both the state change AND the
+     * terminal bit for a message in an edge state - which would reintroduce the non-terminal SENDFAILED
+     * that the auto-resend scan would keep retrying.
      */
     protected fun AbstractMessageModel.saveWithStateFailed() {
-        logger.info("Setting message state of model with message id {} to failed", apiMessageId)
+        logger.info("Setting message state of model with message id {} to failed (terminal)", apiMessageId)
         state = MessageState.SENDFAILED
+        setSendFailedTerminal(true)
         messageService.save(this)
+        ListenerManager.messageListeners.handle { listener: MessageListener ->
+            listener.onModified(listOf(this))
+        }
     }
 
     /**
