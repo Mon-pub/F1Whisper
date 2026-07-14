@@ -14,6 +14,8 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,6 +37,10 @@ public class DownloadServiceImpl implements DownloadService {
     private static final String TAG = "DownloadService";
     private static final String WAKELOCK_TAG = BuildConfig.APPLICATION_ID + ":" + TAG;
     private static final int DOWNLOAD_WAKELOCK_TIMEOUT = 10 * 1000;
+    // Upper bound a duplicate caller waits to join an in-flight download of the same blob. The creator
+    // always signals on completion (success or failure), so this only caps a pathological hang; keep it
+    // generously above any realistic blob transfer so a slow-but-progressing download is never abandoned.
+    private static final long BLOB_JOIN_TIMEOUT_MINUTES = 5;
     private final ArrayList<Download> downloads = new ArrayList<>();
     private final ApiService apiService;
     private final PowerManager powerManager;
@@ -45,6 +51,12 @@ public class DownloadServiceImpl implements DownloadService {
         int messageModelId;
         byte[] blobId;
         BlobLoader blobLoader;
+        // Single-flight join: a concurrent duplicate download() for the same blob awaits this latch and
+        // reuses `result` (a pristine, still-encrypted snapshot) instead of returning null. The old null
+        // return was mistaken by the caller for a failure, which cancelled/orphaned this running loader
+        // and spawned a second concurrent fetch of the same blob (slow + spurious "download failed").
+        final CountDownLatch done = new CountDownLatch(1);
+        volatile byte[] result;
 
         public Download(int messageModelId, byte[] blobId, BlobLoader blobLoader) {
             this.messageModelId = messageModelId;
@@ -118,6 +130,9 @@ public class DownloadServiceImpl implements DownloadService {
         @Nullable ProgressListener progressListener
     ) {
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG);
+        // Non-null only for the thread that actually creates the loader (the "creator"); a duplicate
+        // caller that joins an in-flight download leaves this null and must not signal the latch.
+        Download myDownload = null;
         try {
             if (wakeLock != null) {
                 wakeLock.acquire(DOWNLOAD_WAKELOCK_TIMEOUT);
@@ -150,14 +165,34 @@ public class DownloadServiceImpl implements DownloadService {
                     }
                 }
 
-                BlobLoader blobLoader;
+                BlobLoader blobLoader = null;
+                Download existingDownload = null;
                 synchronized (this.downloads) {
-                    if (getDownloadByBlobId(blobId) == null) {
+                    existingDownload = getDownloadByBlobId(blobId);
+                    if (existingDownload == null) {
                         blobLoader = this.apiService.createLoader(blobId);
-                        this.downloads.add(new Download(messageModelId, blobId, blobLoader));
+                        myDownload = new Download(messageModelId, blobId, blobLoader);
+                        this.downloads.add(myDownload);
                         logger.info("Blob {} downloader created", blobIdHex);
                     } else {
-                        logger.info("Blob {} downloader already exists. Not adding again", blobIdHex);
+                        logger.info("Blob {} downloader already exists. Joining in-flight download", blobIdHex);
+                    }
+                }
+
+                // Duplicate caller: join the single in-flight fetch instead of returning null (which the
+                // caller treats as a failure and then orphans the running loader, spawning a second
+                // concurrent GET of the same blob). Await OUTSIDE the lock so the creator can progress;
+                // return a clone because the caller decrypts the returned array in place.
+                if (myDownload == null) {
+                    try {
+                        if (existingDownload.done.await(BLOB_JOIN_TIMEOUT_MINUTES, TimeUnit.MINUTES)) {
+                            byte[] joined = existingDownload.result;
+                            return joined == null ? null : joined.clone();
+                        }
+                        logger.warn("Blob {} timed out joining in-flight download", blobIdHex);
+                        return null;
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
                         return null;
                     }
                 }
@@ -185,6 +220,12 @@ public class DownloadServiceImpl implements DownloadService {
 
                                 if (downloadFile.length() == blobBytes.length) {
                                     downloadSuccess = true;
+                                    // Publish a pristine, still-encrypted snapshot for any joining
+                                    // duplicate BEFORE our own caller decrypts the returned array in
+                                    // place (cloning here avoids a shared-array race + double in-place
+                                    // decrypt; result stays null on any failure so joiners see a real,
+                                    // not spurious, failure).
+                                    myDownload.result = blobBytes.clone();
 
                                     //ok download saved, set as done if set
                                     if (blobScopeMarkAsDone != null) {
@@ -241,6 +282,11 @@ public class DownloadServiceImpl implements DownloadService {
             }
             return blobBytes;
         } finally {
+            // Always release joining duplicates (result was set above only on genuine success), even on
+            // exception or early return; only the creator signals.
+            if (myDownload != null) {
+                myDownload.done.countDown();
+            }
             if (wakeLock != null && wakeLock.isHeld()) {
                 logger.info("Release download wakelock");
                 wakeLock.release();

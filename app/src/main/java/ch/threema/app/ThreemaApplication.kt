@@ -73,6 +73,7 @@ import ch.threema.common.now
 import ch.threema.data.repositories.ModelRepositories
 import ch.threema.domain.protocol.connection.ConnectionState
 import ch.threema.domain.protocol.connection.ServerConnection
+import ch.threema.domain.protocol.setUserAgentVersion
 import ch.threema.domain.stores.DHSessionStoreInterface
 import ch.threema.libthreema.LogLevel
 import ch.threema.libthreema.initialize as initLibthreema
@@ -150,6 +151,11 @@ class ThreemaApplication : Application() {
         // F1Whisper: register the server-time consumer so the pinned OnPrem API's `Date:` header
         // feeds TrustedClock (cross-device-comparable outgoing message timestamps).
         TrustedClock.register()
+
+        // F1Whisper: thread the app version into the domain-module UserAgent helper so the
+        // version-less provisioning/Safe HTTP paths (the no-argument getUserAgent()) emit a
+        // versioned User-Agent instead of a bare product token.
+        setUserAgentVersion(appVersion)
 
         with(get<AppVersionLogger>()) {
             logAppVersionInfo()

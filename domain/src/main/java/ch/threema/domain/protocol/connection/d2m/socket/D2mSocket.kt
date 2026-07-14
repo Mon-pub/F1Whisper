@@ -66,12 +66,20 @@ internal class D2mSocket(
             writeJob?.cancel()
             val wasConnected = connectedSignal.isCompleted
             connectedSignal.completeExceptionally(t)
-            // If an ESTABLISHED socket fails (e.g. a pingInterval pong-timeout on a half-open link),
-            // propagate a stopped-IO signal so BaseServerConnection's reconnect loop fires. Otherwise
-            // the connection can be left dead-but-"connected" with no reconnect (the MD wedge). A
-            // connect-time failure keeps the existing behaviour (connectedSignal already failed).
-            if (wasConnected && !ioProcessingStoppedSignal.isCompleted) {
-                ioProcessingStoppedSignal.completeExceptionally(t)
+            if (wasConnected) {
+                // A failure AFTER onOpen (the mediator dropped the socket right after the WS upgrade, or
+                // a pingInterval pong-timeout on a half-open link) must complete closedSignal so
+                // BaseServerConnection's socket-close watchdog (monitorCloseEventJob) fires and cancels
+                // the CSP-auth wait. Otherwise a failure in the CONNECTED (pre-LOGGEDIN) window wedges
+                // the reconnect loop in CONNECTED forever and only a process restart recovers it. Routed
+                // through the same idempotent, synchronized close() that onClosing already uses;
+                // reconnectAllowed defaults to null so the watchdog keeps reconnecting.
+                close(ServerSocketCloseReason("WebSocket failure: ${t.message}"))
+                // Belt-and-suspenders for the LOGGEDIN window (loop parked at ioJob.join()); harmless if
+                // close()/the io-jobs' invokeOnCompletion already completed the signal.
+                if (!ioProcessingStoppedSignal.isCompleted) {
+                    ioProcessingStoppedSignal.completeExceptionally(t)
+                }
             }
         }
 
