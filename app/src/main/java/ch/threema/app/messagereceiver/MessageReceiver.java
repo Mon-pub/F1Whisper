@@ -75,8 +75,19 @@ public interface MessageReceiver<M extends AbstractMessageModel> {
 
     /**
      * save a message model to the database
+     *
+     * <p>F1Whisper (seventh fork review, F7-01): reports whether the row was written. A {@code false} answer means the
+     * model carries an id whose row has gone - hard-deleted, or claimed by the disappearing-message expiry - and it was
+     * neither inserted nor updated. A caller that goes on to schedule a persistent send task for that id would be
+     * scheduling a transmission of content the user has already deleted, so the schedulers below refuse.</p>
+     *
+     * <p>F1Whisper (eighth fork review, H8-01): {@code false} also means the row is still there but has been deleted
+     * for everyone. A full-row save carries the user's content, and a message deleted for everyone has had its content
+     * destroyed on purpose, so the save writes nothing rather than putting it back.</p>
+     *
+     * @return {@code true} if the model is now persisted.
      */
-    void saveLocalModel(M messageModel);
+    boolean saveLocalModel(M messageModel);
 
     /**
      * send a text message
@@ -89,9 +100,19 @@ public interface MessageReceiver<M extends AbstractMessageModel> {
     void createAndSendLocationMessage(@NonNull M messageModel);
 
     /**
-     * send a file message
+     * Send a file message: enrich the row with the uploaded blob id and encryption key, then schedule the send.
+     *
+     * <p>F1Whisper (eighth fork review, H8-01): this is the one scheduler whose caller has to know the answer, so it is
+     * the one that reports it. The others are called microseconds after the row was created; this one is called after
+     * an upload that ran for seconds or minutes, and the UI lets the user delete the message for everyone throughout.
+     * Persistence is what decides - a row deleted meanwhile refuses the write - and a caller that went on to publish a
+     * state, a listener or a completion for a message that no longer has content would be announcing the send of
+     * something the user watched disappear.</p>
+     *
+     * @return {@code true} if the enriched row was persisted and the send was scheduled. {@code false} means the row
+     * has gone or has been deleted for everyone; nothing was written and nothing was scheduled.
      */
-    void createAndSendFileMessage(
+    boolean createAndSendFileMessage(
         @Nullable byte[] thumbnailBlobId,
         @Nullable byte[] fileBlobId,
         @Nullable SymmetricEncryptionResult encryptionResult,
@@ -208,6 +229,25 @@ public interface MessageReceiver<M extends AbstractMessageModel> {
      * check if we should offer the user a possibility to retry sending in the UI if the message was queued but there was an IO error in the sender thread
      */
     boolean offerRetry();
+
+    /**
+     * F1Whisper (fifth fork review, F5-02): whether a persistent send task will report this message's TERMINAL state
+     * later, so the dispatching pipeline must leave it in a pre-terminal state.
+     *
+     * <p>The defect this exists to answer: the media pipeline chose its post-dispatch state from
+     * {@code shouldSendMediaData() && offerRetry()}, and a group returns {@code false} from {@code offerRetry()}, so
+     * group media was written as {@code SENT} the instant the {@code OutgoingFileMessageTask} had been SCHEDULED. Task
+     * scheduling is asynchronous and task execution waits for a chat-server connection, so with a disappearing timer the
+     * countdown started at enqueue: expiry deleted the row while the task was still queued, and on reconnect the task
+     * found nothing to load and sent nothing. The media disappeared from the sender without ever reaching the group.
+     * {@code offerRetry()} answers a question about the RETRY UI, and was never a send boundary.</p>
+     *
+     * <p>The default is {@code true} - assume a task will complete the send - because being wrong that way leaves a
+     * message showing as still sending, while being wrong the other way destroys it.</p>
+     */
+    default boolean hasPendingRemoteCompletion() {
+        return true;
+    }
 
     /**
      * validate sending permission

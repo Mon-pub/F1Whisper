@@ -26,6 +26,7 @@ import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.receivers.AlarmManagerBroadcastReceiver;
 import ch.threema.app.utils.IntentDataUtil;
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
+import ch.threema.domain.protocol.connection.ConnectionState;
 import ch.threema.domain.taskmanager.TaskManager;
 
 /**
@@ -74,6 +75,34 @@ public class LifetimeServiceImpl implements LifetimeService {
         // Ensure that a connection slot is not acquired twice
         if (this.connectionSlots.containsKey(sourceTag)) {
             logger.error("acquireConnection: tag {} already present in connectionSlots", sourceTag);
+            // F1Whisper: still ensure the connection, rather than returning on the strength of the
+            // slot bookkeeping alone. A stale tag means only that a previous release did not run (the
+            // app-lifecycle observer's acquire and release jobs cancel each other, last one wins); it
+            // says nothing about whether a connection exists. Returning here skipped the only restart
+            // trigger a foreground resume has, so a connection that had given up stayed down even
+            // though the user was looking at the app.
+            //
+            // This matters because of the QUIET way the connection job can end. A
+            // CancellationException propagating out of it is NORMAL COMPLETION for a job with no
+            // parent: nothing crashes, nothing is reported anywhere, the process survives, the job's
+            // finally releases `running`, and the connection is simply left DISCONNECTED. Critically
+            // the domain's retry loop is precisely what was exited, so nothing down there will ever
+            // try again. It is silent by construction, and it is the route the reported incident took.
+            //
+            // Once that happens the only restart triggers left are this call and a real
+            // default-network change, and a device parked on one WiFi never gets the second one.
+            // Deleting this call as a redundant no-op would silently reopen a permanent wedge.
+            //
+            // Deliberately NOT restating here what happens to a non-cancellation throwable: that is
+            // the domain's business, it is documented in BaseServerConnection, and it has changed
+            // more than once. This comment stays true either way, because a CancellationException
+            // never reaches a CoroutineExceptionHandler under any configuration, so the route
+            // described above needs this backstop regardless of what that module decides.
+            //
+            // Safe to call unconditionally: ensureConnection consults ConnectionRestartDecision and is
+            // a no-op unless the connection is genuinely DISCONNECTED. This adds no new trigger, it
+            // only removes an early-out on an existing one.
+            this.ensureConnection();
             return;
         }
 
@@ -137,9 +166,26 @@ public class LifetimeServiceImpl implements LifetimeService {
             logger.info("ensureConnection: No connection slots active");
             return;
         }
-        if (this.active) {
-            logger.info("ensureConnection: A connection is already active");
+
+        // F1Whisper: the `active` latch alone is NOT proof that a connection exists. It is cleared in
+        // exactly one place, and that place is unreachable while an unpausable slot is held -- which
+        // on onprem is always, because Threema Push is forced and its foreground service holds one for
+        // the whole session. Cross-check it against the connection's real state, or a connection that
+        // ended for any reason leaves the app permanently DISCONNECTED with only force-close as a
+        // cure. See ConnectionRestartDecision for the full chain and for why this cannot storm.
+        @Nullable ConnectionState connectionState = getConnectionState();
+        if (!ConnectionRestartDecision.shouldStartConnection(
+            !this.connectionSlots.isEmpty(), this.active, connectionState)) {
+            logger.info("ensureConnection: A connection is already active (state={})", connectionState);
             return;
+        }
+        if (ConnectionRestartDecision.latchDisagreesWithState(this.active, connectionState)) {
+            // INFO, not WARN: DISCONNECTED is also the ordinary transient state during reconnect
+            // backoff, and this layer cannot tell that apart from the wedge. If a reconnect is already
+            // in flight the start below is a cheap no-op. Do not promote this to WARN without a way to
+            // distinguish the two, or it becomes another by-design warning that misleads the next
+            // investigator.
+            logger.info("ensureConnection: latch is active but connection reports DISCONNECTED; issuing a start");
         }
 
         // Do not start a connection if a backup or restore is in progress
@@ -191,6 +237,11 @@ public class LifetimeServiceImpl implements LifetimeService {
     @Override
     public synchronized boolean isActive() {
         return this.active;
+    }
+
+    @Override
+    public synchronized int getConnectionSlotCount() {
+        return this.connectionSlots.size();
     }
 
     @Override
@@ -347,6 +398,26 @@ public class LifetimeServiceImpl implements LifetimeService {
         }
 
         return null;
+    }
+
+    /**
+     * F1Whisper: the connection's real state, or {@code null} if it cannot be read right now (no
+     * {@code ServiceManager} yet, or it has been closed). Never throws: this is consulted on the
+     * lifecycle and alarm paths, where a failed read must degrade to "unknown" rather than abort
+     * establishing a connection.
+     */
+    @Nullable
+    private ConnectionState getConnectionState() {
+        ServiceManager serviceManager = ThreemaApplication.getServiceManager();
+        if (serviceManager == null) {
+            return null;
+        }
+        try {
+            return serviceManager.getConnection().getConnectionState();
+        } catch (Exception e) {
+            logger.warn("Could not read connection state", e);
+            return null;
+        }
     }
 
     @Nullable

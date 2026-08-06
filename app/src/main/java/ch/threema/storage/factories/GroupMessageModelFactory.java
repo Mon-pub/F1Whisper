@@ -273,10 +273,7 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return DatabaseUtil.count(getReadableDatabase().rawQuery(
             "SELECT COUNT(*) FROM " + this.getTableName()
                 + " WHERE " + GroupMessageModel.COLUMN_GROUP_ID + "=?"
-                + " AND " + GroupMessageModel.COLUMN_OUTBOX + "=0"
-                + " AND " + GroupMessageModel.COLUMN_IS_SAVED + "=1"
-                + " AND " + GroupMessageModel.COLUMN_IS_READ + "=0"
-                + " AND " + GroupMessageModel.COLUMN_IS_STATUS_MESSAGE + "=0",
+                + " AND " + UNREAD_ROW_WHERE,
             new String[]{
                 String.valueOf(groupId)
             }
@@ -287,10 +284,7 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return convertList(getReadableDatabase().query(this.getTableName(),
             null,
             GroupMessageModel.COLUMN_GROUP_ID + "=?"
-                + " AND " + GroupMessageModel.COLUMN_OUTBOX + "=0"
-                + " AND " + GroupMessageModel.COLUMN_IS_SAVED + "=1"
-                + " AND " + GroupMessageModel.COLUMN_IS_READ + "=0"
-                + " AND " + GroupMessageModel.COLUMN_IS_STATUS_MESSAGE + "=0",
+                + " AND " + UNREAD_ROW_WHERE,
             new String[]{
                 String.valueOf(groupId)
             },
@@ -314,32 +308,15 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
     }
 
     public boolean createOrUpdate(GroupMessageModel groupMessageModel) {
-        boolean insert = true;
+        // F1Whisper (sixth fork review F6-01, seventh F7-01): see AbstractMessageModelFactory#refusesReinsertion.
         if (groupMessageModel.getId() > 0) {
-            Cursor cursor = getReadableDatabase().query(
-                this.getTableName(),
-                null,
-                GroupMessageModel.COLUMN_ID + "=?",
-                new String[]{
-                    String.valueOf(groupMessageModel.getId())
-                },
-                null,
-                null,
-                null
-            );
-
-            if (cursor != null) {
-                try (cursor) {
-                    insert = !cursor.moveToNext();
-                }
+            if (update(groupMessageModel)) {
+                return true;
             }
+            refusesReinsertion(groupMessageModel.getId());
+            return false;
         }
-
-        if (insert) {
-            return create(groupMessageModel);
-        } else {
-            return update(groupMessageModel);
-        }
+        return create(groupMessageModel);
     }
 
     public boolean create(GroupMessageModel groupMessageModel) {
@@ -354,33 +331,28 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return false;
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-01): reports whether the row was actually written. See
+     * {@link MessageModelFactory#update(ch.threema.storage.models.MessageModel)}.
+     */
     public boolean update(GroupMessageModel groupMessageModel) {
         ContentValues contentValues = this.buildContentValues(groupMessageModel);
         addGroupMessageStates(contentValues, groupMessageModel);
-        getWritableDatabase().update(this.getTableName(),
+        return getWritableDatabase().update(this.getTableName(),
             contentValues,
-            GroupMessageModel.COLUMN_ID + "=?",
+            CONTENT_ROW_WHERE,
             new String[]{
                 String.valueOf(groupMessageModel.getId()),
-            });
-        return true;
+            }) > 0;
     }
 
     public List<GroupMessageModel> find(int groupId, MessageService.MessageFilter filter) {
         QueryBuilder queryBuilder = new QueryBuilder();
 
         // F1Whisper: sort by the immutable per-row sort key (sortAtUtc), then id for stability. See
-        // MessageModelFactory.find for the full rationale: the earlier postedAtUtc-only sort
-        // reordered same-minute outgoing messages (postedAtUtc is overwritten with the mutable
-        // send-completion time). sortAtUtc is outgoing -> createdAtUtc / incoming ->
-        // COALESCE(postedAtUtc, createdAtUtc); the inner CASE is a defensive pre-backfill fallback.
-        String orderBy =
-            "COALESCE(" + AbstractMessageModel.COLUMN_SORT_AT + ", "
-                + "CASE WHEN " + AbstractMessageModel.COLUMN_OUTBOX + " = 1 "
-                + "THEN " + AbstractMessageModel.COLUMN_CREATED_AT + " "
-                + "ELSE COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
-                + AbstractMessageModel.COLUMN_CREATED_AT + ") END) DESC, "
-                + GroupMessageModel.COLUMN_ID + " DESC";
+        // MessageModelFactory.find for the full rationale. Shared TIMELINE_ORDER_BY so the
+        // pagination keyset in appendFilter stays in lockstep with the ordering (fork review H-06).
+        String orderBy = TIMELINE_ORDER_BY;
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(GroupMessageModel.COLUMN_GROUP_ID + "=?");
@@ -460,6 +432,32 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
             null,
             null,
             AbstractMessageModel.COLUMN_EXPIRES_AT + " ASC"));
+    }
+
+    /**
+     * F1Whisper disappearing messages: group rows whose countdown can never reach a deadline. Mirror
+     * of {@link MessageModelFactory#getRepairableExpiryCandidates(int)} for the group table; see
+     * there for why a row with no {@code expiresAtUtc} is invisible to the rest of the engine and why
+     * this scan is confined to the boot/app-update path.
+     */
+    @NonNull
+    public List<GroupMessageModel> getRepairableExpiryCandidates(int limit) {
+        return convertList(getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + " > 0"
+                + " AND ("
+                + "(" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + " IS NOT NULL"
+                + " AND " + AbstractMessageModel.COLUMN_EXPIRES_AT + " IS NULL)"
+                + " OR (" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + " IS NULL"
+                + " AND " + AbstractMessageModel.COLUMN_IS_READ + " = 1"
+                + " AND " + AbstractMessageModel.COLUMN_OUTBOX + " = 0)"
+                + ")",
+            null,
+            null,
+            null,
+            AbstractMessageModel.COLUMN_ID + " ASC",
+            String.valueOf(limit)));
     }
 
     /**

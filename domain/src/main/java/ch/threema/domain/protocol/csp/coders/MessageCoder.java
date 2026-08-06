@@ -179,6 +179,23 @@ public class MessageCoder {
                 if (metadata.hasNickname()) {
                     msg.setNickname(metadata.getNickname());
                 }
+
+                // F1Whisper: take the sender's disappearing-messages timer for this message from
+                // the encrypted metadata. It must be read through the has...() accessor: an
+                // absent field means "the sender advertised nothing" (a pre-v6.4.3-38 client, for
+                // which the receiver falls back to its local conversation setting), while a
+                // present 0 means "the sender explicitly turned the timer off" and must never
+                // fall back. Collapsing the two into 0 defeats the whole fix.
+                //
+                // The field is a protobuf uint32 but Java has no unsigned int, so a wire value at or
+                // above 2^31 arrives here as a negative int. The receive path clamps, which makes the
+                // clamp read non-monotonically across that boundary: 2^31-1 clamps down to the
+                // maximum timer, while the larger 2^31 arrives negative and clamps to OFF. Both
+                // outcomes are safe (a hostile peer only ever affects the expiry of its own
+                // messages); only the reading is confusing, so do not "fix" it by widening to long.
+                if (metadata.hasF1DisappearingTimer()) {
+                    msg.setDisappearingTimerSeconds(metadata.getF1DisappearingTimer());
+                }
             } catch (InvalidProtocolBufferException | ThreemaException e) {
                 throw new BadMessageException("Metadata decode failed", e);
             }
@@ -238,6 +255,10 @@ public class MessageCoder {
         msg.setDate(outer.getDate());
         msg.setMessageFlags(outer.getMessageFlags());
         msg.setNickname(outer.getNickname());
+        // F1Whisper: the metadata box belongs to the FS envelope, so the sender's disappearing
+        // timer arrives on the outer message and has to be carried inward here. Nearly all real
+        // 1:1 traffic is FS-encapsulated, so without this line the field would reach nobody.
+        msg.setDisappearingTimerSeconds(outer.getDisappearingTimerSeconds());
 
         return msg;
     }
@@ -293,18 +314,33 @@ public class MessageCoder {
                 .setMessageId(message.getMessageId().getMessageIdLong())
                 .setCreatedAt(message.getDate().getTime());
 
+            // F1Whisper: advertise the sender's disappearing-messages timer for this message.
+            // Emit the field whenever the value is non-null, including 0. An explicit 0 tells the
+            // receiver the sender turned the timer off, while an absent field means the sender is
+            // an older client. Leave it unset only when the value is null.
+            final Integer disappearingTimerSeconds = message.getDisappearingTimerSeconds();
+            if (disappearingTimerSeconds != null) {
+                metadataBuilder.setF1DisappearingTimer(disappearingTimerSeconds);
+            }
+            // The metadata box's ciphertext length is visible to the relay, so the timer field's
+            // encoded size must not change it. f1CompensatedPaddingLength gives the unused part of a
+            // fixed budget back to the padding, which the receiver ignores anyway. See MetadataCoder
+            // for the full rationale; do not add the compensation onto a base length by hand.
+
             // Get the nickname from the identity store
             String nickname = identityStore.getPublicNickname();
 
             // Include the nickname if the message allows user profile distribution
             if (message.allowUserProfileDistribution()) {
                 // Use padding to get a length of at least 16 bytes with nickname + padding
-                byte[] padding = new byte[Math.max(0, 16 - nickname.getBytes().length)];
+                byte[] padding = new byte[MetadataCoder.f1CompensatedPaddingLength(
+                    Math.max(0, 16 - nickname.getBytes().length), disappearingTimerSeconds)];
                 metadataBuilder.setPadding(ByteString.copyFrom(padding));
                 metadataBuilder.setNickname(nickname);
             } else {
                 // Set 16 bytes padding to get a length of at least 16 bytes with nickname + padding
-                metadataBuilder.setPadding(ByteString.copyFrom(new byte[16]));
+                metadataBuilder.setPadding(ByteString.copyFrom(
+                    new byte[MetadataCoder.f1CompensatedPaddingLength(16, disappearingTimerSeconds)]));
                 // Note that this call is required to clear the nickname. If the messages should not
                 // distribute the user profile, the nickname must be cleared. Otherwise an empty
                 // string is sent, which will delete the nickname on the receiver's device.

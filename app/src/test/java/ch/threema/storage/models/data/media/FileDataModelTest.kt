@@ -16,14 +16,22 @@ class FileDataModelTest {
 
     private fun fileDataModelWithMeta(meta: MutableMap<String, Any>?): FileDataModel {
         return FileDataModel(
-            /* mimeType = */ "image/jpeg",
-            /* thumbnailMimeType = */ null,
-            /* fileSize = */ 0L,
-            /* fileName = */ null,
-            /* renderingType = */ FileData.RENDERING_MEDIA,
-            /* caption = */ null,
-            /* isDownloaded = */ false,
-            /* metaData = */ meta,
+            /* mimeType = */
+            "image/jpeg",
+            /* thumbnailMimeType = */
+            null,
+            /* fileSize = */
+            0L,
+            /* fileName = */
+            null,
+            /* renderingType = */
+            FileData.RENDERING_MEDIA,
+            /* caption = */
+            null,
+            /* isDownloaded = */
+            false,
+            /* metaData = */
+            meta,
         )
     }
 

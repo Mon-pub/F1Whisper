@@ -516,7 +516,13 @@ class PreferenceServiceImpl(
     }
 
     override fun isWebClientEnabled(): Boolean =
-        preferenceStore.getBoolean(getKeyName(R.string.preferences__web_client_enabled))
+        // F1Whisper (second follow-up S2-04): the legacy Threema Web client is DISABLED in the
+        // onprem build — this fleet deploys no SaltyRTC broker, and the Web wire protocol's
+        // ID-only page cursor cannot express the tuple pagination contract. SessionServiceImpl
+        // gates every session start on this, so no session can start regardless of the stored
+        // preference; the UI entry points are hidden separately.
+        !ConfigUtils.isOnPremBuild() &&
+            preferenceStore.getBoolean(getKeyName(R.string.preferences__web_client_enabled))
 
     override fun setWebClientEnabled(enabled: Boolean) =
         preferenceStore.save(getKeyName(R.string.preferences__web_client_enabled), enabled)

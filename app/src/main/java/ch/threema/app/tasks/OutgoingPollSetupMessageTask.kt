@@ -35,7 +35,8 @@ class OutgoingPollSetupMessageTask(
     }
 
     private suspend fun sendContactMessage(handle: ActiveTaskCodec) {
-        val messageModel = getContactMessageModel(messageModelId) ?: return
+        // F1Whisper (seventh fork review, F7-01): the row, not the cache. See PersistentTaskRowGate.
+        val messageModel = getContactContentRow(messageModelId) ?: return
 
         // Create the message
         val message = PollSetupMessage().also {
@@ -55,7 +56,8 @@ class OutgoingPollSetupMessageTask(
     }
 
     private suspend fun sendGroupMessage(handle: ActiveTaskCodec) {
-        val messageModel = getGroupMessageModel(messageModelId) ?: return
+        // F1Whisper (seventh fork review, F7-01): the row, not the cache. See PersistentTaskRowGate.
+        val messageModel = getGroupContentRow(messageModelId) ?: return
 
         val group = groupService.getById(messageModel.groupId)
             ?: throw IllegalStateException("Could not get group for message model ${messageModel.apiMessageId}")

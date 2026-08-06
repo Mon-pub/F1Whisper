@@ -9,6 +9,7 @@ import ch.threema.app.preference.service.SynchronizedSettingsService
 import ch.threema.app.profilepicture.GroupProfilePictureUploader
 import ch.threema.app.protocolsteps.IdentityBlockedSteps
 import ch.threema.app.services.ContactService
+import ch.threema.app.services.DisappearingFreezeDecision
 import ch.threema.app.services.FileService
 import ch.threema.app.services.GroupService
 import ch.threema.app.services.MessageService
@@ -144,6 +145,8 @@ sealed class OutgoingCspMessageTask :
             throw IllegalStateException("Could not send message as the receiver model is unknown")
         }
 
+        message.disappearingTimerSeconds = advertisedDisappearingTimer(messageModel)
+
         val createMessage = OutgoingCspContactMessageCreator(
             messageId,
             createdAt,
@@ -167,8 +170,11 @@ sealed class OutgoingCspMessageTask :
                 if (forwardSecurityMode == null) {
                     logger.error("No forward security mode available")
                 } else {
-                    messageModel.forwardSecurityMode = forwardSecurityMode
-                    messageService.save(messageModel)
+                    // F1Whisper (fifth fork review, F5-06): one column, conditionally. This used to full-row-save the
+                    // model captured when the task started, so it could recreate a message deleted during the send and
+                    // wrote back that whole stale snapshot over the terminal state and countdown markAsSent had just
+                    // established a moment earlier.
+                    messageService.updateForwardSecurityMode(messageModel, forwardSecurityMode)
                 }
             }
         }
@@ -244,26 +250,27 @@ sealed class OutgoingCspMessageTask :
             .map { it.toBasicContact() }
             .toSet()
 
+        // F1Whisper: createAbstractMessage is invoked once per recipient, so the stamp goes inside the factory
+        // rather than onto a single instance — every per-member copy must carry the sender's policy. The value
+        // is resolved (and logged) once, outside the factory, so a large group produces one line, not N.
+        val advertisedTimer = advertisedDisappearingTimer(messageModel)
         val messageCreator = OutgoingCspGroupMessageCreator(
             messageId,
             createdAt,
             group,
-            createAbstractMessage,
-        )
+        ) {
+            createAbstractMessage().also { it.disappearingTimerSeconds = advertisedTimer }
+        }
+
+        // F1Whisper (fifth fork review, F5-06): the group completion's ONE authoritative transition timestamp. It used to
+        // be persisted by its own full-row save in markAsSent, ahead of a second full-row save in updateFsState that
+        // carried the state, and then a third write that armed the clock from the wall clock rather than from this
+        // timestamp. Three writes for one lifecycle fact, any pair of which a process death could separate. The value is
+        // captured here and spent once, below.
+        var acceptedAt: Date? = null
 
         val markAsSent = { sentAt: ULong ->
-            if (messageModel != null) {
-                // Update sent timestamp
-                val sentDate = Date(sentAt.toLong())
-
-                // Note that we set the postedAt directly because the new state could be
-                // FS_KEY_MISMATCH and then MessageService#updateOutgoingMessageState wouldn't set
-                // this timestamp.
-                messageModel.postedAt = sentDate
-                messageModel.modifiedAt = sentDate
-
-                messageService.save(messageModel)
-            }
+            acceptedAt = Date(sentAt.toLong())
         }
 
         val updateFsState = { fsStateMap: Map<String, ForwardSecurityMode> ->
@@ -285,9 +292,6 @@ sealed class OutgoingCspMessageTask :
 
                     else -> MessageState.SENT
                 }
-                // Note that we set the state directly (without using MessageService#updateOutgoingMessageState)
-                // because we need to modify the postedAt timestamp also when the state is FS_KEY_MISMATCH.
-                messageModel.state = state
 
                 // Update forward security mode
                 val forwardSecurityMode =
@@ -296,23 +300,36 @@ sealed class OutgoingCspMessageTask :
                         fsStateMap.size -> ForwardSecurityMode.ALL
                         else -> ForwardSecurityMode.PARTIAL
                     }
-                if (messageModel.forwardSecurityMode == null) {
+                val resolvedForwardSecurityMode = if (messageModel.forwardSecurityMode == null) {
                     // If the forward security mode is null, it is the first time we send this message.
                     // Therefore we can set the mode directly to the current mode.
-                    messageModel.forwardSecurityMode = forwardSecurityMode
-                } else {
+                    forwardSecurityMode
+                } else if (forwardSecurityMode == ForwardSecurityMode.PARTIAL || forwardSecurityMode == ForwardSecurityMode.NONE) {
                     // If the previous forward security mode is already set, this means this has been a
                     // resend of the message that only reached a subset of the group members. Therefore
-                    // we follow a best effort downgrade procedure:
-                    if (forwardSecurityMode == ForwardSecurityMode.PARTIAL || forwardSecurityMode == ForwardSecurityMode.NONE) {
-                        // If there is a re-sent message without forward security, we set the mode to
-                        // partial, as some may have received the message with forward security in an
-                        // earlier attempt.
-                        messageModel.forwardSecurityMode = ForwardSecurityMode.PARTIAL
-                    }
+                    // we follow a best effort downgrade procedure: if there is a re-sent message without
+                    // forward security, we set the mode to partial, as some may have received the
+                    // message with forward security in an earlier attempt.
+                    ForwardSecurityMode.PARTIAL
+                } else {
+                    messageModel.forwardSecurityMode
                 }
 
-                messageService.save(messageModel)
+                // State, the server's acceptance timestamp, the forward-security mode and the disappearing countdown are
+                // ONE conditional write. bypassStateGate is set because this path must stamp postedAt even when the
+                // outcome is FS_KEY_MISMATCH, which is why it never went through updateOutgoingMessageState.
+                //
+                // For a notes group this IS the durable local-completion boundary: without multi-device there is no
+                // remote recipient to wait for and the state goes straight to READ, and with multi-device active this
+                // callback runs only after the reflection has been acknowledged. Either way the boundary timestamp, the
+                // state, the start and the deadline reach disk together.
+                messageService.applyOutgoingStateTransition(
+                    messageModel,
+                    state,
+                    acceptedAt ?: Date(),
+                    resolvedForwardSecurityMode,
+                    true,
+                )
 
                 // Trigger listener
                 ListenerManager.messageListeners.handle { listener: MessageListener ->
@@ -347,6 +364,37 @@ sealed class OutgoingCspMessageTask :
     }
 
     /**
+     * F1Whisper: the disappearing timer this device advertises for an outgoing message, to be written onto
+     * [AbstractMessage.disappearingTimerSeconds] and carried to the recipient inside the encrypted
+     * `MessageMetadata` box.
+     *
+     * The advertised value is the timer already FROZEN on [messageModel] at compose time by
+     * `createLocalModel` — not the conversation timer read at transmit time. A message queued before a local
+     * timer change therefore carries the policy that was in force when it was written, which is both what the
+     * sender's own countdown (`DisappearingMessageService.startOutgoingClock`) uses and what Signal does
+     * (`message.expiresIn` stamped at insert). Sender and recipient consequently expire it at the same value.
+     *
+     * Returns `null` — meaning "advertise nothing" — only when there is no message model at all: delivery
+     * receipts, the `0x85`/`0x95` timer control messages themselves, typing indicators. That asymmetry is
+     * deliberate. A model whose timer is off advertises `0` (an explicit "I say OFF"), so an ABSENT field
+     * keeps meaning exactly one thing on the receive side: the peer is a pre-v6.4.3-38 client. See
+     * [DisappearingFreezeDecision] for the tri-state that rests on it.
+     */
+    private fun advertisedDisappearingTimer(messageModel: AbstractMessageModel?): Int? {
+        if (messageModel == null) {
+            return null
+        }
+        val advertised = DisappearingFreezeDecision.advertisedTimer(messageModel.disappearingTimerSeconds)
+        logger.info(
+            "Disappearing: outgoing stamped uid={} timer={}s advertised={}",
+            messageModel.uid,
+            messageModel.disappearingTimerSeconds,
+            advertised,
+        )
+        return advertised
+    }
+
+    /**
      * Returns the message id of the message model.
      *
      * @throws IllegalArgumentException if the message id of the message model is null
@@ -378,6 +426,9 @@ sealed class OutgoingCspMessageTask :
 
     /**
      * Get the contact message model with the given local database message model id.
+     *
+     * Answers from the service cache when it can. Use [getContactContentRow] instead whenever the model is about to be
+     * turned into a payload; see [PersistentTaskRowGate].
      */
     protected fun getContactMessageModel(messageModelId: Int): MessageModel? {
         val messageModel = messageService.getContactMessageModel(messageModelId)
@@ -389,6 +440,9 @@ sealed class OutgoingCspMessageTask :
 
     /**
      * Get the group message model with the given local database message model id.
+     *
+     * Answers from the service cache when it can. Use [getGroupContentRow] instead whenever the model is about to be
+     * turned into a payload; see [PersistentTaskRowGate].
      */
     protected fun getGroupMessageModel(messageModelId: Int): GroupMessageModel? {
         val messageModel = messageService.getGroupMessageModel(messageModelId)
@@ -396,6 +450,41 @@ sealed class OutgoingCspMessageTask :
             logger.warn("Could not find group message model with id {}", messageModelId)
         }
         return messageModel
+    }
+
+    /**
+     * F1Whisper (seventh fork review, F7-01): the contact row this task may transmit from, straight from the database
+     * and only if it is still there and not deleted for everyone.
+     *
+     * The database, not [getContactMessageModel], because that one answers from the in-memory cache first, and the
+     * cache is precisely what a deletion racing a queued task may fail to reach. `null` means "complete this task
+     * without transmitting anything".
+     */
+    protected fun getContactContentRow(messageModelId: Int): MessageModel? {
+        val current = databaseService.messageModelFactory.getById(messageModelId)
+        if (!PersistentTaskRowGate.transmits(current)) {
+            logger.info(
+                "Not transmitting contact message {}: its row is gone or deleted",
+                messageModelId,
+            )
+            return null
+        }
+        return current
+    }
+
+    /**
+     * F1Whisper (seventh fork review, F7-01): the group row this task may transmit from. See [getContactContentRow].
+     */
+    protected fun getGroupContentRow(messageModelId: Int): GroupMessageModel? {
+        val current = databaseService.groupMessageModelFactory.getById(messageModelId)
+        if (!PersistentTaskRowGate.transmits(current)) {
+            logger.info(
+                "Not transmitting group message {}: its row is gone or deleted",
+                messageModelId,
+            )
+            return null
+        }
+        return current
     }
 
     /**
@@ -417,9 +506,11 @@ sealed class OutgoingCspMessageTask :
      */
     protected fun AbstractMessageModel.saveWithStateFailed() {
         logger.info("Setting message state of model with message id {} to failed (terminal)", apiMessageId)
-        state = MessageState.SENDFAILED
-        setSendFailedTerminal(true)
-        messageService.save(this)
+        // F1Whisper (fifth fork review, F5-06): a conditional, column-scoped write rather than a full-row save of the
+        // model this task captured when it started. bypassStateGate keeps the previous behaviour of setting the state
+        // unconditionally: canChangeToState would skip both the state change AND the terminal bit for a message in an
+        // edge state, and a non-terminal SENDFAILED is one the auto-resend scan keeps retrying forever.
+        messageService.applyOutgoingStateTransition(this, MessageState.SENDFAILED, Date(), null, true)
         ListenerManager.messageListeners.handle { listener: MessageListener ->
             listener.onModified(listOf(this))
         }

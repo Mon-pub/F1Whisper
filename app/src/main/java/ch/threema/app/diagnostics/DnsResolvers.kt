@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.dnsoverhttps.DnsOverHttps
-import okhttp3.HttpUrl.Companion.toHttpUrl
 
 private val logger = getThreemaLogger("DnsResolvers")
 
@@ -42,7 +42,7 @@ object DnsResolvers {
                 try {
                     val addrs = InetAddress.getAllByName(host)
                     val ms = System.currentTimeMillis() - t0
-                    val aRecords    = addrs.filter { it is java.net.Inet4Address }.map { it.hostAddress ?: "" }
+                    val aRecords = addrs.filter { it is java.net.Inet4Address }.map { it.hostAddress ?: "" }
                     val aaaaRecords = addrs.filter { it is java.net.Inet6Address }.map { it.hostAddress ?: "" }
                     DnsProbeResult(name, aRecords, aaaaRecords, ms, null)
                 } catch (e: Exception) {
@@ -72,7 +72,7 @@ object DnsResolvers {
                 try {
                     val addrs = SecureDnsClient.dotLookup(host, ProbeTimeouts.DNS_TIMEOUT_MS.toInt())
                     val ms = System.currentTimeMillis() - t0
-                    val aRecords    = addrs.filter { it is java.net.Inet4Address }.map { it.hostAddress ?: "" }
+                    val aRecords = addrs.filter { it is java.net.Inet4Address }.map { it.hostAddress ?: "" }
                     val aaaaRecords = addrs.filter { it is java.net.Inet6Address }.map { it.hostAddress ?: "" }
                     DnsProbeResult(name, aRecords, aaaaRecords, ms, null)
                 } catch (e: Exception) {
@@ -90,10 +90,10 @@ object DnsResolvers {
     suspend fun dohCloudflare(host: String, baseClient: OkHttpClient): DnsProbeResult =
         dohResolve(
             resolverName = DnsResolverNames.DOH_CF,
-            host         = host,
-            url          = "https://1.1.1.1/dns-query",
-            bootstrapIp  = "1.1.1.1",
-            baseClient   = baseClient,
+            host = host,
+            url = "https://1.1.1.1/dns-query",
+            bootstrapIp = "1.1.1.1",
+            baseClient = baseClient,
         )
 
     // -----------------------------------------------------------------------
@@ -103,10 +103,10 @@ object DnsResolvers {
     suspend fun dohGoogle(host: String, baseClient: OkHttpClient): DnsProbeResult =
         dohResolve(
             resolverName = DnsResolverNames.DOH_GOOGLE,
-            host         = host,
-            url          = "https://8.8.8.8/dns-query",
-            bootstrapIp  = "8.8.8.8",
-            baseClient   = baseClient,
+            host = host,
+            url = "https://8.8.8.8/dns-query",
+            bootstrapIp = "8.8.8.8",
+            baseClient = baseClient,
         )
 
     // -----------------------------------------------------------------------
@@ -116,10 +116,10 @@ object DnsResolvers {
     suspend fun dohCloudflarFamily(host: String, baseClient: OkHttpClient): DnsProbeResult =
         dohResolve(
             resolverName = DnsResolverNames.DOH_CF_FAMILY,
-            host         = host,
-            url          = "https://1.1.1.3/dns-query",
-            bootstrapIp  = "1.1.1.3",
-            baseClient   = baseClient,
+            host = host,
+            url = "https://1.1.1.3/dns-query",
+            bootstrapIp = "1.1.1.3",
+            baseClient = baseClient,
         )
 
     // -----------------------------------------------------------------------
@@ -151,7 +151,7 @@ object DnsResolvers {
                     .build()
                 val addrs = doh.lookup(host)
                 val ms = System.currentTimeMillis() - t0
-                val aRecords    = addrs.filter { it is java.net.Inet4Address }.map { it.hostAddress ?: "" }
+                val aRecords = addrs.filter { it is java.net.Inet4Address }.map { it.hostAddress ?: "" }
                 val aaaaRecords = addrs.filter { it is java.net.Inet6Address }.map { it.hostAddress ?: "" }
                 DnsProbeResult(resolverName, aRecords, aaaaRecords, ms, null)
             } catch (e: Exception) {

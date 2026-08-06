@@ -46,9 +46,21 @@ val betaSuffix = ""
 // release reports a DISTINCT, monotonically increasing version. The server's check_license update
 // advertisement and the in-place self-update both depend on this — without it, every release looked
 // identical ("6.4.3o" / build 1148) to the server and no update could ever be detected.
+// F1Whisper (fork review H-07): STRICT parsing. A provided-but-malformed value used to fall back
+// silently to release 0 (versionCode 1148) — in CI that could publish a wrongly-versioned release,
+// and locally it produced INSTALL_FAILED_VERSION_DOWNGRADE surprises. Absent property (plain local
+// dev build) keeps the base-version behavior unchanged.
+// F1Whisper (second follow-up S2-11): explicit upper bound so the versionCode arithmetic can
+// never overflow Android's limit (2_100_000_000) — checked here in addition to the CI gate.
+val f1wReleaseMax = 100_000
 val f1wRelease: Int = (project.findProperty("f1wReleaseName") as String?)
-    ?.substringAfterLast('-')?.trim()?.toIntOrNull()
-    ?.takeIf { it > 0 } ?: 0
+    ?.let { raw ->
+        raw.substringAfterLast('-').trim().toIntOrNull()?.takeIf { it > 0 && it <= f1wReleaseMax }
+            ?: error(
+                "Malformed -Pf1wReleaseName='$raw': expected a release tag ending in '-<positive integer>' " +
+                    "(1..$f1wReleaseMax, e.g. v6.4.3-38). Refusing to fall back to a default version silently.",
+            )
+    } ?: 0
 val f1wReleaseSuffix = if (f1wRelease > 0) "-$f1wRelease" else ""
 
 val defaultVersionCode = 1148 + f1wRelease
@@ -466,7 +478,29 @@ android {
 
             // config fields for action URLs / deep links
             val uriScheme = "f1secure"
-            val actionUrl = "thm.f1tech.info"
+            // App Links host for https deep links (/add, /compose, /license, /debug). Sourced, in
+            // precedence order (S3-04 / T3-12): an explicit `-PonPremActionUrl` Gradle property
+            // (how CI supplies the PUBLIC `ONPREM_ACTION_URL` Actions variable — the host is public
+            // in every APK, so it is a variable, not a secret), then the untracked `local.properties`
+            // `onPremActionUrl` key (local dev), then a non-resolvable placeholder. `-P` wins so a
+            // clean CI runner and an explicit override both work regardless of local.properties.
+            val actionUrlProperty = (project.findProperty("onPremActionUrl") as String?)
+                ?.trim()?.takeIf { it.isNotEmpty() }
+            val actionUrl = actionUrlProperty
+                ?: LocalProperties.getString("onPremActionUrl")
+                ?: "example.invalid"
+            // Real-release guard (S3-04 / T3-12): a tagged release (f1wReleaseName set — CI passes
+            // the git tag, and the local signed-test build passes it for the versionCode) must never
+            // ship the placeholder host. Local/dev builds with no release name keep the placeholder.
+            val onPremReleaseName = (project.findProperty("f1wReleaseName") as String?)
+                ?.trim()?.takeIf { it.isNotEmpty() }
+            if (onPremReleaseName != null && actionUrl == "example.invalid") {
+                throw GradleException(
+                    "Refusing to build release '$onPremReleaseName' with the placeholder App Links host " +
+                        "'example.invalid'. Provide the real host via -PonPremActionUrl=<host> (CI: the " +
+                        "ONPREM_ACTION_URL Actions variable) or the onPremActionUrl key in local.properties.",
+                )
+            }
             stringBuildConfigField("uriScheme", uriScheme)
             stringBuildConfigField("actionUrl", actionUrl)
 
@@ -642,7 +676,10 @@ android {
                 }
             }
             ?: run {
-                logger.info("No F1Whisper release keystore configured (F1W_* not set). Onprem release will be unsigned unless the upstream onprem keystore is present.")
+                logger.info(
+                    "No F1Whisper release keystore configured (F1W_* not set). " +
+                        "Onprem release will be unsigned unless the upstream onprem keystore is present.",
+                )
             }
 
         // Blue release config
@@ -888,6 +925,11 @@ android {
     }
 
     lint {
+        // F1Whisper (second follow-up S2-09): reviewed baseline for the INHERITED lint debt
+        // (pre-fork upstream findings). Policy: the baseline is frozen — zero NEW errors in
+        // changed code; genuinely fixed findings should be removed from the baseline over time.
+        // Full `lintOnpremRelease` gates the release chain against this file.
+        baseline = file("lint-baseline-onprem.xml")
         // if true, stop the gradle build if errors are found
         abortOnError = true
         // if true, check all issues, including those that are off by default
@@ -899,6 +941,11 @@ android {
         checkReleaseBuilds = true
         // turn off checking the given issue id's
         disable.addAll(setOf("TypographyFractions", "TypographyQuotes", "RtlHardcoded", "RtlCompat", "RtlEnabled"))
+        // F1Whisper (S2-09): AppLinksAutoVerify performs a LIVE network fetch of the app-link
+        // host's assetlinks.json during analysis — a non-hermetic check whose outcome depends on
+        // a server response, not on the source. In the release gate that could block (or pass) a
+        // release for reasons unrelated to the code; deep-link verification is covered on-device.
+        disable.add("AppLinksAutoVerify")
         // Set the severity of the given issues to error
         error.addAll(setOf("Wakelock", "TextViewEdits", "ResourceAsColor"))
         // Set the severity of the given issues to fatal (which means they will be
@@ -1077,6 +1124,11 @@ dependencies {
 
     // add JSON support to tests without mocking
     testImplementation(libs.json)
+
+    // F1Whisper (follow-up review P0-6/H-01): real-SQL regression tests for pagination and the
+    // v124->v125 migration execute the production SQL strings against an in-memory SQLite on the
+    // JVM (SQLCipher's SQLiteDatabase is Android-native and cannot run in unit tests).
+    testImplementation("org.xerial:sqlite-jdbc:3.45.1.0")
 
     testImplementation(libs.archunit.junit4)
 

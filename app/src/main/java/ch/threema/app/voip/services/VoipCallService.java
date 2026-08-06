@@ -181,6 +181,10 @@ public class VoipCallService extends LifecycleService implements PeerConnectionC
     private VoipVideoParams commonVideoQualityProfile;
 
     private static boolean isRunning = false;
+    // F1Whisper (fork review H-09, third follow-up S3-08 / T3-15): the cold-start lifecycle decision
+    // (bail out until the session scope is ready; gate the session-scoped part of cleanup() for a
+    // partially-initialized instance), extracted for regression coverage. See VoipCallLifecycleGate.
+    private final VoipCallLifecycleGate lifecycleGate = new VoipCallLifecycleGate();
 
     private boolean foregroundStarted = false;
     private boolean transportConnected = false;
@@ -671,13 +675,17 @@ public class VoipCallService extends LifecycleService implements PeerConnectionC
         logger.info("onCreate");
         super.onCreate();
 
-        // F1Whisper: on a cold-start incoming call the process can be woken (via F1 push / the call
-        // notification) before the session scope is live (ServiceManager is only bound on master-key
-        // unlock). The session-scoped VoipStateService is then unresolvable and accessing it below
-        // crashes with a Koin NoDefinitionFoundException. Bail out until the session is ready; the
-        // call offer is reprocessed once the app has finished initializing. Mirrors the guard that
-        // CallActivity already applies via finishAndRestartLaterIfNotReady()/isSessionScopeReady().
-        if (!DIJavaCompat.isSessionScopeReady()) {
+        // F1Whisper (fork review H-09, third follow-up S3-08 / T3-15): on a cold-start incoming call
+        // the process can be woken (via F1 push / the call notification) before the session scope is
+        // live (ServiceManager is only bound on master-key unlock). The session-scoped
+        // VoipStateService is then unresolvable and accessing it below crashes with a Koin
+        // NoDefinitionFoundException. The lifecycle gate bails out until the session is ready AND
+        // records that session-scoped init ran, so cleanup() (which Android still invokes via
+        // onDestroy after a bail-out) skips the session-scoped teardown that would otherwise resolve
+        // the very scope whose absence the guard detected. The call offer is reprocessed once the
+        // app has finished initializing. Mirrors CallActivity's
+        // finishAndRestartLaterIfNotReady()/isSessionScopeReady() guard.
+        if (!lifecycleGate.onCreate(DIJavaCompat.isSessionScopeReady())) {
             logger.warn("Session scope not ready on cold-start incoming call; stopping VoipCallService");
             stopSelf();
             return;
@@ -1528,12 +1536,21 @@ public class VoipCallService extends LifecycleService implements PeerConnectionC
 
         contactModel = null;
 
-        // Update state
-        logger.info("Releasing video context, transition to IDLE state");
-        // Release video context
-        dependencies.getVoipStateService().releaseVideoContext();
-        dependencies.getVoipStateService().setVideoRenderMode(VIDEO_RENDER_FLAG_NONE);
-        dependencies.getVoipStateService().setStateIdle();
+        // F1Whisper (fork review H-09, third follow-up S3-08 / T3-15): only touch the session-scoped
+        // VoipStateService when initialization actually completed. On a cold-start incoming call the
+        // onCreate() gate stops the service before the session scope exists; resolving it here from
+        // onDestroy() would throw the exact Koin NoDefinitionFoundException that guard prevents. All
+        // teardown above is null-guarded and idempotent, so skipping this block is safe.
+        if (lifecycleGate.shouldRunSessionScopedCleanup()) {
+            // Update state
+            logger.info("Releasing video context, transition to IDLE state");
+            // Release video context
+            dependencies.getVoipStateService().releaseVideoContext();
+            dependencies.getVoipStateService().setVideoRenderMode(VIDEO_RENDER_FLAG_NONE);
+            dependencies.getVoipStateService().setStateIdle();
+        } else {
+            logger.warn("Skipping session-scoped cleanup: service never completed initialization");
+        }
 
         logger.info("Cleanup done");
     }

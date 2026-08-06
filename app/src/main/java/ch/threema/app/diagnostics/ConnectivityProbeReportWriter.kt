@@ -23,9 +23,9 @@ object ConnectivityProbeReportWriter {
     fun render(report: ProbeReport): String = buildString {
         section("connectivity probes") {
             kv("probe started") { report.startedAt }
-            kv("duration ms")  { report.durationMs }
-            kv("target host")  { report.target.host }
-            kv("verdict")      { report.verdict.name }
+            kv("duration ms") { report.durationMs }
+            kv("target host") { report.target.host }
+            kv("verdict") { report.verdict.name }
         }
 
         section("dns matrix") {
@@ -47,10 +47,10 @@ object ConnectivityProbeReportWriter {
                 .filter { it.resolverName != DnsResolverNames.SYSTEM && it.succeeded }
                 .flatMap { it.allIps }
                 .toSet()
-            kv("system IPs")        { systemIps.joinToString(", ").ifEmpty { "(none)" } }
+            kv("system IPs") { systemIps.joinToString(", ").ifEmpty { "(none)" } }
             kv("DoH/DoT consensus") { dohIps.joinToString(", ").ifEmpty { "(none)" } }
             val overlap = systemIps.intersect(dohIps)
-            kv("overlap")           { overlap.joinToString(", ").ifEmpty { "NONE — possible poisoning" } }
+            kv("overlap") { overlap.joinToString(", ").ifEmpty { "NONE — possible poisoning" } }
         }
 
         section("reachability probes") {
@@ -61,8 +61,8 @@ object ConnectivityProbeReportWriter {
         }
 
         section("verdict detail") {
-            kv("verdict")           { report.verdict.name }
-            kv("verdict meaning")   { verdictExplanation(report.verdict) }
+            kv("verdict") { report.verdict.name }
+            kv("verdict meaning") { verdictExplanation(report.verdict) }
         }
 
         if (report.hints.isNotEmpty()) {
@@ -95,18 +95,20 @@ object ConnectivityProbeReportWriter {
     }
 
     private fun verdictExplanation(verdict: Verdict): String = when (verdict) {
-        Verdict.ALL_OK                 -> "All probes passed. Server is reachable from this network."
-        Verdict.NO_INTERNET            -> "Control 443 probe failed. This network has no working internet."
+        Verdict.ALL_OK -> "All probes passed. Server is reachable from this network."
+        Verdict.NO_INTERNET -> "Control 443 probe failed. This network has no working internet."
         Verdict.DNS_POISONING_SUSPECTED -> "System DNS returns different IPs than DoH/DoT resolvers. DNS poisoning suspected."
-        Verdict.SNI_BLOCKING_SUSPECTED  -> "TCP/DNS OK but TLS with our SNI fails while shop SNI succeeds. SNI-based TLS blocking suspected."
-        Verdict.IP_HOST_BLOCKED         -> "DNS resolves correctly but TCP 443 is blocked. IP/host block or firewall."
-        Verdict.CHAT_PORT_BLOCKED       -> "HTTPS reachable but TCP 5222 (chat) is blocked. Chat-port censorship."
-        Verdict.SLOW_THROTTLED          -> "Server is reachable but latencies are severely high. Traffic shaping / throttling suspected."
-        Verdict.PARTIAL_FAILURE         -> "Some probes failed but evidence insufficient for a specific conclusion."
+        Verdict.SNI_BLOCKING_SUSPECTED -> "TCP/DNS OK but TLS with our SNI fails while shop SNI succeeds. SNI-based TLS blocking suspected."
+        Verdict.IP_HOST_BLOCKED -> "DNS resolves correctly but TCP 443 is blocked. IP/host block or firewall."
+        Verdict.CHAT_PORT_BLOCKED -> "HTTPS reachable but TCP 5222 (chat) is blocked. Chat-port censorship."
+        Verdict.SLOW_THROTTLED -> "Server is reachable but latencies are severely high. Traffic shaping / throttling suspected."
+        Verdict.PARTIAL_FAILURE -> "Some probes failed but evidence insufficient for a specific conclusion."
     }
 
     private fun hintExplanation(hint: DiagnosticHint): String = when (hint) {
-        DiagnosticHint.MIDDLEBOX_TERMINATED -> "Fast TCP connect but slow TLS handshake. Consistent with a transparent proxy / middlebox terminating the connection."
-        DiagnosticHint.PORT53_HIJACK        -> "System DNS answered implausibly fast while encrypted resolvers were slow. Consistent with local port-53 interception."
+        DiagnosticHint.MIDDLEBOX_TERMINATED ->
+            "Fast TCP connect but slow TLS handshake. Consistent with a transparent proxy / middlebox terminating the connection."
+        DiagnosticHint.PORT53_HIJACK ->
+            "System DNS answered implausibly fast while encrypted resolvers were slow. Consistent with local port-53 interception."
     }
 }

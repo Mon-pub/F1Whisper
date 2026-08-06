@@ -12,9 +12,8 @@ private val logger = getThreemaLogger("AlarmScheduler")
  * F1Whisper: shared helper that arms or cancels a single [AlarmManager] alarm for the earliest
  * pending epoch-millis timestamp returned by [queryEarliestMillis].
  *
- * Extracted so that [ScheduledMessageService] and [DisappearingMessageService] (and future services
- * like a calendar alarm) share the exact-vs-inexact-fallback + cancel-when-empty logic without
- * duplicating it.
+ * Extracted so that [DisappearingMessageService] (and future services like a calendar alarm) get
+ * the exact-vs-inexact-fallback + cancel-when-empty logic without duplicating it.
  *
  * Usage:
  * ```kotlin
@@ -24,44 +23,68 @@ private val logger = getThreemaLogger("AlarmScheduler")
  *     buildIntent  = { context -> Intent(context, MyAlarmReceiver::class.java).setAction(ACTION) },
  * )
  * // To re-arm:
- * scheduler.rescheduleNextAlarm(context) { earliestEpochMillisFromDb() }
+ * scheduler.rescheduleNextAlarm(context) { earliestAlarmTargetFromDb() }
  * // To cancel:
  * scheduler.cancel(context)
  * ```
+ *
+ * The query returns an [AlarmTarget], not a nullable timestamp, so that "the queue is empty" and
+ * "the queue could not be read" stay distinguishable all the way to the cancel decision. See
+ * [AlarmPlanDecision] for what the third case cost before it existed.
  */
 class AlarmScheduler(
     private val requestCode: Int,
     private val buildIntent: (Context) -> android.content.Intent,
 ) {
     /**
-     * Re-arm the alarm for the earliest timestamp returned by [queryEarliestMillis], or cancel it
-     * if [queryEarliestMillis] returns `null`.
+     * Serialises read-decide-act for this scheduler's one [PendingIntent]. See [AlarmRecomputationGate] for the interleaving it
+     * removes; one instance per scheduler, because two schedulers own different alarms and must not block each other.
      */
-    fun rescheduleNextAlarm(context: Context, queryEarliestMillis: () -> Long?) {
+    private val gate = AlarmRecomputationGate()
+
+    /**
+     * Apply [queryEarliestTarget] to the pending alarm: arm it, cancel it, or - when the queue could
+     * not be read - arm a retry [retryDelayMillis] from now so the engine recovers on its own.
+     *
+     * A throwing [queryEarliestTarget] is treated exactly as [AlarmTarget.Unavailable]: an exception
+     * is one more way of not knowing, and the one thing it must never do is look like an empty queue.
+     */
+    fun rescheduleNextAlarm(
+        context: Context,
+        retryDelayMillis: Long = DEFAULT_RETRY_DELAY_MILLIS,
+        queryEarliestTarget: () -> AlarmTarget,
+    ) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+        // Built outside the gate on purpose: it reads nothing about the queue, and every caller resolves it to the same
+        // requestCode-keyed PendingIntent, which is precisely the shared resource the gate is protecting.
         val pendingIntent = buildPendingIntent(context)
 
-        val earliest: Long? = try {
-            queryEarliestMillis()
-        } catch (e: Exception) {
-            logger.error("Could not read earliest alarm time (requestCode={})", requestCode, e)
-            return
+        gate.applyLatest(
+            retryDelayMillis = retryDelayMillis,
+            queryEarliestTarget = queryEarliestTarget,
+        ) { action ->
+            when (action) {
+                AlarmAction.Cancel -> alarmManager.cancel(pendingIntent)
+                is AlarmAction.ArmAt -> arm(context, alarmManager, pendingIntent, action.epochMillis)
+            }
         }
+    }
 
-        if (earliest == null) {
-            alarmManager.cancel(pendingIntent)
-            return
-        }
-
+    private fun arm(
+        context: Context,
+        alarmManager: AlarmManager,
+        pendingIntent: PendingIntent,
+        atMillis: Long,
+    ) {
         try {
             if (canScheduleExactAlarms(context, alarmManager)) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, earliest, pendingIntent)
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMillis, pendingIntent)
             } else {
                 logger.warn(
                     "Exact alarms not permitted (requestCode={}), scheduling inexact alarm",
                     requestCode,
                 )
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, earliest, pendingIntent)
+                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMillis, pendingIntent)
             }
         } catch (e: SecurityException) {
             logger.error("Could not schedule alarm (requestCode={})", requestCode, e)
@@ -90,4 +113,13 @@ class AlarmScheduler(
         } else {
             true
         }
+
+    companion object {
+        /**
+         * How far ahead to arm the recovery alarm when the queue could not be read. Five minutes is
+         * short enough that a locked-master-key window resolves quickly and long enough that
+         * repeatedly retrying against a still-locked device costs nothing measurable.
+         */
+        const val DEFAULT_RETRY_DELAY_MILLIS = 5 * 60 * 1000L
+    }
 }

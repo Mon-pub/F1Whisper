@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  F1Whisper: ic_next_alpha is a plain PNG, so it never mirrors itself in RTL locales.
+  The incoming-call slider uses it as a directional hint pointing OUTWARD at the two call
+  targets, and those targets are mirrored by the layout in RTL, so the arrows must mirror too.
+  Wrapping the bitmap is the only way to give a raster drawable android:autoMirrored.
+-->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/ic_next_alpha"
+    android:autoMirrored="true" />

@@ -37,9 +37,14 @@ class GroupDisappearingTimerMessage : AbstractGroupMessage() {
 
     override fun protectAgainstReplay() = true
 
-    override fun reflectIncoming() = false
+    // Reflect timer controls to the device group so a linked follower stays in sync (D2D
+    // multi-device). This mirrors the GroupEdit/GroupDelete/GroupReaction control-message contract:
+    // a timer control mutates conversation state without creating a tracked outgoing message model,
+    // so we reflect incoming + outgoing but NOT a sent-update (there is no outgoing message whose
+    // sent state could be reflected). Both flags are no-ops when multi device is inactive.
+    override fun reflectIncoming() = true
 
-    override fun reflectOutgoing() = false
+    override fun reflectOutgoing() = true
 
     override fun reflectSentUpdate() = false
 

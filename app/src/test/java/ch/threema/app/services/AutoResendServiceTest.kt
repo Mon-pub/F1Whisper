@@ -116,7 +116,11 @@ class AutoResendServiceTest {
 
     @Test
     fun `null createdAt sorts as oldest and is not starved`() {
-        val withNull = MessageModel().apply { id = 99; isOutbox = true; createdAt = null }
+        val withNull = MessageModel().apply {
+            id = 99
+            isOutbox = true
+            createdAt = null
+        }
         val normal = outgoing(1, nowMillis - 5_000)
         val resender = RecordingResender()
         val svc = serviceWith(FakeSource(listOf(normal, withNull)), resender)

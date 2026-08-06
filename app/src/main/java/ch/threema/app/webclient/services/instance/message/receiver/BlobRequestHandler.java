@@ -21,6 +21,7 @@ import ch.threema.app.services.messageplayer.MessagePlayer;
 import ch.threema.app.services.messageplayer.WebClientMessagePlayer;
 import ch.threema.app.utils.FileUtil;
 import ch.threema.app.utils.MimeUtil;
+import ch.threema.app.utils.RestrictedMediaOutput;
 import ch.threema.app.utils.executor.HandlerExecutor;
 import ch.threema.app.voicemessage.VoiceRecorderActivity;
 import ch.threema.app.webclient.Protocol;
@@ -109,6 +110,24 @@ public class BlobRequestHandler extends MessageReceiver {
             default:
                 logger.error("no valid type for blob download found");
                 return;
+        }
+
+        // F1Whisper (fifth fork review, F5-01): a linked Web client is a generic output boundary like any other, and it
+        // was the one boundary F4-09 did not reach.
+        //
+        // This handler resolved the message and handed it to a WebClientMessagePlayer, which calls only the ordinary
+        // markAsConsumed and never writes listen-once claimed/consumed metadata or burns the source. So an unmodified
+        // recipient could request an unplayed incoming listen-once voice message from their paired browser, receive the
+        // complete decrypted file, request it again, and still play the untouched message on the phone afterwards - a
+        // reusable clear copy of content advertised as one-play, produced entirely with official features.
+        //
+        // The refusal is here, before the download and before the decryption, and deliberately NOT modelled as "the
+        // browser transfer is the one playback": the bytes that reach the browser stay reusable whatever this device
+        // then records, so consuming the message would destroy it AND leak it.
+        if (RestrictedMediaOutput.isRestricted(messageModel)) {
+            logger.info("Refusing a linked-Web blob request for restricted message {}", messageId);
+            postFailed(receiverType, receiverId, temporaryId, messageId, Protocol.ERROR_BLOB_DOWNLOAD_FAILED);
+            return;
         }
 
         final WebClientMessagePlayer player = new WebClientMessagePlayer(

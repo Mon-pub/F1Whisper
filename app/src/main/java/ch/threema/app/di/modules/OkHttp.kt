@@ -38,8 +38,11 @@ private fun buildBaseOkHttpClient(): OkHttpClient =
             connectTimeout(ProtocolDefines.CONNECT_TIMEOUT.seconds)
             writeTimeout(ProtocolDefines.WRITE_TIMEOUT.seconds)
             readTimeout(ProtocolDefines.READ_TIMEOUT.seconds)
-            // Resolve names DoT-first (plain DNS is hijacked on the target networks). The
-            // OPPF/directory/blob clients all derive from this base client, so they inherit it.
+            // Resolve names system-first with a DoT FALLBACK on failure only (fork review M-03:
+            // fallback-only — no hostname is disclosed to the DoT provider while the system
+            // resolver works; hijacked/frozen plain DNS on the target networks manifests as
+            // resolution failure, which triggers the fallback). The OPPF/directory/blob clients
+            // all derive from this base client, so they inherit it.
             dns(Dns { hostname -> DotPreferredResolver.resolve(hostname) })
             // F1Whisper: ensure every request through the shared base client carries our schema
             // User-Agent, including blob upload/download which otherwise falls back to OkHttp's own

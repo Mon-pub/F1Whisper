@@ -78,6 +78,7 @@ import ch.threema.app.utils.ConfigUtils;
 import ch.threema.app.utils.FileUtil;
 import ch.threema.app.utils.IntentDataUtil;
 import ch.threema.app.utils.MessageUtil;
+import ch.threema.app.utils.RestrictedMediaOutput;
 import ch.threema.app.utils.MimeUtil;
 import ch.threema.app.utils.NameUtil;
 import ch.threema.app.utils.RuntimeUtil;
@@ -285,6 +286,21 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
             });
         } catch (Exception x) {
             logger.error("Exception", x);
+            finish();
+            return false;
+        }
+
+        // F1Whisper (fourth fork review, F4-09): the generic viewer prepares Media3 directly and seeks back to zero when
+        // playback ends, so it neither claims nor burns an incoming listen-once voice message and will replay it
+        // indefinitely - and its menu offers save and share on top. It is not the claim/burn owner, so it never receives
+        // one of those rows, whether it was reached from the gallery or directly.
+        this.messageModels = RestrictedMediaOutput.releasable(this.messageModels);
+        if (RestrictedMediaOutput.isRestricted(this.currentMessageModel)) {
+            logger.info("Refusing to open a restricted message in the generic media viewer");
+            finish();
+            return false;
+        }
+        if (this.messageModels.isEmpty()) {
             finish();
             return false;
         }

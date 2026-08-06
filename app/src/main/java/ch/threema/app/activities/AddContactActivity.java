@@ -186,6 +186,13 @@ public class AddContactActivity extends ThreemaActivity implements GenericAlertD
      * @param payload a valid payload
      */
     private void startWebClientByQRResult(final byte[] payload) {
+        // F1Whisper (second follow-up S2-04): Threema Web is disabled in the onprem build — a
+        // scanned web-session QR code must not launch a session screen.
+        if (ch.threema.app.utils.ConfigUtils.isOnPremBuild()) {
+            Toast.makeText(this, R.string.webclient_disabled, Toast.LENGTH_LONG).show();
+            this.finish();
+            return;
+        }
         if (payload != null) {
             // start web client session screen with payload data and finish my screen
             Intent webClientIntent = new Intent(this, ch.threema.app.webclient.activities.SessionsActivity.class);

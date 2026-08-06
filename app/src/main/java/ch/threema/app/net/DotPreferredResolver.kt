@@ -3,48 +3,59 @@ package ch.threema.app.net
 import ch.threema.base.utils.getThreemaLogger
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
 
 private val logger = getThreemaLogger("DotPreferredResolver")
 
 /**
- * F1Whisper: a DNS resolver that keeps the platform resolver on the fast path but
- * treats our trusted DNS-over-TLS server ([SecureDnsClient]) as a non-blocking
- * verifier and a fallback.
+ * F1Whisper: a DNS resolver that keeps the platform resolver on the fast path and uses our
+ * trusted DNS-over-TLS server ([SecureDnsClient]) strictly as a FALLBACK.
  *
- * Why the split: on the censored / throttled networks this build targets, plain DNS
- * is locally hijacked (port-53 interception). But DoT must NOT sit in the blocking
- * resolution hot path — that would add a TLS round-trip to the pinned server on
- * every lookup and regress healthy networks. So:
+ * Why the split: on the censored / throttled networks this build targets, plain DNS is locally
+ * hijacked (port-53 interception) or frozen (Doze). But DoT must NOT sit in the blocking
+ * resolution hot path — that would add a TLS round-trip to the pinned server on every lookup and
+ * regress healthy networks.
+ *
+ * FALLBACK-ONLY (fork review M-03): the earlier design additionally sent every successfully
+ * system-resolved hostname to the external DoT service as a non-blocking background "verification"
+ * and overwrote the cache with the DoT answer. That (a) disclosed every hostname this client talks
+ * to — including the OnPrem server names — to the public DoT provider on every fresh lookup, and
+ * (b) could replace a WORKING split-horizon/private answer with a public one. Both are gone: DoT
+ * is now consulted ONLY when the system resolver fails or returns no records — exactly the
+ * manifestations the censorship/Doze fixes target. Accepted trade-off (recorded in the plan): a
+ * hijacked answer that still resolves "successfully" no longer self-heals in the background; it
+ * heals when the system path actually fails. A connection-failure feedback trigger can be added
+ * later without reintroducing the always-on leak.
  *
  * Order per lookup:
  *   1. literal IP  -> return as-is (no lookup, no DoT);
- *   2. fresh TTL cache hit -> return cached addresses (the cache may already hold a
- *      DoT-verified answer from a previous background check);
- *   3. system resolver -> on success, return IMMEDIATELY and kick off a NON-BLOCKING
- *      background DoT check that overwrites the cache with the trusted answer, so the
- *      next lookup / reconnect uses it (a poisoned first answer self-heals within one
- *      reconnect; the OPPF fetch's own retry also picks up the corrected cache);
- *   4. system resolver FAILS -> DoT is used synchronously as the FALLBACK, then the
- *      cache; if DoT also fails the original [java.net.UnknownHostException] is
- *      propagated so callers' own fallback (e.g. [ch.threema.app.connection.CachingDnsResolver]'s
- *      last-good-IP cache) still triggers.
+ *   2. fresh SYSTEM cache hit -> return it (a working system answer always wins — DoT answers are
+ *      cached separately and never displace it);
+ *   3. system resolver -> on success, store in the system cache and return. NO DoT contact.
+ *   4. system resolver fails or returns empty -> fresh DoT cache hit, else one synchronous DoT
+ *      lookup (stored in the DoT-scoped cache); if DoT also fails, the original
+ *      [java.net.UnknownHostException] propagates so callers' own fallback (e.g.
+ *      [ch.threema.app.connection.CachingDnsResolver]'s last-good-IP cache) still triggers.
  *
  * This type MUST NOT call back into the app's OkHttp base client or into
- * [ch.threema.app.connection.CachingDnsResolver] — doing so would recurse, since
- * both delegate their name resolution here.
+ * [ch.threema.app.connection.CachingDnsResolver] — doing so would recurse, since both delegate
+ * their name resolution here.
  *
- * Blocking on the fast path only for the system lookup; callers already run off the
- * main thread. The background DoT check runs on a dedicated daemon thread.
+ * Blocking only for the system lookup on the fast path and for the DoT fallback on the failure
+ * path; callers already run off the main thread.
  */
 object DotPreferredResolver {
 
-    /** How long a resolved answer stays valid in the in-memory cache. */
+    /** How long a resolved answer stays valid in the in-memory caches. */
     private const val CACHE_TTL_NANOS = 5L * 60L * 1_000_000_000L // 5 minutes
 
     private class CacheEntry(val addresses: List<InetAddress>, val storedAtNanos: Long)
 
-    private val cache = ConcurrentHashMap<String, CacheEntry>()
+    /**
+     * Resolver-scoped caches (fork review M-03): system answers and DoT answers never share an
+     * entry, so a DoT fallback answer cannot mask a later working system/private answer.
+     */
+    private val systemCache = ConcurrentHashMap<String, CacheEntry>()
+    private val dotCache = ConcurrentHashMap<String, CacheEntry>()
 
     /**
      * The platform resolver call, injectable for tests. Production uses
@@ -54,25 +65,10 @@ object DotPreferredResolver {
     internal var systemResolver: (String) -> List<InetAddress> =
         { InetAddress.getAllByName(it).toList() }
 
-    /** Daemon executor for the non-blocking background DoT verification. */
-    private val bgExecutor by lazy {
-        Executors.newSingleThreadExecutor { r ->
-            Thread(r, "dot-verify").apply { isDaemon = true }
-        }
-    }
-
     /**
-     * How a background DoT verification is dispatched. Production posts to [bgExecutor]
-     * (non-blocking); tests replace it to run inline (or to disable it) for determinism.
-     */
-    internal var backgroundDispatcher: (Runnable) -> Unit = { r -> bgExecutor.execute(r) }
-
-    /** Hosts with an in-flight background verification, to avoid piling up duplicates. */
-    private val inFlightVerifications = ConcurrentHashMap.newKeySet<String>()
-
-    /**
-     * Resolve [host]. See the class doc for the full order. DoT never blocks the fast
-     * (system) path; it only blocks as a fallback when the system resolver fails.
+     * Resolve [host]. See the class doc for the full order. DoT is contacted ONLY on the
+     * failure path (system resolver threw or returned no records) — never for a hostname the
+     * system resolver answered.
      *
      * @throws java.net.UnknownHostException if neither the system resolver nor DoT can
      *   resolve [host] (the system exception is propagated unchanged).
@@ -87,77 +83,53 @@ object DotPreferredResolver {
             return listOf(InetAddress.getByName(host))
         }
 
-        // 2. Fresh cache entry (may be a DoT-verified answer from a prior background check).
-        cachedAddresses(host)?.let { return it }
+        // 2. Fresh SYSTEM cache entry — a working system answer always wins.
+        cachedAddresses(systemCache, host)?.let { return it }
 
-        // 3. Fast path: the system resolver. On success return immediately and verify in
-        //    the background — DoT stays OFF the blocking path.
+        // 3. Fast path: the system resolver. On success, return WITHOUT contacting DoT.
         val viaSystem = try {
             systemResolver(host)
         } catch (e: Exception) {
-            // 4. System failed (e.g. DNS frozen in Doze, or NXDOMAIN). DoT is the fallback.
+            // 4. System failed (e.g. DNS frozen in Doze, NXDOMAIN, or censored). DoT is the fallback.
             logger.debug("System resolve failed for {}: {}; falling back to DoT", host, e.message)
-            val viaDot = tryDot(host, timeoutMs)
+            val viaDot = dotFallback(host, timeoutMs)
             if (viaDot != null) {
-                store(host, viaDot)
                 return viaDot
             }
             throw e
         }
 
         if (viaSystem.isNotEmpty()) {
-            store(host, viaSystem)
-            scheduleBackgroundDotVerify(host, timeoutMs)
+            store(systemCache, host, viaSystem)
             return viaSystem
         }
 
         // System returned no records: try DoT as a fallback before giving up.
-        val viaDot = tryDot(host, timeoutMs)
+        val viaDot = dotFallback(host, timeoutMs)
         if (viaDot != null) {
-            store(host, viaDot)
             return viaDot
         }
         return viaSystem
     }
 
-    /** One synchronous DoT attempt; null on failure or empty answer (never throws). */
-    private fun tryDot(host: String, timeoutMs: Int): List<InetAddress>? = try {
-        SecureDnsClient.dotLookup(host, timeoutMs).takeIf { it.isNotEmpty() }
-    } catch (e: Exception) {
-        logger.debug("DoT lookup failed for {}: {}", host, e.message)
-        null
-    }
-
     /**
-     * Non-blocking check: resolve [host] over DoT on a background thread and, if it
-     * yields a trusted answer, overwrite the cache so the next lookup / reconnect uses
-     * it. De-duplicated per host. Failures are ignored (the system answer stands).
+     * The failure-path DoT fallback: a fresh DoT-scoped cache hit, else one synchronous DoT
+     * lookup (cached on success). Null on failure or empty answer (never throws).
      */
-    private fun scheduleBackgroundDotVerify(host: String, timeoutMs: Int) {
-        if (!inFlightVerifications.add(host)) {
-            return
-        }
-        try {
-            backgroundDispatcher {
-                try {
-                    val viaDot = SecureDnsClient.dotLookup(host, timeoutMs)
-                    if (viaDot.isNotEmpty()) {
-                        store(host, viaDot)
-                    }
-                } catch (e: Exception) {
-                    logger.debug("Background DoT verify failed for {}: {}", host, e.message)
-                } finally {
-                    inFlightVerifications.remove(host)
-                }
-            }
+    private fun dotFallback(host: String, timeoutMs: Int): List<InetAddress>? {
+        cachedAddresses(dotCache, host)?.let { return it }
+        return try {
+            SecureDnsClient.dotLookup(host, timeoutMs)
+                .takeIf { it.isNotEmpty() }
+                ?.also { store(dotCache, host, it) }
         } catch (e: Exception) {
-            // Executor rejected (e.g. shutting down) — drop the in-flight marker and move on.
-            inFlightVerifications.remove(host)
+            logger.debug("DoT lookup failed for {}: {}", host, e.message)
+            null
         }
     }
 
-    /** Return the cached addresses for [host] if present and not expired, else null. */
-    private fun cachedAddresses(host: String): List<InetAddress>? {
+    /** Return the cached addresses for [host] from [cache] if present and not expired, else null. */
+    private fun cachedAddresses(cache: ConcurrentHashMap<String, CacheEntry>, host: String): List<InetAddress>? {
         val entry = cache[host] ?: return null
         if (System.nanoTime() - entry.storedAtNanos > CACHE_TTL_NANOS) {
             cache.remove(host, entry)
@@ -166,7 +138,7 @@ object DotPreferredResolver {
         return entry.addresses
     }
 
-    private fun store(host: String, addresses: List<InetAddress>) {
+    private fun store(cache: ConcurrentHashMap<String, CacheEntry>, host: String, addresses: List<InetAddress>) {
         cache[host] = CacheEntry(addresses, System.nanoTime())
     }
 
@@ -205,9 +177,9 @@ object DotPreferredResolver {
         }
     }
 
-    /** Test-only: drop all cached entries and any in-flight verification markers. */
+    /** Test-only: drop all cached entries (both resolver-scoped caches). */
     internal fun clearCacheForTest() {
-        cache.clear()
-        inFlightVerifications.clear()
+        systemCache.clear()
+        dotCache.clear()
     }
 }

@@ -55,6 +55,29 @@ public class ForwardSecurityEnvelopeMessage extends AbstractProtobufMessage<Forw
         setForwardSecurityMode(forwardSecurityMode);
     }
 
+    /**
+     * F1Whisper: the metadata box is built from the envelope, not from the inner message, so the
+     * envelope has to report the inner message's disappearing-messages timer or the field would be
+     * written for nobody, because nearly all real 1:1 traffic is FS-encapsulated.
+     * <p>
+     * This delegates rather than copying in the constructor, so the envelope cannot go stale if
+     * the inner message is stamped after the envelope was built.
+     * <p>
+     * Unlike {@link #allowUserProfileDistribution()} this must not throw when there is no inner
+     * message: an <i>incoming</i> envelope is decoded first and its timer is set from the metadata
+     * box by {@code MessageCoder.decode()}, then copied inward by
+     * {@code MessageCoder.decodeEncapsulated()}. In that direction the envelope's own field is the
+     * value, so fall through to it.
+     */
+    @Nullable
+    @Override
+    public Integer getDisappearingTimerSeconds() {
+        if (innerMessage != null) {
+            return innerMessage.getDisappearingTimerSeconds();
+        }
+        return super.getDisappearingTimerSeconds();
+    }
+
     @Nullable
     @Override
     public Version getMinimumRequiredForwardSecurityVersion() {

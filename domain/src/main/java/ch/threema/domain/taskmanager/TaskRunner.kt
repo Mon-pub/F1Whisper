@@ -35,7 +35,13 @@ internal class TaskRunner(
 
     /**
      * The executor job that is currently active.
+     *
+     * F1Whisper: `@Volatile` because [state] is read from other threads (the schedule dispatcher, and
+     * the diagnostics report from the main thread) while this is written on the executor dispatcher.
+     * Without it, a reader could keep observing a dead runner as alive indefinitely, which is the
+     * same class of lie [state] was fixed for.
      */
+    @Volatile
     private var executorJob: Job? = null
 
     /**
@@ -46,6 +52,7 @@ internal class TaskRunner(
     /**
      * The current layer 5 codec. This is used to send outbound messages.
      */
+    @Volatile
     private var layer5Codec: Layer5Codec? = null
 
     /**
@@ -135,18 +142,32 @@ internal class TaskRunner(
 
     /**
      * The current state of the task runner.
+     *
+     * F1Whisper: this used to return [State.RUNNING] whenever `layer5Codec != null`, without ever
+     * consulting the executor job. The codec is assigned before the job is launched and is nulled
+     * only by [stopTaskRunner], so an executor job that died on its own left `state` reporting
+     * RUNNING for a runner that ran nothing, permanently. `TaskManagerImpl.schedule` gates
+     * `DropOnDisconnectTask` scheduling on this value, so it kept enqueueing work into a dead runner
+     * instead of failing it fast, which is precisely the "everything looks fine, nothing happens"
+     * signature. RUNNING now requires a live executor job as well as a codec.
+     *
+     * Consumer impact, checked: `TaskManagerImpl.schedule` is the only consumer in the tree. The
+     * change makes it stricter, so a `DropOnDisconnectTask` scheduled against a dead runner is now
+     * completed with `ConnectionUnavailableException` rather than queued into a runner that will
+     * never execute it. That is the intended behaviour of that gate, not a regression: the caller
+     * already handles that exception, and the alternative is a task that silently never runs.
      */
     val state: State
-        get() =
-            if (layer5Codec == null) {
-                if (executorJob?.isActive == true) {
-                    State.STOPPING
-                } else {
-                    State.STOPPED
-                }
-            } else {
-                State.RUNNING
+        get() {
+            val hasLiveExecutorJob = executorJob?.isActive == true
+            return when {
+                layer5Codec != null && hasLiveExecutorJob -> State.RUNNING
+                // The codec is gone but the job is winding down: the current task is being cancelled
+                // and no new tasks will start.
+                hasLiveExecutorJob -> State.STOPPING
+                else -> State.STOPPED
             }
+        }
 
     /**
      * Start the task runner after the connection has been established.
@@ -171,78 +192,92 @@ internal class TaskRunner(
         executorSemaphore.acquire()
         logger.info("Acquired executor semaphore")
 
-        // Stop old executor job in case it has been started while waiting for the executor
-        // semaphore
-        if (executorJob?.isActive == true) {
-            logger.info("Old executor job is still active. Stopping it.")
-            stopTaskRunner(null)
-        } else {
-            logger.info("Old executor job already inactive")
-        }
-
-        this.layer5Codec = layer5Codec
-
-        // Clear incoming message queue to get rid of old unprocessed messages
-        withContext(executorCoroutineContext) {
-            logger.info("Flushing incoming message queues")
-            // As the connection just has been initiated, we will again receive un-acked messages
-            taskQueue.recreateIncomingMessageQueue(incomingMessageProcessor)
-        }
-
-        // We handle the exceptions in invokeOnCompletion instead of the exception handler
-        val exceptionHandler = CoroutineExceptionHandler { _, _ -> }
-
-        // Start actually processing the tasks while the executor is active. Do not use the schedule
-        // dispatcher. Otherwise multiple tasks can be launched simultaneously.
-        executorJob = CoroutineScope(executorCoroutineContext).launch(exceptionHandler) {
-            logger.info("Running tasks")
-            while (isActive) {
-                runNextTask()
-
-                // Set the delay to the minimum reconnect delay. Note that the task that just has
-                // been successfully run may not be the same task that caused the trouble.
-                reconnectDelayMs = RECONNECT_MIN_DELAY_MS
+        // F1Whisper: the permit MUST be returned on every exit path.
+        //
+        // There was no try/finally here. Anything that threw or cancelled between the acquire
+        // above and the release below stranded the single permit, and because the TaskRunner is a
+        // lazy singleton on the task manager, the semaphore outlives every reconnect: one strand
+        // blocked every future startTaskRunner for the life of the process. It logged nothing and
+        // threw nothing visible. The connection kept reconnecting and reporting LOGGEDIN while no
+        // task ever ran again, and only a force close cured it.
+        //
+        // The reachable trigger is a cancellation of the EndToEndLayer init scope while suspended
+        // in the queue flush below, which a socket teardown during startup produces.
+        try {
+            // Stop old executor job in case it has been started while waiting for the executor
+            // semaphore
+            if (executorJob?.isActive == true) {
+                logger.info("Old executor job is still active. Stopping it.")
+                stopTaskRunner(null)
+            } else {
+                logger.info("Old executor job already inactive")
             }
-        }.also {
-            it.invokeOnCompletion { cause ->
-                when (cause) {
-                    // The task manager has detected that the server connection has been stopped or
-                    // a new server connection has been established and the current executor job is
-                    // running with a stale layer 5. In both cases, a new connection is being
-                    // initiated which will trigger a start of the task runner again.
-                    is ConnectionStoppedException -> logger.info("Task executor stopped", cause)
-                    // A protocol exception has been detected by a task. This means, that the
-                    // connection must be restarted.
-                    is ProtocolException -> {
-                        logger.warn(
-                            "Task executor stopped. Restarting connection in {}ms.",
-                            reconnectDelayMs,
-                            cause,
-                        )
-                        restartConnection()
-                    }
-                    // If the connection is lost after the last task has just completed successfully
-                    // or if a task has caught the network exception and decided to complete
-                    // successfully, then the executor job also completes successfully. Therefore,
-                    // the cause is null and the task runner will be started when a new connection
-                    // has been established.
-                    null -> logger.info("Task executor finished")
-                    // Any other exception means that the task manager is behaving faulty. In this
-                    // case we need to start the task manager again. This should never happen.
-                    else -> {
-                        logger.error("Task manager failed", cause)
-                        CoroutineScope(scheduleCoroutineContext).launch {
-                            // To avoid a busy loop, we delay the restarting of the task runner a bit here
-                            delay(10.seconds)
-                            startTaskRunner(layer5Codec, incomingMessageProcessor)
+
+            this.layer5Codec = layer5Codec
+
+            // Clear incoming message queue to get rid of old unprocessed messages
+            withContext(executorCoroutineContext) {
+                logger.info("Flushing incoming message queues")
+                // As the connection just has been initiated, we will again receive un-acked messages
+                taskQueue.recreateIncomingMessageQueue(incomingMessageProcessor)
+            }
+
+            // We handle the exceptions in invokeOnCompletion instead of the exception handler
+            val exceptionHandler = CoroutineExceptionHandler { _, _ -> }
+
+            // Start actually processing the tasks while the executor is active. Do not use the schedule
+            // dispatcher. Otherwise multiple tasks can be launched simultaneously.
+            executorJob = CoroutineScope(executorCoroutineContext).launch(exceptionHandler) {
+                logger.info("Running tasks")
+                while (isActive) {
+                    runNextTask()
+
+                    // Set the delay to the minimum reconnect delay. Note that the task that just has
+                    // been successfully run may not be the same task that caused the trouble.
+                    reconnectDelayMs = RECONNECT_MIN_DELAY_MS
+                }
+            }.also {
+                it.invokeOnCompletion { cause ->
+                    when (cause) {
+                        // The task manager has detected that the server connection has been stopped or
+                        // a new server connection has been established and the current executor job is
+                        // running with a stale layer 5. In both cases, a new connection is being
+                        // initiated which will trigger a start of the task runner again.
+                        is ConnectionStoppedException -> logger.info("Task executor stopped", cause)
+                        // A protocol exception has been detected by a task. This means, that the
+                        // connection must be restarted.
+                        is ProtocolException -> {
+                            logger.warn(
+                                "Task executor stopped. Restarting connection in {}ms.",
+                                reconnectDelayMs,
+                                cause,
+                            )
+                            restartConnection()
+                        }
+                        // If the connection is lost after the last task has just completed successfully
+                        // or if a task has caught the network exception and decided to complete
+                        // successfully, then the executor job also completes successfully. Therefore,
+                        // the cause is null and the task runner will be started when a new connection
+                        // has been established.
+                        null -> logger.info("Task executor finished")
+                        // Any other exception means that the task manager is behaving faulty. In this
+                        // case we need to start the task manager again. This should never happen.
+                        else -> {
+                            logger.error("Task manager failed", cause)
+                            CoroutineScope(scheduleCoroutineContext).launch {
+                                // To avoid a busy loop, we delay the restarting of the task runner a bit here
+                                delay(10.seconds)
+                                startTaskRunner(layer5Codec, incomingMessageProcessor)
+                            }
                         }
                     }
                 }
             }
-        }
 
-        logger.info("Task runner started")
-        executorSemaphore.release()
+            logger.info("Task runner started")
+        } finally {
+            executorSemaphore.release()
+        }
     }
 
     /**

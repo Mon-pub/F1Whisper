@@ -367,9 +367,11 @@ public abstract class MessagePlayer {
                     @Override
                     public void onComplete(boolean ok) {
                         if (ok) {
-                            data.isDownloaded(true);
-                            messageService.save(setData(data));
-
+                            // F1Whisper (fifth fork review, F5-04): the download's own completion already recorded this,
+                            // through a conditional write against the CURRENT row. Repeating it here as a full-row save
+                            // from the player's RETAINED model was the last insert-capable write on the media path: it
+                            // could recreate a message deleted during the download, and it wrote back download-era values
+                            // for every other column, undoing a first read or a burn that had landed in between.
                             if (autoPlay ||
                                 getMessageModel().getFileData().getRenderingType() != RENDERING_MEDIA ||
                                 FileUtil.isAudioFile(getMessageModel().getFileData())) {

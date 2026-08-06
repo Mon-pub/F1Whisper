@@ -519,8 +519,11 @@ class IncomingMessageTask(
             messageService.getContactMessageModel(message.messageId, message.fromIdentity)
         }?.let {
             // Note that for incoming messages the received timestamp is stored in 'createdAt'
-            it.createdAt = Date(receivedTimestamp.toLong())
-            messageService.save(it)
+            //
+            // F1Whisper (sixth fork review, F6-01): one conditional column write. The model here is resolved through the
+            // service message cache, so full-row-saving it wrote back whatever snapshot was cached - which for a message
+            // being processed right now can already be behind its own freeze or a reflected read.
+            messageService.updateReceivedTimestamp(it, Date(receivedTimestamp.toLong()))
         }
     }
 

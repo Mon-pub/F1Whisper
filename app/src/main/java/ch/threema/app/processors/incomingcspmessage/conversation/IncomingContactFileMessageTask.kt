@@ -56,6 +56,14 @@ class IncomingContactFileMessageTask(
         )?.run {
             // In this case the message has been processed earlier. Therefore we consider this as success. This causes the message to be reflected.
             logger.info("Message model already exists. Aborting successfully.")
+            // F1Whisper (fourth fork review, F4-05): a redelivery is this message's only second chance. If the app died
+            // between the insert and the freeze on the previous run, nothing else will ever revisit the timer - this
+            // branch returns success and the message is gone from the server. Idempotent: it writes nothing when the row
+            // already carries the sender's value.
+            // Fifth review, F5-05: the repair applies an EXPLICITLY advertised value only. An absent one would be
+            // re-resolved against the conversation timer as it is now, which re-froze old messages at a setting
+            // chosen long after they arrived.
+            messageService.freezeIncomingDisappearingPolicy(this, message.disappearingTimerSeconds)
             return ReceiveStepsResult.SUCCESS
         }
 
@@ -88,8 +96,24 @@ class IncomingContactFileMessageTask(
             contactService.bumpLastUpdate(message.fromIdentity)
         }
 
-        // 6. Save message model and inform listeners about new message
+        // 6. F1Whisper E1: freeze the timer the SENDER advertised for THIS message, using the same
+        //    transition the text/image/location/poll path uses in processIncomingContactMessage.
+        //    This task builds its model by hand rather than through createLocalModel, so without
+        //    this call an incoming file, video, voice message or document froze nothing and fell
+        //    back to the RECIPIENT's own conversation timer at read time — the policy defeat the
+        //    per-message-timer wave closed for text, still open on the path that carries most media.
+        //
+        //    F1Whisper (fourth fork review, F4-05): BEFORE the insert, not after it. The row and the
+        //    sender's policy are now one write, so a process death cannot leave a stored message
+        //    carrying the recipient's timer - which a redelivery would then make permanent, because
+        //    the duplicate guard above returns success without reaching this point. Being before the
+        //    insert also puts it before the listener, so MarkAsReadRoutine (which runs off that
+        //    listener, on another thread) sees the frozen value rather than racing it.
+        messageService.freezeIncomingDisappearingPolicyBeforeFirstWrite(messageModel, message.disappearingTimerSeconds)
+
+        // 6a. Save message model and inform listeners about new message
         messageService.save(messageModel)
+
         ListenerManager.messageListeners.handle { messageListener ->
             messageListener.onNew(
                 messageModel,

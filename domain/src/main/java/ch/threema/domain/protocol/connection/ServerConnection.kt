@@ -20,20 +20,38 @@ interface ServerConnection {
     val isNewConnectionSession: Boolean
 
     /**
-     * F1Whisper: wall-clock timestamp ([System.currentTimeMillis]) of the last inbound signal
-     * received from the server on this connection. It is refreshed whenever an echo *reply* arrives
-     * (the ~60s CSP keepalive heartbeat) and once when the connection reaches LOGGEDIN. It is used by
-     * the foreground lifecycle observer to distinguish a Doze-dead socket (state still LOGGEDIN but no
-     * inbound activity for a staleness window) from a healthy idle-but-alive connection, so we only
-     * ever tear down an already-dead socket.
+     * F1Whisper: wall-clock timestamp ([System.currentTimeMillis]) of the last inbound frame
+     * received from the server on this connection. It is refreshed on **every** inbound frame, not
+     * only on echo replies, and once when the connection reaches LOGGEDIN.
      *
-     * Wall-clock is intentional: unlike [android.os.SystemClock.elapsedRealtime], it advances while
-     * the device is asleep, so the staleness age reflects real elapsed time across a Doze window.
+     * This value is for **reporting only**. Staleness is judged on
+     * [getLastInboundActivityAtAwakeMillis] instead, because the heartbeat that refreshes these
+     * stamps is driven by a clock that halts while the device is suspended, so a wall-clock
+     * staleness threshold flags healthy connections. See [ConnectionLivenessVerdict] for the
+     * measured distribution behind that decision.
      *
-     * Returns `0L` if no inbound activity has been recorded yet (before login). Callers must gate on
-     * [connectionState] == LOGGEDIN, which is only reached after the value has been set.
+     * Returns `0L` if no inbound activity has been recorded yet. `0L` must never be read as "no data,
+     * assume healthy": [ConnectionLivenessVerdict.evaluate] discriminates on [connectionState] and
+     * fails closed. Every implementer must override this; the default exists only so that an
+     * implementer who forgets returns the fail-closed sentinel rather than a plausible-looking value.
      */
     fun getLastInboundActivityAtMillis(): Long = 0L
+
+    /**
+     * F1Whisper: awake-time timestamp of the last inbound frame received from the server on this
+     * connection, in milliseconds, taken from [System.nanoTime].
+     *
+     * "Awake time" means time elapsed while the device was not suspended to RAM. On Android
+     * `System.nanoTime` is the same clock that backs `SystemClock.uptimeMillis`, and it is also the
+     * clock behind `kotlinx.coroutines.delay`, which is what drives the echo heartbeat that refreshes
+     * this stamp. Measuring staleness on the same clock that drives the heartbeat is the whole point:
+     * a Doze window advances wall-clock time without consuming any heartbeat budget, so only awake
+     * time yields an age that a threshold can be set against.
+     *
+     * Returns `0L` if no inbound activity has been recorded yet. Same fail-closed contract as
+     * [getLastInboundActivityAtMillis]: never treat `0L` as fresh.
+     */
+    fun getLastInboundActivityAtAwakeMillis(): Long = 0L
 
     /**
      * Disable the connection to attempt a reconnect in this session.

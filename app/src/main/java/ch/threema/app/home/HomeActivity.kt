@@ -43,8 +43,8 @@ import ch.threema.app.BuildConfig
 import ch.threema.app.BuildFlavor
 import ch.threema.app.R
 import ch.threema.app.activities.BackupAdminActivity
-import ch.threema.app.activities.ChatFoldersActivity
 import ch.threema.app.activities.BackupRestoreProgressActivity
+import ch.threema.app.activities.ChatFoldersActivity
 import ch.threema.app.activities.ComposeMessageActivity
 import ch.threema.app.activities.DistributionListAddActivity
 import ch.threema.app.activities.DownloadApkActivity
@@ -109,6 +109,7 @@ import ch.threema.app.push.PushService
 import ch.threema.app.restrictions.AppRestrictions
 import ch.threema.app.routines.CheckLicenseRoutine
 import ch.threema.app.services.ActivityService
+import ch.threema.app.services.ApkUpdateReadyState
 import ch.threema.app.services.ContactService
 import ch.threema.app.services.ContactServiceImpl
 import ch.threema.app.services.ConversationService
@@ -421,14 +422,16 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
     private var isInitialized = false
     private var isWhatsNewShown = false
     private val unsentMessages = mutableListOf<AbstractMessageModel>()
+
     // F1Whisper: cached self-update intent — replayed on resume so the user is re-prompted after
     // tapping "Remind me later". Null if no update is known; cleared only when the update is
     // superseded (a fresh check arrives).
     private var cachedSelfUpdateIntent: Intent? = null
+
     // F1Whisper: mandatory-update gate state. Set when ACTION_MANDATORY_UPDATE arrives.
     // Null means no gate active; non-null means the server placed this client below the floor.
     private var cachedMandatoryUpdateUrl: String? = null
-    private var cachedMandatoryDeadlineSecs: Long? = null   // null => immediate forced update
+    private var cachedMandatoryDeadlineSecs: Long? = null // null => immediate forced update
 
     // Views
     private var actionBar: ActionBar? = null
@@ -582,6 +585,33 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
         val bannerLayout = noticeMandatoryUpdateLayout ?: return
         val updateUrl = cachedMandatoryUpdateUrl
 
+        // F1Whisper (fork review H-08): a downloaded-and-validated update APK gets an IN-APP
+        // install path here, so a denied/dismissed completion notification can never strand a
+        // finished download. Checked BEFORE the gate logic: the ready state is itself the gate's
+        // resolution step, and it also surfaces for ordinary (non-mandatory) updates. The state
+        // self-clears once installed (version no longer newer) or when the file disappears.
+        val readyApkPath = ApkUpdateReadyState.getReadyApkPath(this)
+        if (readyApkPath != null) {
+            bannerLayout.findViewById<android.widget.TextView>(R.id.notice_mandatory_update_title)
+                ?.setText(R.string.self_updater_update_ready_title)
+            bannerLayout.findViewById<android.widget.TextView>(R.id.notice_mandatory_update_text)
+                ?.setText(R.string.self_updater_update_ready_text)
+            bannerLayout.findViewById<android.widget.Button>(R.id.notice_mandatory_update_button)?.apply {
+                setText(R.string.mandatory_update_action)
+                setOnClickListener {
+                    logger.info("Update banner: launching install for the downloaded update")
+                    startActivity(
+                        Intent(this@HomeActivity, DownloadApkActivity::class.java)
+                            // Mirrors DownloadApkActivity.EXTRA_INSTALL_FILE_PATH (an onprem-flavor
+                            // constant; the literal keeps this main-source file flavor-agnostic).
+                            .putExtra("installpath", readyApkPath),
+                    )
+                }
+            }
+            bannerLayout.isVisible = true
+            return
+        }
+
         if (updateUrl == null) {
             // No gate active.
             bannerLayout.isVisible = false
@@ -627,7 +657,7 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
             logger.info("Mandatory update: launching DownloadApkActivity for url={}", updateUrl)
             val downloadIntent = IntentDataUtil.createActionIntentUpdateAvailable(
                 getString(R.string.mandatory_update_forced_body),
-                updateUrl
+                updateUrl,
             ).apply {
                 setClass(this@HomeActivity, DownloadApkActivity::class.java)
                 putExtra(DownloadApkActivity.EXTRA_FORCE_UPDATE_DIALOG, true)
@@ -1350,7 +1380,10 @@ class HomeActivity : ThreemaAppCompatActivity(), SMSVerificationDialogCallback, 
 
         menu.findItem(R.id.threema_channel)?.isVisible = !ConfigUtils.isWorkBuild() && contactService.getByIdentity(THREEMA_CHANNEL_IDENTITY) == null
 
-        menu.findItem(R.id.webclient)?.isVisible = !ConfigUtils.isWorkRestricted() || !appRestrictions.isWebDisabled()
+        // F1Whisper (second follow-up S2-04): Threema Web is disabled in the onprem build.
+        menu.findItem(R.id.webclient)?.isVisible =
+            !ConfigUtils.isOnPremBuild() &&
+            (!ConfigUtils.isWorkRestricted() || !appRestrictions.isWebDisabled())
 
         // If MD is currently locked, but was activated before, we still have to give access to the menu item
         menu.findItem(R.id.multi_device)?.isVisible = multiDeviceManager.isMultiDeviceActive || ConfigUtils.isMultiDeviceEnabled()

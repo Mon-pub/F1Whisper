@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.ServiceCompat;
@@ -62,6 +63,7 @@ import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.notifications.NotificationChannels;
 import ch.threema.app.services.ContactService;
 import ch.threema.app.services.ConversationService;
+import ch.threema.app.services.DisappearingMessageService;
 import ch.threema.app.services.FileService;
 import ch.threema.app.services.NotificationPreferenceService;
 import ch.threema.app.preference.service.PreferenceService;
@@ -74,6 +76,7 @@ import ch.threema.app.utils.Counter;
 import ch.threema.app.utils.JsonUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.MimeUtil;
+import ch.threema.app.utils.RestrictedMediaOutput;
 import ch.threema.app.utils.ResettableInputStream;
 import ch.threema.app.utils.ElapsedTimeFormatter;
 import ch.threema.app.utils.TestUtil;
@@ -571,6 +574,7 @@ public class RestoreService extends Service implements ComponentCallbacks2 {
             }
 
             logger.info("Restore successful!");
+            activateRestoredDisappearingMessages();
             restoreSuccess = true;
             onFinished(null);
 
@@ -594,6 +598,36 @@ public class RestoreService extends Service implements ComponentCallbacks2 {
         onFinished(message);
 
         return false;
+    }
+
+    /**
+     * F1Whisper (fourth fork review, F4-07): bring restored disappearing messages back under the expiry engine before the
+     * restore reports success.
+     *
+     * <p>Restore copies {@code disappearingTimerSeconds}, {@code expireStartedAtUtc} and {@code expiresAtUtc} verbatim,
+     * which is correct: the deadlines are absolute, so a message restored after its deadline has genuinely expired. What was
+     * missing is that nothing acted on them. Rows are inserted straight through the factories, and the success path
+     * reconnected and posted the completion notification without ever touching the disappearing service, so a restored
+     * message whose deadline had already passed simply stayed in the database, and a restored future deadline had no alarm
+     * behind it. Both waited for some unrelated trigger - opening that chat, a reboot, a package update - which on a device
+     * the user has just restored onto may be a long time coming.
+     *
+     * <p>{@code repairAndPurgeOverdue} is the bounded lifecycle that already exists for exactly this situation (it runs on
+     * boot and after an app update): repair countdowns that can never reach a deadline, delete everything already overdue,
+     * then arm the alarm for the earliest remaining one. Running it here, before success is reported, means a restore leaves
+     * the engine in the same state a normal launch would.
+     *
+     * <p>Best-effort by design: a failure here must not fail a restore that has otherwise succeeded, because the same
+     * lifecycle runs again on the next launch.
+     */
+    @WorkerThread
+    private void activateRestoredDisappearingMessages() {
+        try {
+            logger.info("Activating disappearing-message expiry for restored data");
+            DisappearingMessageService.getInstance().repairAndPurgeOverdue();
+        } catch (Exception e) {
+            logger.warn("Could not activate disappearing-message expiry after restore", e);
+        }
     }
 
     @NonNull
@@ -1137,6 +1171,14 @@ public class RestoreService extends Service implements ComponentCallbacks2 {
 
             AbstractMessageModel model = getMessageModel.get(messageUid);
 
+            // F1Whisper (fifth fork review, F5-01): a restricted message gets no media back, whatever the archive holds.
+            // The row was already reduced to a spent placeholder when it was created; writing its file would contradict
+            // that and hand back a playable copy.
+            if (model != null && RestrictedMediaOutput.isRestricted(model)) {
+                logger.info("Omitting restricted media for message {} from the restore", messageUid);
+                continue;
+            }
+
             if (model != null) {
                 try {
                     if (applyRestore) {
@@ -1468,6 +1510,11 @@ public class RestoreService extends Service implements ComponentCallbacks2 {
         if (restoreSettings.getVersion() >= 25) {
             groupModel.setUserState(UserState.getByValue(row.getInteger(Tags.TAG_GROUP_USER_STATE)));
         }
+
+        // F1Whisper: the shared group disappearing timer. Optional on read, like the contact one.
+        groupModel.setDisappearingMessagesTimerSeconds(
+            optionalInteger(row, Tags.TAG_GROUP_DISAPPEARING_TIMER)
+        );
 
         return groupModel;
     }
@@ -1938,6 +1985,11 @@ public class RestoreService extends Service implements ComponentCallbacks2 {
         if (restoreSettings.getVersion() >= 22) {
             contactModel.setLastUpdate(row.getDate(Tags.TAG_CONTACT_LAST_UPDATE));
         }
+        // F1Whisper: the shared per-conversation disappearing timer. Optional on read, so a backup
+        // from before v6.4.3-38 restores with the timer off, exactly as it did before.
+        contactModel.setDisappearingMessagesTimerSeconds(
+            optionalInteger(row, Tags.TAG_CONTACT_DISAPPEARING_TIMER)
+        );
         contactModel.setIsRestored(true);
 
         return contactModel;
@@ -1983,6 +2035,76 @@ public class RestoreService extends Service implements ComponentCallbacks2 {
                 Integer displayTags = row.getInteger(Tags.TAG_MESSAGE_DISPLAY_TAGS);
                 messageModel.setDisplayTags(displayTags);
             }
+        }
+
+        restoreDisappearingState(messageModel, row);
+    }
+
+    /**
+     * F1Whisper: restore a message's disappearing timer and countdown.
+     *
+     * <p>Without this, a restore resurrected every in-flight disappearing message <em>permanently</em>:
+     * the row came back with no deadline, and both the expiry sweep and the alarm select on a non-null
+     * deadline, so nothing in the engine could even see it again. A message whose sender had asked for
+     * it to be deleted returned and stayed.
+     *
+     * <p>Guarded by {@link CSVRow#hasField} rather than by a {@code restoreSettings.getVersion()}
+     * check, because the backup format version is deliberately NOT bumped for these columns: a bump
+     * would make every backup this build writes fail {@code RestoreSettings.isUnsupportedVersion()} on
+     * every already-shipped build. Absent columns therefore mean "written before v6.4.3-38", and the
+     * message restores exactly as it did before, with no countdown.
+     */
+    private void restoreDisappearingState(
+        @NonNull AbstractMessageModel messageModel,
+        @NonNull CSVRow row
+    ) throws ThreemaException {
+        Integer timerSeconds = optionalInteger(row, Tags.TAG_MESSAGE_DISAPPEARING_TIMER);
+        if (timerSeconds != null) {
+            messageModel.setDisappearingTimerSeconds(timerSeconds);
+        }
+        messageModel.setExpireStartedAt(optionalLong(row, Tags.TAG_MESSAGE_EXPIRE_STARTED_AT));
+        messageModel.setExpiresAt(optionalLong(row, Tags.TAG_MESSAGE_EXPIRES_AT));
+    }
+
+    /**
+     * Read an optional integer column: {@code null} when the column is absent from this backup's
+     * header or present but empty. {@link CSVRow#getInteger} is {@code @NonNull} and throws on an
+     * empty cell, so it cannot be used directly for a nullable value.
+     */
+    @Nullable
+    private static Integer optionalInteger(@NonNull CSVRow row, @NonNull String fieldName) throws ThreemaException {
+        if (!row.hasField(fieldName)) {
+            return null;
+        }
+        String raw = row.getString(fieldName);
+        if (raw == null || raw.isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(raw);
+        } catch (NumberFormatException e) {
+            logger.warn("Ignoring unparseable integer in backup column {}", fieldName);
+            return null;
+        }
+    }
+
+    /**
+     * Read an optional epoch-millis column. See {@link #optionalInteger(CSVRow, String)}.
+     */
+    @Nullable
+    private static Long optionalLong(@NonNull CSVRow row, @NonNull String fieldName) throws ThreemaException {
+        if (!row.hasField(fieldName)) {
+            return null;
+        }
+        String raw = row.getString(fieldName);
+        if (raw == null || raw.isEmpty()) {
+            return null;
+        }
+        try {
+            return Long.valueOf(raw);
+        } catch (NumberFormatException e) {
+            logger.warn("Ignoring unparseable timestamp in backup column {}", fieldName);
+            return null;
         }
     }
 
@@ -2099,6 +2221,16 @@ public class RestoreService extends Service implements ComponentCallbacks2 {
         messageModel.setType(messageType);
         messageModel.setMessageContentsType(messageContentsType);
         messageModel.setBody(row.getString(Tags.TAG_MESSAGE_BODY));
+
+        // F1Whisper (fifth fork review, F5-01): fail closed on LEGACY archives.
+        //
+        // Archives created before the backup side of this fix carry the incoming listen-once payload AND a body holding
+        // usable blob credentials with an unclaimed lo=true. Restoring that verbatim rebuilt a fully replayable message:
+        // restore, play, restore the same archive again, play again. Those archives already exist and cannot be
+        // withheld, so what is reconstructed from them is reduced to the same spent placeholder the backup side now
+        // writes - claimed, consumed, not downloaded, no blob id or key - and restoreMessageMediaFiles writes no media
+        // for it. A message the user already had shows as an already-heard one; nothing replayable comes back.
+        RestrictedMediaOutput.spendForArchive(messageModel);
     }
 
     private void tryUpdatingToNewBallotId(@NonNull AbstractMessageModel messageModel) {

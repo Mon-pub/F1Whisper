@@ -62,6 +62,7 @@ class ConnectivityDiagnosticsDialog : DialogFragment(), KoinComponent {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val inflater = LayoutInflater.from(requireContext())
+
         @Suppress("InflateParams")
         val content = inflater.inflate(R.layout.dialog_connectivity_diagnostics, null, false)
 

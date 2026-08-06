@@ -117,6 +117,7 @@ import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.utils.TestUtil;
 import ch.threema.app.voip.AudioSelectorButton;
 import ch.threema.app.voip.CallStateSnapshot;
+import ch.threema.app.voip.IncomingCallSliderGeometry;
 import ch.threema.app.voip.listeners.VoipAudioManagerListener;
 import ch.threema.app.voip.managers.VoipListenerManager;
 import ch.threema.app.voip.services.CallRejectService;
@@ -1284,6 +1285,18 @@ public class CallActivity extends ThreemaActivity implements
         this.commonViews.incomingCallButton.setOnTouchListener(new View.OnTouchListener() {
             float dX, oX, newX;
 
+            // F1-PATCH (RTL): the two targets are read from where they were actually laid out, never from an assumed
+            // left-to-right order. call_answer_indicator.xml anchors them with alignParentStart/alignParentEnd, which
+            // RelativeLayout mirrors in RTL locales, so in Arabic and friends decline sits at the LARGER x. See
+            // IncomingCallSliderGeometry for what the old hard-coded comparisons did there.
+            private float declineAnchorX() {
+                return commonViews.incomingCallSliderContainer.getX() + commonViews.declineButton.getX();
+            }
+
+            private float answerAnchorX() {
+                return commonViews.incomingCallSliderContainer.getX() + commonViews.answerButton.getX();
+            }
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -1292,12 +1305,11 @@ public class CallActivity extends ThreemaActivity implements
                         oX = v.getX();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        newX = event.getRawX() + dX;
-                        if (newX < commonViews.declineButton.getX() + commonViews.incomingCallSliderContainer.getX()) {
-                            newX = commonViews.declineButton.getX() + commonViews.incomingCallSliderContainer.getX();
-                        } else if (newX > commonViews.answerButton.getX()) {
-                            newX = commonViews.answerButton.getX() + commonViews.incomingCallSliderContainer.getX();
-                        }
+                        newX = IncomingCallSliderGeometry.clampToTrack(
+                            event.getRawX() + dX,
+                            declineAnchorX(),
+                            answerAnchorX()
+                        );
 
                         v.animate()
                             .x(newX)
@@ -1306,15 +1318,22 @@ public class CallActivity extends ThreemaActivity implements
                         break;
                     case MotionEvent.ACTION_UP:
                         newX = event.getRawX() + dX;
-                        if (newX > commonViews.answerButton.getX() + commonViews.incomingCallSliderContainer.getX()) {
-                            answerCall();
-                        } else if (newX < commonViews.declineButton.getX() + commonViews.incomingCallSliderContainer.getX()) {
-                            rejectOrCancelCall(VoipCallAnswerData.RejectReason.REJECTED);
-                        } else {
-                            v.animate()
-                                .x(oX)
-                                .setDuration(200)
-                                .start();
+                        switch (IncomingCallSliderGeometry.releaseAt(newX, declineAnchorX(), answerAnchorX())) {
+                            case ANSWER:
+                                answerCall();
+                                break;
+                            case REJECT:
+                                rejectOrCancelCall(VoipCallAnswerData.RejectReason.REJECTED);
+                                break;
+                            case RETURN_TO_REST:
+                            default:
+                                // Deliberately the fallback for anything unrecognised too: a verdict we cannot read
+                                // must never answer or reject a call by guess. Sliding back is visible and retryable.
+                                v.animate()
+                                    .x(oX)
+                                    .setDuration(200)
+                                    .start();
+                                break;
                         }
                         break;
                     default:

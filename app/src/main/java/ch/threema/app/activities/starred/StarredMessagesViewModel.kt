@@ -37,7 +37,7 @@ import ch.threema.domain.types.toIdentityOrNull
 import ch.threema.storage.models.AbstractMessageModel
 import ch.threema.storage.models.MessageModel
 import ch.threema.storage.models.MessageType
-import ch.threema.storage.models.data.DisplayTag.DISPLAY_TAG_NONE
+import ch.threema.storage.models.data.DisplayTag.DISPLAY_TAG_STARRED
 import ch.threema.storage.models.group.GroupMessageModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
@@ -260,8 +260,13 @@ class StarredMessagesViewModel(
 
             withContext(dispatcherProvider.io) {
                 selectedMessageModels.forEach { abstractMessageModel ->
-                    abstractMessageModel.displayTags = DISPLAY_TAG_NONE
-                    messageService.save(abstractMessageModel)
+                    // F1Whisper (sixth fork review, F6-01): clear the STARRED bit with a conditional column write.
+                    // Two defects lived in the line this replaces. The full-row save wrote back a model loaded when the
+                    // starred list was built, reverting any lifecycle transition since and recreating a message expiry
+                    // had claimed in between; and assigning DISPLAY_TAG_NONE cleared every OTHER bit as well, including
+                    // the fork's terminal-send-failure marker, which silently re-enrolled a permanently failed message
+                    // in the auto-resend scan.
+                    messageService.clearDisplayTag(abstractMessageModel, DISPLAY_TAG_STARRED)
                 }
             }
 

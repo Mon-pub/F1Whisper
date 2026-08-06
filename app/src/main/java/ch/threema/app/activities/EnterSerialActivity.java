@@ -713,9 +713,9 @@ public class EnterSerialActivity extends ThreemaActivity {
     }
 
     /**
-     * Derive the bare host to probe from the entered server value (e.g. "thm.f1tech.info",
-     * "https://thm.f1tech.info" or a full ".../prov/config.oppf" URL all collapse to
-     * "thm.f1tech.info"). Returns null when no usable host can be derived.
+     * Derive the bare host to probe from the entered server value (e.g. "example.com",
+     * "https://example.com" or a full ".../prov/config.oppf" URL all collapse to
+     * "example.com"). Returns null when no usable host can be derived.
      */
     @Nullable
     private String extractProbeHost(@Nullable String onPremServer) {

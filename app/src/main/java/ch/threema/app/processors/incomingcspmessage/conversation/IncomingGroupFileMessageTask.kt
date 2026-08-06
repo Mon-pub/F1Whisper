@@ -73,6 +73,12 @@ class IncomingGroupFileMessageTask(
         )?.run {
             // In this case the message has been processed earlier. Therefore we consider this as success. This causes the message to be reflected.
             logger.info("Message model already exists. Aborting successfully.")
+            // F1Whisper (fourth fork review, F4-05): repair the sending member's policy on redelivery. Mirror of
+            // IncomingContactFileMessageTask; see the note there.
+            // Fifth review, F5-05: the repair applies an EXPLICITLY advertised value only. An absent one would be
+            // re-resolved against the conversation timer as it is now, which re-froze old messages at a setting
+            // chosen long after they arrived.
+            messageService.freezeIncomingDisappearingPolicy(this, message.disappearingTimerSeconds)
             return ReceiveStepsResult.SUCCESS
         }
 
@@ -107,8 +113,19 @@ class IncomingGroupFileMessageTask(
             groupService.bumpLastUpdate(oldGroupModel)
         }
 
-        // 6. Save message model and inform listeners about new message
+        // 6. F1Whisper E1: freeze the timer the SENDING MEMBER advertised for THIS message, through
+        //    the same transition processIncomingGroupMessage uses for group text/image/location/poll.
+        //    Mirror of IncomingContactFileMessageTask; see the note there for what the absence of
+        //    this call cost on the media path. A member turning the group timer off must not
+        //    retroactively un-time the files other members already sent.
+        //
+        //    F1Whisper (fourth fork review, F4-05): BEFORE the insert, so the row and the sending
+        //    member's policy are one write. See IncomingContactFileMessageTask for the full rationale.
+        messageService.freezeIncomingDisappearingPolicyBeforeFirstWrite(messageModel, message.disappearingTimerSeconds)
+
+        // 6a. Save message model and inform listeners about new message
         messageService.save(messageModel)
+
         ListenerManager.messageListeners.handle { messageListener ->
             messageListener.onNew(
                 messageModel,

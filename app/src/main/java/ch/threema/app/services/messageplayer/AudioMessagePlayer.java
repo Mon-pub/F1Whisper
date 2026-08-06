@@ -152,6 +152,11 @@ public class AudioMessagePlayer extends MessagePlayer {
                 // message never burns it ("expires before being listened").
                 if (hasPlayed && playerMediaMatchesControllerMedia()) {
                     enforceListenOnceIfNeeded();
+                } else {
+                    // F1Whisper (fourth fork review, F4-10): playback ended without ever becoming audible, so this
+                    // session is over and did not burn. Stop claiming to be the live owner, which lets the bubble
+                    // finish the interrupted burn - the accepted failed-playback tradeoff.
+                    releaseListenOnceOwnership();
                 }
                 AudioMessagePlayer.super.stop();
                 ListenerManager.messagePlayerListener.handle(listener -> listener.onAudioPlayEnded(getMessageModel(), mediaControllerFuture));
@@ -198,6 +203,64 @@ public class AudioMessagePlayer extends MessagePlayer {
 
     @Override
     protected void open(File decryptedFile) {
+        // F1-PATCH: this is the boundary where a message's decrypted audio is released to the media
+        // player, so it is where the listen-once restriction has to be enforced - not at the button,
+        // which is only one of several ways to get here (auto-play, download-complete, rebind).
+        final AbstractMessageModel messageModel = getMessageModel();
+        if (messageModel != null) {
+            final ListenOnceGate gate = ListenOnceEnforcer.gateOf(messageModel);
+            if (ListenOnceDecision.isPlaybackRefused(gate)) {
+                logger.info("Refusing to open listen-once message {} ({})", messageModel.getId(), gate);
+                if (gate == ListenOnceGate.BLOCKED_BURN_PENDING
+                    && !ListenOnceOwnership.isActive(messageModel.getId())) {
+                    // A claim with no burn AND no live owner: playback began in an earlier process
+                    // and never finished. Finish it now so the media stops occupying disk and the
+                    // bubble settles. F1Whisper (fourth fork review, F4-10): with a live owner this
+                    // is the session's OWN claim, and burning here would delete the audio it is
+                    // about to play.
+                    ListenOnceEnforcer.burn(messageModel, messageService, fileService, false);
+                }
+                return;
+            }
+            if (ListenOnceDecision.needsClaimBeforeRelease(gate)) {
+                // F1Whisper (fourth fork review, F4-10): become the message's active owner BEFORE the
+                // claim is written, so no callback can observe the claim without also being able to
+                // observe that it is live. A second session is refused rather than queued: one
+                // message, one playback, and a second caller must not be able to burn this one's
+                // audio out from under it.
+                if (!ListenOnceOwnership.acquire(messageModel.getId(), listenOnceSessionToken)) {
+                    logger.info("Refusing to open listen-once message {}: another session is playing it", messageModel.getId());
+                    return;
+                }
+                // Claim first, release second. The hop through the worker is what makes the claim
+                // durable before the player can read a byte; open() runs on the UI thread (media3
+                // requires main-thread controller calls) so the claim cannot be written inline.
+                ListenOnceEnforcer.claim(messageModel, messageService, () -> openInternal(decryptedFile));
+                return;
+            }
+        }
+        openInternal(decryptedFile);
+    }
+
+    /**
+     * F1Whisper (fourth fork review, F4-10): this player's identity as the active owner of a listen-once message. A plain
+     * object rather than the player itself, so ownership cannot be confused with any other use of the instance, and only
+     * this player can release what it took.
+     */
+    private final Object listenOnceSessionToken = new Object();
+
+    /**
+     * Give up active ownership of the listen-once message, if this player held it. Called wherever the playback session
+     * ends, so a message is not left looking permanently live in a process that has stopped playing it.
+     */
+    private void releaseListenOnceOwnership() {
+        final AbstractMessageModel messageModel = getMessageModel();
+        if (messageModel != null) {
+            ListenOnceOwnership.release(messageModel.getId(), listenOnceSessionToken);
+        }
+    }
+
+    private void openInternal(File decryptedFile) {
         this.decryptedFile = decryptedFile;
         this.decryptedFileUri = fileService.getShareFileUri(decryptedFile, null);
         this.position = 0;
@@ -529,50 +592,29 @@ public class AudioMessagePlayer extends MessagePlayer {
      * F1Whisper: if the just-finished message is an incoming "listen once" voice message, mark it
      * consumed and delete its stored (encrypted) media so it can never be played again.
      *
+     * <p>This is the second half of the two-phase enforcement in {@link ListenOnceDecision}. The
+     * first half - the durable claim that makes replay impossible - was already written in
+     * {@link #open(File)}, before the player was given the audio, so reaching this method is no
+     * longer what stops a replay; it only completes the cleanup.</p>
+     *
      * <p>This enforcement is purely client-side and best-effort: a modified client, a rooted device
      * or a screen recorder can still capture the audio. It is NOT a cryptographic guarantee.</p>
      */
     private void enforceListenOnceIfNeeded() {
         final AbstractMessageModel messageModel = getMessageModel();
-        if (messageModel == null || messageModel.isOutbox() || messageModel.getType() != MessageType.FILE) {
+        if (messageModel == null) {
             return;
         }
-        final FileDataModel fileDataModel = messageModel.getFileData();
-        if (fileDataModel == null || !fileDataModel.isListenOnce()) {
+        final ListenOnceGate gate = ListenOnceEnforcer.gateOf(messageModel);
+        if (gate == ListenOnceGate.NOT_APPLICABLE || gate == ListenOnceGate.BLOCKED_CONSUMED) {
+            releaseListenOnceOwnership();
             return;
         }
-
-        logger.info("Enforcing listen-once deletion for {}", messageModel.getId());
-
-        RuntimeUtil.runOnWorkerThread(() -> {
-            try {
-                // Best-effort: also move the message state to CONSUMED (no-op if a reaction/receipt
-                // already moved it to a state that cannot transition to CONSUMED).
-                messageService.markAsConsumed(messageModel);
-
-                // Delete the stored encrypted media + thumbnail so it can never be decrypted again
-                fileService.removeMessageFiles(messageModel, true);
-
-                // Persist the burned state in the file metadata itself, NOT only in MessageState:
-                // the metadata survives reopen and cannot be clobbered by a later reaction/receipt
-                // (which could move the state away from CONSUMED and otherwise un-burn the bubble).
-                fileDataModel.setListenOnceConsumed();
-                // Reflect that the media is gone so the bubble offers no replay
-                fileDataModel.isDownloaded(false);
-                messageModel.setFileData(fileDataModel);
-                messageService.save(messageModel);
-
-                // F1Whisper: signal that this message JUST burned so the bubble plays the one-shot
-                // burn animation exactly once on the re-render below (consumed by the decorator; not
-                // replayed on chat reopen). Recipient path only — the sender never plays it back.
-                ListenOnceBurnRegistry.markForBurnAnimation(messageModel.getId());
-
-                // Refresh any visible bubble for this message
-                ListenerManager.messageListeners.handle(listener -> listener.onModified(java.util.List.of(messageModel)));
-            } catch (Exception e) {
-                logger.error("Failed to enforce listen-once deletion", e);
-            }
-        });
+        // The user watched this one finish, so the bubble plays the burn burst.
+        ListenOnceEnforcer.burn(messageModel, messageService, fileService, true);
+        // F1Whisper (fourth fork review, F4-10): the session is over, so it stops being the live owner. The burn it just
+        // handed off is what settles the message from here.
+        releaseListenOnceOwnership();
     }
 
     @Nullable

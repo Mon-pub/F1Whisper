@@ -90,12 +90,12 @@ class ReflectedIncomingMessageUpdateTask(
     }
 
     private fun markMessageModelAsRead(abstractMessageModel: AbstractMessageModel, readAt: Long) {
-        abstractMessageModel.isRead = true
-        Date(readAt).let { readAtDate ->
-            abstractMessageModel.readAt = readAtDate
-            abstractMessageModel.modifiedAt = readAtDate
+        // F1Whisper (sixth fork review, F6-01): the reflected read goes through the same conditional, non-inserting
+        // first-read write the local read goes through, which also starts the disappearing countdown this path never
+        // started. See MessageService#markAsReadFromSync.
+        if (!messageService.markAsReadFromSync(abstractMessageModel, Date(readAt))) {
+            return
         }
-        messageService.save(abstractMessageModel)
         ListenerManager.messageListeners.handle { l -> l.onModified(listOf(abstractMessageModel)) }
         cancelNotification(abstractMessageModel)
     }

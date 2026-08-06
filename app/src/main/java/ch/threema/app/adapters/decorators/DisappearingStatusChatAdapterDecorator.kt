@@ -2,10 +2,9 @@ package ch.threema.app.adapters.decorators
 
 import android.content.Context
 import ch.threema.app.R
+import ch.threema.app.ui.listitemholder.ComposeMessageHolder
 import ch.threema.app.utils.DisappearingMessageUtil
 import ch.threema.app.utils.LinkifyUtil
-import ch.threema.app.utils.NameUtil
-import ch.threema.app.ui.listitemholder.ComposeMessageHolder
 import ch.threema.storage.models.AbstractMessageModel
 
 /**

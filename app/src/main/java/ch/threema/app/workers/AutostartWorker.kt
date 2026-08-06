@@ -16,7 +16,6 @@ import ch.threema.app.notifications.NotificationIDs
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.preference.service.SynchronizedSettingsService
 import ch.threema.app.services.DisappearingMessageService
-import ch.threema.app.services.ScheduledMessageService
 import ch.threema.app.services.UserService
 import ch.threema.app.utils.IntentDataUtil
 import ch.threema.base.utils.getThreemaLogger
@@ -83,18 +82,12 @@ class AutostartWorker(
             }
         }
 
-        // F1Whisper: exact alarms do not survive a reboot, so re-arm the scheduled-messages alarm
-        // for the earliest pending message after boot.
+        // F1Whisper: repair any countdown that can never reach a deadline, then sweep and delete the
+        // disappearing messages whose timer expired during the boot gap, then re-arm the alarm for
+        // the remaining ones. A boot is the natural home for the repair scan: it happens once, off
+        // the chat-open path, and a process kill is precisely what can leave a row unstamped.
         try {
-            ScheduledMessageService.getInstance().rescheduleNextAlarm(applicationContext)
-        } catch (e: Exception) {
-            logger.warn("Could not re-arm scheduled messages after boot", e)
-        }
-
-        // F1Whisper: sweep and delete any disappearing messages whose timer expired during the
-        // boot gap, then re-arm the alarm for remaining messages.
-        try {
-            DisappearingMessageService.getInstance().purgeOverdueAndRearm()
+            DisappearingMessageService.getInstance().repairAndPurgeOverdue()
         } catch (e: Exception) {
             logger.warn("Could not purge overdue disappearing messages after boot", e)
         }

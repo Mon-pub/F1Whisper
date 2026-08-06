@@ -50,6 +50,22 @@ public class FileDataModel implements MediaMessageDataInterface {
     public static final String METADATA_KEY_LISTEN_ONCE_CONSUMED = "loc";
 
     /**
+     * Custom (F1Whisper) metadata flag marking a "listen once" voice message as <em>claimed</em>:
+     * its decrypted audio has been released to a media player at least once. Local only, never sent
+     * over the wire.
+     *
+     * <p>This is the durable half of listen-once enforcement, and it is written <em>before</em> the
+     * plaintext reaches the player rather than after playback ends. Consumption alone
+     * ({@link #METADATA_KEY_LISTEN_ONCE_CONSUMED}) is written from the playback-ended callback on a
+     * worker thread, so until that worker commits there is nothing on disk saying the message was
+     * ever played: killing the app mid-playback used to restore a fully replayable message.</p>
+     *
+     * <p>A message that is claimed but not consumed had its playback interrupted. Replay is refused
+     * and the burn is completed on the next bind - see {@code ListenOnceDecision}.</p>
+     */
+    public static final String METADATA_KEY_LISTEN_ONCE_CLAIMED = "locl";
+
+    /**
      * Custom (F1Whisper) metadata flag marking an image or video message as a "spoiler". When
      * {@code true}, the recipient sees a blurred thumbnail with a tap-to-reveal overlay until they
      * choose to reveal it (re-hidden each session). Carried inside the E2E-encrypted file metadata
@@ -335,6 +351,27 @@ public class FileDataModel implements MediaMessageDataInterface {
             this.metaData = new HashMap<>();
         }
         this.metaData.put(METADATA_KEY_LISTEN_ONCE_CONSUMED, Boolean.TRUE);
+    }
+
+    /**
+     * @return {@code true} if this listen-once voice message's decrypted audio has already been
+     * released to a media player. Replay is refused from this point on, whether or not the playback
+     * that made the claim ever finished.
+     */
+    public boolean isListenOnceClaimed() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_LISTEN_ONCE_CLAIMED));
+    }
+
+    /**
+     * Persistently claim this listen-once voice message. Must be saved and committed <em>before</em>
+     * the decrypted media is handed to a player, so that a process death during playback leaves the
+     * message unplayable rather than pristine.
+     */
+    public void setListenOnceClaimed() {
+        if (this.metaData == null) {
+            this.metaData = new HashMap<>();
+        }
+        this.metaData.put(METADATA_KEY_LISTEN_ONCE_CLAIMED, Boolean.TRUE);
     }
 
     /**

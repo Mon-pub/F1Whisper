@@ -53,19 +53,17 @@ object CachingDnsResolver {
      * connection's resolver).
      *
      * Resolution order (F1Whisper): [DotPreferredResolver] (the system resolver on the FAST path,
-     * with a NON-BLOCKING background DoT check that refreshes this last-good-IP cache and a
-     * synchronous DoT fallback only when the system resolver fails) -> then the ORIGINAL behaviour
-     * unchanged: live [AsyncResolver.getAllByName] (refreshing the cache on success), and on its
-     * failure the cached address(es) if any, otherwise rethrow the original failure.
-     *
-     * DoT never blocks the fast path; it is a background verifier + a fallback (plain DNS is hijacked
-     * on the censored networks this build targets, so a poisoned first answer self-heals on the next
-     * reconnect once the background check has corrected the cache).
+     * with a synchronous DoT FALLBACK only when the system resolver fails or returns no records —
+     * fallback-only per fork review M-03: DoT is never contacted for hostnames the system resolver
+     * answers, so no hostname leaks to the DoT provider and a working split-horizon answer is never
+     * displaced) -> then the ORIGINAL behaviour unchanged: live [AsyncResolver.getAllByName]
+     * (refreshing the cache on success), and on its failure the cached address(es) if any,
+     * otherwise rethrow the original failure.
      */
     @JvmStatic
     @Throws(Exception::class)
     fun getAllByName(host: String): Array<InetAddress> {
-        // System-resolver fast path with a non-blocking background DoT check (DotPreferredResolver
+        // System-resolver fast path with a DoT fallback on failure only (DotPreferredResolver
         // does NOT call back here — no recursion — it uses the system resolver and the pinned DoT
         // server directly). A successful resolve warms the last-good cache so a later Doze reconnect
         // can reuse the IP by literal.
@@ -93,7 +91,9 @@ object CachingDnsResolver {
             if (cached.isNotEmpty()) {
                 logger.warn(
                     "DNS resolution failed for {}; falling back to {} cached address(es) (e.g. {})",
-                    host, cached.size, cached.first().hostAddress,
+                    host,
+                    cached.size,
+                    cached.first().hostAddress,
                 )
                 lastResolveFromCache = true
                 cached.toTypedArray()

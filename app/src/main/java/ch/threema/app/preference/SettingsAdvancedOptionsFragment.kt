@@ -295,7 +295,7 @@ class SettingsAdvancedOptionsFragment :
 
     /**
      * Derive the bare OPPF host from the stored OPPF URL (e.g.
-     * `https://thm.f1tech.info/prov/config.oppf` -> `thm.f1tech.info`). Returns null when no URL is
+     * `https://example.com/prov/config.oppf` -> `example.com`). Returns null when no URL is
      * stored or it cannot be parsed.
      */
     private fun extractOppfHost(): String? = try {
@@ -543,7 +543,13 @@ class SettingsAdvancedOptionsFragment :
     }
 
     private fun initWebClientDebugPrefs() {
-        getPref<Preference>(R.string.preferences__webclient_debug).onClick {
+        val webClientDebugPref = getPref<Preference>(R.string.preferences__webclient_debug)
+        // F1Whisper (second follow-up S2-04): Threema Web is disabled in the onprem build.
+        if (ConfigUtils.isOnPremBuild()) {
+            webClientDebugPref.isVisible = false
+            return
+        }
+        webClientDebugPref.onClick {
             startActivity(WebDiagnosticsActivity.createIntent(requireContext()))
         }
     }

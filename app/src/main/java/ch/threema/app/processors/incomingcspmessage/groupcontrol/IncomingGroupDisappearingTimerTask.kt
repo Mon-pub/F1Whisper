@@ -72,7 +72,7 @@ class IncomingGroupDisappearingTimerTask(
         // (e.g. a second member who already holds the value) does not re-print a status row.
         val previousSharedTimer = oldGroupModel.disappearingMessagesTimerSeconds
         val isReassert = (timerSeconds > 0 && timerSeconds == previousSharedTimer) ||
-                         (timerSeconds <= 0 && (previousSharedTimer == null || previousSharedTimer <= 0))
+            (timerSeconds <= 0 && (previousSharedTimer == null || previousSharedTimer <= 0))
 
         // Unconditionally adopt the advertised value into the shared group field.
         // OFF (timerSeconds <= 0) stores null (matches the user-OFF convention the picker reads).

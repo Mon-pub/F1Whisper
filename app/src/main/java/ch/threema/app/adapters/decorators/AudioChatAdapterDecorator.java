@@ -22,6 +22,10 @@ import androidx.annotation.UiThread;
 import ch.threema.app.R;
 import ch.threema.app.managers.ListenerManager;
 import ch.threema.app.services.messageplayer.ListenOnceBurnRegistry;
+import ch.threema.app.services.messageplayer.ListenOnceDecision;
+import ch.threema.app.services.messageplayer.ListenOnceEnforcer;
+import ch.threema.app.services.messageplayer.ListenOnceGate;
+import ch.threema.app.services.messageplayer.ListenOnceOwnership;
 import ch.threema.app.services.messageplayer.MessagePlayer;
 import ch.threema.app.ui.AudioProgressBarView;
 import ch.threema.app.ui.ControllerView;
@@ -208,14 +212,20 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         final boolean isListenOnce = !getMessageModel().isOutbox()
             && fileDataModel != null
             && fileDataModel.isListenOnce();
-        // A listen-once voice message is "burned" ONLY once its persistent "loc" metadata flag is set
-        // (after the single playback completes, in AudioMessagePlayer.enforceListenOnceIfNeeded). We
-        // must NOT key off MessageState.CONSUMED: a voice message moves to CONSUMED at playback START
-        // (markAsConsumed on STATE_READY), which would otherwise expire the bubble the instant it
-        // begins playing — hiding the controls and progress mid-play.
-        final boolean alreadyListened = fileDataModel != null
-            && fileDataModel.isListenOnce()
-            && fileDataModel.isListenOnceConsumed();
+        // F1-PATCH: finish a burn whose playback never ended. A claim with no consumption means the
+        // process died between the two, and the bubble is the natural repair point: it already holds
+        // the model, so unlike the expiry repair this costs no query and needs no boot pass.
+        //
+        // F1Whisper (fourth fork review, F4-10): only when nothing in this process is actively playing it. The durable
+        // claim cannot tell a live playback from an abandoned one, and on the normal first-play path the bubble rebinds
+        // between the claim and the first audible frame (STATE_READY -> markAsConsumed -> onModified), so this used to
+        // burn the message the user had just started - deleting the file and collapsing the controls before playback
+        // began. An active owner means the claim is live, not abandoned.
+        if (ListenOnceEnforcer.gateOf(getMessageModel()) == ListenOnceGate.BLOCKED_BURN_PENDING
+            && !ListenOnceOwnership.isActive(getMessageModel().getId())) {
+            ListenOnceEnforcer.burn(getMessageModel(), getMessageService(), getFileService(), false);
+        }
+        final boolean alreadyListened = isListenOnceSpent(getMessageModel());
 
         MessagePlayer audioMessagePlayer = messagePlayerFactory.create(getMessageModel(), helper.getMediaControllerFuture());
 
@@ -248,7 +258,11 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
             holder.audioMessageIcon.setImageResource(R.drawable.ic_microphone_outline);
         }
         holder.controller.setOnClickListener(v -> {
-            if (alreadyListened) {
+            // F1-PATCH: re-read the model instead of closing over the bind-time value. The burn
+            // persists on a worker thread, so between bind and tap this bubble's message can go from
+            // playable to spent; a captured boolean would authorise exactly the replay the burn just
+            // took away. Cheap: the flags are already-parsed metadata on the in-memory model.
+            if (isListenOnceSpent(getMessageModel())) {
                 // Already played once: replay is blocked.
                 Toast.makeText(context, R.string.listen_once_already_listened, Toast.LENGTH_SHORT).show();
                 return;
@@ -545,6 +559,32 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         }
 
         configureBodyText(holder, caption);
+    }
+
+    /**
+     * F1Whisper: has this listen-once voice message been spent, so that the bubble collapses to the
+     * small note and refuses playback?
+     *
+     * <p>Spent means <em>claimed or consumed</em>, not consumed alone. A claim is written before the
+     * decrypted audio reaches the player; a message carrying a claim but no consumption had its
+     * playback interrupted, and treating it as still playable is precisely the replay that
+     * {@link ListenOnceDecision} exists to remove.</p>
+     *
+     * <p>Deliberately spans both directions, unlike the playback gate: the sender's own copy burns
+     * on send and its bubble shows the neutral "listen-once voice message" note.</p>
+     *
+     * <p>And deliberately reads the persisted metadata rather than {@link MessageState#CONSUMED}: a
+     * voice message moves to CONSUMED at playback <em>start</em>, so keying off the state would
+     * expire the bubble the instant it began playing, hiding the controls and progress mid-play.</p>
+     */
+    private static boolean isListenOnceSpent(@NonNull AbstractMessageModel messageModel) {
+        if (messageModel.getType() != MessageType.FILE) {
+            return false;
+        }
+        final FileDataModel fileData = messageModel.getFileData();
+        return fileData != null
+            && fileData.isListenOnce()
+            && (fileData.isListenOnceConsumed() || fileData.isListenOnceClaimed());
     }
 
     @UiThread

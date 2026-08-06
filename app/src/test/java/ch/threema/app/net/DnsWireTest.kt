@@ -14,7 +14,7 @@ class DnsWireTest {
 
     @Test
     fun `buildAQuery produces a well-formed A query`() {
-        val query = DnsWire.buildAQuery("thm.f1tech.info", txId = 0x1234)
+        val query = DnsWire.buildAQuery("example.com", txId = 0x1234)
         val buf = ByteBuffer.wrap(query).order(ByteOrder.BIG_ENDIAN)
 
         assertEquals(0x1234.toShort(), buf.short, "transaction id")
@@ -60,9 +60,9 @@ class DnsWireTest {
 
     @Test
     fun `parseARecords round-trips a hand-crafted A response`() {
-        val response = buildAResponse("thm.f1tech.info", "208.85.23.138")
+        val response = buildAResponse("example.com", "192.0.2.1")
         val records = DnsWire.parseARecords(response)
-        assertEquals(listOf("208.85.23.138"), records)
+        assertEquals(listOf("192.0.2.1"), records)
     }
 
     @Test
@@ -91,23 +91,23 @@ class DnsWireTest {
         // 12 header + question(qname + 4) + answer(qname + type2 + class2 + ttl4 + rdlen2 + rdata4)
         val size = 12 + qname.size + 4 + qname.size + 2 + 2 + 4 + 2 + rdata.size
         val buf = ByteBuffer.allocate(size).order(ByteOrder.BIG_ENDIAN)
-        buf.putShort(0x1234)          // txId
+        buf.putShort(0x1234) // txId
         buf.putShort(0x8180.toShort()) // flags: QR=1, RD=1, RA=1
-        buf.putShort(1)               // QDCOUNT
-        buf.putShort(1)               // ANCOUNT
-        buf.putShort(0)               // NSCOUNT
-        buf.putShort(0)               // ARCOUNT
+        buf.putShort(1) // QDCOUNT
+        buf.putShort(1) // ANCOUNT
+        buf.putShort(0) // NSCOUNT
+        buf.putShort(0) // ARCOUNT
 
         // Question
         buf.put(qname)
-        buf.putShort(1)               // QTYPE A
-        buf.putShort(1)               // QCLASS IN
+        buf.putShort(1) // QTYPE A
+        buf.putShort(1) // QCLASS IN
 
         // Answer
         buf.put(qname)
-        buf.putShort(1)               // TYPE A
-        buf.putShort(1)               // CLASS IN
-        buf.putInt(300)               // TTL
+        buf.putShort(1) // TYPE A
+        buf.putShort(1) // CLASS IN
+        buf.putInt(300) // TTL
         buf.putShort(rdata.size.toShort())
         buf.put(rdata)
 

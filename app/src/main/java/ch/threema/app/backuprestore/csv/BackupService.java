@@ -69,6 +69,7 @@ import ch.threema.app.utils.Counter;
 import ch.threema.app.utils.FileHandlingZipOutputStream;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.MimeUtil;
+import ch.threema.app.utils.RestrictedMediaOutput;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.utils.ElapsedTimeFormatter;
 import ch.threema.app.utils.TestUtil;
@@ -579,6 +580,9 @@ public class BackupService extends Service {
             Tags.TAG_CONTACT_HIDDEN,
             Tags.TAG_CONTACT_ARCHIVED,
             Tags.TAG_CONTACT_IDENTITY_ID,
+            // F1Whisper: appended last on purpose. Readers address columns by name from the file's
+            // own header, so an older build restoring this backup simply never looks it up.
+            Tags.TAG_CONTACT_DISAPPEARING_TIMER,
         };
         final String[] messageCsvHeader = {
             Tags.TAG_MESSAGE_API_MESSAGE_ID,
@@ -600,7 +604,12 @@ public class BackupService extends Service {
             Tags.TAG_GROUP_MESSAGE_STATES,
             Tags.TAG_MESSAGE_DISPLAY_TAGS,
             Tags.TAG_MESSAGE_EDITED_AT,
-            Tags.TAG_MESSAGE_DELETED_AT
+            Tags.TAG_MESSAGE_DELETED_AT,
+            // F1Whisper disappearing messages: without these three a restore resurrects every
+            // in-flight message permanently. See Tags.TAG_MESSAGE_DISAPPEARING_TIMER.
+            Tags.TAG_MESSAGE_DISAPPEARING_TIMER,
+            Tags.TAG_MESSAGE_EXPIRE_STARTED_AT,
+            Tags.TAG_MESSAGE_EXPIRES_AT
         };
 
         final @NonNull Set<String> removedContacts = contactService.getRemovedContacts();
@@ -642,6 +651,7 @@ public class BackupService extends Service {
                         .write(Tags.TAG_CONTACT_HIDDEN, contactModel.getAcquaintanceLevel() == ContactModel.AcquaintanceLevel.GROUP)
                         .write(Tags.TAG_CONTACT_ARCHIVED, contactModel.isArchived())
                         .write(Tags.TAG_CONTACT_IDENTITY_ID, identityId)
+                        .write(Tags.TAG_CONTACT_DISAPPEARING_TIMER, contactModel.getDisappearingMessagesTimerSeconds())
                         .write();
 
                     // Back up contact profile pictures
@@ -688,6 +698,22 @@ public class BackupService extends Service {
                                     String apiMessageId = messageModel.getApiMessageId();
                                     messageCounter++;
 
+                                    // F1Whisper (fifth fork review, F5-01): reduce a restricted message to a spent
+                                    // placeholder BEFORE anything about it is written into the archive.
+                                    //
+                                    // A data backup is an output boundary F4-09 did not reach, and it leaked twice over:
+                                    // the media file went in through getDecryptedMessageStream, and the CSV preserved the
+                                    // body verbatim - which for a FILE message is the serialised file-data metadata,
+                                    // including the blob id, the blob encryption key and an unclaimed lo=true. Back up an
+                                    // unclaimed listen-once voice message, restore it and play it, then restore the same
+                                    // archive again and play it again; or skip the file entirely and re-fetch the blob
+                                    // with the credentials the CSV kept. Withholding only one half fixes neither.
+                                    //
+                                    // Stripping the body also drops isDownloaded, which is what backupMediaFile keys its
+                                    // media decision on, so the file half follows from the same call. The model is a
+                                    // detached instance read for this backup only; nothing on screen is affected.
+                                    RestrictedMediaOutput.spendForArchive(messageModel);
+
                                     if ((apiMessageId != null && !apiMessageId.isEmpty()) || messageModel.getType() == MessageType.VOIP_STATUS) {
                                         messageCsv.createRow()
                                             .write(Tags.TAG_MESSAGE_API_MESSAGE_ID, messageModel.getApiMessageId())
@@ -709,6 +735,9 @@ public class BackupService extends Service {
                                             .write(Tags.TAG_MESSAGE_DISPLAY_TAGS, messageModel.getDisplayTags())
                                             .write(Tags.TAG_MESSAGE_EDITED_AT, messageModel.getEditedAt())
                                             .write(Tags.TAG_MESSAGE_DELETED_AT, messageModel.getDeletedAt())
+                                            .write(Tags.TAG_MESSAGE_DISAPPEARING_TIMER, messageModel.getDisappearingTimerSeconds())
+                                            .write(Tags.TAG_MESSAGE_EXPIRE_STARTED_AT, messageModel.getExpireStartedAt())
+                                            .write(Tags.TAG_MESSAGE_EXPIRES_AT, messageModel.getExpiresAt())
                                             .write();
                                     }
 
@@ -767,6 +796,8 @@ public class BackupService extends Service {
             Tags.TAG_GROUP_DESC_TIMESTAMP,
             Tags.TAG_GROUP_UID,
             Tags.TAG_GROUP_USER_STATE,
+            // F1Whisper: appended last, optional on read. See Tags.TAG_CONTACT_DISAPPEARING_TIMER.
+            Tags.TAG_GROUP_DISAPPEARING_TIMER,
         };
         final String[] groupMessageCsvHeader = {
             Tags.TAG_MESSAGE_API_MESSAGE_ID,
@@ -789,7 +820,11 @@ public class BackupService extends Service {
             Tags.TAG_GROUP_MESSAGE_STATES,
             Tags.TAG_MESSAGE_DISPLAY_TAGS,
             Tags.TAG_MESSAGE_EDITED_AT,
-            Tags.TAG_MESSAGE_DELETED_AT
+            Tags.TAG_MESSAGE_DELETED_AT,
+            // F1Whisper disappearing messages: mirror of the 1:1 message header above.
+            Tags.TAG_MESSAGE_DISAPPEARING_TIMER,
+            Tags.TAG_MESSAGE_EXPIRE_STARTED_AT,
+            Tags.TAG_MESSAGE_EXPIRES_AT
         };
 
         final GroupService.GroupFilter groupFilter = new GroupService.GroupFilter() {
@@ -837,6 +872,7 @@ public class BackupService extends Service {
                         .write(Tags.TAG_GROUP_DESC_TIMESTAMP, groupModel.getGroupDescTimestamp())
                         .write(Tags.TAG_GROUP_UID, groupUid)
                         .write(Tags.TAG_GROUP_USER_STATE, groupModel.getUserState() != null ? groupModel.getUserState().getValue() : 0)
+                        .write(Tags.TAG_GROUP_DISAPPEARING_TIMER, groupModel.getDisappearingMessagesTimerSeconds())
                         .write();
 
                     //check if the group have a profile picture
@@ -861,6 +897,22 @@ public class BackupService extends Service {
                                     if (!this.next("backup group message " + groupMessageModel.getUid())) {
                                         return false;
                                     }
+
+                                    // F1Whisper (fifth fork review, F5-01): reduce a restricted message to a spent
+                                    // placeholder BEFORE anything about it is written into the archive.
+                                    //
+                                    // A data backup is an output boundary F4-09 did not reach, and it leaked twice over:
+                                    // the media file went in through getDecryptedMessageStream, and the CSV preserved the
+                                    // body verbatim - which for a FILE message is the serialised file-data metadata,
+                                    // including the blob id, the blob encryption key and an unclaimed lo=true. Back up an
+                                    // unclaimed listen-once voice message, restore it and play it, then restore the same
+                                    // archive again and play it again; or skip the file entirely and re-fetch the blob
+                                    // with the credentials the CSV kept. Withholding only one half fixes neither.
+                                    //
+                                    // Stripping the body also drops isDownloaded, which is what backupMediaFile keys its
+                                    // media decision on, so the file half follows from the same call. The model is a
+                                    // detached instance read for this backup only; nothing on screen is affected.
+                                    RestrictedMediaOutput.spendForArchive(groupMessageModel);
 
                                     String groupMessageStates = "";
                                     if (groupMessageModel.getGroupMessageStates() != null) {
@@ -889,6 +941,9 @@ public class BackupService extends Service {
                                         .write(Tags.TAG_MESSAGE_DISPLAY_TAGS, groupMessageModel.getDisplayTags())
                                         .write(Tags.TAG_MESSAGE_EDITED_AT, groupMessageModel.getEditedAt())
                                         .write(Tags.TAG_MESSAGE_DELETED_AT, groupMessageModel.getDeletedAt())
+                                        .write(Tags.TAG_MESSAGE_DISAPPEARING_TIMER, groupMessageModel.getDisappearingTimerSeconds())
+                                        .write(Tags.TAG_MESSAGE_EXPIRE_STARTED_AT, groupMessageModel.getExpireStartedAt())
+                                        .write(Tags.TAG_MESSAGE_EXPIRES_AT, groupMessageModel.getExpiresAt())
                                         .write();
 
                                     this.backupMediaFile(
@@ -1493,6 +1548,14 @@ public class BackupService extends Service {
         }
 
         if (!this.next("media " + messageModel.getId(), getStepFactorMedia())) {
+            return;
+        }
+
+        // F1Whisper (fifth fork review, F5-01): belt and braces for the file half. The callers above have already
+        // reduced a restricted message to a spent placeholder, so this cannot fire today; it is here so a future call
+        // site that forgets cannot put an incoming listen-once payload into an archive.
+        if (RestrictedMediaOutput.isRestricted(messageModel)) {
+            logger.debug("Omitting restricted media for message {} from the backup", messageModel.getUid());
             return;
         }
 

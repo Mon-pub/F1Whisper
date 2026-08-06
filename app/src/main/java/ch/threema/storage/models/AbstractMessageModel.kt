@@ -323,6 +323,73 @@ internal constructor(
     }
 
     /**
+     * F1Whisper (fifth fork review, F5-04): adopt the body a conditional row update actually wrote, discarding the parsed
+     * data-model cache so the next read of [fileData] / [imageData] / … reparses it.
+     *
+     * The media and listen-once flags live inside the serialised body, and [dataObject] caches the parse. Assigning
+     * [body] alone would leave a stale parse in place, so the instance would go on reporting the flags it had before the
+     * write - which is exactly the class of "the model disagrees with the row" bug the conditional writes exist to end.
+     */
+    fun adoptPersistedBody(persistedBody: String?) {
+        this.body = persistedBody
+        this.dataObject = null
+    }
+
+    /**
+     * F1Whisper (sixth fork review, F6-01): make this instance agree, column for column, with a row just read from disk.
+     *
+     * The service keeps message models in per-type caches, and the UI keeps its own timeline instances, so one row can be
+     * represented by several live objects. A conditional lifecycle write updates the row; every other instance of it is
+     * instantly a pre-transition snapshot, and the next ordinary full-row save from one of them writes that snapshot back
+     * - cancelling a countdown that had just started, restoring a superseded state, un-reading a read message. Refreshing
+     * every matching instance from the winner, inside the same lock as the write, is what stops that.
+     *
+     * Deliberately copies EVERY mutable column the row carries rather than the subset [ch.threema.storage.models.group.GroupMessageModel.copyFrom]
+     * historically copied: the columns most likely to be forgotten are the ones added last, and here those are exactly the
+     * disappearing-message and display-tag columns whose loss is the defect.
+     */
+    open fun adoptPersistedRow(persisted: AbstractMessageModel) {
+        if (persisted === this) {
+            return
+        }
+        uid = persisted.uid
+        apiMessageId = persisted.apiMessageId
+        identity = persisted.identity
+        isOutbox = persisted.isOutbox
+        isStatusMessage = persisted.isStatusMessage
+        type = persisted.type
+        correlationId = persisted.correlationId
+        isRead = persisted.isRead
+        isSaved = persisted.isSaved
+        state = persisted.state
+        // Through the setter, which writes rawPostedAt, so a row with no posted-at keeps none instead of adopting the
+        // coalesced created-at the getter would have returned.
+        postedAt = persisted.rawPostedAt
+        createdAt = persisted.createdAt
+        deliveredAt = persisted.deliveredAt
+        readAt = persisted.readAt
+        modifiedAt = persisted.modifiedAt
+        editedAt = persisted.editedAt
+        deletedAt = persisted.deletedAt
+        expiresAt = persisted.expiresAt
+        expireStartedAt = persisted.expireStartedAt
+        disappearingTimerSeconds = persisted.disappearingTimerSeconds
+        quotedMessageId = persisted.quotedMessageId
+        messageContentsType = persisted.messageContentsType
+        messageFlags = persisted.messageFlags
+        forwardSecurityMode = persisted.forwardSecurityMode
+        displayTags = persisted.displayTags
+        // The body carries the serialised media / listen-once flags, so it goes last and through the accessor that drops
+        // the cached parse.
+        adoptPersistedBody(persisted.body)
+        if (persisted.type != MessageType.FILE && persisted.type != MessageType.LOCATION) {
+            // For those two types the caption LIVES in the body that was just adopted, and both accessors would parse it;
+            // for every other type it is a plain column and has to be copied.
+            caption = persisted.caption
+        }
+    }
+
+    /**
      * Call this to update the body field with the data model stuff
      */
     fun writeDataModelToBody() {

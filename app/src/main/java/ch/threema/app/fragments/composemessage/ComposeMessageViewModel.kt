@@ -10,12 +10,15 @@ import ch.threema.app.messagereceiver.MessageReceiver
 import ch.threema.app.services.MessageService
 import ch.threema.app.utils.DispatcherProvider
 import ch.threema.app.utils.SingleLiveEvent
+import ch.threema.base.utils.getThreemaLogger
 import ch.threema.data.datatypes.AvailabilityStatus
 import ch.threema.data.repositories.ContactModelRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private val logger = getThreemaLogger("ComposeMessageViewModel")
 
 class ComposeMessageViewModel(
     private val messageService: MessageService,
@@ -59,16 +62,28 @@ class ComposeMessageViewModel(
     fun loadNextRecords(
         messageReceiver: MessageReceiver<*>,
         filter: MessageService.MessageFilter,
+        generation: Int,
     ) {
         viewModelScope.launch {
             withContext(dispatcherProvider.io) {
-                val messageModels = messageService.getMessagesForReceiver(messageReceiver, filter)
-                _events.postValue(
+                // F1Whisper (fifth fork review, F5-10): exactly ONE terminal result, whatever happens.
+                //
+                // The fragment acquires a single-load slot before dispatching this and releases it only from the event
+                // below. When the query threw, nothing was emitted, so the slot stayed owned for the life of the
+                // process: the refresh indicator kept spinning and every later page request was rejected until the
+                // conversation was reset. Both outcomes now carry the generation that acquired the slot.
+                val event = try {
+                    val messageModels = messageService.getMessagesForReceiver(messageReceiver, filter)
                     ComposeMessageEvent.NextRecordsLoaded(
                         messageModels = messageModels,
                         hasMoreRecords = messageModels.size >= filter.pageSize,
-                    ),
-                )
+                        generation = generation,
+                    )
+                } catch (e: Exception) {
+                    logger.error("Could not load the next records", e)
+                    ComposeMessageEvent.NextRecordsFailed(generation = generation)
+                }
+                _events.postValue(event)
             }
         }
     }

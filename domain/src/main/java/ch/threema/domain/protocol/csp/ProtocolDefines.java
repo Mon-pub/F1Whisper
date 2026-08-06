@@ -13,6 +13,13 @@ public class ProtocolDefines {
     // Post-auth (logged-in) socket read timeout. Must exceed ECHO_REQUEST_INTERVAL_CSP (60) +
     // ECHO_RESPONSE_TIMEOUT (10) so a healthy idle link is never falsely timed out, but bounds a
     // dead/half-open read instead of parking forever (the previous value was 0 = infinite).
+    //
+    // What it does NOT do, corrected against measurement: this bounds the read only WHILE THE DEVICE
+    // IS AWAKE. SO_TIMEOUT rides CLOCK_MONOTONIC, which halts during suspend-to-RAM, so across a Doze
+    // window arbitrary wall-clock time can pass without consuming any of this budget. Measured on the
+    // reporting device: 62 windows each exceeded 90s of wall-clock time with no inbound data, and
+    // zero SocketTimeoutException were raised. Treat this as "bounded while awake, unbounded across
+    // suspend", and do not rely on it as a half-open detector.
     public static final int POST_AUTH_READ_TIMEOUT = 90;
     public static final int BLOB_CONNECT_TIMEOUT = 30;
     public static final int BLOB_LOAD_TIMEOUT = 100;

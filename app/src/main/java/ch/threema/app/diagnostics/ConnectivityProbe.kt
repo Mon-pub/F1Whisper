@@ -14,7 +14,7 @@ import java.time.Instant
 /**
  * The host + port (+ optional path) to probe.
  *
- * @param host        Bare hostname (e.g. "thm.f1tech.info").
+ * @param host        Bare hostname (e.g. "example.com").
  * @param port        TCP port for reachability / TLS probes (default 443).
  * @param oppfPath    Relative path of the OnPrem config endpoint (default "/prov/config.oppf").
  * @param chatHost    Derived chat hostname for TCP-5222 + CSP probes; null = derive as "chat.<host>".
@@ -164,11 +164,11 @@ data class ProbeReport(
 
 /** Labels for the five DNS resolvers, in the order the engine runs them. */
 object DnsResolverNames {
-    const val SYSTEM               = "system"
-    const val DOT_F1TECH           = "DoT:private-dns"
-    const val DOH_CF               = "DoH:1.1.1.1"
-    const val DOH_GOOGLE           = "DoH:8.8.8.8"
-    const val DOH_CF_FAMILY        = "DoH:1.1.1.3"
+    const val SYSTEM = "system"
+    const val DOT_F1TECH = "DoT:private-dns"
+    const val DOH_CF = "DoH:1.1.1.1"
+    const val DOH_GOOGLE = "DoH:8.8.8.8"
+    const val DOH_CF_FAMILY = "DoH:1.1.1.3"
 }
 
 // ---------------------------------------------------------------------------
@@ -193,10 +193,14 @@ object ProbeTimeouts {
 object ProbePins {
     /** Neutral third host for SNI comparison ("is it just our SNI that's blocked?"). */
     const val NEUTRAL_SNI_HOST = "cloudflare.com"
-    /** SNI of the shop subdomain that users report as still reachable. */
-    const val SHOP_SNI_HOST    = "shop.thm.f1tech.info"
+
+    /** Subdomain prefix for the shop-SNI comparison probe. Combined with the configured server
+     *  host at the call site (e.g. host "example.org" -> "shop.example.org") so the server host is
+     *  never hardcoded here. */
+    const val SHOP_SNI_PREFIX = "shop."
+
     /** 48-byte CSP client-hello magic (first 16 bytes of our test payload — padded to 48). */
-    const val CSP_HELLO_BYTES  = 48
+    const val CSP_HELLO_BYTES = 48
 
     /**
      * Well-known literal IPs (DNS-independent) that answer HTTPS on 443, tried in order as the

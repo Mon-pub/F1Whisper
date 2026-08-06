@@ -25,6 +25,17 @@ public abstract class AbstractMessage implements MessageTypeProperties, MessageF
     private Date date;
     private int messageFlags;
     private ForwardSecurityMode forwardSecurityMode;
+    /**
+     * F1Whisper: the sender's disappearing-messages timer for this message, carried in the
+     * encrypted {@code MessageMetadata} box. See {@code f1_disappearing_timer} in
+     * {@code domain/protocol/src/csp-e2e.proto} and
+     * {@code .claude/tasks/disappearing-per-message-timer-metadata.md}.
+     * <p>
+     * Tri-state: {@code null} = nothing advertised, {@code 0} = the sender explicitly turned the
+     * timer off, {@code > 0} = the sender's timer. Never collapse {@code null} and {@code 0}.
+     */
+    @Nullable
+    private Integer disappearingTimerSeconds;
 
     public AbstractMessage() {
         this.date = new Date();
@@ -98,6 +109,24 @@ public abstract class AbstractMessage implements MessageTypeProperties, MessageF
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    /**
+     * F1Whisper: the sender's disappearing-messages timer for this message, in seconds, or
+     * {@code null} if the sender advertised nothing (i.e. it predates v6.4.3-38). A value of
+     * {@code 0} means the sender explicitly turned the timer off for this message and the receiver
+     * must not fall back to its own conversation setting.
+     */
+    @Nullable
+    public Integer getDisappearingTimerSeconds() {
+        return disappearingTimerSeconds;
+    }
+
+    /**
+     * @see #getDisappearingTimerSeconds()
+     */
+    public void setDisappearingTimerSeconds(@Nullable Integer disappearingTimerSeconds) {
+        this.disappearingTimerSeconds = disappearingTimerSeconds;
     }
 
     /**

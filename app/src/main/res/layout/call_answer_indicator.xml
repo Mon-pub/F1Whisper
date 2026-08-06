@@ -48,7 +48,7 @@
         android:layout_centerVertical="true"
         android:scaleX="-1"
         app:tint="@android:color/white"
-        android:src="@drawable/ic_next_alpha" />
+        android:src="@drawable/ic_next_alpha_auto_mirrored" />
 
     <ImageView
         android:id="@+id/decline_arrow1"
@@ -59,7 +59,7 @@
         android:layout_centerVertical="true"
         android:scaleX="-1"
         app:tint="@android:color/white"
-        android:src="@drawable/ic_next_alpha" />
+        android:src="@drawable/ic_next_alpha_auto_mirrored" />
 
     <ImageView
         android:id="@+id/decline_arrow2"
@@ -70,7 +70,7 @@
         android:layout_centerVertical="true"
         android:scaleX="-1"
         app:tint="@android:color/white"
-        android:src="@drawable/ic_next_alpha" />
+        android:src="@drawable/ic_next_alpha_auto_mirrored" />
 
     <ImageView
         android:id="@+id/answer_arrow0"
@@ -79,7 +79,7 @@
         android:layout_toEndOf="@id/dummy"
         android:layout_centerVertical="true"
         app:tint="@android:color/white"
-        android:src="@drawable/ic_next_alpha" />
+        android:src="@drawable/ic_next_alpha_auto_mirrored" />
 
     <ImageView
         android:id="@+id/answer_arrow1"
@@ -89,7 +89,7 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="9dp"
         app:tint="@android:color/white"
-        android:src="@drawable/ic_next_alpha" />
+        android:src="@drawable/ic_next_alpha_auto_mirrored" />
 
     <ImageView
         android:id="@+id/answer_arrow2"
@@ -99,6 +99,6 @@
         android:layout_centerVertical="true"
         android:layout_marginStart="18dp"
         app:tint="@android:color/white"
-        android:src="@drawable/ic_next_alpha" />
+        android:src="@drawable/ic_next_alpha_auto_mirrored" />
 
 </RelativeLayout>

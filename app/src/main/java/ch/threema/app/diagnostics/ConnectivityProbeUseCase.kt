@@ -2,7 +2,6 @@ package ch.threema.app.diagnostics
 
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.domain.onprem.OnPremConfig
-import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.security.cert.CertificateException
@@ -56,13 +55,13 @@ class ConnectivityProbeUseCase(
         cachedConfig: OnPremConfig? = null,
     ): ProbeReport = withContext(Dispatchers.IO) {
         val startedAt = Instant.now()
-        val startMs  = System.currentTimeMillis()
+        val startMs = System.currentTimeMillis()
 
         // Derive ancillary hosts from the OPPF (preferred) or from the target domain.
         val chatHost = cachedConfig?.chat?.hostname
             ?: target.chatHost
             ?: "chat.${target.host}"
-        val dirHost  = cachedConfig?.directory?.url
+        val dirHost = cachedConfig?.directory?.url
             ?.let { extractHost(it) }
             ?: target.dirHost
             ?: "dir.${target.host}"
@@ -93,7 +92,7 @@ class ConnectivityProbeUseCase(
 
                 // TLS+SNI: our host vs shop vs neutral comparison
                 add(async { probeTlsSni(target.host, 443, target.host, "TLS:host-SNI") })
-                add(async { probeTlsSni(target.host, 443, ProbePins.SHOP_SNI_HOST, "TLS:shop-SNI") })
+                add(async { probeTlsSni(target.host, 443, "${ProbePins.SHOP_SNI_PREFIX}${target.host}", "TLS:shop-SNI") })
                 add(async { probeTlsSni(target.host, 443, ProbePins.NEUTRAL_SNI_HOST, "TLS:neutral-SNI", treatCertMismatchAsReached = true) })
 
                 // HTTPS GET of the OPPF endpoint
@@ -123,12 +122,12 @@ class ConnectivityProbeUseCase(
         val hints = computeHints(dnsResults, probes)
 
         ProbeReport(
-            target     = target,
-            dns        = dnsResults,
-            probes     = probes,
-            verdict    = verdict,
-            hints      = hints,
-            startedAt  = startedAt,
+            target = target,
+            dns = dnsResults,
+            probes = probes,
+            verdict = verdict,
+            hints = hints,
+            startedAt = startedAt,
             durationMs = durationMs,
         )
     }
@@ -174,7 +173,7 @@ class ConnectivityProbeUseCase(
                 val cert = it.session.peerCertificates.firstOrNull() as? X509Certificate
                 val ms = System.currentTimeMillis() - t0
                 val subject = cert?.subjectX500Principal?.name ?: "no-cert"
-                val issuer  = cert?.issuerX500Principal?.name?.substringBefore(",") ?: "?"
+                val issuer = cert?.issuerX500Principal?.name?.substringBefore(",") ?: "?"
                 ProbeResult(name, ok = true, detail = "handshake ok; subject=$subject issuer=$issuer (${ms}ms)", latencyMs = ms)
             }
         } catch (e: Exception) {
@@ -195,8 +194,12 @@ class ConnectivityProbeUseCase(
                 val req = Request.Builder().url(url).head().build()
                 unpinnedOkHttpClient.newCall(req).execute().use { resp ->
                     val ms = System.currentTimeMillis() - t0
-                    ProbeResult(name, ok = resp.isSuccessful || resp.code in 300..499,
-                        detail = "HTTP ${resp.code} (${ms}ms)", latencyMs = ms)
+                    ProbeResult(
+                        name,
+                        ok = resp.isSuccessful || resp.code in 300..499,
+                        detail = "HTTP ${resp.code} (${ms}ms)",
+                        latencyMs = ms,
+                    )
                 }
             } catch (e: Exception) {
                 val ms = System.currentTimeMillis() - t0
@@ -222,7 +225,11 @@ class ConnectivityProbeUseCase(
                     s.getOutputStream().write(hello)
                     s.getOutputStream().flush()
                     val buf = ByteArray(16)
-                    val read = try { s.getInputStream().read(buf) } catch (_: Exception) { -1 }
+                    val read = try {
+                        s.getInputStream().read(buf)
+                    } catch (_: Exception) {
+                        -1
+                    }
                     val ms = System.currentTimeMillis() - t0
                     if (read > 0) {
                         ProbeResult(name, ok = true, detail = "server replied $read bytes (${ms}ms)", latencyMs = ms)
@@ -268,12 +275,12 @@ class ConnectivityProbeUseCase(
         dns: List<DnsProbeResult>,
         probes: List<ProbeResult>,
     ): Verdict {
-        val control   = probes.find { it.name.startsWith("HTTPS:control") }
-        val tcp443    = probes.find { it.name == "TCP:443" }
-        val tlsHost   = probes.find { it.name == "TLS:host-SNI" }
-        val tlsShop   = probes.find { it.name == "TLS:shop-SNI" }
-        val tcp5222   = probes.find { it.name == "TCP-5222:chat" }
-        val cspHello  = probes.find { it.name == "CSP-hello:chat" }
+        val control = probes.find { it.name.startsWith("HTTPS:control") }
+        val tcp443 = probes.find { it.name == "TCP:443" }
+        val tlsHost = probes.find { it.name == "TLS:host-SNI" }
+        val tlsShop = probes.find { it.name == "TLS:shop-SNI" }
+        val tcp5222 = probes.find { it.name == "TCP-5222:chat" }
+        val cspHello = probes.find { it.name == "CSP-hello:chat" }
         // The OPPF HTTPS probe (its name starts with "HTTPS:/…"); NOT "HTTPS:dir-root"/"HTTPS:control".
         val oppfHttps = probes.find { it.name.startsWith("HTTPS:/") }
 
@@ -282,7 +289,7 @@ class ConnectivityProbeUseCase(
         // connection is healthy — ALL_OK regardless of external controls. A blocked 1.1.1.1 or the
         // expected cert-mismatch on the neutral-SNI probe must NOT downgrade a working connection.
         val serverHttpsOk = tcp443?.ok == true && tlsHost?.ok == true && oppfHttps?.ok == true
-        val chatOk        = tcp5222?.ok == true
+        val chatOk = tcp5222?.ok == true
         if (serverHttpsOk && chatOk) {
             // Reachable, but is it usable? A network that severely throttles/shapes traffic can
             // still pass every probe while taking seconds per round-trip — long enough that the
@@ -310,7 +317,8 @@ class ConnectivityProbeUseCase(
             .filter { it.resolverName != DnsResolverNames.SYSTEM && it.succeeded }
             .flatMap { it.allIps }
             .toSet()
-        if (systemIps.isNotEmpty() && dohConsensusIps.isNotEmpty() &&
+        if (systemIps.isNotEmpty() &&
+            dohConsensusIps.isNotEmpty() &&
             systemIps.intersect(dohConsensusIps).isEmpty()
         ) {
             return Verdict.DNS_POISONING_SUSPECTED
@@ -346,11 +354,11 @@ class ConnectivityProbeUseCase(
     ): List<DiagnosticHint> {
         val hints = mutableListOf<DiagnosticHint>()
 
-        val tcp443  = probes.find { it.name == "TCP:443" }
+        val tcp443 = probes.find { it.name == "TCP:443" }
         val tlsHost = probes.find { it.name == "TLS:host-SNI" }
         val control = probes.find { it.name.startsWith("HTTPS:control") }
         val systemDns = dns.find { it.resolverName == DnsResolverNames.SYSTEM }
-        val dotDns    = dns.find { it.resolverName == DnsResolverNames.DOT_F1TECH }
+        val dotDns = dns.find { it.resolverName == DnsResolverNames.DOT_F1TECH }
 
         // Fast SYN + slow TLS data = the TCP connection is being answered (and likely terminated)
         // by something close by (a transparent proxy / middlebox), which then relays — and delays —
@@ -385,10 +393,10 @@ class ConnectivityProbeUseCase(
     /** Short human-readable exception classifier (no stack trace, no PII). */
     private fun errorType(e: Exception): String = when {
         e.message?.contains("ECONNREFUSED", ignoreCase = true) == true -> "RST/connection-refused"
-        e.message?.contains("timeout", ignoreCase = true) == true      -> "timeout"
-        e.message?.contains("No address", ignoreCase = true) == true   -> "DNS-failure"
-        e.message?.contains("handshake", ignoreCase = true) == true    -> "TLS-handshake-failed"
-        e.message?.contains("certificate", ignoreCase = true) == true  -> "TLS-cert-error"
+        e.message?.contains("timeout", ignoreCase = true) == true -> "timeout"
+        e.message?.contains("No address", ignoreCase = true) == true -> "DNS-failure"
+        e.message?.contains("handshake", ignoreCase = true) == true -> "TLS-handshake-failed"
+        e.message?.contains("certificate", ignoreCase = true) == true -> "TLS-cert-error"
         else -> e.javaClass.simpleName
     }
 
@@ -400,10 +408,10 @@ class ConnectivityProbeUseCase(
 
         // middlebox-terminated hint thresholds.
         const val MIDDLEBOX_FAST_CONNECT_MS = 100L
-        const val MIDDLEBOX_SLOW_TLS_MS     = 3_000L
+        const val MIDDLEBOX_SLOW_TLS_MS = 3_000L
 
         // port53-hijack hint thresholds.
-        const val PORT53_FAST_LOCAL_MS      = 30L
-        const val PORT53_SLOW_UPSTREAM_MS   = 3_000L
+        const val PORT53_FAST_LOCAL_MS = 30L
+        const val PORT53_SLOW_UPSTREAM_MS = 3_000L
     }
 }

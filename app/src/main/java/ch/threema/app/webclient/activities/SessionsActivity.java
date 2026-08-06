@@ -279,7 +279,9 @@ public class SessionsActivity extends ThreemaToolbarActivity implements
             return;
         }
 
-        if (dependencies.getAppRestrictions().isWebDisabled()) {
+        // F1Whisper (second follow-up S2-04): Threema Web is disabled in the onprem build — the
+        // same teardown as the admin web restriction, so intents/deep links cannot open it.
+        if (ConfigUtils.isOnPremBuild() || dependencies.getAppRestrictions().isWebDisabled()) {
             final String msg = getString(R.string.webclient_cannot_restore) + ": "
                 + getString(R.string.webclient_disabled);
             Toast.makeText(this, msg, Toast.LENGTH_LONG).show();

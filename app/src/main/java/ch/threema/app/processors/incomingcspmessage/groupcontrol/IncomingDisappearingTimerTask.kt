@@ -4,6 +4,7 @@ import ch.threema.app.managers.ServiceManager
 import ch.threema.app.processors.incomingcspmessage.IncomingCspMessageSubTask
 import ch.threema.app.processors.incomingcspmessage.ReceiveStepsResult
 import ch.threema.app.services.DisappearingMessageService
+import ch.threema.app.services.DisappearingTimerConvergence
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.domain.protocol.csp.messages.DisappearingTimerMessage
 import ch.threema.domain.taskmanager.ActiveTaskCodec
@@ -14,15 +15,31 @@ private val logger = getThreemaLogger("IncomingDisappearingTimerTask")
 /**
  * F1Whisper: handle an incoming 1:1 disappearing-timer control message (type 0x85).
  *
+ * 1:1 convergence model (group parity — single shared field, last-writer-wins): a 1:1 conversation has ONE shared timer,
+ * [ContactModel.disappearingMessagesTimerSeconds], governing BOTH the outgoing and the incoming freeze. Every incoming
+ * advertisement overwrites it **unconditionally, OFF included** — so turning the timer off converges instead of being
+ * silently re-adopted. This replaces the previous per-direction model, in which a user OFF stored `null` meaning "clear my
+ * override / follow the peer", so any later advertisement silently re-enabled the timer.
+ *
+ * The adopt is deliberately NOT gated. An earlier build gated it on "does this differ from what the peer itself last
+ * advertised?" (keeping [ContactModel.peerDisappearingTimerSeconds] alive as a change-detector) to shield an updated client
+ * from an un-updated v6.4.3-37 peer's 5-minute re-assert. That gate dropped genuine changes on device, because a peer's
+ * state moves **without advertising** whenever it adopts ours — see the analysis on
+ * [DisappearingTimerConvergence]. The peer column is now dead for 1:1 as well: nothing reads or writes it.
+ *
+ * The status row is still gated, on a different question — [DisappearingTimerConvergence.changesSharedTimer] asks whether
+ * this conversation's timer actually moved — so a redelivered or re-asserted advertisement that lands on the value already
+ * in force is applied silently rather than printing a row out of nowhere.
+ *
  * On receive:
  * 1. Look up the contact — discard if unknown.
- * 2. Persist the peer's advertised timer on [ContactModel.peerDisappearingTimerSeconds].
- *    Adopt-if-unset: if the user has never set their own timer, mirror the peer's value into
- *    [ContactModel.disappearingMessagesTimerSeconds] so a one-sided enable gives a shared feel.
- *    An explicit user choice (including OFF = 0) is NEVER overwritten.
- * 3. Insert a local DISAPPEARING_STATUS status message ("X set disappearing messages to Y").
- *    Suppressed when the incoming value equals the previously-stored peer value (piggyback re-assert).
- * 4. Re-arm the disappearing alarm.
+ * 2. Read the shared field before the write, to decide whether the timer really moves.
+ * 3. Unconditionally adopt the advertised value into the shared conversation timer (OFF → null).
+ * 4. Insert a local DISAPPEARING_STATUS status message ("X set disappearing messages to Y") only when the adopt actually
+ *    moved the conversation's timer.
+ * 5. Re-arm the disappearing alarm.
+ *
+ * Design and rationale: `.claude/tasks/disappearing-timer-1to1-shared-lww.md`.
  */
 class IncomingDisappearingTimerTask(
     message: DisappearingTimerMessage,
@@ -54,32 +71,28 @@ class IncomingDisappearingTimerTask(
         val timerSeconds = message.timerSeconds
         logger.info("Incoming 1:1 disappearing timer from {}: {}s", fromIdentity, timerSeconds)
 
-        // E2 isReassert: compare the incoming value to the PEER column (not the my-field)
-        // so that piggyback re-asserts from the peer are suppressed regardless of our own timer.
-        val previousPeerTimer = contact.peerDisappearingTimerSeconds
-        val isReassert = (timerSeconds > 0 && timerSeconds == previousPeerTimer) ||
-                         (timerSeconds <= 0 && (previousPeerTimer == null || previousPeerTimer <= 0))
+        // Read the shared field BEFORE the write: it answers whether this conversation's timer actually moves, which is
+        // what the status row is a statement about. It does NOT gate the adopt — see the class KDoc.
+        val previousShared = contact.disappearingMessagesTimerSeconds
+        val changesTimer = DisappearingTimerConvergence.changesSharedTimer(previousShared, timerSeconds)
 
-        // 1a. Persist peer's advertised timer (0 = peer turned it OFF; null = never advertised).
-        contact.setPeerDisappearingTimerSeconds(if (timerSeconds > 0) timerSeconds else 0)
-
-        // 1b. Adopt-if-unset: if the user has never explicitly set their own timer,
-        //     mirror the peer's value so a one-sided enable still makes both sides disappear.
-        //     An explicit user value (including OFF = 0, i.e. non-null) is NEVER overwritten.
-        val myTimer = contact.disappearingMessagesTimerSeconds
-        if (myTimer == null) {
-            // User has never made an explicit choice — adopt the peer's advertisement.
-            contact.setDisappearingMessagesTimerSeconds(if (timerSeconds > 0) timerSeconds else null)
-            logger.info(
-                "Disappearing adopt-if-unset: mirroring peer timer {}s for contact {}",
-                timerSeconds, fromIdentity
-            )
-        }
+        // 1. Shared-field last-writer-wins: unconditionally overwrite the ONE conversation timer that governs both freeze
+        //    directions. OFF wins like any other value (stored as null). Identical to the group task.
+        contact.setDisappearingMessagesTimerSeconds(DisappearingTimerConvergence.toSharedField(timerSeconds))
 
         databaseService.contactModelFactory.createOrUpdate(contact)
 
-        // 2. Insert status message in the conversation — suppressed for piggyback re-asserts.
-        if (!isReassert) {
+        logger.info(
+            "Disappearing 1:1 timer from {}: {}s (shared was {}), changesSharedTimer={}, shared timer now {}",
+            fromIdentity,
+            timerSeconds,
+            previousShared,
+            changesTimer,
+            contact.disappearingMessagesTimerSeconds,
+        )
+
+        // 2. Insert status message in the conversation — only when the conversation's timer actually moved.
+        if (changesTimer) {
             try {
                 val receiver = contactService.createReceiver(contact)
                 messageService.createDisappearingStatus(receiver, fromIdentity, timerSeconds)
@@ -87,7 +100,11 @@ class IncomingDisappearingTimerTask(
                 logger.warn("Could not insert disappearing status message for contact {}", fromIdentity, e)
             }
         } else {
-            logger.debug("E2: suppressing duplicate status row for 1:1 timer re-assert from {}", fromIdentity)
+            logger.info(
+                "Disappearing: no status row for 1:1 timer from {} ({}s) — the conversation timer did not move",
+                fromIdentity,
+                timerSeconds,
+            )
         }
 
         // 3. Re-arm the disappearing alarm.

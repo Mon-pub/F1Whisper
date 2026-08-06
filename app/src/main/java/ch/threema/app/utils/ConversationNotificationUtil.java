@@ -282,6 +282,19 @@ public class ConversationNotificationUtil {
                 return null;
             }
 
+            // F1-PATCH: the notification is an output boundary like any other, and it is the one the
+            // recipient does not choose to open. A spoiler's whole point is that the image is not
+            // shown until it is asked for, and there is nothing to ask here - so the thumbnail is
+            // simply withheld. The text half of this was already obscured in ConversationNotification.
+            final boolean isFileMessage = messageModel.getType() == MessageType.FILE;
+            if (!OutputRestrictionPolicy.mayReleaseThumbnailToNotification(
+                isFileMessage,
+                isFileMessage && messageModel.getFileData().isSpoiler(),
+                isFileMessage && messageModel.getFileData().isListenOnce()
+            )) {
+                return null;
+            }
+
             return new NotificationService.FetchCacheUri() {
                 @Override
                 @Nullable

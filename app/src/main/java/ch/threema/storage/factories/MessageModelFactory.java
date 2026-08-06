@@ -242,10 +242,7 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         return DatabaseUtil.count(getReadableDatabase().rawQuery(
             "SELECT COUNT(*) FROM " + this.getTableName()
                 + " WHERE " + MessageModel.COLUMN_IDENTITY + "=?"
-                + " AND " + MessageModel.COLUMN_OUTBOX + "=0"
-                + " AND " + MessageModel.COLUMN_IS_SAVED + "=1"
-                + " AND " + MessageModel.COLUMN_IS_READ + "=0"
-                + " AND " + MessageModel.COLUMN_IS_STATUS_MESSAGE + "=0",
+                + " AND " + UNREAD_ROW_WHERE,
             new String[]{
                 identity
             }
@@ -257,10 +254,7 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         return convertList(getReadableDatabase().query(this.getTableName(),
             null,
             MessageModel.COLUMN_IDENTITY + "=?"
-                + " AND " + MessageModel.COLUMN_OUTBOX + "=0"
-                + " AND " + MessageModel.COLUMN_IS_SAVED + "=1"
-                + " AND " + MessageModel.COLUMN_IS_READ + "=0"
-                + " AND " + MessageModel.COLUMN_IS_STATUS_MESSAGE + "=0",
+                + " AND " + UNREAD_ROW_WHERE,
             new String[]{
                 identity
             },
@@ -306,32 +300,18 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
     }
 
     public boolean createOrUpdate(@NonNull MessageModel messageModel) {
-        boolean insert = true;
+        // F1Whisper (sixth fork review F6-01, seventh F7-01, eighth H8-01): see
+        // AbstractMessageModelFactory#refusesReinsertion for why a positive id may never insert, and why the existence
+        // question is asked BY the update rather than before it; and CONTENT_ROW_WHERE for why a row deleted for
+        // everyone answers the same way as a row that has gone.
         if (messageModel.getId() > 0) {
-            Cursor cursor = getReadableDatabase().query(
-                this.getTableName(),
-                null,
-                MessageModel.COLUMN_ID + "=?",
-                new String[]{
-                    String.valueOf(messageModel.getId())
-                },
-                null,
-                null,
-                null
-            );
-
-            if (cursor != null) {
-                try (cursor) {
-                    insert = !cursor.moveToNext();
-                }
+            if (update(messageModel)) {
+                return true;
             }
+            refusesReinsertion(messageModel.getId());
+            return false;
         }
-
-        if (insert) {
-            return create(messageModel);
-        } else {
-            return update(messageModel);
-        }
+        return create(messageModel);
     }
 
     public boolean create(MessageModel messageModel) {
@@ -344,15 +324,22 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         return false;
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-01): reports whether the row was actually written, rather than the constant
+     * {@code true} it used to return. Every caller of a full-row save now has to be able to tell "the row is gone" from
+     * "saved", because caching or transmitting from a model whose row has gone is the disclosure this closes.
+     *
+     * <p>F1Whisper (eighth fork review, H8-01): and a row deleted for everyone is one of the rows it may not write.
+     * See {@link AbstractMessageModelFactory#CONTENT_ROW_WHERE}.</p>
+     */
     public boolean update(MessageModel messageModel) {
         ContentValues contentValues = this.buildContentValues(messageModel);
-        getWritableDatabase().update(this.getTableName(),
+        return getWritableDatabase().update(this.getTableName(),
             contentValues,
-            MessageModel.COLUMN_ID + "=?",
+            CONTENT_ROW_WHERE,
             new String[]{
                 String.valueOf(messageModel.getId())
-            });
-        return true;
+            }) > 0;
     }
 
     public int delete(MessageModel messageModel) {
@@ -372,15 +359,10 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         // OUTGOING messages, because postedAtUtc is overwritten with the send-completion time
         // (sentAt), which is not monotonic with compose order (FS/blob/retry finish out of order).
         // sortAtUtc is never overwritten, so compose order is preserved while incoming rows still
-        // keep sender time (so a reconnect-backlog blob stays below its own replies). The inner CASE
-        // is a defensive fallback for any row written before the v124 backfill. Then id for stability.
-        String orderBy =
-            "COALESCE(" + AbstractMessageModel.COLUMN_SORT_AT + ", "
-                + "CASE WHEN " + AbstractMessageModel.COLUMN_OUTBOX + " = 1 "
-                + "THEN " + AbstractMessageModel.COLUMN_CREATED_AT + " "
-                + "ELSE COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
-                + AbstractMessageModel.COLUMN_CREATED_AT + ") END) DESC, "
-                + MessageModel.COLUMN_ID + " DESC";
+        // keep sender time (so a reconnect-backlog blob stays below its own replies).
+        // Shared TIMELINE_ORDER_BY so the pagination keyset in appendFilter stays in lockstep with
+        // the ordering (fork review H-06).
+        String orderBy = TIMELINE_ORDER_BY;
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(MessageModel.COLUMN_IDENTITY + "=?");
@@ -485,6 +467,42 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
             null,
             null,
             AbstractMessageModel.COLUMN_EXPIRES_AT + " ASC"));
+    }
+
+    /**
+     * F1Whisper disappearing messages: 1:1 rows whose countdown can never reach a deadline, so that
+     * {@link ch.threema.app.services.ExpiryRepairDecision} can decide what to stamp on them.
+     *
+     * <p>Both {@link #getMessagesExpiredBefore(long)} and {@link #getEarliestExpiry()} select on
+     * {@code expiresAtUtc IS NOT NULL}, so a row without a deadline is not merely late to the sweep,
+     * it is invisible to the entire engine. This query is the only thing that can see it.
+     *
+     * <p>Two shapes qualify, both requiring an active frozen timer: a started countdown with no
+     * deadline, and a read incoming message whose countdown never started (the shape a non-atomic
+     * first-read write used to leave behind on a process kill).
+     *
+     * <p>Deliberately bounded by {@code LIMIT} and deliberately not run on the chat-open path: there
+     * is no index that suits this predicate, so it is a table scan, and it belongs on the
+     * boot/app-update path where one scan is affordable and repeated passes converge.
+     */
+    @NonNull
+    public List<MessageModel> getRepairableExpiryCandidates(int limit) {
+        return convertList(getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + " > 0"
+                + " AND ("
+                + "(" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + " IS NOT NULL"
+                + " AND " + AbstractMessageModel.COLUMN_EXPIRES_AT + " IS NULL)"
+                + " OR (" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + " IS NULL"
+                + " AND " + AbstractMessageModel.COLUMN_IS_READ + " = 1"
+                + " AND " + AbstractMessageModel.COLUMN_OUTBOX + " = 0)"
+                + ")",
+            null,
+            null,
+            null,
+            AbstractMessageModel.COLUMN_ID + " ASC",
+            String.valueOf(limit)));
     }
 
     /**

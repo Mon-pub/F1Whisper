@@ -21,27 +21,34 @@ public class UnreadDividerLocatorTest {
 
     private static MessageFlags unread() {
         // incoming, saved, not read, not status
-        return new MessageFlags(false, false, false, true);
+        return new MessageFlags(false, false, false, true, false);
     }
 
     private static MessageFlags read() {
         // incoming, already read
-        return new MessageFlags(false, true, false, true);
+        return new MessageFlags(false, true, false, true, false);
     }
 
     private static MessageFlags outbox() {
         // outgoing (own) message (always considered read)
-        return new MessageFlags(true, true, false, true);
+        return new MessageFlags(true, true, false, true, false);
     }
 
     private static MessageFlags status() {
         // status message (e.g. date separator / call status); must be ignored
-        return new MessageFlags(false, false, true, true);
+        return new MessageFlags(false, false, true, true, false);
     }
 
     private static MessageFlags unsavedIncoming() {
         // incoming but not yet saved -> not counted as unread (matches count predicate)
-        return new MessageFlags(false, false, false, false);
+        return new MessageFlags(false, false, false, false, false);
+    }
+
+    private static MessageFlags deletedForEveryone() {
+        // F1Whisper (device report 2026-08-06, U-01): incoming, saved, not status and NEVER read, because the write
+        // that would record a read refuses a deleted row. Before this flag existed it anchored the divider on every
+        // single open of the conversation, for good.
+        return new MessageFlags(false, false, false, true, true);
     }
 
     private static List<MessageFlags> rows(MessageFlags... flags) {
@@ -126,6 +133,22 @@ public class UnreadDividerLocatorTest {
         // an incoming-but-unsaved row mirrors isSaved=1 in the count predicate: it is skipped
         assertEquals(3, UnreadDividerLocator.findDividerInsertIndex(
             rows(unread(), unsavedIncoming(), unread())));
+    }
+
+    @Test
+    public void deletedForEveryone_neverAnchorsTheDivider() {
+        // The reported failure: the only "unread" row in the window is a message that was deleted for everyone. It can
+        // never be marked read, so a divider drawn here is a divider that is still here on the next open, and the one
+        // after that.
+        assertEquals(-1, UnreadDividerLocator.findDividerInsertIndex(
+            rows(read(), deletedForEveryone(), read())));
+    }
+
+    @Test
+    public void deletedForEveryone_doesNotDragTheAnchorPastTheOldestRealUnread() {
+        // An older tombstone below genuinely unread rows must not pull the divider down to itself.
+        assertEquals(2, UnreadDividerLocator.findDividerInsertIndex(
+            rows(unread(), unread(), deletedForEveryone(), read())));
     }
 
     @Test

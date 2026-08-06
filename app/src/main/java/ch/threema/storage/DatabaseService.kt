@@ -18,7 +18,6 @@ import ch.threema.storage.factories.IncomingGroupSyncRequestLogModelFactory
 import ch.threema.storage.factories.MessageModelFactory
 import ch.threema.storage.factories.OutgoingGroupSyncRequestLogModelFactory
 import ch.threema.storage.factories.RejectedGroupMessageFactory
-import ch.threema.storage.factories.ScheduledMessageModelFactory
 
 @Deprecated("Use Koin to inject model factories directly")
 class DatabaseService(
@@ -76,7 +75,24 @@ class DatabaseService(
     val rejectedGroupMessageFactory: RejectedGroupMessageFactory by lazy {
         RejectedGroupMessageFactory(databaseProvider)
     }
-    val scheduledMessageModelFactory: ScheduledMessageModelFactory by lazy {
-        ScheduledMessageModelFactory(databaseProvider)
+
+    /**
+     * F1Whisper (seventh fork review, F7-03): run [body] as one database transaction, committing only if it returns
+     * normally.
+     *
+     * Added because an edit is two writes to two tables - the history entry holding the OLD plaintext, and the row
+     * holding the new one - and they were not atomic. Delete-for-everyone could clear the row and wipe its history
+     * between them, so the conditional row write correctly refused (deletion always wins) while the history insert had
+     * already committed: the visible message stayed deleted and the plaintext deletion was supposed to remove came back
+     * as a history entry. Either both writes land or neither does.
+     *
+     * Throwing from [body] is how a caller rolls back, and the exception propagates.
+     */
+    fun <T> inTransaction(body: TransactionBody<T>): T =
+        databaseProvider.writableDatabase.runTransaction { body.run() }
+
+    /** Java-callable body for [inTransaction]. */
+    fun interface TransactionBody<T> {
+        fun run(): T
     }
 }

@@ -62,9 +62,15 @@ class EmojiReactionsPopup(
         null,
     )
     private val backgroundColor = ResourcesCompat.getColor(context.resources, android.R.color.transparent, null)
+
     // The six fixed slots in popup_emojireactions, in display order.
     private val reactionSlotIds = intArrayOf(
-        R.id.top_0, R.id.top_1, R.id.top_2, R.id.top_3, R.id.top_4, R.id.top_5,
+        R.id.top_0,
+        R.id.top_1,
+        R.id.top_2,
+        R.id.top_3,
+        R.id.top_4,
+        R.id.top_5,
     )
 
     // Default reaction set, shown when the user has no recent reactions yet. For phase-1 (ACK/DEC

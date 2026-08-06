@@ -11,6 +11,8 @@ import android.text.Layout;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.util.AttributeSet;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -22,6 +24,7 @@ import java.util.Random;
 
 import ch.threema.app.R;
 import ch.threema.app.utils.ConfigUtils;
+import ch.threema.app.utils.OutputRestrictionPolicy;
 
 public class EmojiConversationTextView extends MaterialTextView {
     protected final EmojiMarkupUtil emojiMarkupUtil;
@@ -110,6 +113,77 @@ public class EmojiConversationTextView extends MaterialTextView {
         }
         stopSpoilerAnimation();
         invalidate();
+    }
+
+    /**
+     * F1-PATCH: keep unrevealed spoiler text out of the accessibility tree.
+     *
+     * <p>{@link SpoilerSpan} hides a spoiler by painting its glyphs transparent. That hides it from
+     * the eye and from nothing else: the characters are still in this view's text buffer, so the
+     * default {@code TextView} implementation puts them straight into the node's text and TalkBack
+     * reads the secret aloud. Any accessibility service sees the same thing. The substitution has to
+     * happen on the text handed to the accessibility layer, not on the paint.</p>
+     *
+     * <p>Both the node text and the content description are replaced. Screen readers prefer the
+     * content description, but the node text is what a service reading the tree directly gets, so
+     * setting only one of them would close the announcement and leave the extraction.</p>
+     */
+    @Override
+    public void onInitializeAccessibilityNodeInfo(@NonNull AccessibilityNodeInfo info) {
+        super.onInitializeAccessibilityNodeInfo(info);
+        final CharSequence safeText = accessibilitySafeText();
+        if (safeText != null) {
+            info.setText(safeText);
+            info.setContentDescription(safeText);
+        }
+    }
+
+    @Override
+    public void onPopulateAccessibilityEvent(@NonNull AccessibilityEvent event) {
+        super.onPopulateAccessibilityEvent(event);
+        final CharSequence safeText = accessibilitySafeText();
+        if (safeText != null) {
+            // super populated the raw text; replace the whole list rather than appending to it.
+            event.getText().clear();
+            event.getText().add(safeText);
+        }
+    }
+
+    /**
+     * @return the view's text with every unrevealed spoiler replaced by a localized placeholder, or
+     * {@code null} when there is nothing to hide and the default text should stand.
+     */
+    @Nullable
+    private CharSequence accessibilitySafeText() {
+        final CharSequence text = getText();
+        if (spoilerRevealed || !(text instanceof Spanned) || text.length() == 0) {
+            return null;
+        }
+        final Spanned spanned = (Spanned) text;
+        final SpoilerSpan[] spans = spanned.getSpans(0, spanned.length(), SpoilerSpan.class);
+        if (spans.length == 0) {
+            return null;
+        }
+        final int[] starts = new int[spans.length];
+        final int[] ends = new int[spans.length];
+        int count = 0;
+        for (SpoilerSpan span : spans) {
+            if (span.isRevealed()) {
+                continue;
+            }
+            starts[count] = spanned.getSpanStart(span);
+            ends[count] = spanned.getSpanEnd(span);
+            count++;
+        }
+        if (count == 0) {
+            return null;
+        }
+        return OutputRestrictionPolicy.obscureSpans(
+            text,
+            java.util.Arrays.copyOf(starts, count),
+            java.util.Arrays.copyOf(ends, count),
+            getContext().getString(R.string.spoiler_hidden_content_description)
+        );
     }
 
     @Override

@@ -14,7 +14,6 @@ import ch.threema.app.BuildFlavor
 import ch.threema.app.R
 import ch.threema.app.diagnostics.ConnectivityProbeReportWriter
 import ch.threema.app.diagnostics.ProbeReport
-import ch.threema.app.ThreemaApplication
 import ch.threema.app.files.AppDirectoryProvider
 import ch.threema.app.notifications.NotificationChannels
 import ch.threema.app.preference.service.PreferenceService
@@ -53,13 +52,19 @@ class ExportConnectionDiagnosticsUseCase(
     private val sharedPreferences: SharedPreferences,
     private val preferenceService: PreferenceService,
     private val timeProvider: TimeProvider,
+    // F1Whisper: defaulted so both existing call sites (SettingsAdvancedOptionsFragment,
+    // ConnectivityDiagnosticsDialog) construct this exactly as before. The seam exists so the
+    // connection section can be rendered against a synthetic connection in a JVM test; the default is
+    // the same ThreemaApplication reach-through the section used to do inline.
+    private val connectionDiagnosticsProvider: ConnectionDiagnosticsProvider =
+        DefaultConnectionDiagnosticsProvider(appContext),
 ) {
     @Throws(IOException::class, SecurityException::class)
     suspend fun call(probeReport: ProbeReport? = null): File = withContext(dispatcherProvider.io) {
         // The passive report is a fixed set of short key/value lines (no message contents, no loops),
         // so it is inherently tiny. When a [probeReport] is supplied (the connectivity troubleshooter),
         // append the ACTIVE network-probe section so the shared log carries BOTH the passive OS /
-        // notification / battery snapshot AND the DNS / TLS-SNI / port censorship probes in one file —
+        // notification / battery snapshot AND the DNS / TLS-SNI / port censorship probes in one file -
         // exactly what a post-registration "no messages / can't connect" (censorship) report needs.
         // The overall cap is pure belt-and-suspenders against any pathological field.
         val report = buildString {
@@ -114,11 +119,11 @@ class ExportConnectionDiagnosticsUseCase(
             kv("build flavor") { BuildFlavor.current.fullDisplayName }
         }
 
-        section("connection") {
-            kv("csp state") { ThreemaApplication.requireServiceManager().connection.connectionState }
-            kv("has identity") { ThreemaApplication.requireServiceManager().userService.hasIdentity() }
-            kv("uses multi device") { ThreemaApplication.requireServiceManager().multiDeviceManager.isMultiDeviceActive }
-        }
+        // F1Whisper: the connection section answers "why is it DISCONNECTED", not just "what is the
+        // state". It is rendered through an injected provider so it is JVM-testable; the default
+        // provider performs exactly the ThreemaApplication reach-through this used to do inline, so
+        // both existing call sites are unchanged.
+        ConnectionDiagnosticsSection.append(this, connectionDiagnosticsProvider)
 
         section("push") {
             kv("uses threema/F1 push (polling)") { ConfigUtils.useThreemaPush(sharedPreferences, appContext) }
@@ -180,33 +185,12 @@ class ExportConnectionDiagnosticsUseCase(
         else -> "unknown"
     }
 
-    /**
-     * Append a `key:\tvalue` line, capturing the value lazily so any single failing probe degrades
-     * to `n/a (...)` instead of aborting the whole report.
-     */
-    private fun StringBuilder.kv(key: String, value: () -> Any?) {
-        val rendered = try {
-            value()?.toString() ?: "null"
-        } catch (e: Throwable) {
-            "n/a (${e.javaClass.simpleName})"
-        }
-        // Hard-cap any single value so one unexpectedly long probe result can never bloat the report.
-        val capped = if (rendered.length > MAX_VALUE_CHARS) rendered.take(MAX_VALUE_CHARS) + "…" else rendered
-        appendLine("$key:\t$capped")
-    }
-
-    private fun StringBuilder.section(title: String, block: StringBuilder.() -> Unit) {
-        appendLine()
-        appendLine("# $title")
-        block()
-    }
-
     companion object {
         private const val ZIP_FILE_NAME = "connection_diagnostics.zip"
         private const val LOG_FILE_NAME = "connection_diagnostic.log"
 
-        // Generous caps; the real report is well under 2 KB. Purely defensive against overflow.
-        private const val MAX_VALUE_CHARS = 512
+        // Generous cap; the real report is well under 2 KB. Purely defensive against overflow.
+        // The per-value cap lives with the shared helpers in DiagnosticsReportFormat.kt.
         private const val MAX_REPORT_CHARS = 64 * 1024
     }
 }

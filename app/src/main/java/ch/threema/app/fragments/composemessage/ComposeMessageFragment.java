@@ -29,7 +29,6 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.format.DateFormat;
 import android.text.format.DateUtils;
 import android.util.SparseBooleanArray;
 import android.view.Gravity;
@@ -83,7 +82,6 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -181,6 +179,7 @@ import ch.threema.app.emojis.EmojiButton;
 import ch.threema.app.emojis.EmojiMarkupUtil;
 import ch.threema.app.emojis.EmojiPicker;
 import ch.threema.app.emojis.EmojiTextView;
+import ch.threema.app.emojis.MarkupParser;
 import ch.threema.app.glide.AvatarOptions;
 import ch.threema.app.home.HomeActivity;
 import ch.threema.app.listeners.BallotListener;
@@ -222,7 +221,6 @@ import ch.threema.app.services.GroupService;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.services.RingtoneService;
 import ch.threema.app.services.DisappearingMessageService;
-import ch.threema.app.services.ScheduledMessageService;
 import ch.threema.app.services.UserService;
 import ch.threema.app.services.VoiceMessagePlayerService;
 import ch.threema.app.services.WallpaperService;
@@ -279,6 +277,8 @@ import ch.threema.app.utils.DisappearingMessageUtil;
 import ch.threema.app.utils.NameUtil;
 import ch.threema.app.utils.MessageUtilKt;
 import ch.threema.app.utils.NavigationUtil;
+import ch.threema.app.utils.PageDispatch;
+import ch.threema.app.utils.PageRequestGuard;
 import ch.threema.app.utils.QuoteUtil;
 import ch.threema.app.utils.MimeUtil;
 import ch.threema.app.utils.RuntimeUtil;
@@ -314,6 +314,7 @@ import ch.threema.domain.protocol.csp.ProtocolDefines;
 import ch.threema.domain.taskmanager.TriggerSource;
 import ch.threema.storage.DatabaseService;
 import ch.threema.storage.factories.RejectedGroupMessageFactory;
+import ch.threema.storage.PageCursor;
 import ch.threema.storage.models.AbstractMessageModel;
 import ch.threema.storage.models.ContactModel;
 import ch.threema.storage.models.ConversationModel;
@@ -323,7 +324,6 @@ import ch.threema.storage.models.DistributionListModel;
 import ch.threema.storage.models.FirstUnreadMessageModel;
 import ch.threema.storage.models.MessageModel;
 import ch.threema.storage.models.MessageState;
-import ch.threema.storage.models.ScheduledMessageModel;
 import ch.threema.storage.models.MessageType;
 import ch.threema.storage.models.ballot.BallotModel;
 import ch.threema.storage.models.data.DisplayTag;
@@ -438,9 +438,6 @@ public class ComposeMessageFragment extends Fragment implements
     private AudioManager audioManager;
     private ConversationListView convListView;
     private FrameLayout historyParent;
-    // F1Whisper: scheduled-messages indicator bar
-    private @Nullable View scheduledMessagesBar;
-    private @Nullable TextView scheduledMessagesCount;
     private @Nullable ComposeMessageAdapter composeMessageAdapter;
     private View isTypingView;
 
@@ -544,7 +541,17 @@ public class ComposeMessageFragment extends Fragment implements
     private EmojiPicker emojiPicker;
     private EmojiButton emojiButton;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Integer currentPageReferenceId = null;
+    // F1Whisper (follow-up review P0-6, second follow-up S2-05): the pagination boundary as ONE
+    // immutable (effective sort key, id) tuple in ONE volatile field — captured from the LOADED
+    // model, never reconstructed from a deletable database row, and impossible to observe torn
+    // from the worker threads that build page queries.
+    @Nullable
+    private volatile PageCursor pageCursor = null;
+    // S2-05: request-generation guard — page results dispatched before a cursor RESET
+    // (conversation switch, empty-chat reset) must not be applied after it. Package-private (not
+    // private): the guard is read from the fragment's inner async callbacks (refresh event, quote
+    // catch-up), so direct field access avoids a synthetic accessor (lint SyntheticAccessor).
+    final PageRequestGuard pageRequestGuard = new PageRequestGuard();
     private EmojiTextView actionBarTitleTextView;
     private TextView actionBarSubtitleTextView;
     private VerificationLevelImageView actionBarSubtitleImageView;
@@ -573,6 +580,9 @@ public class ComposeMessageFragment extends Fragment implements
     private View pinnedBannerContainer;
     private TextView pinnedBannerPreview;
     private TextView pinnedBannerLabel;
+    // The banner is a single line; anything longer is elided by the central preview builder rather
+    // than by the TextView, so the string that reaches the view is already bounded.
+    private static final int PINNED_BANNER_PREVIEW_MAX_LENGTH = 120;
     // uids of the currently-pinned messages, in pin (list) order; rebuilt on every banner refresh
     private final List<String> pinnedMessageUids = new ArrayList<>();
     // uid of the message currently shown in the banner (the next tap jumps to THIS one)
@@ -659,53 +669,6 @@ public class ComposeMessageFragment extends Fragment implements
     public boolean shouldHandleLinkClick() {
         return !isActionModeEnabled();
     }
-
-    private final MessageService.MessageFilter nextMessageFilter = new MessageService.MessageFilter() {
-        @Override
-        public long getPageSize() {
-            return MESSAGE_PAGE_SIZE;
-        }
-
-        @Override
-        public Integer getPageReferenceId() {
-            return getCurrentPageReferenceId();
-        }
-
-        @Override
-        public boolean withStatusMessages() {
-            return true;
-        }
-
-        @Override
-        public boolean withUnsaved() {
-            return false;
-        }
-
-        @Override
-        public boolean onlyUnread() {
-            return false;
-        }
-
-        @Override
-        public boolean onlyDownloaded() {
-            return false;
-        }
-
-        @Override
-        public MessageType[] types() {
-            return null;
-        }
-
-        @Override
-        public int[] contentTypes() {
-            return null;
-        }
-
-        @Override
-        public int[] displayTags() {
-            return null;
-        }
-    };
 
     // handler to remove dateview button after a certain time
     private final Handler dateViewHandler = new Handler();
@@ -1379,7 +1342,24 @@ public class ComposeMessageFragment extends Fragment implements
             swipeRefreshLayout.setRefreshing(false);
             return;
         }
-        viewModel.loadNextRecords(messageReceiver, nextMessageFilter);
+        // T3-11: only one page load may be outstanding against the current cursor. If the
+        // quote-jump catch-up (or a prior refresh) already owns the slot, drop this refresh rather
+        // than racing it — both reading the same cursor would duplicate/reorder history.
+        final int token = pageRequestGuard.tryBeginLoad();
+        if (token == PageRequestGuard.NO_TOKEN) {
+            logger.info("A page load is already in flight; ignoring pull-to-refresh");
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+        // F1Whisper (fourth fork review, F4-11): hand the view model a frozen receiver and cursor rather than the live
+        // fragment state its worker would otherwise read. Same rule as the quote catch-up and the initial load.
+        final PageDispatch refreshDispatch = snapshotPageDispatch(token);
+        if (refreshDispatch == null) {
+            pageRequestGuard.endLoad(token);
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+        viewModel.loadNextRecords(refreshDispatch.getReceiver(), snapshotMessageFilter(refreshDispatch), token);
     }
 
     @Override
@@ -1512,13 +1492,6 @@ public class ComposeMessageFragment extends Fragment implements
             this.dateView = this.fragmentView.findViewById(R.id.date_separator_container);
             this.dateTextView = this.fragmentView.findViewById(R.id.text_view);
 
-            // F1Whisper: scheduled-messages indicator chip
-            this.scheduledMessagesBar = this.fragmentView.findViewById(R.id.scheduled_messages_bar);
-            this.scheduledMessagesCount = this.fragmentView.findViewById(R.id.scheduled_messages_count);
-            if (this.scheduledMessagesBar != null) {
-                this.scheduledMessagesBar.setOnClickListener(v -> showScheduledMessagesDialog());
-            }
-
             this.editMessageBubbleContainer = this.fragmentView.findViewById(R.id.edit_message_bubble_container);
             this.editMessageBubbleComposeView = this.fragmentView.findViewById(R.id.edit_message_bubble_compose_view);
             this.dimBackground = this.fragmentView.findViewById(R.id.dim_background);
@@ -1650,6 +1623,25 @@ public class ComposeMessageFragment extends Fragment implements
     private void handleViewModelEvent(@NonNull ComposeMessageEvent event) {
         if (event instanceof ComposeMessageEvent.NextRecordsLoaded) {
             onNextRecordsLoadedEvent((ComposeMessageEvent.NextRecordsLoaded) event);
+        } else if (event instanceof ComposeMessageEvent.NextRecordsFailed) {
+            onNextRecordsFailedEvent((ComposeMessageEvent.NextRecordsFailed) event);
+        }
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-10): the other terminal outcome of a page load.
+     *
+     * <p>The fork's refresh acquires a single-load slot before dispatching, and released it only from the success event.
+     * A query that threw emitted nothing, so on a failure that left the process alive the slot stayed owned: the refresh
+     * indicator kept spinning and every later page request was rejected until the conversation was reset. Both outcomes
+     * now release the generation that acquired the slot, and both stop the indicator.</p>
+     */
+    @UiThread
+    private void onNextRecordsFailedEvent(@NonNull ComposeMessageEvent.NextRecordsFailed event) {
+        logger.info("Page load failed (generation {}); releasing the refresh slot", event.generation);
+        pageRequestGuard.endLoad(event.generation);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -1705,6 +1697,19 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     private void onNextRecordsLoadedEvent(@NonNull ComposeMessageEvent.NextRecordsLoaded nextRecodsLoadedEvent) {
+        // T3-11: release the single-load latch this refresh acquired (generation-guarded, so a
+        // stale completion is a no-op and cannot free a newer load's slot). Called in EVERY branch.
+        final int generation = nextRecodsLoadedEvent.generation;
+        // S2-05: drop results computed against a cursor that has since been reset — applying
+        // them would insert rows for a stale boundary (duplicated or misplaced history).
+        if (!pageRequestGuard.isCurrent(generation)) {
+            logger.info("Dropping stale page-load result (generation {})", generation);
+            pageRequestGuard.endLoad(generation);
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            return;
+        }
         valuesLoaded(nextRecodsLoadedEvent.messageModels);
         if (composeMessageAdapter != null) {
             int numberOfInsertedRecords = insertToList(nextRecodsLoadedEvent.messageModels, false, true, true);
@@ -1718,6 +1723,7 @@ public class ComposeMessageFragment extends Fragment implements
         }
         // F1Whisper: a batch of older messages may contain pinned ones; refresh the banner
         updatePinnedBanner();
+        pageRequestGuard.endLoad(generation);
     }
 
     @AnyThread
@@ -2014,9 +2020,6 @@ public class ComposeMessageFragment extends Fragment implements
         updateOngoingCallNotice();
 
         viewModel.onResume(messageReceiver);
-
-        // F1Whisper: refresh the scheduled-messages indicator for this conversation
-        updateScheduledMessagesBar();
     }
 
     @Override
@@ -2387,21 +2390,7 @@ public class ComposeMessageFragment extends Fragment implements
                     logger.info("Send button clicked");
                     sendMessage();
                 }
-            });
-            // F1Whisper: long-press the send button to schedule the currently typed message
-            sendButton.setOnLongClickListener(v -> {
-                if (!validateSendingPermission()) {
-                    return true;
-                }
-                if (TestUtil.isBlankOrNull(messageText.getText())) {
-                    // nothing typed -> let the normal (voice) long-press behaviour stand
-                    return false;
-                }
-                logger.info("Send button long-pressed, showing schedule picker");
-                showScheduleMessagePicker();
-                return true;
-            });
-        }
+            });        }
     }
 
     private void setupEditMessageButtonClickListener(@NonNull AbstractMessageModel messageModel) {
@@ -2906,7 +2895,7 @@ public class ComposeMessageFragment extends Fragment implements
         logger.debug("handleIntent");
         this.isGroupChat = false;
         this.isDistributionListChat = false;
-        setCurrentPageReferenceId(null);
+        clearCurrentPageReference();
         this.reportSpamView.hide();
 
         //remove old indicator every time!
@@ -3501,8 +3490,8 @@ public class ComposeMessageFragment extends Fragment implements
             scrollList(Integer.MAX_VALUE);
         }
 
-        if (!(message instanceof FirstUnreadMessageModel) && currentPageReferenceId == null) {
-            setCurrentPageReferenceId(message.getId());
+        if (!(message instanceof FirstUnreadMessageModel) && pageCursor == null) {
+            setCurrentPageReference(message);
         }
 
         logger.debug("addMessageToList: finished");
@@ -3559,17 +3548,175 @@ public class ComposeMessageFragment extends Fragment implements
     /**
      * Loading the next records for the listview
      */
+    /**
+     * F1Whisper (fourth fork review, F4-11): freeze everything this page load may look at.
+     *
+     * @return {@code null} when there is nothing to load from - the conversation reset sets
+     * {@code messageReceiver} to null before installing the next one, and a worker that resumed inside that window used
+     * to fail on it.
+     */
+    @Nullable
+    private PageDispatch snapshotPageDispatch(int generation) {
+        final MessageReceiver<?> receiver = this.messageReceiver;
+        if (receiver == null) {
+            return null;
+        }
+        // F1Whisper (fifth fork review, F5-03): ONE read of the cursor. This used to pass `this.pageCursor` and then call
+        // getCurrentPageReferenceId(), which reads it again - two live reads of a field a conversation switch replaces,
+        // so a snapshot could carry one conversation's sort key with another's row id.
+        final PageCursor cursor = this.pageCursor;
+        return new PageDispatch(
+            generation,
+            receiver,
+            cursor,
+            cursor != null ? cursor.getId() : null,
+            MESSAGE_PAGE_SIZE
+        );
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-03): the snapshot for a load that reads the WHOLE conversation - the pinned jump,
+     * the in-chat search, and the full pinned-set scan.
+     *
+     * <p>These three had no snapshot at all. They read the fragment's live {@code messageReceiver} on a worker thread and
+     * applied their result unconditionally, so switching conversation while one was running replaced the new
+     * conversation's timeline with the old one's rows, made the old conversation's oldest row the new conversation's
+     * pagination boundary, and could dereference null in the window where a reset has cleared the receiver but not yet
+     * installed the next one.</p>
+     */
+    @Nullable
+    private PageDispatch snapshotFullDispatch(int generation) {
+        final MessageReceiver<?> receiver = this.messageReceiver;
+        if (receiver == null) {
+            return null;
+        }
+        return new PageDispatch(generation, receiver, null, null, PageDispatch.WHOLE_CONVERSATION);
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-03): the snapshot for the large-unread initial load.
+     *
+     * <p>It sized its query from the fragment's live {@code unreadCount} and read the live receiver, so a worker resuming
+     * after a switch queried the NEW conversation with the NEW conversation's count - or dereferenced a null receiver
+     * mid-reset. The count is part of what the load was dispatched with.</p>
+     */
+    @Nullable
+    private PageDispatch snapshotUnreadDispatch(int generation, long unreadPageSize) {
+        final MessageReceiver<?> receiver = this.messageReceiver;
+        if (receiver == null) {
+            return null;
+        }
+        return new PageDispatch(generation, receiver, null, null, unreadPageSize);
+    }
+
+    /**
+     * F1Whisper (fourth fork review, F4-11): the page filter built from a DISPATCH rather than from live fragment state.
+     *
+     * <p>This replaced a fragment-level filter field whose {@code getPageCursor()} and {@code getPageReferenceId()}
+     * read live fragment state, so a worker running after a conversation switch paginated the new conversation.</p>
+     */
+    @NonNull
+    private MessageService.MessageFilter snapshotMessageFilter(@NonNull PageDispatch dispatch) {
+        return new MessageService.MessageFilter() {
+            @Override
+            public long getPageSize() {
+                return dispatch.getPageSize();
+            }
+
+            @Override
+            public Integer getPageReferenceId() {
+                return dispatch.getPageReferenceId();
+            }
+
+            @Nullable
+            @Override
+            public PageCursor getPageCursor() {
+                return dispatch.getCursor();
+            }
+
+            @Override
+            public boolean withStatusMessages() {
+                return true;
+            }
+
+            @Override
+            public boolean withUnsaved() {
+                return false;
+            }
+
+            @Override
+            public boolean onlyUnread() {
+                return false;
+            }
+
+            @Override
+            public boolean onlyDownloaded() {
+                return false;
+            }
+
+            @Override
+            public MessageType[] types() {
+                return null;
+            }
+
+            @Override
+            public int[] contentTypes() {
+                return null;
+            }
+
+            @Override
+            public int[] displayTags() {
+                return null;
+            }
+        };
+    }
+
+    /**
+     * Loading the next records for the listview.
+     *
+     * <p>F1Whisper (fourth fork review, F4-11): queries ONLY what [dispatch] froze, and validates before the query as
+     * well as after it. Reading the fragment's live receiver and cursor here is what let a worker left over from the
+     * previous conversation query the newly opened one and advance ITS cursor, only for the rows to be discarded by the
+     * stale-token check in the completion - a page of history consumed and thrown away.</p>
+     */
     @WorkerThread
-    private List<AbstractMessageModel> getNextRecords() {
-        List<AbstractMessageModel> messageModels = this.messageService.getMessagesForReceiver(this.messageReceiver, this.nextMessageFilter);
-        this.valuesLoaded(messageModels);
+    @Nullable
+    private List<AbstractMessageModel> getNextRecords(@NonNull PageDispatch dispatch) {
+        if (!dispatch.isCurrentIn(pageRequestGuard)) {
+            logger.info("Not querying a page whose conversation was replaced before the load started");
+            return null;
+        }
+        List<AbstractMessageModel> messageModels =
+            this.messageService.getMessagesForReceiver(dispatch.getReceiver(), snapshotMessageFilter(dispatch));
+        // F1Whisper (fifth fork review, F5-03): the check and the cursor move are ONE step. Asking isCurrent and then
+        // calling valuesLoaded separately was a check-then-act: a conversation reset landing between them invalidated the
+        // generation and the worker restored this conversation's boundary over the new one anyway.
+        pageRequestGuard.runIfCurrent(dispatch.getGeneration(), () -> valuesLoaded(messageModels));
         return messageModels;
     }
 
+    /**
+     * Load the ENTIRE conversation named by [dispatch].
+     *
+     * <p>F1Whisper (fifth fork review, F5-03): takes a dispatch, like every other loader. It used to read the fragment's
+     * live {@code messageReceiver} on a worker thread and advance the cursor unconditionally, so a full load started for
+     * chat A and finishing after a switch to chat B queried B, replaced B's timeline with rows it had fetched for A, and
+     * made A's boundary B's cursor.</p>
+     *
+     * @return the rows, or {@code null} when the load no longer belongs to the open conversation.
+     */
     @WorkerThread
-    private List<AbstractMessageModel> getAllRecords() {
-        List<AbstractMessageModel> messageModels = this.messageService.getMessagesForReceiver(this.messageReceiver);
-        this.valuesLoaded(messageModels);
+    @Nullable
+    private List<AbstractMessageModel> getAllRecords(@NonNull PageDispatch dispatch) {
+        if (!dispatch.isCurrentIn(pageRequestGuard)) {
+            logger.info("Not querying a full conversation whose chat was replaced before the load started");
+            return null;
+        }
+        List<AbstractMessageModel> messageModels = this.messageService.getMessagesForReceiver(dispatch.getReceiver());
+        if (!pageRequestGuard.runIfCurrent(dispatch.getGeneration(), () -> valuesLoaded(messageModels))) {
+            logger.info("Dropping a full conversation load whose chat was replaced while it ran");
+            return null;
+        }
         return messageModels;
     }
 
@@ -3615,11 +3762,17 @@ public class ComposeMessageFragment extends Fragment implements
             // contains an unread row, but only one divider may ever render. Drop an incoming divider
             // when the list already carries one (initial-open still gets its single divider because
             // clear() emptied the list first).
+            // F1Whisper (third follow-up T3-11): defense-in-depth against overlapping page loads
+            // (pull-to-refresh + quote-jump catch-up reading the same cursor page) inserting the
+            // same rows twice. Collect the message ids already shown and detect an existing unread
+            // divider in one pass; skip any incoming row whose id is already present.
             boolean dividerAlreadyPresent = false;
+            final Set<Integer> presentMessageIds = new HashSet<>();
             for (AbstractMessageModel existing : this.messageValues) {
                 if (existing instanceof FirstUnreadMessageModel) {
                     dividerAlreadyPresent = true;
-                    break;
+                } else if (!(existing instanceof DateSeparatorMessageModel)) {
+                    presentMessageIds.add(existing.getId());
                 }
             }
 
@@ -3629,6 +3782,10 @@ public class ComposeMessageFragment extends Fragment implements
                         continue;
                     }
                     dividerAlreadyPresent = true;
+                } else if (!(m instanceof DateSeparatorMessageModel) && !presentMessageIds.add(m.getId())) {
+                    // T3-11: this row is already in the list (a concurrent page load inserted it) —
+                    // skip the duplicate rather than showing it twice / reordering history.
+                    continue;
                 }
 
                 Date createdAt = m.getCreatedAt();
@@ -3682,7 +3839,7 @@ public class ComposeMessageFragment extends Fragment implements
             if (topMessageModel instanceof FirstUnreadMessageModel && values.size() > 1) {
                 topMessageModel = values.get(values.size() - 2);
             }
-            setCurrentPageReferenceId(topMessageModel.getId());
+            setCurrentPageReference(topMessageModel);
         }
     }
 
@@ -3694,6 +3851,18 @@ public class ComposeMessageFragment extends Fragment implements
     private void initConversationList(@Nullable Runnable runAfter) {
         this.unreadCount = (int) this.messageReceiver.getUnreadMessagesCount();
         if (this.unreadCount > MESSAGE_PAGE_SIZE) {
+            // S2-05: drop the initial-load result if the cursor was reset (conversation switched)
+            // while it was in flight — a newer initConversationList owns the list then.
+            final int initialLoadToken = pageRequestGuard.current();
+            // F1Whisper (fifth fork review, F5-03): the receiver AND the count are frozen here. The worker used to read
+            // both live, so one resuming after a switch queried the NEW conversation with the NEW conversation's unread
+            // count, or dereferenced null in the window where a reset has cleared the receiver but not yet installed the
+            // next one.
+            final PageDispatch initialUnreadDispatch = snapshotUnreadDispatch(initialLoadToken, this.unreadCount);
+            if (initialUnreadDispatch == null) {
+                logger.info("Initial conversation load abandoned: no conversation is open");
+                return;
+            }
             new AsyncTask<Void, Void, List<AbstractMessageModel>>() {
                 @Override
                 protected void onPreExecute() {
@@ -3702,10 +3871,10 @@ public class ComposeMessageFragment extends Fragment implements
 
                 @Override
                 protected List<AbstractMessageModel> doInBackground(Void... voids) {
-                    return messageService.getMessagesForReceiver(messageReceiver, new MessageService.MessageFilter() {
+                    return messageService.getMessagesForReceiver(initialUnreadDispatch.getReceiver(), new MessageService.MessageFilter() {
                         @Override
                         public long getPageSize() {
-                            return unreadCount;
+                            return initialUnreadDispatch.getPageSize();
                         }
 
                         @Override
@@ -3752,16 +3921,24 @@ public class ComposeMessageFragment extends Fragment implements
 
                 @Override
                 protected void onPostExecute(List<AbstractMessageModel> values) {
-                    valuesLoaded(values);
-                    populateList(values);
+                    // F1Whisper (fifth fork review, F5-03): the check and both mutations are ONE step against a reset.
+                    final boolean applied = pageRequestGuard.runIfCurrent(initialLoadToken, () -> {
+                        valuesLoaded(values);
+                        populateList(values);
+                    });
                     DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_LOADING_MESSAGES, true);
+                    if (!applied) {
+                        logger.info("Dropping stale initial conversation load (cursor was reset)");
+                        return;
+                    }
                     if (runAfter != null) {
                         runAfter.run();
                     }
                 }
             }.execute();
         } else {
-            populateList(getNextRecords());
+            final PageDispatch initialDispatch = snapshotPageDispatch(pageRequestGuard.current());
+            populateList(initialDispatch == null ? null : getNextRecords(initialDispatch));
             if (runAfter != null) {
                 runAfter.run();
             }
@@ -4288,12 +4465,30 @@ public class ComposeMessageFragment extends Fragment implements
             @Override
             public void onFilterComplete(int count) {
                 if (count == 0) {
+                    // S2-05 + T3-11: the quote-search catch-up loop races the pull-to-refresh path.
+                    // Acquire the single page-load slot so the two can never read the same cursor
+                    // page; if refresh (or a prior iteration) already owns it, abort this catch-up.
+                    // The returned token doubles as the S2-05 generation for the stale-result check.
+                    final int quoteSearchToken = pageRequestGuard.tryBeginLoad();
+                    if (quoteSearchToken == PageRequestGuard.NO_TOKEN) {
+                        logger.info("A page load is already in flight; aborting quote-search catch-up");
+                        DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
+                        return;
+                    }
+                    // F1Whisper (fourth fork review, F4-11): freeze the conversation and cursor at dispatch, so this
+                    // catch-up can never query or advance whatever chat happens to be open when it runs.
+                    final PageDispatch quoteDispatch = snapshotPageDispatch(quoteSearchToken);
+                    if (quoteDispatch == null) {
+                        pageRequestGuard.endLoad(quoteSearchToken);
+                        DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
+                        return;
+                    }
                     new AsyncTask<Void, Void, Integer>() {
                         List<AbstractMessageModel> messageModels;
 
                         @Override
                         protected Integer doInBackground(Void... params) {
-                            messageModels = getNextRecords();
+                            messageModels = getNextRecords(quoteDispatch);
                             if (messageModels != null) {
                                 return messageModels.size();
                             }
@@ -4302,21 +4497,32 @@ public class ComposeMessageFragment extends Fragment implements
 
                         @Override
                         protected void onPostExecute(Integer result) {
-                            if (getContext() != null) {
-                                if (result != null && result > 0) {
-                                    insertToList(messageModels, false, false, true);
-
-                                    if (getFragmentManager() != null) {
-                                        if (getFragmentManager().findFragmentByTag(DIALOG_TAG_SEARCHING) == null) {
-                                            GenericProgressDialog.newInstance(R.string.searching, R.string.please_wait).show(getFragmentManager(), DIALOG_TAG_SEARCHING);
-                                        }
-                                        searchV2Quote(apiMessageId, filter);
+                            if (getContext() == null) {
+                                // Fragment detached mid-load: free the slot (generation-guarded).
+                                pageRequestGuard.endLoad(quoteSearchToken);
+                                return;
+                            }
+                            if (!pageRequestGuard.isCurrent(quoteSearchToken)) {
+                                logger.info("Dropping stale quote-search page (cursor was reset)");
+                                pageRequestGuard.endLoad(quoteSearchToken);
+                                DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
+                                return;
+                            }
+                            if (result != null && result > 0) {
+                                insertToList(messageModels, false, false, true);
+                                // Release BEFORE recursing so the next catch-up page can acquire.
+                                pageRequestGuard.endLoad(quoteSearchToken);
+                                if (getFragmentManager() != null) {
+                                    if (getFragmentManager().findFragmentByTag(DIALOG_TAG_SEARCHING) == null) {
+                                        GenericProgressDialog.newInstance(R.string.searching, R.string.please_wait).show(getFragmentManager(), DIALOG_TAG_SEARCHING);
                                     }
-                                } else {
-                                    SingleToast.getInstance().showShortText(getString(R.string.quote_not_found));
-                                    swipeRefreshLayout.setEnabled(false);
-                                    DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
+                                    searchV2Quote(apiMessageId, filter);
                                 }
+                            } else {
+                                pageRequestGuard.endLoad(quoteSearchToken);
+                                SingleToast.getInstance().showShortText(getString(R.string.quote_not_found));
+                                swipeRefreshLayout.setEnabled(false);
+                                DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
                             }
                         }
                     }.execute();
@@ -4636,180 +4842,7 @@ public class ComposeMessageFragment extends Fragment implements
         }).start();
     }
 
-    // region F1Whisper scheduled messages
-
-    /**
-     * Telegram-style scheduling: a single bottom sheet with smooth day / hour / minute wheels
-     * (plus an AM/PM wheel on 12-hour locales). On confirm, schedule the currently typed message.
-     */
-    private void showScheduleMessagePicker() {
-        showScheduleMessagePicker(null);
-    }
-
-    /**
-     * Show the day/time wheel picker. When {@code existing} is {@code null} the picker schedules the
-     * currently typed message; otherwise it reschedules the given pending message (seeded with its
-     * current fire time).
-     */
-    private void showScheduleMessagePicker(@Nullable final ScheduledMessageModel existing) {
-        final Context context = getContext();
-        if (messageReceiver == null || context == null) {
-            return;
-        }
-
-        final boolean is24h = DateFormat.is24HourFormat(context);
-        final BottomSheetDialog dialog = new BottomSheetDialog(context);
-        final View sheet = LayoutInflater.from(context)
-            .inflate(R.layout.bottom_sheet_schedule_message, null);
-        dialog.setContentView(sheet);
-
-        final NumberPicker dayPicker = sheet.findViewById(R.id.day_picker);
-        final NumberPicker hourPicker = sheet.findViewById(R.id.hour_picker);
-        final NumberPicker minutePicker = sheet.findViewById(R.id.minute_picker);
-        final NumberPicker ampmPicker = sheet.findViewById(R.id.ampm_picker);
-        final MaterialButton confirmButton = sheet.findViewById(R.id.schedule_confirm_button);
-
-        // Seed the wheels from the existing fire time when rescheduling, otherwise from now.
-        final Calendar seed = Calendar.getInstance();
-        if (existing != null && existing.getScheduledAt() > System.currentTimeMillis()) {
-            seed.setTimeInMillis(existing.getScheduledAt());
-        }
-
-        // Day offset (in calendar days) of the seed relative to today, for the day wheel default.
-        final Calendar startOfToday = Calendar.getInstance();
-        startOfToday.set(Calendar.HOUR_OF_DAY, 0);
-        startOfToday.set(Calendar.MINUTE, 0);
-        startOfToday.set(Calendar.SECOND, 0);
-        startOfToday.set(Calendar.MILLISECOND, 0);
-        final long dayMillis = 24L * 60 * 60 * 1000;
-        int seedDayOffset = (int) ((seed.getTimeInMillis() - startOfToday.getTimeInMillis()) / dayMillis);
-
-        // Day wheel: a year of days, labelled Today / Tomorrow / a localized weekday-date.
-        final int daysAhead = 365;
-        if (seedDayOffset < 0) {
-            seedDayOffset = 0;
-        } else if (seedDayOffset > daysAhead) {
-            seedDayOffset = daysAhead;
-        }
-        final String[] dayLabels = new String[daysAhead + 1];
-        final Calendar dayCursor = Calendar.getInstance();
-        for (int i = 0; i <= daysAhead; i++) {
-            if (i == 0) {
-                dayLabels[i] = context.getString(R.string.schedule_today);
-            } else if (i == 1) {
-                dayLabels[i] = context.getString(R.string.schedule_tomorrow);
-            } else {
-                dayLabels[i] = DateUtils.formatDateTime(
-                    context,
-                    dayCursor.getTimeInMillis(),
-                    DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_DATE
-                        | DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_NO_YEAR);
-            }
-            dayCursor.add(Calendar.DAY_OF_MONTH, 1);
-        }
-        dayPicker.setMinValue(0);
-        dayPicker.setMaxValue(daysAhead);
-        dayPicker.setDisplayedValues(dayLabels);
-        dayPicker.setWrapSelectorWheel(false);
-        dayPicker.setValue(seedDayOffset);
-
-        // Minute wheel: 00..59, zero-padded.
-        final NumberPicker.Formatter twoDigits =
-            value -> String.format(java.util.Locale.getDefault(), "%02d", value);
-        minutePicker.setMinValue(0);
-        minutePicker.setMaxValue(59);
-        minutePicker.setFormatter(twoDigits);
-        minutePicker.setValue(seed.get(Calendar.MINUTE));
-        minutePicker.setWrapSelectorWheel(true);
-
-        // Hour wheel: 0..23 on 24h locales, else 1..12 with an AM/PM wheel.
-        if (is24h) {
-            hourPicker.setMinValue(0);
-            hourPicker.setMaxValue(23);
-            hourPicker.setFormatter(twoDigits);
-            hourPicker.setValue(seed.get(Calendar.HOUR_OF_DAY));
-            ampmPicker.setVisibility(View.GONE);
-        } else {
-            hourPicker.setMinValue(1);
-            hourPicker.setMaxValue(12);
-            int hour12 = seed.get(Calendar.HOUR);
-            hourPicker.setValue(hour12 == 0 ? 12 : hour12);
-            final String[] ampmLabels =
-                new java.text.DateFormatSymbols(java.util.Locale.getDefault()).getAmPmStrings();
-            ampmPicker.setMinValue(0);
-            ampmPicker.setMaxValue(1);
-            ampmPicker.setDisplayedValues(ampmLabels);
-            ampmPicker.setValue(seed.get(Calendar.AM_PM));
-            ampmPicker.setWrapSelectorWheel(false);
-            ampmPicker.setVisibility(View.VISIBLE);
-        }
-
-        confirmButton.setOnClickListener(v -> {
-            final Calendar scheduled = Calendar.getInstance();
-            scheduled.add(Calendar.DAY_OF_MONTH, dayPicker.getValue());
-            final int hourOfDay;
-            if (is24h) {
-                hourOfDay = hourPicker.getValue();
-            } else {
-                final int base12 = hourPicker.getValue() % 12; // 12 -> 0
-                hourOfDay = ampmPicker.getValue() == Calendar.PM ? base12 + 12 : base12;
-            }
-            scheduled.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            scheduled.set(Calendar.MINUTE, minutePicker.getValue());
-            scheduled.set(Calendar.SECOND, 0);
-            scheduled.set(Calendar.MILLISECOND, 0);
-            final long atMillis = scheduled.getTimeInMillis();
-
-            if (atMillis <= System.currentTimeMillis()) {
-                Toast.makeText(getActivity(), R.string.scheduled_time_in_past, Toast.LENGTH_SHORT).show();
-                return;
-            }
-            dialog.dismiss();
-            if (existing != null) {
-                ScheduledMessageService.getInstance().reschedule(existing.getId(), atMillis);
-                Toast.makeText(getActivity(), R.string.scheduled_message_rescheduled, Toast.LENGTH_SHORT).show();
-                updateScheduledMessagesBar();
-            } else {
-                scheduleCurrentMessage(atMillis);
-            }
-        });
-
-        dialog.show();
-    }
-
-    /**
-     * Persist the currently typed message (quote-encoded like an immediate send) into the
-     * scheduled-messages store for the given fire time.
-     */
-    private void scheduleCurrentMessage(long atMillis) {
-        if (messageReceiver == null) {
-            return;
-        }
-
-        final CharSequence message;
-        if (isQuotePopupShown()) {
-            QuotePopup.QuoteInfo quoteInfo = quotePopup.getQuoteInfo();
-            message = QuoteUtil.quote(
-                this.messageText.getText().toString(),
-                quoteInfo.getQuoteIdentity(),
-                quoteInfo.getQuoteText(),
-                quoteInfo.getMessageModel()
-            );
-            messageText.postDelayed(this::dismissQuotePopup, 500);
-        } else {
-            message = this.messageText.getText();
-        }
-
-        if (TestUtil.isBlankOrNull(message)) {
-            logger.warn("Scheduled message text is empty");
-            return;
-        }
-
-        ScheduledMessageService.getInstance().schedule(messageReceiver, message.toString(), atMillis);
-        messageText.setText("");
-        LongToast.makeText(getActivity(), R.string.message_scheduled, Toast.LENGTH_SHORT).show();
-        updateScheduledMessagesBar();
-    }
+    // region F1Whisper disappearing messages
 
     /**
      * F1Whisper: show the disappearing-messages duration picker (Signal-style fixed presets). On
@@ -4856,184 +4889,6 @@ public class ComposeMessageFragment extends Fragment implements
         });
 
         dialog.show();
-    }
-
-    @Nullable
-    private String scheduledReceiverKey() {
-        if (messageReceiver == null) {
-            return null;
-        }
-        return ScheduledMessageService.receiverKeyOf(messageReceiver);
-    }
-
-    /**
-     * Refresh the scheduled-messages indicator chip for the current conversation.
-     */
-    private void updateScheduledMessagesBar() {
-        if (scheduledMessagesBar == null || messageReceiver == null) {
-            return;
-        }
-        final int receiverType = messageReceiver.getType();
-        final String receiverKey = scheduledReceiverKey();
-        if (receiverKey == null) {
-            scheduledMessagesBar.setVisibility(View.GONE);
-            return;
-        }
-        new Thread(() -> {
-            final int count = ScheduledMessageService.getInstance().countByReceiver(receiverType, receiverKey);
-            RuntimeUtil.runOnUiThread(() -> {
-                if (scheduledMessagesBar == null) {
-                    return;
-                }
-                if (count > 0) {
-                    if (scheduledMessagesCount != null) {
-                        scheduledMessagesCount.setText(getString(R.string.scheduled_messages_count, count));
-                    }
-                    scheduledMessagesBar.setVisibility(View.VISIBLE);
-                } else {
-                    scheduledMessagesBar.setVisibility(View.GONE);
-                }
-            });
-        }).start();
-    }
-
-    /**
-     * Show a dialog listing the pending scheduled messages for this conversation, each cancellable.
-     */
-    private void showScheduledMessagesDialog() {
-        if (messageReceiver == null) {
-            return;
-        }
-        final int receiverType = messageReceiver.getType();
-        final String receiverKey = scheduledReceiverKey();
-        if (receiverKey == null) {
-            return;
-        }
-
-        new Thread(() -> {
-            final List<ScheduledMessageModel> models =
-                ScheduledMessageService.getInstance().getByReceiver(receiverType, receiverKey);
-            RuntimeUtil.runOnUiThread(() -> {
-                if (!isAdded()) {
-                    return;
-                }
-                if (models.isEmpty()) {
-                    Toast.makeText(getActivity(), R.string.no_scheduled_messages, Toast.LENGTH_SHORT).show();
-                    updateScheduledMessagesBar();
-                    return;
-                }
-
-                final CharSequence[] entries = new CharSequence[models.size()];
-                for (int i = 0; i < models.size(); i++) {
-                    ScheduledMessageModel model = models.get(i);
-                    Date when = new Date(model.getScheduledAt());
-                    String dateStr = DateUtils.formatDateTime(getContext(), when.getTime(),
-                        DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME);
-                    String preview = model.getBody();
-                    if (preview != null && preview.length() > 40) {
-                        preview = preview.substring(0, 40) + "…";
-                    }
-                    entries[i] = getString(R.string.scheduled_message_send_at, dateStr, preview != null ? preview : "");
-                }
-
-                new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(R.string.scheduled_messages_title)
-                    .setItems(entries, (dialog, which) ->
-                        showScheduledMessageActions(models.get(which)))
-                    .setNegativeButton(R.string.close, null)
-                    .show();
-            });
-        }).start();
-    }
-
-    /**
-     * Per-item action chooser for a pending scheduled message: send now, edit text, reschedule, or
-     * delete (Telegram-style scheduled-message management).
-     */
-    private void showScheduledMessageActions(@NonNull ScheduledMessageModel model) {
-        if (!isAdded()) {
-            return;
-        }
-        final CharSequence[] actions = new CharSequence[]{
-            getString(R.string.scheduled_message_action_send_now),
-            getString(R.string.edit),
-            getString(R.string.scheduled_message_action_reschedule),
-            getString(R.string.delete),
-        };
-        new MaterialAlertDialogBuilder(requireContext())
-            .setItems(actions, (d, which) -> {
-                switch (which) {
-                    case 0: // send now
-                        new Thread(() -> {
-                            ScheduledMessageService.getInstance().sendNow(model.getId());
-                            RuntimeUtil.runOnUiThread(() -> {
-                                if (!isAdded()) {
-                                    return;
-                                }
-                                Toast.makeText(getActivity(), R.string.message_sent, Toast.LENGTH_SHORT).show();
-                                updateScheduledMessagesBar();
-                            });
-                        }).start();
-                        break;
-                    case 1: // edit text
-                        showEditScheduledMessageText(model);
-                        break;
-                    case 2: // reschedule
-                        showScheduleMessagePicker(model);
-                        break;
-                    case 3: // delete
-                        new MaterialAlertDialogBuilder(requireContext())
-                            .setMessage(R.string.scheduled_message_cancel)
-                            .setPositiveButton(R.string.ok, (dd, w) -> {
-                                ScheduledMessageService.getInstance().cancel(model.getId());
-                                Toast.makeText(getActivity(), R.string.scheduled_message_canceled, Toast.LENGTH_SHORT).show();
-                                updateScheduledMessagesBar();
-                            })
-                            .setNegativeButton(R.string.cancel, null)
-                            .show();
-                        break;
-                    default:
-                        break;
-                }
-            })
-            .setNegativeButton(R.string.cancel, null)
-            .show();
-    }
-
-    /**
-     * Edit the body text of a pending scheduled message in place (fire time unchanged).
-     */
-    private void showEditScheduledMessageText(@NonNull ScheduledMessageModel model) {
-        if (!isAdded()) {
-            return;
-        }
-        final EditText input = new EditText(requireContext());
-        input.setText(model.getBody());
-        input.setSelection(input.getText().length());
-        final int pad = (int) (16 * getResources().getDisplayMetrics().density);
-        final FrameLayout container = new FrameLayout(requireContext());
-        container.setPadding(pad, pad / 2, pad, 0);
-        container.addView(input);
-
-        new MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.scheduled_message_edit_title)
-            .setView(container)
-            .setPositiveButton(R.string.ok, (d, w) -> {
-                final String newBody = input.getText().toString();
-                if (TestUtil.isBlankOrNull(newBody)) {
-                    return;
-                }
-                new Thread(() -> {
-                    ScheduledMessageService.getInstance().updateBody(model.getId(), newBody);
-                    RuntimeUtil.runOnUiThread(() -> {
-                        if (isAdded()) {
-                            Toast.makeText(getActivity(), R.string.scheduled_message_updated, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }).start();
-            })
-            .setNegativeButton(R.string.cancel, null)
-            .show();
     }
 
     // endregion
@@ -5492,9 +5347,9 @@ public class ComposeMessageFragment extends Fragment implements
      */
     private void toggleStar(@Nullable AbstractMessageModel messageModel) {
         if (messageModel != null && messageReceiver != null) {
-            messageModel.setDisplayTags(messageModel.getDisplayTags() ^ DISPLAY_TAG_STARRED);
-            messageModel.setSaved(true);
-            messageReceiver.saveLocalModel(messageModel);
+            // F1Whisper (sixth fork review, F6-01): one conditional column write, not a full-row save of a timeline
+            // instance loaded when the page was. See MessageService#toggleDisplayTag.
+            messageService.toggleDisplayTag(messageModel, DISPLAY_TAG_STARRED);
         }
     }
 
@@ -5506,11 +5361,13 @@ public class ComposeMessageFragment extends Fragment implements
     @UiThread
     private void togglePin(@Nullable AbstractMessageModel messageModel) {
         if (messageModel != null && messageReceiver != null) {
-            final int newTags = messageModel.getDisplayTags() ^ DISPLAY_TAG_PINNED;
-            final boolean nowPinned = (newTags & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED;
-            messageModel.setDisplayTags(newTags);
-            messageModel.setSaved(true);
-            messageReceiver.saveLocalModel(messageModel);
+            // F1Whisper (sixth fork review, F6-01): one conditional column write, not a full-row save of a timeline
+            // instance loaded when the page was. See MessageService#toggleDisplayTag. The resulting bitmask is read back
+            // from the model, which the write mirrors, so a refused write leaves the banner state untouched too.
+            if (!messageService.toggleDisplayTag(messageModel, DISPLAY_TAG_PINNED)) {
+                return;
+            }
+            final boolean nowPinned = (messageModel.getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED;
             // Keep the known full pin set in sync immediately so the banner counter is correct
             // without waiting on the async full scan (which still runs to reconcile paged-out pins).
             final String toggledUid = messageModel.getUid();
@@ -5564,6 +5421,8 @@ public class ComposeMessageFragment extends Fragment implements
 
     // F1Whisper: guards against running more than one full-conversation pin scan at a time.
     private boolean pinnedFullScanInProgress = false;
+    /** F1Whisper (fifth fork review, F5-03): which conversation generation owns {@link #pinnedFullScanInProgress}. */
+    private int pinnedFullScanGeneration = PageRequestGuard.NO_TOKEN;
 
     /**
      * F1Whisper: discover the COMPLETE pinned set for this conversation — including pins that have
@@ -5577,17 +5436,30 @@ public class ComposeMessageFragment extends Fragment implements
      */
     @UiThread
     private void refreshFullPinnedSet() {
-        if (messageReceiver == null || pinnedFullScanInProgress) {
+        // F1Whisper (fifth fork review, F5-03): the scan owns a frozen conversation, and the in-progress flag is scoped
+        // to the generation that acquired it.
+        //
+        // Both halves were defects. The worker read the fragment's live messageReceiver, so a scan started for chat A and
+        // finishing after a switch queried B and then replaced B's pin set with what it had found. And the in-progress
+        // flag was a single unowned boolean: while A's scan was running, B's request was SUPPRESSED by it, and A's
+        // completion then cleared a flag it no longer owned - so B ended up with A's pins and no scan of its own.
+        final int scanGeneration = pageRequestGuard.current();
+        if (pinnedFullScanInProgress && pinnedFullScanGeneration == scanGeneration) {
+            return;
+        }
+        final PageDispatch scanDispatch = snapshotFullDispatch(scanGeneration);
+        if (scanDispatch == null) {
             return;
         }
         pinnedFullScanInProgress = true;
+        pinnedFullScanGeneration = scanGeneration;
         new AsyncTask<Void, Void, List<String>>() {
             @Override
             protected List<String> doInBackground(Void... voids) {
                 final List<String> uids = new ArrayList<>();
                 try {
                     // null filter => the entire conversation (same query the search action uses).
-                    final List<AbstractMessageModel> all = messageService.getMessagesForReceiver(messageReceiver);
+                    final List<AbstractMessageModel> all = messageService.getMessagesForReceiver(scanDispatch.getReceiver());
                     if (all != null) {
                         // getMessagesForReceiver returns newest-first; reverse to oldest-first so the
                         // pin order matches the loaded-adapter order used elsewhere.
@@ -5609,27 +5481,31 @@ public class ComposeMessageFragment extends Fragment implements
 
             @Override
             protected void onPostExecute(List<String> fullUids) {
-                pinnedFullScanInProgress = false;
-                if (!isAdded() || composeMessageAdapter == null || pinnedBannerContainer == null) {
-                    return;
-                }
-                if (pinnedBannerDismissed) {
-                    return;
-                }
-                if (!fullUids.isEmpty()) {
-                    pinnedMessageUids.clear();
-                    pinnedMessageUids.addAll(fullUids);
-                    // Repair the shown uid if the freshly-discovered set no longer contains it.
-                    if (currentPinnedMessageUid == null || !pinnedMessageUids.contains(currentPinnedMessageUid)) {
-                        currentPinnedMessageUid = pinnedMessageUids.get(0);
+                // Releasing the slot and applying the result are one step against a reset, and a STALE completion
+                // releases nothing: the flag now belongs to whichever generation is scanning.
+                pageRequestGuard.runIfCurrent(scanGeneration, () -> {
+                    pinnedFullScanInProgress = false;
+                    if (!isAdded() || composeMessageAdapter == null || pinnedBannerContainer == null) {
+                        return;
                     }
-                    renderPinnedBannerFromState();
-                } else {
-                    // No pins anywhere in the conversation: drop stale state and hide.
-                    currentPinnedMessageUid = null;
-                    pinnedMessageUids.clear();
-                    pinnedBannerContainer.setVisibility(View.GONE);
-                }
+                    if (pinnedBannerDismissed) {
+                        return;
+                    }
+                    if (!fullUids.isEmpty()) {
+                        pinnedMessageUids.clear();
+                        pinnedMessageUids.addAll(fullUids);
+                        // Repair the shown uid if the freshly-discovered set no longer contains it.
+                        if (currentPinnedMessageUid == null || !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+                            currentPinnedMessageUid = pinnedMessageUids.get(0);
+                        }
+                        renderPinnedBannerFromState();
+                    } else {
+                        // No pins anywhere in the conversation: drop stale state and hide.
+                        currentPinnedMessageUid = null;
+                        pinnedMessageUids.clear();
+                        pinnedBannerContainer.setVisibility(View.GONE);
+                    }
+                });
             }
         }.execute();
     }
@@ -5699,12 +5575,7 @@ public class ComposeMessageFragment extends Fragment implements
         final AbstractMessageModel shown = findMessageByUid(currentPinnedMessageUid);
         if (pinnedBannerPreview != null) {
             if (shown != null) {
-                String preview = shown.getBody();
-                if (preview == null || preview.isEmpty()) {
-                    // graceful fallback for media messages with no text body
-                    preview = shown.getType() != null ? shown.getType().toString() : "";
-                }
-                pinnedBannerPreview.setText(preview);
+                pinnedBannerPreview.setText(pinnedBannerPreviewText(shown));
             } else if (pinnedBannerPreview.length() == 0) {
                 pinnedBannerPreview.setText(R.string.pinned_message_banner_label);
             }
@@ -5722,6 +5593,37 @@ public class ComposeMessageFragment extends Fragment implements
             }
         }
         pinnedBannerContainer.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * F1-PATCH: the pinned banner's preview line, built the same way every other preview in the app
+     * is built.
+     *
+     * <p>It used to print {@code getBody()} directly, which is wrong twice over. For a text message
+     * the body is the <em>raw</em> body, so a pinned message containing {@code ||a secret||} painted
+     * the secret across the top of the chat, permanently and with no tap-to-reveal - the banner is
+     * an output boundary and was honouring none of the restrictions the bubble honours. And for a
+     * file message the body is not text at all: it is the serialized {@code FileDataModel} JSON, and
+     * the empty-body fallback never fired because that JSON is not empty, so pinning any photo,
+     * voice message or document painted a line of raw JSON instead.</p>
+     *
+     * <p>{@link MessageService#getMessageString} is the app's central preview builder - it is what
+     * the notification path uses - so routing through it also inherits private-chat suppression,
+     * deleted-message handling and a proper placeholder for every media type. The spoiler pass on
+     * top mirrors {@code ConversationNotification}: same boundary problem, same answer.</p>
+     */
+    @NonNull
+    private CharSequence pinnedBannerPreviewText(@NonNull AbstractMessageModel messageModel) {
+        if (messageService == null) {
+            return getString(R.string.pinned_message_banner_label);
+        }
+        final String preview = messageService
+            .getMessageString(messageModel, PINNED_BANNER_PREVIEW_MAX_LENGTH, false)
+            .getMessage();
+        if (preview == null || preview.isEmpty()) {
+            return getString(R.string.pinned_message_banner_label);
+        }
+        return MarkupParser.obscureSpoilersForPreview(preview);
     }
 
     /**
@@ -5895,12 +5797,18 @@ public class ComposeMessageFragment extends Fragment implements
         // quote-jump uses to reach an off-window message (searchV2Quote -> getAllRecords). After the
         // load the target uid is guaranteed present unless its message was deleted from the DB.
         logger.info("Pinned target uid={} NOT in loaded window; loading full conversation to page it in", jumpUid);
+        // F1Whisper (fifth fork review, F5-03): the jump owns a frozen conversation, like every other loader.
+        final PageDispatch jumpDispatch = snapshotFullDispatch(pageRequestGuard.current());
+        if (jumpDispatch == null) {
+            logger.info("Pinned jump abandoned: no conversation is open");
+            return;
+        }
         pinnedJumpInProgress = true;
         new AsyncTask<Void, Void, List<AbstractMessageModel>>() {
             @Override
             protected List<AbstractMessageModel> doInBackground(Void... voids) {
                 try {
-                    return getAllRecords();
+                    return getAllRecords(jumpDispatch);
                 } catch (Exception e) {
                     logger.info("jumpToPinnedMessage: full conversation load failed", e);
                     return null;
@@ -5912,6 +5820,10 @@ public class ComposeMessageFragment extends Fragment implements
                 pinnedJumpInProgress = false;
                 if (!isAdded() || composeMessageAdapter == null || convListView == null) {
                     logger.info("Pinned full-load completed but fragment/adapter detached; aborting jump");
+                    return;
+                }
+                if (!jumpDispatch.isCurrentIn(pageRequestGuard)) {
+                    logger.info("Dropping a pinned jump whose conversation was replaced while it loaded");
                     return;
                 }
                 if (all != null) {
@@ -6702,7 +6614,7 @@ public class ComposeMessageFragment extends Fragment implements
                     draftManager.remove(messageReceiver.getUniqueIdString());
                     messageText.setText(null);
 
-                    setCurrentPageReferenceId(null);
+                    clearCurrentPageReference();
                     onRefresh();
 
                     ListenerManager.conversationListeners.handle(listener -> {
@@ -7608,13 +7520,26 @@ public class ComposeMessageFragment extends Fragment implements
         super.onSaveInstanceState(outState);
     }
 
-    private void setCurrentPageReferenceId(@Nullable Integer currentPageReferenceId) {
-        this.currentPageReferenceId = currentPageReferenceId;
+    /**
+     * Reset the pagination boundary (P0-6): every non-null reference must go through
+     * {@link #setCurrentPageReference(AbstractMessageModel)} so the whole tuple is captured with
+     * it. Clearing INVALIDATES in-flight page loads (S2-05): their results were computed against
+     * a cursor that no longer exists and must not be applied.
+     */
+    private void clearCurrentPageReference() {
+        this.pageCursor = null;
+        this.pageRequestGuard.invalidate();
+    }
+
+    /** Capture the page-reference tuple (id + effective sort key) from a loaded model. */
+    private void setCurrentPageReference(@NonNull AbstractMessageModel referenceModel) {
+        this.pageCursor = PageCursor.of(referenceModel);
     }
 
     @Nullable
     private Integer getCurrentPageReferenceId() {
-        return this.currentPageReferenceId;
+        final PageCursor cursor = this.pageCursor;
+        return cursor != null ? cursor.getId() : null;
     }
 
     private void configureSearchWidget(final MenuItem menuItem) {
@@ -7677,19 +7602,25 @@ public class ComposeMessageFragment extends Fragment implements
             dismissQuotePopup();
 
             // load all records
+            // F1Whisper (fifth fork review, F5-03): frozen conversation, like every other loader.
+            final PageDispatch searchDispatch = snapshotFullDispatch(pageRequestGuard.current());
+            if (searchDispatch == null) {
+                logger.info("Search abandoned: no conversation is open");
+                return true;
+            }
             new AsyncTask<Void, Void, Void>() {
                 List<AbstractMessageModel> messageModels;
 
                 @Override
                 protected Void doInBackground(Void... params) {
-                    messageModels = getAllRecords();
+                    messageModels = getAllRecords(searchDispatch);
 
                     return null;
                 }
 
                 @Override
                 protected void onPostExecute(Void result) {
-                    if (messageModels != null && isAdded()) {
+                    if (messageModels != null && isAdded() && searchDispatch.isCurrentIn(pageRequestGuard)) {
                         item.collapseActionView();
                         item.setActionView(actionView);
                         configureSearchWidget(menu.findItem(R.id.menu_action_search));

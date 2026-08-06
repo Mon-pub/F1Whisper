@@ -68,7 +68,7 @@ class OnPremConfigFetcher(
     }
 
     /**
-     * Fetches the OPPF from the regular endpoint, retrying up to [maxFetchRetries] times if fetching fails with an I/O error
+     * Fetches the OPPF from the regular endpoint, retrying up to [MAX_FETCH_RETRIES] times if fetching fails with an I/O error
      * (e.g. a timeout on a throttled network). Any other failure (e.g. an authorization error) is rethrown immediately.
      */
     @Throws(ThreemaException::class)
@@ -81,7 +81,7 @@ class OnPremConfigFetcher(
                 password = serverParameters.password,
             )
         } catch (e: ThreemaException) {
-            if (e is UnauthorizedFetchException || e.cause !is IOException || attempt >= maxFetchRetries) {
+            if (e is UnauthorizedFetchException || e.cause !is IOException || attempt >= MAX_FETCH_RETRIES) {
                 throw e
             }
             val backoff = retryBackoffs[attempt]
@@ -187,9 +187,9 @@ class OnPremConfigFetcher(
 
         /**
          * Maximum number of retries when fetching the OPPF fails with an I/O error (e.g. a timeout on a throttled network).
-         * This means up to [maxFetchRetries] + 1 attempts are made in total.
+         * This means up to [MAX_FETCH_RETRIES] + 1 attempts are made in total.
          */
-        private const val maxFetchRetries = 2
+        private const val MAX_FETCH_RETRIES = 2
         private val retryBackoffs = listOf(1.seconds, 3.seconds)
     }
 }

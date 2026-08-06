@@ -23,7 +23,7 @@ public class DistributionListContactMessageReceiver extends ContactMessageReceiv
     }
 
     @Override
-    public void createAndSendFileMessage(
+    public boolean createAndSendFileMessage(
         @Nullable byte[] thumbnailBlobIdIgnored,
         @Nullable byte[] fileBlobIdIgnored,
         @Nullable SymmetricEncryptionResult encryptionResultIgnored,
@@ -33,7 +33,7 @@ public class DistributionListContactMessageReceiver extends ContactMessageReceiv
         if (fileBlobId == null || fileEncryptionResult == null) {
             throw new ThreemaException("Required values have not been set by responsible DistributionListMessageReceiver");
         }
-        super.createAndSendFileMessage(thumbnailBlobId, fileBlobId, fileEncryptionResult, messageModel, recipientIdentities);
+        return super.createAndSendFileMessage(thumbnailBlobId, fileBlobId, fileEncryptionResult, messageModel, recipientIdentities);
     }
 
     public void setFileMessageParameters(

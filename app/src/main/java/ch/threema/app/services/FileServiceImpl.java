@@ -73,6 +73,7 @@ import ch.threema.app.utils.MimeUtil;
 import ch.threema.app.utils.ResettableInputStream;
 import ch.threema.app.utils.RingtoneChecker;
 import ch.threema.app.utils.RingtoneUtil;
+import ch.threema.app.utils.RestrictedMediaOutput;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.utils.TestUtil;
 import ch.threema.base.ThreemaException;
@@ -986,6 +987,12 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Uri copyToShareFile(AbstractMessageModel messageModel, File srcFile) {
+        // F1Whisper (fourth fork review, F4-09): the media viewer's share menu reaches this directly rather than through
+        // loadDecryptedMessageFiles, so the same restriction has to be enforced here too.
+        if (RestrictedMediaOutput.isRestricted(messageModel)) {
+            logger.info("Refusing to copy restricted media to a share file");
+            return null;
+        }
         // copy file to public dir
         if (messageModel != null) {
             if (srcFile != null && srcFile.exists()) {
@@ -1027,6 +1034,16 @@ public class FileServiceImpl implements FileService {
         int errorCount = 0;
 
         for (AbstractMessageModel model : models) {
+
+            // F1Whisper (fourth fork review, F4-09): sharing hands another app a decrypted copy that outlives this one.
+            // Counted as an error so a mixed selection still shares everything else and the user is told something was
+            // left out, rather than silently receiving a short list.
+            if (RestrictedMediaOutput.isRestricted(model)) {
+                logger.info("Refusing to share restricted media {}", model.getUid());
+                errorCount++;
+                shareFileUris.add(null);
+                continue;
+            }
 
             try {
                 File file;
@@ -1133,6 +1150,13 @@ public class FileServiceImpl implements FileService {
                 while (checkedItemsIterator.hasNext() && !cancelled) {
                     publishProgress(i++);
                     AbstractMessageModel messageModel = checkedItemsIterator.next();
+                    // F1Whisper (fourth fork review, F4-09): saving writes a permanent clear copy into the device
+                    // gallery, which is exactly what an incoming listen-once voice message must never produce. The
+                    // claim/burn owner in the chat player is the only consumer allowed to see that plaintext.
+                    if (RestrictedMediaOutput.isRestricted(messageModel)) {
+                        logger.info("Refusing to save restricted media {}", messageModel.getUid());
+                        continue;
+                    }
                     try {
                         insertMessageIntoGallery(messageModel);
                         saved++;

@@ -2,49 +2,166 @@ name: F1Whisper Release
 
 # Cut a signed F1Whisper (onprem) release by pushing a version tag, e.g.:
 #
-#     git tag v6.4.3-1 && git push origin v6.4.3-1
+#     git tag -a v6.4.3-38 -m "F1Whisper v6.4.3-38" && git push origin v6.4.3-38
 #
-# This builds the onprem flavor in the `release` build type, signs it with the
-# F1Whisper release keystore (provided via repository secrets), verifies the
-# signature with apksigner, and publishes the signed APK(s) to a GitHub Release.
+# Second follow-up S2-02/S2-08/S2-09/S2-10/S2-11: the release chain is split into four
+# least-privilege jobs so repository-controlled build code NEVER runs with signing capability:
 #
-# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   1. build-and-gate  contents:read, no secrets, persist-credentials:false — tag policy checks,
+#                      the FULL quality-gate battery, and the UNSIGNED artifact build + identity
+#                      asserts. Also runs standalone via workflow_dispatch as the non-publishing
+#                      clean-runner rehearsal (S2-12).
+#   2. sign            protected `release` environment (required reviewers). NO checkout — the
+#                      digest-pinned unsigned APK is signed with the apksigner CLI only; the
+#                      keystore is decoded 0600 immediately before signing and deleted right after.
+#   3. attest          id-token/attestations write only — provenance for the EXACT signed APK.
+#   4. publish         contents:write only — immutable release assets (exact paths, no overwrite).
+#
+# Required environment secrets (Settings -> Environments -> release; keep NO repo-scoped copies):
 #   F1W_KEYSTORE_BASE64    base64 (no newlines) of f1whisper-release.jks
 #   F1W_KEYSTORE_PASSWORD  keystore (store) password
 #   F1W_KEY_ALIAS          key alias (f1whisper)
 #   F1W_KEY_PASSWORD       key password
 #
-# See RELEASING.md for the full procedure.
+# See RELEASING.md for the full procedure and the repository settings this workflow assumes.
 
 on:
   push:
     tags:
       - "v*"
+  # Non-publishing rehearsal (S2-12): runs ONLY build-and-gate on the chosen ref — full gates and
+  # an unsigned artifact on a clean runner, no environment, no secrets, nothing published.
+  workflow_dispatch:
 
-permissions:
-  contents: write
+# S2-11: serialize release runs — two tags can never race numbering or publication.
+concurrency:
+  group: f1whisper-release
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  # NDK + Rust pins for the libthreema native build (kept in sync with app/build.gradle.kts
+  # and domain/libthreema/rust-toolchain.toml).
+  NDK_VERSION: "28.2.13676358"
+  RUST_VERSION: "1.94"
+  # Expected release-signing certificate (apksigner SHA-256 digest format). Public information;
+  # a mismatch means the wrong keystore signed the build — installed devices could not upgrade.
+  EXPECTED_SIGNER_SHA256: "0e6f089e8b01ab7c1d4ddc7da36f4340df36f3ed1ab371d7bf1432f0980f51a7"
+  # Base version code the release integer is added to (mirrors app/build.gradle.kts).
+  VERSION_CODE_BASE: "1148"
 
 jobs:
-  build-signed-release:
-    name: Build and publish signed APK
-    runs-on: ubuntu-latest
-    env:
-      # NDK + Rust pins for the libthreema native build (kept in sync with app/build.gradle.kts
-      # and domain/libthreema/rust-toolchain.toml).
-      NDK_VERSION: "28.2.13676358"
-      RUST_VERSION: "1.94"
+  build-and-gate:
+    name: Gate and build unsigned APK
+    # Pinned runner image (not -latest): release builds should not change environment silently.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    permissions:
+      contents: read
+    outputs:
+      apk_name: ${{ steps.digest.outputs.apk_name }}
+      apk_sha256: ${{ steps.digest.outputs.apk_sha256 }}
 
     steps:
+      - name: Validate release tag format
+        if: github.event_name == 'push'
+        run: |
+          if [[ ! "${GITHUB_REF_NAME}" =~ ^v6\.4\.3-[1-9][0-9]*$ ]]; then
+            echo "::error::Tag '${GITHUB_REF_NAME}' does not match the release format v6.4.3-<N>. Refusing to build."
+            exit 1
+          fi
+          N="${GITHUB_REF_NAME##*-}"
+          # S2-11: Android's versionCode upper bound, enforced before any arithmetic is trusted.
+          if [ "$((VERSION_CODE_BASE + N))" -gt 2100000000 ]; then
+            echo "::error::versionCode $((VERSION_CODE_BASE + N)) exceeds the Android limit."
+            exit 1
+          fi
+          echo "F1W_EXPECTED_VC=$((VERSION_CODE_BASE + N))" >> "$GITHUB_ENV"
+          echo "F1W_EXPECTED_VN=6.4.3o-${N}" >> "$GITHUB_ENV"
+          echo "Tag OK; expected versionCode: $((VERSION_CODE_BASE + N)), versionName: 6.4.3o-${N}"
+
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
+          # S2-02: no write-capable token may persist into repository-controlled build steps.
+          persist-credentials: false
 
-      - name: Set up JDK 17
+      # S2-08: the release tag must be an ANNOTATED tag whose commit IS the current origin/main
+      # HEAD. This is strictly stronger than ancestry: it binds the release to the currently
+      # approved main tip, and it guarantees the workflow executing right now IS the workflow at
+      # that tip (tagging an old commit would run an outdated workflow — impossible here).
+      - name: Verify annotated tag at current main HEAD
+        if: github.event_name == 'push'
+        run: |
+          git fetch --no-tags origin main
+          git fetch origin "+refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}" --no-tags --force
+          TAG_TYPE="$(git cat-file -t "refs/tags/${GITHUB_REF_NAME}")"
+          if [ "$TAG_TYPE" != "tag" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} is not an annotated tag (object type: ${TAG_TYPE})."
+            exit 1
+          fi
+          # S3-03 (T3-03): bind the ACTUAL checked-out tree to the tag AND to current main. Without
+          # the HEAD assertion a tag moved between checkout and this re-fetch could validate one
+          # commit while the runner built the commit the checkout resolved earlier.
+          HEAD_COMMIT="$(git rev-parse HEAD)"
+          TAG_COMMIT="$(git rev-parse "refs/tags/${GITHUB_REF_NAME}^{commit}")"
+          MAIN_HEAD="$(git rev-parse origin/main)"
+          if [ "$HEAD_COMMIT" != "$TAG_COMMIT" ]; then
+            echo "::error::Checked-out HEAD ${HEAD_COMMIT} is not the tag commit ${TAG_COMMIT} (tag moved after checkout?). Refusing to build."
+            exit 1
+          fi
+          if [ "$TAG_COMMIT" != "$MAIN_HEAD" ]; then
+            echo "::error::Tag commit ${TAG_COMMIT} is not the current origin/main HEAD (${MAIN_HEAD}). Refusing to build."
+            exit 1
+          fi
+          echo "Tag OK: annotated, HEAD == tag commit ${TAG_COMMIT} == origin/main HEAD."
+
+      # S2-11: the release number must be strictly monotonic against the latest PUBLISHED release
+      # — an unused lower number would publish a version installed clients cannot upgrade to.
+      - name: Verify release number monotonicity
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # S3-03 (T3-13): fail CLOSED. Only a confirmed HTTP 404 ("no releases yet") is a benign
+          # absence; a transient/auth/rate-limit failure must ABORT rather than silently accept this
+          # tag as the first release and bypass the monotonicity guard.
+          set +e
+          LATEST_TAG="$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest" --jq .tag_name 2>"${RUNNER_TEMP}/latest_err.txt")"
+          RC=$?
+          set -e
+          if [ $RC -ne 0 ]; then
+            if grep -q 'HTTP 404' "${RUNNER_TEMP}/latest_err.txt"; then
+              echo "No published release found (confirmed 404); accepting ${GITHUB_REF_NAME} as the first."
+              exit 0
+            fi
+            echo "::error::Could not determine the latest published release (non-404 failure); refusing to build."
+            cat "${RUNNER_TEMP}/latest_err.txt"
+            exit 1
+          fi
+          if [ -z "$LATEST_TAG" ]; then
+            echo "::error::Latest-release lookup returned an empty tag without an error; refusing to build."
+            exit 1
+          fi
+          if [[ ! "$LATEST_TAG" =~ ^v6\.4\.3-[1-9][0-9]*$ ]]; then
+            echo "::error::Latest published release tag '$LATEST_TAG' does not match the version scheme; refusing to compare."
+            exit 1
+          fi
+          NEW_N="${GITHUB_REF_NAME##*-}"
+          LATEST_N="${LATEST_TAG##*-}"
+          if [ "$NEW_N" -le "$LATEST_N" ]; then
+            echo "::error::Release number ${NEW_N} is not greater than the latest published release ${LATEST_TAG}."
+            exit 1
+          fi
+          echo "Monotonicity OK: ${GITHUB_REF_NAME} > ${LATEST_TAG}."
+
+      - name: Set up JDK 21
         uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Install protoc
         run: |
@@ -66,7 +183,6 @@ jobs:
           toolchain: ${{ env.RUST_VERSION }}
           # arm-mobile release (see -ParmMobile below): aarch64 + armv7 Android targets. The armv7
           # slice serves arm64 SoCs with a 32-bit-only userspace (low-RAM Android Go devices).
-          # To restore the full 4-ABI build, add back i686-linux-android,x86_64-linux-android.
           targets: aarch64-linux-android,armv7-linux-androideabi
 
       - name: Cache Gradle
@@ -90,55 +206,415 @@ jobs:
           restore-keys: |
             cargo-${{ runner.os }}-
 
-      - name: Decode release keystore
-        env:
-          F1W_KEYSTORE_BASE64: ${{ secrets.F1W_KEYSTORE_BASE64 }}
+      # ---- Quality gates (S2-09): every shipped module, the release source set, style, full ----
+      # ---- lint against the reviewed baseline, and the vendored Rust core — ALL before any  ----
+      # ---- artifact exists and far away from any signing capability (S2-02).               ----
+
+      # Cheapest gate first, most expensive last: style, then lint, then the full test matrix. A
+      # gate that fails must not hide the verdict of a gate that costs less to reach - the v6.4.3-38
+      # cycle burned a full run learning only that one upstream test had flaked.
+
+      - name: Kotlin style gate (ktlintCheck)
         run: |
-          if [ -z "${F1W_KEYSTORE_BASE64}" ]; then
-            echo "::error::F1W_KEYSTORE_BASE64 secret is not set. Cannot produce a signed release."
+          ./gradlew ktlintCheck \
+            --no-daemon \
+            --no-parallel \
+            --stacktrace
+
+      - name: Full release lint against the reviewed baseline
+        run: |
+          ./gradlew :app:lintOnpremRelease \
+            --no-daemon \
+            --no-parallel \
+            --stacktrace
+
+      - name: Lint vital (release gate)
+        run: |
+          ./gradlew lintVitalOnpremRelease \
+            --no-daemon \
+            --no-parallel \
+            --stacktrace
+
+      # Everything except :domain: — no retry, no tolerance. A failure here fails the release.
+      - name: Unit tests (app, common, commonAndroid, lint-rules; debug + release)
+        run: |
+          ./gradlew :app:testOnpremDebugUnitTest :app:testOnpremReleaseUnitTest \
+            :common:test \
+            :commonAndroid:testDebugUnitTest :commonAndroid:testReleaseUnitTest \
+            :lint-rules:test \
+            --no-daemon \
+            --no-parallel \
+            --stacktrace
+
+      # :domain: is split out for ONE reason: the upstream CspSocketTest hangs on this runner and
+      # only on this runner. It failed 2 of the first 3 v6.4.3-38 runs at exactly the 60s runTest
+      # ceiling while its two sibling tests finish in 0.1s, and it cannot be reproduced locally -
+      # not with --rerun-tasks, not with a clean clone, not pinned to a single core (0.6s there).
+      # The fork does not touch that file or the socket code under it.
+      #
+      # So: one retry, scoped to this module only, and it must PASS on the retry. A test that is
+      # genuinely broken fails twice and still fails the release; the other modules keep a
+      # zero-tolerance gate above. When the hang is understood, delete this step and fold :domain:
+      # back into the one above.
+      - name: Unit tests (:domain:, one retry for the flaky upstream socket test)
+        run: |
+          if ./gradlew :domain:test --no-daemon --no-parallel --stacktrace; then
+            exit 0
+          fi
+          echo "::warning::':domain:test' failed on the first attempt; retrying once. If this is CspSocketTest hanging at 60s it is the known upstream flake; anything else is real."
+          ./gradlew :domain:test --rerun-tasks --no-daemon --no-parallel --stacktrace
+
+      - name: libthreema Rust tests
+        working-directory: domain/libthreema
+        run: cargo test --locked
+
+      # ---- Unsigned artifact build: NO signing inputs exist in this job. ----
+
+      - name: Build UNSIGNED onprem release
+        env:
+          # S3-04 (T3-12): the App Links host is a PUBLIC repo Actions variable (the hostname ships
+          # in every APK, so it is not a secret). Passed via env: and appended as a Gradle property
+          # so it is never interpolated into shell source. A tagged (push) release additionally
+          # fails in Gradle if this host is still the placeholder — see app/build.gradle.kts.
+          ONPREM_ACTION_URL: ${{ vars.ONPREM_ACTION_URL }}
+        run: |
+          GRADLE_ARGS=(assembleOnpremRelease --no-daemon -PnoAbiSplits -ParmMobile --no-parallel --stacktrace)
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            GRADLE_ARGS+=(-Pf1wReleaseName="${GITHUB_REF_NAME}")
+          fi
+          if [ -n "${ONPREM_ACTION_URL}" ]; then
+            GRADLE_ARGS+=(-PonPremActionUrl="${ONPREM_ACTION_URL}")
+          fi
+          ./gradlew "${GRADLE_ARGS[@]}"
+
+      - name: Locate and verify the unsigned APK, rename to canonical name
+        id: apks
+        run: |
+          mapfile -t apks < <(find app/build/outputs/apk/onprem/release -name "*.apk" | sort)
+          if [ "${#apks[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly 1 APK, found ${#apks[@]}: ${apks[*]}"
             exit 1
           fi
-          echo "${F1W_KEYSTORE_BASE64}" | base64 --decode > "${RUNNER_TEMP}/f1whisper-release.jks"
-          echo "F1W_KEYSTORE_FILE=${RUNNER_TEMP}/f1whisper-release.jks" >> "$GITHUB_ENV"
+          APK="${apks[0]}"
+          # S3-01 (T3-01): `apksigner verify` is the SOLE authority that this artifact is unsigned.
+          # This job has no signing inputs, so a genuine build produces an APK that FAILS
+          # verification; a PASS here means signing material leaked in and MUST abort. The prior
+          # `*unsigned*` basename gate rejected the real artifact, whose Gradle output name
+          # (F1Whisper-v<ver>-onprem-release.apk) never carries AGP's `-unsigned` suffix.
+          APKSIGNER="${ANDROID_SDK_ROOT}/build-tools/35.0.0/apksigner"
+          if "${APKSIGNER}" verify "$APK" 2>/dev/null; then
+            echo "::error::Built APK unexpectedly carries a valid signature — signing inputs leaked into the build job."
+            exit 1
+          fi
+          # S3-01/S3-02 (T3-01/T3-02): transport the artifact between jobs under ONE fixed canonical
+          # filename, so no build-derived name is ever carried into (or interpolated by) the
+          # privileged sign/attest/publish jobs. The published name is derived from the tag in the
+          # sign job, never from a build output.
+          CANONICAL="app/build/outputs/apk/onprem/release/f1whisper-unsigned.apk"
+          if [ "$APK" != "$CANONICAL" ]; then
+            mv "$APK" "$CANONICAL"
+          fi
+          echo "apk=${CANONICAL}" >> "$GITHUB_OUTPUT"
+          echo "Verified UNSIGNED and renamed to canonical: ${CANONICAL}"
 
-      - name: Build signed onprem release
+      - name: Verify artifact identity (package, version, ABIs, no GMS)
         env:
+          APK_PATH: ${{ steps.apks.outputs.apk }}
+        run: |
+          APK="${APK_PATH}"
+          AAPT="${ANDROID_SDK_ROOT}/build-tools/35.0.0/aapt"
+          BADGING="$("${AAPT}" dump badging "$APK")"
+          echo "$BADGING" | head -2
+
+          # Package name must be the F1Whisper application id.
+          if ! echo "$BADGING" | grep -q "package: name='info.f1tech.threema'"; then
+            echo "::error::APK package name is not info.f1tech.threema."
+            exit 1
+          fi
+
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            # versionCode must equal base + tag N (strict tag->version mapping).
+            VC="$(echo "$BADGING" | sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" | head -1)"
+            if [ "$VC" != "$F1W_EXPECTED_VC" ]; then
+              echo "::error::versionCode $VC does not match expected $F1W_EXPECTED_VC for tag ${GITHUB_REF_NAME}."
+              exit 1
+            fi
+            # versionName must match the tag as well (user-visible identity).
+            VN="$(echo "$BADGING" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p" | head -1)"
+            if [ "$VN" != "$F1W_EXPECTED_VN" ]; then
+              echo "::error::versionName '$VN' does not match expected '$F1W_EXPECTED_VN' for tag ${GITHUB_REF_NAME}."
+              exit 1
+            fi
+          fi
+
+          # ABI set must be exactly arm64-v8a + armeabi-v7a (the arm-mobile universal build).
+          ABIS="$(unzip -l "$APK" | grep -o 'lib/[^/]*/' | sort -u | sed 's|lib/||; s|/||' | tr '\n' ' ' | sed 's/ $//')"
+          if [ "$ABIS" != "arm64-v8a armeabi-v7a" ]; then
+            echo "::error::Unexpected ABI set: '$ABIS' (expected 'arm64-v8a armeabi-v7a')."
+            exit 1
+          fi
+
+          # GMS-free build: the merged manifest must contain no GMS/Firebase/c2dm components.
+          if "${AAPT}" dump xmltree "$APK" AndroidManifest.xml | grep -iE 'c2dm|com\.google\.android\.gms|firebase'; then
+            echo "::error::Manifest contains GMS/Firebase/c2dm entries — not a GMS-free build."
+            exit 1
+          fi
+          echo "Artifact identity OK: package/version/ABIs(${ABIS})/no-GMS."
+
+      - name: Compute unsigned artifact digest
+        id: digest
+        env:
+          APK_PATH: ${{ steps.apks.outputs.apk }}
+        run: |
+          APK="${APK_PATH}"
+          SHA="$(sha256sum "$APK" | cut -d' ' -f1)"
+          echo "apk_name=$(basename "$APK")" >> "$GITHUB_OUTPUT"
+          echo "apk_sha256=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "Unsigned digest: ${SHA}  $(basename "$APK")"
+
+      - name: Upload unsigned APK artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: f1whisper-unsigned-apk
+          path: ${{ steps.apks.outputs.apk }}
+          if-no-files-found: error
+          retention-days: 7
+
+      # A failed gate has to be diagnosable from the log alone. Lint prints only its FIRST failure
+      # and its text report never leaves the runner; a failed test prints a name but not the reason.
+      # Last step in the job so it covers every gate above it. `if: failure()` cannot mask anything:
+      # the job stays red either way.
+      - name: Report why the gate failed
+        if: failure()
+        run: |
+          echo "===== lint reports ====="
+          find app/build -name 'lint-results-*.txt' -print -exec cat {} + || true
+          echo "===== failing tests ====="
+          find . -path '*/build/test-results/*' -name 'TEST-*.xml' \
+            -exec grep -l -E '<(failure|error)\b' {} + 2>/dev/null | while read -r report; do
+            echo "--- ${report}"
+            sed -n '1,120p' "${report}"
+          done || true
+
+  sign:
+    name: Sign APK (isolated, apksigner only)
+    if: github.event_name == 'push'
+    needs: build-and-gate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # S2-02: signing happens ONLY inside the protected environment (required reviewers), with NO
+    # repository checkout — no repository-controlled code can observe the signing material.
+    environment: release
+    permissions:
+      contents: read
+    outputs:
+      apk_name: ${{ steps.signed.outputs.apk_name }}
+      apk_sha256: ${{ steps.signed.outputs.apk_sha256 }}
+
+    steps:
+      - name: Download unsigned APK artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: f1whisper-unsigned-apk
+          path: ${{ runner.temp }}/unsigned
+
+      - name: Verify digest pin from the gate job
+        env:
+          APK_SHA256: ${{ needs.build-and-gate.outputs.apk_sha256 }}
+        run: |
+          # S3-02 (T3-02): the artifact travels under a FIXED canonical name (never a build-derived
+          # one), and the carried digest is validated as exactly 64 lowercase hex BEFORE use — no
+          # build-controlled value is ever parsed as shell source in this privileged (secret-bearing)
+          # job. The digest is supplied through env:, so the expression is never expanded into shell.
+          if [[ ! "${APK_SHA256}" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::Carried unsigned digest is not 64 lowercase hex characters."
+            exit 1
+          fi
+          APK="${RUNNER_TEMP}/unsigned/f1whisper-unsigned.apk"
+          echo "${APK_SHA256}  ${APK}" | sha256sum -c -
+          echo "APK_UNSIGNED=${APK}" >> "$GITHUB_ENV"
+
+      - name: Set up Android build-tools (zipalign + apksigner)
+        uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+
+      - name: Install build-tools 35.0.0
+        run: yes | sdkmanager --install "build-tools;35.0.0"
+
+      - name: Align, sign, and verify with apksigner
+        env:
+          F1W_KEYSTORE_BASE64: ${{ secrets.F1W_KEYSTORE_BASE64 }}
           F1W_KEYSTORE_PASSWORD: ${{ secrets.F1W_KEYSTORE_PASSWORD }}
           F1W_KEY_ALIAS: ${{ secrets.F1W_KEY_ALIAS }}
           F1W_KEY_PASSWORD: ${{ secrets.F1W_KEY_PASSWORD }}
         run: |
-          ./gradlew assembleOnpremRelease \
-            --no-daemon \
-            -PnoAbiSplits \
-            -ParmMobile \
-            -Pf1wReleaseName="${GITHUB_REF_NAME}" \
-            --no-parallel \
-            --stacktrace
-
-      - name: Locate built APK(s)
-        id: apks
-        run: |
-          mapfile -t apks < <(find app/build/outputs/apk/onprem/release -name "*.apk" | sort)
-          if [ "${#apks[@]}" -eq 0 ]; then
-            echo "::error::No APK produced by assembleOnpremRelease."
+          set -euo pipefail
+          if [ -z "${F1W_KEYSTORE_BASE64}" ]; then
+            echo "::error::F1W_KEYSTORE_BASE64 environment secret is not set. Cannot sign."
             exit 1
           fi
-          {
-            echo "list<<EOF"
-            printf '%s\n' "${apks[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-          printf 'Found APK(s):\n%s\n' "${apks[*]}"
+          BT="${ANDROID_SDK_ROOT}/build-tools/35.0.0"
+          # S3-01 (T3-01): derive the published name deterministically from the release tag
+          # (GITHUB_REF_NAME, validated to ^v6.4.3-<N>$ in build-and-gate), never from a build
+          # output. This is the single point where the human-readable published name is minted.
+          SIGNED="${RUNNER_TEMP}/F1Whisper-${GITHUB_REF_NAME}-onprem-release.apk"
 
-      - name: Verify signatures with apksigner
+          # zipalign BEFORE signing (v2+ signatures cover the archive layout).
+          "${BT}/zipalign" -f 4 "${APK_UNSIGNED}" "${SIGNED}"
+          "${BT}/zipalign" -c 4 "${SIGNED}"
+
+          # Keystore: decode 0600, sign, delete immediately (also covered by if:always cleanup).
+          umask 077
+          KEYSTORE="${RUNNER_TEMP}/f1whisper-release.jks"
+          echo "${F1W_KEYSTORE_BASE64}" | base64 --decode > "${KEYSTORE}"
+          # v2+v3 like the Gradle signing config (v1 excluded: minSdk 24 needs only v2+; v4 is
+          # for incremental installs and would emit a stray .idsig side-file).
+          "${BT}/apksigner" sign \
+            --ks "${KEYSTORE}" \
+            --ks-key-alias "${F1W_KEY_ALIAS}" \
+            --ks-pass env:F1W_KEYSTORE_PASSWORD \
+            --key-pass env:F1W_KEY_PASSWORD \
+            --v1-signing-enabled false \
+            --v2-signing-enabled true \
+            --v3-signing-enabled true \
+            --v4-signing-enabled false \
+            "${SIGNED}"
+          rm -f "${KEYSTORE}"
+
+          "${BT}/apksigner" verify --verbose --print-certs "${SIGNED}"
+          # Structural validity is not identity — the signer certificate must be the established
+          # F1Whisper release certificate, or installed devices cannot upgrade.
+          DIGEST="$("${BT}/apksigner" verify --print-certs "${SIGNED}" \
+            | sed -n 's/^Signer #1 certificate SHA-256 digest: \([0-9a-f]*\)$/\1/p')"
+          if [ "$DIGEST" != "$EXPECTED_SIGNER_SHA256" ]; then
+            echo "::error::Signer SHA-256 '$DIGEST' does not match the pinned release certificate."
+            exit 1
+          fi
+          echo "Signer OK: $DIGEST"
+          echo "APK_SIGNED=${SIGNED}" >> "$GITHUB_ENV"
+
+      - name: Remove decoded keystore
+        if: always()
+        run: rm -f "${RUNNER_TEMP}/f1whisper-release.jks"
+
+      - name: Publish signed digest and sha256 file
+        id: signed
         run: |
-          APKSIGNER="${ANDROID_SDK_ROOT}/build-tools/35.0.0/apksigner"
-          while IFS= read -r apk; do
-            [ -z "$apk" ] && continue
-            echo "::group::apksigner verify ${apk}"
-            "${APKSIGNER}" verify --verbose --print-certs "$apk"
-            echo "::endgroup::"
-          done <<< "${{ steps.apks.outputs.list }}"
+          SHA="$(sha256sum "${APK_SIGNED}" | cut -d' ' -f1)"
+          (cd "$(dirname "${APK_SIGNED}")" && sha256sum "$(basename "${APK_SIGNED}")" > "$(basename "${APK_SIGNED}").sha256")
+          echo "apk_name=$(basename "${APK_SIGNED}")" >> "$GITHUB_OUTPUT"
+          echo "apk_sha256=${SHA}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Release artifact digest"
+            echo '```'
+            cat "${APK_SIGNED}.sha256"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          cat "${APK_SIGNED}.sha256"
+
+      - name: Upload signed APK artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: f1whisper-signed-apk
+          path: |
+            ${{ runner.temp }}/${{ steps.signed.outputs.apk_name }}
+            ${{ runner.temp }}/${{ steps.signed.outputs.apk_name }}.sha256
+          if-no-files-found: error
+          retention-days: 7
+
+  attest:
+    name: Attest build provenance
+    if: github.event_name == 'push'
+    needs: sign
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Download signed APK artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: f1whisper-signed-apk
+          path: ${{ runner.temp }}/signed
+
+      - name: Verify digest pin from the sign job
+        env:
+          APK_NAME: ${{ needs.sign.outputs.apk_name }}
+          APK_SHA256: ${{ needs.sign.outputs.apk_sha256 }}
+        run: |
+          # S3-02 (T3-02): sign-job outputs are consumed via env:, never interpolated into shell
+          # source; the digest is validated as 64 lowercase hex before use.
+          if [[ ! "${APK_SHA256}" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::Carried signed digest is not 64 lowercase hex characters."
+            exit 1
+          fi
+          APK="${RUNNER_TEMP}/signed/${APK_NAME}"
+          echo "${APK_SHA256}  ${APK}" | sha256sum -c -
+          echo "APK_SIGNED=${APK}" >> "$GITHUB_ENV"
+
+      # Signed build provenance for the EXACT published APK (verifiable with
+      # `gh attestation verify <apk> --repo Mon-pub/F1Whisper`).
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: ${{ runner.temp }}/signed/${{ needs.sign.outputs.apk_name }}
+
+  publish:
+    name: Publish immutable release
+    if: github.event_name == 'push'
+    needs: [sign, attest]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download signed APK artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: f1whisper-signed-apk
+          path: ${{ runner.temp }}/signed
+
+      - name: Verify digest pin from the sign job
+        env:
+          APK_NAME: ${{ needs.sign.outputs.apk_name }}
+          APK_SHA256: ${{ needs.sign.outputs.apk_sha256 }}
+        run: |
+          # S3-02 (T3-02): sign-job outputs are consumed via env:, never interpolated into shell
+          # source; the digest is validated as 64 lowercase hex before use.
+          if [[ ! "${APK_SHA256}" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::Carried signed digest is not 64 lowercase hex characters."
+            exit 1
+          fi
+          APK="${RUNNER_TEMP}/signed/${APK_NAME}"
+          echo "${APK_SHA256}  ${APK}" | sha256sum -c -
+
+      # S2-10: refuse to publish over an existing release — assets under a published tag are
+      # immutable (also enable "immutable releases" in repository settings; see RELEASING.md).
+      - name: Refuse pre-existing release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # S3-03 (T3-13): fail CLOSED — only a confirmed HTTP 404 means "no existing release". A
+          # success (release exists) or any transient/auth/rate-limit error must abort so a
+          # published, immutable release is never silently overwritten.
+          set +e
+          EXISTING_ID="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" --jq .id 2>"${RUNNER_TEMP}/existing_err.txt")"
+          RC=$?
+          set -e
+          if [ $RC -eq 0 ] && [ -n "$EXISTING_ID" ]; then
+            echo "::error::A release for ${GITHUB_REF_NAME} already exists (id ${EXISTING_ID}). Assets are immutable — cut the next number instead."
+            exit 1
+          fi
+          if grep -q 'HTTP 404' "${RUNNER_TEMP}/existing_err.txt"; then
+            echo "No existing release for ${GITHUB_REF_NAME} (confirmed 404)."
+          else
+            echo "::error::Could not confirm the absence of a release for ${GITHUB_REF_NAME} (non-404 failure); refusing to publish."
+            cat "${RUNNER_TEMP}/existing_err.txt"
+            exit 1
+          fi
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
@@ -148,21 +624,21 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+          # S2-10: exact verified paths only; a rerun must never replace assets, and a path
+          # mismatch must fail loudly instead of publishing a release without its APK.
+          overwrite_files: false
+          fail_on_unmatched_files: true
           body: |
             ## F1Whisper ${{ github.ref_name }}
 
             Self-hosted, end-to-end-encrypted messenger (F1Tech fork of Threema for Android),
             built for the F1Whisper onprem backend.
 
-            Signed `onprem` release APK(s), verified with `apksigner verify`.
+            Signed `onprem` release APK, verified with `apksigner verify` against the pinned
+            release certificate, with SHA-256 digest and build provenance attestation.
             Point the setup wizard server field at your F1Whisper host.
 
             Built from commit `${{ github.sha }}`.
           files: |
-            app/build/outputs/apk/onprem/release/*.apk
-
-      - name: Remove decoded keystore
-        if: always()
-        run: |
-          rm -f "${RUNNER_TEMP}/f1whisper-release.jks"
-          echo "Decoded keystore removed."
+            ${{ runner.temp }}/signed/${{ needs.sign.outputs.apk_name }}
+            ${{ runner.temp }}/signed/${{ needs.sign.outputs.apk_name }}.sha256

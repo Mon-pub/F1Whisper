@@ -31,8 +31,8 @@ import ch.threema.app.compose.common.SpacerVertical
 import ch.threema.app.compose.edithistory.EditHistoryList
 import ch.threema.app.compose.edithistory.EditHistoryViewModel
 import ch.threema.app.compose.message.CompleteMessageBubble
-import ch.threema.app.compose.message.MessageDebugInfoBox
 import ch.threema.app.compose.message.GroupReceiptStatesBox
+import ch.threema.app.compose.message.MessageDebugInfoBox
 import ch.threema.app.compose.message.MessageDetailsListBox
 import ch.threema.app.compose.message.MessageTimestampsListBox
 import ch.threema.app.compose.theme.ThreemaTheme

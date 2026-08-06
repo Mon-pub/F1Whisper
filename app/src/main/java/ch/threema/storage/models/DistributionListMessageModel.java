@@ -31,6 +31,20 @@ public class DistributionListMessageModel extends AbstractMessageModel {
     }
 
     /**
+     * F1Whisper (sixth fork review, F6-01): the distribution-list column on top of every column the base class copies.
+     */
+    @Override
+    public void adoptPersistedRow(@NonNull AbstractMessageModel persisted) {
+        if (persisted == this) {
+            return;
+        }
+        super.adoptPersistedRow(persisted);
+        if (persisted instanceof DistributionListMessageModel) {
+            setDistributionListId(((DistributionListMessageModel) persisted).getDistributionListId());
+        }
+    }
+
+    /**
      * TODO(ANDR-XXXX): evil code!
      */
     public void copyFrom(@NonNull AbstractMessageModel sourceModel) {

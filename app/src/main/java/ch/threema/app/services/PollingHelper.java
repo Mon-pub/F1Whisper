@@ -133,7 +133,16 @@ public class PollingHelper implements QueueSendCompleteListener {
             timeoutTask = new TimerTask() {
                 @Override
                 public void run() {
-                    logger.warn("Timeout fetching message. Releasing connection");
+                    // F1Whisper: INFO, not WARN. This fires BY DESIGN on the already-connected path.
+                    // PollingHelper waits as a QueueSendCompleteListener for a `queue-send-complete`
+                    // that, when we were already connected, the server delivered at connect time and
+                    // will not send again. The timer then expires and simply releases the connection,
+                    // which is the normal end of a poll, not a failure.
+                    //
+                    // It was logged at WARN, so it appears in any wedge log and reads like the cause.
+                    // It already misled one investigation into this connection bug. Nothing about the
+                    // behaviour changes here; only the level and this explanation.
+                    logger.info("Timeout fetching message. Releasing connection");
                     releaseConnection();
                 }
             };

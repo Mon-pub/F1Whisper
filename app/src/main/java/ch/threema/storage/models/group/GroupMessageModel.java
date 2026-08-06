@@ -59,6 +59,22 @@ public class GroupMessageModel extends AbstractMessageModel {
      *
      * @param sourceModel GroupMessageModel from which the data should be copied over
      */
+    /**
+     * F1Whisper (sixth fork review, F6-01): the group columns on top of every column the base class copies.
+     */
+    @Override
+    public void adoptPersistedRow(@NonNull AbstractMessageModel persisted) {
+        if (persisted == this) {
+            return;
+        }
+        super.adoptPersistedRow(persisted);
+        if (persisted instanceof GroupMessageModel) {
+            final GroupMessageModel source = (GroupMessageModel) persisted;
+            setGroupId(source.getGroupId());
+            setGroupMessageStates(source.getGroupMessageStates());
+        }
+    }
+
     public void copyFrom(@NonNull GroupMessageModel sourceModel) {
         setType(sourceModel.getType());
         setDataObject(sourceModel.getDataObject());

@@ -2,7 +2,7 @@
 <!--
   ~ F1Whisper: disappearing-messages duration picker bottom sheet. A drag handle, a title, a short
   ~ explanatory summary, a single scrolling wheel of fixed durations (Off / 30s / 5m / 1h / 8h /
-  ~ 1d / 1w / 4w, Signal-style), and a confirm button. Mirrors bottom_sheet_schedule_message.xml so
+  ~ 1d / 1w / 4w, Signal-style), and a confirm button. Built from platform bottom-sheet metrics so
   ~ it looks native; theme tokens only, RTL-safe (a single label wheel, no time digits to mirror).
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -38,6 +38,20 @@
         android:layout_marginBottom="4dp"
         android:text="@string/disappearing_messages_summary"
         android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+
+    <!--
+      F1Whisper: the honest-limits line. Disappearing messages are client-enforced and F1Whisper-only,
+      and until this was shown the user was never told either. The string has been translated into
+      all 29 shipped locales since the feature landed and was referenced by nothing.
+    -->
+    <TextView
+        android:id="@+id/disappearing_unsupported_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="@string/disappearing_messages_unsupported"
+        android:textAppearance="?attr/textAppearanceBodySmall"
         android:textColor="?attr/colorOnSurfaceVariant" />
 
     <NumberPicker

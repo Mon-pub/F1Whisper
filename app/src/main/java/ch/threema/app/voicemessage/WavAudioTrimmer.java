@@ -70,7 +70,10 @@ public final class WavAudioTrimmer {
         return success;
     }
 
-    private boolean trimStream(@NonNull InputStream in, @NonNull BufferedOutputStream out) throws IOException {
+    // Package-private for unit tests (fork review M-05: malformed-RIFF inputs must fail the parse,
+    // never crash). Only startTimeMs/endTimeMs are used here; context/sourceUri stay in trim().
+    @androidx.annotation.VisibleForTesting
+    boolean trimStream(@NonNull InputStream in, @NonNull BufferedOutputStream out) throws IOException {
         final byte[] riff = new byte[12];
         if (readFully(in, riff, 0, 12) < 12) {
             logger.warn("WAV too short for a RIFF header");
@@ -100,6 +103,15 @@ public final class WavAudioTrimmer {
             final long chunkSize = readUInt32Le(chunkHeader, 4);
 
             if ("fmt ".equals(chunkId)) {
+                // F1Whisper (fork review M-05): the parse below reads fixed offsets up to byte 15
+                // (bitsPerSample at 14, blockAlign at 12). A malformed RIFF with a declared fmt
+                // chunk smaller than the canonical 16 bytes previously crashed with an unchecked
+                // ArrayIndexOutOfBoundsException; treat it as a normal parse failure instead —
+                // the trim feature is fail-safe (no trim, original audio preserved).
+                if (chunkSize < 16) {
+                    logger.warn("Malformed WAV: fmt chunk smaller than 16 bytes ({}); aborting trim", chunkSize);
+                    return false;
+                }
                 final int toRead = (int) Math.min(chunkSize, 64);
                 fmtChunk = new byte[toRead];
                 if (readFully(in, fmtChunk, 0, toRead) < toRead) {

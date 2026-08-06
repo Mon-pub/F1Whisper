@@ -82,6 +82,9 @@ public final class MediaSpoilerUtil {
     private static final int MIN_DOWNSCALE_SIZE = 8;  // never collapse below this (avoids 0-px bitmaps)
     private static final int MAX_DOWNSCALE_SIZE = 24; // cap so the smear stays heavy on large thumbs
     private static final int SCRIM_ALPHA = 0x66;      // ~40% black scrim over the blur
+    // Opaque neutral fill used when obscuring fails outright. Deliberately not transparent: the
+    // fallback has to be at least as hiding as the blur it replaces.
+    private static final int PLACEHOLDER_COLOR = 0xFF3A3A3A;
 
     /**
      * @return a heavily obscured copy of the given thumbnail (strong blur + dark scrim), or
@@ -126,9 +129,43 @@ public final class MediaSpoilerUtil {
             canvas.drawRect(0, 0, working.getWidth(), working.getHeight(), scrimPaint);
 
             return working;
-        } catch (Exception e) {
-            logger.error("Failed to obscure spoiler thumbnail", e);
-            return thumbnail;
+        } catch (Exception | OutOfMemoryError e) {
+            // F1-PATCH: fail CLOSED. This branch used to return the original bitmap, which meant the
+            // one path that exists because obscuring can fail handed back the fully legible image -
+            // and the bubble then looked like an ordinary photo, giving the user no hint that the
+            // spoiler had not been applied. BitmapUtil.blurBitmap goes through RenderScript, which is
+            // deprecated and missing or throwing on a growing set of devices, so this is a branch
+            // that gets taken. OutOfMemoryError is caught alongside Exception for the same reason:
+            // the allocations above are exactly what runs out of memory, and an Error escaping here
+            // would leave the caller displaying the original.
+            logger.error("Failed to obscure spoiler thumbnail; substituting an opaque placeholder", e);
+            return opaquePlaceholder(thumbnail);
+        }
+    }
+
+    /**
+     * @return a small opaque bitmap with the source's aspect ratio, or {@code null} if even that
+     * cannot be allocated. Used when obscuring fails: the bubble keeps its shape and reads as
+     * deliberately hidden rather than as broken, which {@code null} (an empty ImageView) would not.
+     */
+    @Nullable
+    private static Bitmap opaquePlaceholder(@NonNull Bitmap thumbnail) {
+        try {
+            final int srcWidth = Math.max(1, thumbnail.getWidth());
+            final int srcHeight = Math.max(1, thumbnail.getHeight());
+            final int longestEdge = Math.max(srcWidth, srcHeight);
+            final int targetLongest = clamp(longestEdge / DOWNSCALE_DIVISOR, MIN_DOWNSCALE_SIZE, MAX_DOWNSCALE_SIZE);
+            final float scale = (float) targetLongest / (float) longestEdge;
+            final Bitmap placeholder = Bitmap.createBitmap(
+                Math.max(1, Math.round(srcWidth * scale)),
+                Math.max(1, Math.round(srcHeight * scale)),
+                Bitmap.Config.ARGB_8888
+            );
+            placeholder.eraseColor(PLACEHOLDER_COLOR);
+            return placeholder;
+        } catch (Exception | OutOfMemoryError e) {
+            logger.error("Failed to build spoiler placeholder", e);
+            return null;
         }
     }
 

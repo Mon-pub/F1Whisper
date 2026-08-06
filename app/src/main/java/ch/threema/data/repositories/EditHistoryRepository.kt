@@ -44,6 +44,18 @@ class EditHistoryRepository(
      *
      */
     fun createEntry(message: AbstractMessageModel) {
+        publishEntry(createEntryDeferred(message))
+    }
+
+    /**
+     * F1Whisper (seventh fork review, F7-03): insert the history entry WITHOUT touching the in-memory cache, and return
+     * what the caller publishes once its transaction has committed.
+     *
+     * The insert and the edited row's own write are one transaction now, so the insert can still be rolled back after
+     * this returns. Updating the cache here would leave the old plaintext visible in the edit-history sheet for a
+     * history row that no longer exists on disk - which is exactly the content delete-for-everyone was asked to remove.
+     */
+    fun createEntryDeferred(message: AbstractMessageModel): PendingHistoryEntry {
         val oldText: String? = when (message.type) {
             MessageType.TEXT -> message.body
             MessageType.FILE -> message.caption
@@ -65,13 +77,28 @@ class EditHistoryRepository(
 
                 val uid = editHistoryDao.create(historyEntry, message)
 
-                val historyEntryWithUid = historyEntry.copy(uid = uid.toInt())
-                cache.get(message.uid!!)?.addEntry(historyEntryWithUid.toDataType())
+                return PendingHistoryEntry(message.uid!!, historyEntry.copy(uid = uid.toInt()))
             } catch (exception: SQLiteException) {
                 throw EditHistoryEntryCreateException(exception)
             }
         }
     }
+
+    /**
+     * Make a committed history entry visible to the in-memory cache. Call only after the transaction that inserted it
+     * has committed; see [createEntryDeferred].
+     */
+    fun publishEntry(pending: PendingHistoryEntry) {
+        synchronized(this) {
+            cache.get(pending.messageUid)?.addEntry(pending.entry.toDataType())
+        }
+    }
+
+    /** An inserted, not yet committed history entry. See [createEntryDeferred]. */
+    class PendingHistoryEntry internal constructor(
+        internal val messageUid: String,
+        internal val entry: DbEditHistoryEntry,
+    )
 
     fun deleteByMessageUid(messageUid: String) {
         logger.debug("Delete by message uid {}", messageUid)

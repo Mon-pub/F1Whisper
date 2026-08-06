@@ -19,7 +19,14 @@ object EncodedEndpoints {
     // Fixed repeating XOR key. Not a secret — just enough to keep the literals
     // out of the string table.
     private val KEY = byteArrayOf(
-        0x5A, 0x3C.toByte(), 0x91.toByte(), 0x74, 0x2E, 0xB8.toByte(), 0x6D, 0xC5.toByte(),
+        0x5A,
+        0x3C.toByte(),
+        0x91.toByte(),
+        0x74,
+        0x2E,
+        0xB8.toByte(),
+        0x6D,
+        0xC5.toByte(),
     )
 
     // XOR-encoded DoT server hostname (see decode()).

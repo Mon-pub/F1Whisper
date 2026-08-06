@@ -29,7 +29,7 @@ class ConnectivityProbeUseCaseTest {
 
     @Test
     fun `DnsWire buildAQuery produces valid DNS header`() {
-        val query = DnsWire.buildAQuery("thm.f1tech.info", txId = 0x1234)
+        val query = DnsWire.buildAQuery("example.com", txId = 0x1234)
         // Must be at least 12 (header) + labels + 4 (qtype+qclass)
         assertTrue(query.size >= 16, "Query too short: ${query.size}")
         // First two bytes = txId
@@ -89,7 +89,7 @@ class ConnectivityProbeUseCaseTest {
 
     @Test
     fun `DnsProbeResult succeeded requires non-empty IP list and null error`() {
-        val ok  = DnsProbeResult("test", listOf("1.2.3.4"), emptyList(), 50L, null)
+        val ok = DnsProbeResult("test", listOf("1.2.3.4"), emptyList(), 50L, null)
         val err = DnsProbeResult("test", emptyList(), emptyList(), 50L, "timeout")
         assertTrue(ok.succeeded)
         assertFalse(err.succeeded)
@@ -103,7 +103,7 @@ class ConnectivityProbeUseCaseTest {
 
     @Test
     fun `ProbeTarget defaults are correct`() {
-        val t = ProbeTarget("thm.f1tech.info")
+        val t = ProbeTarget("example.com")
         assertEquals(443, t.port)
         assertEquals("/prov/config.oppf", t.oppfPath)
     }
@@ -117,10 +117,10 @@ class ConnectivityProbeUseCaseTest {
         val report = syntheticReport(Verdict.ALL_OK)
         val text = ConnectivityProbeReportWriter.render(report)
         assertTrue(text.contains("connectivity probes"), "Missing section header")
-        assertTrue(text.contains("dns matrix"),          "Missing DNS section")
+        assertTrue(text.contains("dns matrix"), "Missing DNS section")
         assertTrue(text.contains("reachability probes"), "Missing probes section")
-        assertTrue(text.contains("verdict"),             "Missing verdict")
-        assertTrue(text.contains("ALL_OK"),              "Missing verdict value")
+        assertTrue(text.contains("verdict"), "Missing verdict")
+        assertTrue(text.contains("ALL_OK"), "Missing verdict value")
     }
 
     @Test
@@ -251,8 +251,11 @@ class ConnectivityProbeUseCaseTest {
     // -----------------------------------------------------------------------
 
     private fun allResolverNames() = listOf(
-        DnsResolverNames.SYSTEM, DnsResolverNames.DOT_F1TECH,
-        DnsResolverNames.DOH_CF, DnsResolverNames.DOH_GOOGLE, DnsResolverNames.DOH_CF_FAMILY,
+        DnsResolverNames.SYSTEM,
+        DnsResolverNames.DOT_F1TECH,
+        DnsResolverNames.DOH_CF,
+        DnsResolverNames.DOH_GOOGLE,
+        DnsResolverNames.DOH_CF_FAMILY,
     )
 
     private fun allProbeNames() = listOf(
@@ -272,7 +275,7 @@ class ConnectivityProbeUseCaseTest {
     private fun verdictOf(probes: List<ProbeResult>, dns: List<DnsProbeResult> = healthyDns()): Verdict =
         ConnectivityProbeUseCase(OkHttpClient()).computeVerdict(dns, probes)
 
-    private fun syntheticDnsResult(name: String, ip: String = "208.85.23.138"): DnsProbeResult =
+    private fun syntheticDnsResult(name: String, ip: String = "192.0.2.1"): DnsProbeResult =
         DnsProbeResult(name, listOf(ip), emptyList(), 42L, null)
 
     private fun syntheticReport(verdict: Verdict): ProbeReport {
@@ -284,23 +287,23 @@ class ConnectivityProbeUseCaseTest {
             syntheticDnsResult(DnsResolverNames.DOH_CF_FAMILY),
         )
         val probes = listOf(
-            ProbeResult("TCP:443",             ok = true,  detail = "connected (50ms)",     latencyMs = 50),
-            ProbeResult("TLS:host-SNI",        ok = true,  detail = "handshake ok",         latencyMs = 80),
-            ProbeResult("TLS:shop-SNI",        ok = true,  detail = "handshake ok",         latencyMs = 80),
-            ProbeResult("TLS:neutral-SNI",     ok = true,  detail = "handshake ok",         latencyMs = 80),
+            ProbeResult("TCP:443", ok = true, detail = "connected (50ms)", latencyMs = 50),
+            ProbeResult("TLS:host-SNI", ok = true, detail = "handshake ok", latencyMs = 80),
+            ProbeResult("TLS:shop-SNI", ok = true, detail = "handshake ok", latencyMs = 80),
+            ProbeResult("TLS:neutral-SNI", ok = true, detail = "handshake ok", latencyMs = 80),
             ProbeResult("HTTPS:/prov/config.oppf", ok = true, detail = "HTTP 200 (100ms)", latencyMs = 100),
-            ProbeResult("TCP-5222:chat",       ok = true,  detail = "connected (60ms)",     latencyMs = 60),
-            ProbeResult("CSP-hello:chat",      ok = true,  detail = "server replied 16 bytes", latencyMs = 90),
-            ProbeResult("TLS:dir",             ok = true,  detail = "handshake ok",         latencyMs = 75),
-            ProbeResult("HTTPS:dir-root",      ok = true,  detail = "HTTP 200 (90ms)",      latencyMs = 90),
-            ProbeResult("HTTPS:control-1.1.1.1", ok = true, detail = "HTTP 200 (30ms)",    latencyMs = 30),
+            ProbeResult("TCP-5222:chat", ok = true, detail = "connected (60ms)", latencyMs = 60),
+            ProbeResult("CSP-hello:chat", ok = true, detail = "server replied 16 bytes", latencyMs = 90),
+            ProbeResult("TLS:dir", ok = true, detail = "handshake ok", latencyMs = 75),
+            ProbeResult("HTTPS:dir-root", ok = true, detail = "HTTP 200 (90ms)", latencyMs = 90),
+            ProbeResult("HTTPS:control-1.1.1.1", ok = true, detail = "HTTP 200 (30ms)", latencyMs = 30),
         )
         return ProbeReport(
-            target     = ProbeTarget("thm.f1tech.info"),
-            dns        = dns,
-            probes     = probes,
-            verdict    = verdict,
-            startedAt  = java.time.Instant.parse("2026-07-01T00:00:00Z"),
+            target = ProbeTarget("example.com"),
+            dns = dns,
+            probes = probes,
+            verdict = verdict,
+            startedAt = java.time.Instant.parse("2026-07-01T00:00:00Z"),
             durationMs = 500L,
         )
     }

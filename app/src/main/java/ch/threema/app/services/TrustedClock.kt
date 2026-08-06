@@ -82,7 +82,9 @@ object TrustedClock {
             if (haveSynced && Math.abs(rawOffset - offsetMs) > MAX_JUMP_MS) {
                 logger.debug(
                     "Ignoring outlier server-time sample: raw={} current={} (Δ>{}ms)",
-                    rawOffset, offsetMs, MAX_JUMP_MS,
+                    rawOffset,
+                    offsetMs,
+                    MAX_JUMP_MS,
                 )
                 return
             }

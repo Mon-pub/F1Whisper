@@ -2,6 +2,7 @@ package ch.threema.domain.protocol.csp.coders
 
 import ch.threema.base.crypto.NaCl
 import ch.threema.base.crypto.NonceScope
+import ch.threema.domain.fs.DHSessionId
 import ch.threema.domain.helpers.InMemoryContactStore
 import ch.threema.domain.helpers.InMemoryIdentityStore
 import ch.threema.domain.models.Contact
@@ -11,6 +12,9 @@ import ch.threema.domain.protocol.csp.messages.AbstractMessage
 import ch.threema.domain.protocol.csp.messages.BadMessageException
 import ch.threema.domain.protocol.csp.messages.GroupTextMessage
 import ch.threema.domain.protocol.csp.messages.TextMessage
+import ch.threema.domain.protocol.csp.messages.fs.ForwardSecurityDataMessage
+import ch.threema.domain.protocol.csp.messages.fs.ForwardSecurityEnvelopeMessage
+import ch.threema.domain.protocol.csp.messages.fs.ForwardSecurityMode
 import ch.threema.domain.protocol.csp.messages.voip.VoipCallAnswerData
 import ch.threema.domain.protocol.csp.messages.voip.VoipCallAnswerMessage
 import ch.threema.domain.protocol.csp.messages.voip.VoipCallHangupData
@@ -26,10 +30,14 @@ import ch.threema.domain.testhelpers.TestHelpers.noopContactStore
 import ch.threema.domain.testhelpers.TestHelpers.noopIdentityStore
 import ch.threema.domain.testhelpers.TestHelpers.noopNonceFactory
 import ch.threema.domain.testhelpers.TestHelpers.setMessageDefaultSenderAndReceiver
+import ch.threema.protobuf.csp.e2e.fs.Encapsulated
+import ch.threema.protobuf.csp.e2e.fs.Version
+import java.util.Date
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNull
 
 class MessageCoderTest {
     private val encoder: MessageCoder
@@ -211,6 +219,146 @@ class MessageCoderTest {
         message.text = text
         assertEquals(text, message.text)
     }
+
+    // F1Whisper: per-message disappearing timer carried in the encrypted metadata box.
+    // See .claude/tasks/disappearing-per-message-timer-metadata.md
+
+    @Test
+    fun testDisappearingTimerTravelsInTheMetadataBox() {
+        val textMessage = TextMessage()
+        textMessage.text = "Hello"
+        textMessage.disappearingTimerSeconds = 30
+
+        val decoded = encodeAndDecode(textMessage)
+
+        assertEquals(30, decoded.disappearingTimerSeconds)
+    }
+
+    @Test
+    fun testDisappearingTimerOffIsTransmittedAsAnExplicitZero() {
+        val textMessage = TextMessage()
+        textMessage.text = "Hello"
+        textMessage.disappearingTimerSeconds = 0
+
+        val decoded = encodeAndDecode(textMessage)
+
+        // Not null: the sender said OFF, which the receiver must not confuse with "said nothing".
+        assertEquals(0, decoded.disappearingTimerSeconds)
+    }
+
+    @Test
+    fun testNoDisappearingTimerDecodesAsNull() {
+        val textMessage = TextMessage()
+        textMessage.text = "Hello"
+
+        val decoded = encodeAndDecode(textMessage)
+
+        assertNull(decoded.disappearingTimerSeconds, "an unstamped message must decode as null, not 0")
+    }
+
+    /**
+     * The relay sees the length of the metadata box. It must not change with the timer, otherwise
+     * the ciphertext length alone reveals whether disappearing messages are on and roughly how
+     * large the timer is.
+     */
+    @Test
+    fun testMetadataBoxLengthDoesNotVaryWithTheDisappearingTimer() {
+        // Fixed date: created_at is a varint, so a differing timestamp magnitude would mask what
+        // this test measures.
+        val date = Date(1_785_232_707_650L)
+
+        fun metadataLengthFor(timerSeconds: Int?): Int {
+            val textMessage = TextMessage()
+            textMessage.text = "Hello"
+            textMessage.date = date
+            textMessage.disappearingTimerSeconds = timerSeconds
+            return encode(textMessage).metadataBox!!.box.size
+        }
+
+        val expected = metadataLengthFor(null)
+        assertEquals(expected, metadataLengthFor(0), "timer=0 must not change the metadata box length")
+        assertEquals(expected, metadataLengthFor(30), "timer=30 must not change the metadata box length")
+        assertEquals(expected, metadataLengthFor(604800), "timer=604800 must not change the metadata box length")
+        assertEquals(
+            expected,
+            metadataLengthFor(Int.MAX_VALUE),
+            "timer=Int.MAX_VALUE must not change the metadata box length",
+        )
+    }
+
+    /**
+     * Nearly all real 1:1 traffic is FS-encapsulated, and it is the envelope that owns the metadata
+     * box. The envelope must therefore report the inner message's timer.
+     */
+    @Test
+    fun testForwardSecurityEnvelopeReportsTheInnerMessageTimer() {
+        val innerMessage = TextMessage()
+        innerMessage.text = "Hello"
+        innerMessage.toIdentity = "0ABCDEFG"
+        innerMessage.fromIdentity = "01234567"
+        innerMessage.disappearingTimerSeconds = 30
+
+        val envelope = ForwardSecurityEnvelopeMessage(
+            dummyForwardSecurityDataMessage(),
+            innerMessage,
+            ForwardSecurityMode.FOURDH,
+        )
+
+        assertEquals(30, envelope.disappearingTimerSeconds)
+
+        // Delegation, not a copy taken at construction time: an envelope built before the inner
+        // message is stamped must not go stale.
+        innerMessage.disappearingTimerSeconds = 300
+        assertEquals(300, envelope.disappearingTimerSeconds)
+    }
+
+    /**
+     * The counterpart on the receiving side: the timer decoded from the envelope's metadata box has
+     * to be carried into the encapsulated message.
+     */
+    @Test
+    fun testDecodeEncapsulatedTransfersTheDisappearingTimerInward() {
+        val innerMessage = TextMessage()
+        innerMessage.text = "Hello"
+
+        // Serialized inner message, exactly as ForwardSecurityMessageProcessor hands it over.
+        val plaintext = byteArrayOf(innerMessage.type.toByte()) + innerMessage.body!!
+
+        // An *incoming* envelope has no inner message; MessageCoder.decode() sets the timer on it.
+        val envelope = ForwardSecurityEnvelopeMessage(dummyForwardSecurityDataMessage())
+        envelope.toIdentity = "0ABCDEFG"
+        envelope.fromIdentity = "01234567"
+        envelope.disappearingTimerSeconds = 30
+
+        val decapsulated = decoder.decodeEncapsulated(plaintext, envelope, Version.V1_2)
+
+        assertEquals(30, decapsulated.disappearingTimerSeconds)
+    }
+
+    @Test
+    fun testDecodeEncapsulatedCarriesAnAbsentTimerAsNull() {
+        val innerMessage = TextMessage()
+        innerMessage.text = "Hello"
+        val plaintext = byteArrayOf(innerMessage.type.toByte()) + innerMessage.body!!
+
+        val envelope = ForwardSecurityEnvelopeMessage(dummyForwardSecurityDataMessage())
+        envelope.toIdentity = "0ABCDEFG"
+        envelope.fromIdentity = "01234567"
+
+        val decapsulated = decoder.decodeEncapsulated(plaintext, envelope, Version.V1_2)
+
+        assertNull(decapsulated.disappearingTimerSeconds)
+    }
+
+    private fun dummyForwardSecurityDataMessage() = ForwardSecurityDataMessage(
+        DHSessionId(),
+        Encapsulated.DHType.FOURDH,
+        1L,
+        Version.V1_2.number,
+        Version.V1_2.number,
+        null,
+        ByteArray(0),
+    )
 
     private fun assertEqualMessage(expected: AbstractMessage, actual: AbstractMessage) {
         assertContentEquals(expected.body, actual.body)

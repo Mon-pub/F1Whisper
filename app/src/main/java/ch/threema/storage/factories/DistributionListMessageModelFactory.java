@@ -107,34 +107,15 @@ public class DistributionListMessageModelFactory extends AbstractMessageModelFac
     }
 
     public boolean createOrUpdate(DistributionListMessageModel distributionListMessageModel) {
-        boolean insert = true;
+        // F1Whisper (sixth fork review F6-01, seventh F7-01): see AbstractMessageModelFactory#refusesReinsertion.
         if (distributionListMessageModel.getId() > 0) {
-            Cursor cursor = getReadableDatabase().query(
-                this.getTableName(),
-                null,
-                DistributionListMessageModel.COLUMN_ID + "=?",
-                new String[]{
-                    String.valueOf(distributionListMessageModel.getId())
-                },
-                null,
-                null,
-                null
-            );
-
-            if (cursor != null) {
-                try {
-                    insert = !cursor.moveToNext();
-                } finally {
-                    cursor.close();
-                }
+            if (update(distributionListMessageModel)) {
+                return true;
             }
+            refusesReinsertion(distributionListMessageModel.getId());
+            return false;
         }
-
-        if (insert) {
-            return create(distributionListMessageModel);
-        } else {
-            return update(distributionListMessageModel);
-        }
+        return create(distributionListMessageModel);
     }
 
     private boolean create(DistributionListMessageModel distributionListMessageModel) {
@@ -148,15 +129,18 @@ public class DistributionListMessageModelFactory extends AbstractMessageModelFac
         return false;
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-01): reports whether the row was actually written. See
+     * {@link MessageModelFactory#update(ch.threema.storage.models.MessageModel)}.
+     */
     private boolean update(DistributionListMessageModel distributionListMessageModel) {
         ContentValues contentValues = this.buildContentValues(distributionListMessageModel);
-        getWritableDatabase().update(this.getTableName(),
+        return getWritableDatabase().update(this.getTableName(),
             contentValues,
-            DistributionListMessageModel.COLUMN_ID + "=?",
+            CONTENT_ROW_WHERE,
             new String[]{
                 String.valueOf(distributionListMessageModel.getId())
-            });
-        return true;
+            }) > 0;
     }
 
     public long countMessages(long distributionListId) {
@@ -173,17 +157,9 @@ public class DistributionListMessageModelFactory extends AbstractMessageModelFac
         QueryBuilder queryBuilder = new QueryBuilder();
 
         // F1Whisper: sort by the immutable per-row sort key (sortAtUtc), then id for stability (see
-        // MessageModelFactory.find for the rationale: the earlier postedAtUtc-only sort reordered
-        // same-minute outgoing messages because postedAtUtc is overwritten with the mutable
-        // send-completion time). sortAtUtc is outgoing -> createdAtUtc / incoming ->
-        // COALESCE(postedAtUtc, createdAtUtc); the inner CASE is a defensive pre-backfill fallback.
-        String orderBy =
-            "COALESCE(" + AbstractMessageModel.COLUMN_SORT_AT + ", "
-                + "CASE WHEN " + AbstractMessageModel.COLUMN_OUTBOX + " = 1 "
-                + "THEN " + AbstractMessageModel.COLUMN_CREATED_AT + " "
-                + "ELSE COALESCE(" + AbstractMessageModel.COLUMN_POSTED_AT + ", "
-                + AbstractMessageModel.COLUMN_CREATED_AT + ") END) DESC, "
-                + DistributionListMessageModel.COLUMN_ID + " DESC";
+        // MessageModelFactory.find for the rationale). Shared TIMELINE_ORDER_BY so the pagination
+        // keyset in appendFilter stays in lockstep with the ordering (fork review H-06).
+        String orderBy = TIMELINE_ORDER_BY;
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(DistributionListMessageModel.COLUMN_DISTRIBUTION_LIST_ID + "=?");
@@ -287,7 +263,13 @@ public class DistributionListMessageModelFactory extends AbstractMessageModelFac
                     "`" + DistributionListMessageModel.COLUMN_EDITED_AT + "` DATETIME ," +
                     "`" + DistributionListMessageModel.COLUMN_DELETED_AT + "` DATETIME ," +
                     // F1Whisper message-ordering fix (mirror DatabaseUpdateToVersion124)
-                    "`" + DistributionListMessageModel.COLUMN_SORT_AT + "` BIGINT DEFAULT NULL );",
+                    "`" + DistributionListMessageModel.COLUMN_SORT_AT + "` BIGINT DEFAULT NULL ," +
+                    // F1Whisper disappearing-messages columns (mirror DatabaseUpdateToVersion125; fork
+                    // review H-01: the shared buildContentValues writes these for every message table,
+                    // so they must exist here even though distribution lists never arm a timer)
+                    "`" + DistributionListMessageModel.COLUMN_EXPIRES_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + DistributionListMessageModel.COLUMN_EXPIRE_STARTED_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + DistributionListMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL );",
 
                 // indices
                 "CREATE INDEX `distributionListDistributionListIdIdx` ON `" + DistributionListMessageModel.TABLE + "` ( `" + DistributionListMessageModel.COLUMN_DISTRIBUTION_LIST_ID + "` )",

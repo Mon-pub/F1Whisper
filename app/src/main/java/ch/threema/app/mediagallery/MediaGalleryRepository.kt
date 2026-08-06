@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import ch.threema.app.messagereceiver.MessageReceiver
 import ch.threema.app.services.MessageService
 import ch.threema.app.utils.DispatcherProvider
+import ch.threema.app.utils.RestrictedMediaOutput
 import ch.threema.storage.models.AbstractMessageModel
 import ch.threema.storage.models.MessageType
 import kotlinx.coroutines.withContext
@@ -29,9 +30,14 @@ class MediaGalleryRepository(
         }
 
         _messages.value = withContext(dispatcherProvider.worker) {
-            messageReceiver.loadMessages(
-                buildMessageFilter(
-                    contentTypes = contentTypes,
+            // F1Whisper (fourth fork review, F4-09): an incoming listen-once voice message is never published here. The
+            // gallery is the entry point to the generic viewer, save and share, none of which know about the claim/burn
+            // owner in the chat player, so publishing the row is what made replaying and exporting it possible.
+            RestrictedMediaOutput.releasable(
+                messageReceiver.loadMessages(
+                    buildMessageFilter(
+                        contentTypes = contentTypes,
+                    ),
                 ),
             )
         }

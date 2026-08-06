@@ -5,11 +5,11 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -239,7 +239,8 @@ private fun getAllMarkupSpans(rawInput: CharSequence): Map<Int, MarkupParser.Spa
                 MarkupParser.TokenType.UNDERSCORE,
                 MarkupParser.TokenType.TILDE,
                 MarkupParser.TokenType.BACKTICK,
-                MarkupParser.TokenType.PIPE -> true
+                MarkupParser.TokenType.PIPE,
+                -> true
                 MarkupParser.TokenType.TEXT, MarkupParser.TokenType.NEWLINE -> false
             }
         }

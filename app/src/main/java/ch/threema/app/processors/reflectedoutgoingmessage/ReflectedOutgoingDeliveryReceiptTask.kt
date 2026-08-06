@@ -49,15 +49,31 @@ internal class ReflectedOutgoingDeliveryReceiptTask(
                 continue
             }
 
-            updateMessage(messageModel, state)
-
-            if (state == MessageState.READ) {
+            if (updateMessage(messageModel, state) && state == MessageState.READ) {
                 notificationService.cancel(messageReceiver)
             }
         }
     }
 
-    private fun updateMessage(messageModel: AbstractMessageModel, state: MessageState) {
+    /**
+     * F1Whisper (seventh fork review, F7-04): this is the ORDINARY multi-device read path, and it had no durable
+     * first-read transition at all.
+     *
+     * The sixth review converted [ch.threema.app.processors.reflectedmessageupdate.ReflectedIncomingMessageUpdateTask],
+     * but that branch only runs when NO read receipt is owed to the peer. With read receipts enabled - the default - a
+     * 1:1 read is announced as an outgoing delivery receipt and reflected here, and this handler simply set `readAt`,
+     * `modifiedAt` and `isRead` on a cached model and full-row-saved it. So the message became read on the primary
+     * device with no countdown start and no deadline: normal expiry only selects rows that have a deadline, and the
+     * repair pass that would notice runs at startup, so a message read on a linked device outlived the interval its
+     * sender advertised until the app happened to be relaunched.
+     *
+     * Both branches now go through the same conditional, non-inserting operations the local read goes through, which
+     * also means a row hard-deleted or deleted for everyone while the reflection was in flight stays gone and publishes
+     * nothing.
+     *
+     * @return whether the row was actually updated, which is what gates the listener and the notification.
+     */
+    private fun updateMessage(messageModel: AbstractMessageModel, state: MessageState): Boolean {
         if (MessageUtil.isReaction(state)) {
             messageService.addMessageReaction(
                 messageModel,
@@ -66,28 +82,23 @@ internal class ReflectedOutgoingDeliveryReceiptTask(
                 myIdentity,
                 Date(outgoingMessage.createdAt),
             )
-        } else {
-            when (state) {
-                MessageState.DELIVERED -> {
-                    val date = Date(outgoingMessage.createdAt)
-                    // The delivered at date is stored in created at for incoming messages
-                    messageModel.createdAt = date
-                    messageModel.modifiedAt = date
-                    messageService.save(messageModel)
-                    ListenerManager.messageListeners.handle { l -> l.onModified(listOf(messageModel)) }
-                }
+            return true
+        }
+        val date = Date(outgoingMessage.createdAt)
+        val updated = when (state) {
+            // The delivered at date is stored in created at for incoming messages
+            MessageState.DELIVERED -> messageService.updateReceivedTimestamp(messageModel, date)
 
-                MessageState.READ -> {
-                    val date = Date(outgoingMessage.createdAt)
-                    messageModel.readAt = date
-                    messageModel.modifiedAt = date
-                    messageModel.isRead = true
-                    messageService.save(messageModel)
-                    ListenerManager.messageListeners.handle { l -> l.onModified(listOf(messageModel)) }
-                }
+            MessageState.READ -> messageService.markAsReadFromSync(messageModel, date)
 
-                else -> logger.error("Unsupported delivery receipt reflected of state {}", state)
+            else -> {
+                logger.error("Unsupported delivery receipt reflected of state {}", state)
+                false
             }
         }
+        if (updated) {
+            ListenerManager.messageListeners.handle { l -> l.onModified(listOf(messageModel)) }
+        }
+        return updated
     }
 }

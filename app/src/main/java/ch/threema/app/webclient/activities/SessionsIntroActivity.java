@@ -32,6 +32,14 @@ public class SessionsIntroActivity extends ThreemaToolbarActivity {
         super.onCreate(savedInstanceState);
         logScreenVisibility(this, logger);
 
+        // F1Whisper (second follow-up S2-04): Threema Web is disabled in the onprem build —
+        // finish early so intents/deep links cannot open it.
+        if (ch.threema.app.utils.ConfigUtils.isOnPremBuild()) {
+            android.widget.Toast.makeText(this, R.string.webclient_disabled, android.widget.Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);

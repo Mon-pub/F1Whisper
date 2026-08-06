@@ -264,7 +264,10 @@ class MessageUtilTest {
                 ProtocolDefines.DELIVERYRECEIPT_MSGREAD,
             ),
         )
-        assertFalse(MessageUtil.canSendDeliveryReceipt(this.groupMessageModelInbox, ProtocolDefines.DELIVERYRECEIPT_MSGREAD))
+        // F1Whisper: group inbox messages CAN send read receipts (the group message-details
+        // feature sends a GroupDeliveryReceipt to the SENDER only, gated by the read-receipts
+        // preference at the call site) — upstream asserted false here.
+        assertTrue(MessageUtil.canSendDeliveryReceipt(this.groupMessageModelInbox, ProtocolDefines.DELIVERYRECEIPT_MSGREAD))
 
         if (ConfigUtils.isGroupAckEnabled()) {
             assertTrue(MessageUtil.canSendDeliveryReceipt(this.groupMessageModelInbox, ProtocolDefines.DELIVERYRECEIPT_MSGUSERACK))
@@ -480,6 +483,19 @@ class MessageUtilTest {
                 MessageModel().apply {
                     isRead = true
                     isOutbox = true
+                },
+            ),
+        )
+
+        // F1Whisper (device report 2026-08-06, U-01): a message deleted for everyone cannot be marked read. The write
+        // that would record it refuses a deleted row structurally, so asking produced three failed attempts and a
+        // warning on every chat open, and left the message unread for good.
+        assertFalse(
+            MessageUtil.canMarkAsRead(
+                MessageModel().apply {
+                    isRead = false
+                    isOutbox = false
+                    deletedAt = Date()
                 },
             ),
         )

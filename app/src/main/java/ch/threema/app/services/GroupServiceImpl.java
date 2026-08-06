@@ -248,6 +248,10 @@ public class GroupServiceImpl implements GroupService {
         ShortcutUtil.deleteShareTargetShortcut(uniqueIdString);
         ShortcutUtil.deletePinnedShortcut(uniqueIdString);
         this.conversationTagService.removeAll(ConversationUtil.getGroupConversationUid(groupModel.getDatabaseId()), triggerSource);
+        // F1Whisper (fork review M-09): mirror the tag cleanup — permanently deleting the group
+        // conversation must also drop its chat-folder memberships, otherwise recreating a chat with
+        // the same conversation UID silently restores old folders. (Archiving keeps memberships.)
+        serviceManager.getChatFolderService().onConversationDeleted(ConversationUtil.getGroupConversationUid(groupModel.getDatabaseId()));
         serviceManager.getNotificationService().cancel(messageReceiver);
 
         // Remove conversation
@@ -309,6 +313,9 @@ public class GroupServiceImpl implements GroupService {
         ShortcutUtil.deleteShareTargetShortcut(uniqueIdString);
         ShortcutUtil.deletePinnedShortcut(uniqueIdString);
         this.conversationTagService.removeAll(ConversationUtil.getGroupConversationUid(groupModel.getId()), TriggerSource.LOCAL);
+        // F1Whisper (fork review M-09): mirror the tag cleanup — drop chat-folder memberships on
+        // permanent deletion (idempotent with the removeGroupBelongings hook).
+        serviceManager.getChatFolderService().onConversationDeleted(ConversationUtil.getGroupConversationUid(groupModel.getId()));
 
         // Remove conversation
         conversationService.removeFromCache(groupModel);
@@ -468,6 +475,24 @@ public class GroupServiceImpl implements GroupService {
         return results;
     }
 
+    /**
+     * F1Whisper (fifth fork review, F5-06): the {@link MessageService} this class needs for the one clock-aware outgoing
+     * transition, resolved lazily.
+     *
+     * <p>Not a constructor dependency: {@code MessageServiceImpl} takes a {@code GroupService}, so injecting the reverse
+     * would close a cycle. This class already reaches the service manager the same way elsewhere.</p>
+     */
+    @Nullable
+    private MessageService outgoingTransitionService() {
+        try {
+            ServiceManager serviceManager = ThreemaApplication.getServiceManager();
+            return serviceManager != null ? serviceManager.getMessageService() : null;
+        } catch (Exception e) {
+            logger.warn("Could not resolve the message service", e);
+            return null;
+        }
+    }
+
     @Override
     public void runRejectedMessagesRefreshSteps(@NonNull GroupModel groupModel) {
         RejectedGroupMessageFactory rejectedGroupMessageFactory = databaseService.getRejectedGroupMessageFactory();
@@ -519,10 +544,24 @@ public class GroupServiceImpl implements GroupService {
             }
         }
 
-        // Update the state for each of the messages
+        // Update the state for each of the messages.
+        //
+        // F1Whisper (fifth fork review, F5-02 / F5-06): through the one clock-aware transition, not by writing the state
+        // column directly. This path is a SUCCESSFUL outgoing terminal writer - the last member rejecting the message has
+        // gone, so it has reached everyone who is still in the group - and writing SENT here without it left a
+        // disappearing message with a terminal state and no countdown, which the startup repair pass deliberately
+        // refuses to fix for outgoing rows. The message was then kept forever.
+        final MessageService messageService = outgoingTransitionService();
+        final Date resolvedAt = new Date();
         for (GroupMessageModel message : updatedMessages) {
-            message.setState(MessageState.SENT);
-            groupMessageModelFactory.update(message);
+            if (messageService != null) {
+                messageService.applyOutgoingStateTransition(message, MessageState.SENT, resolvedAt, null, false);
+            } else {
+                logger.warn("No message service available; recording the resolved reject for {} without its countdown",
+                    message.getApiMessageId());
+                message.setState(MessageState.SENT);
+                groupMessageModelFactory.update(message);
+            }
         }
 
         ListenerManager.messageListeners.handle(
@@ -575,24 +614,35 @@ public class GroupServiceImpl implements GroupService {
     // region F1Whisper: group typing indicators
 
     private static final long GROUP_TYPING_RESET_TIMEOUT_MS = 15000L;
+    // Single monitor for ALL typing state below (members, timers, generations). Fork review M-11:
+    // the earlier two-lock design let an already-firing stale reset task clear a NEWER typing event
+    // (its run() called setMemberTyping(false) unconditionally). Now every state change bumps a
+    // per-(group,member) generation under this one lock, and a reset task only clears state when its
+    // captured generation is still current — checked atomically with the state mutation.
+    private final Object groupTypingLock = new Object();
     private final Map<Long, Set<String>> typingMembersByGroup = new HashMap<>();
     private final Map<String, TimerTask> groupTypingTimerTasks = new HashMap<>();
+    private final Map<String, Long> groupTypingGenerations = new HashMap<>();
+    private long groupTypingGenerationCounter = 0L;
     private final Timer groupTypingTimer = new Timer("GroupTypingTimer", true);
 
     @Override
     public void setMemberTyping(long groupDatabaseId, @NonNull String identity, boolean isTyping) {
         final String timerKey = groupDatabaseId + ":" + identity;
+        final Set<String> snapshot;
+        TimerTask resetTask = null;
 
-        // cancel any pending auto-reset timer for this member
-        synchronized (groupTypingTimerTasks) {
+        synchronized (groupTypingLock) {
+            // Bump the generation first: any in-flight stale reset task is invalidated atomically.
+            final long generation = ++groupTypingGenerationCounter;
+            groupTypingGenerations.put(timerKey, generation);
+
+            // cancel any pending auto-reset timer for this member
             TimerTask oldTask = groupTypingTimerTasks.remove(timerKey);
             if (oldTask != null) {
                 oldTask.cancel();
             }
-        }
 
-        final Set<String> snapshot;
-        synchronized (typingMembersByGroup) {
             Set<String> members = typingMembersByGroup.get(groupDatabaseId);
             if (isTyping) {
                 if (members == null) {
@@ -606,24 +656,33 @@ public class GroupServiceImpl implements GroupService {
                     typingMembersByGroup.remove(groupDatabaseId);
                 }
             }
+            if (!isTyping) {
+                // Fully cleared and no timer pending — drop the generation entry so the map
+                // cannot grow unboundedly across many (group, member) pairs.
+                groupTypingGenerations.remove(timerKey);
+            }
             Set<String> current = typingMembersByGroup.get(groupDatabaseId);
             snapshot = current != null ? new HashSet<>(current) : Collections.emptySet();
-        }
 
-        ListenerManager.groupTypingListeners.handle(listener -> listener.onGroupTypingChanged(groupDatabaseId, snapshot));
-
-        // schedule an auto-reset so a missed "stopped typing" message does not stick
-        if (isTyping) {
-            TimerTask resetTask = new TimerTask() {
-                @Override
-                public void run() {
-                    setMemberTyping(groupDatabaseId, identity, false);
-                }
-            };
-            synchronized (groupTypingTimerTasks) {
+            // schedule an auto-reset so a missed "stopped typing" message does not stick
+            if (isTyping) {
+                resetTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        clearMemberTypingIfCurrent(groupDatabaseId, identity, timerKey, generation);
+                    }
+                };
                 groupTypingTimerTasks.put(timerKey, resetTask);
             }
+        }
+
+        // Listener callbacks run OUTSIDE the lock (arbitrary listener code must not run under it).
+        ListenerManager.groupTypingListeners.handle(listener -> listener.onGroupTypingChanged(groupDatabaseId, snapshot));
+
+        if (resetTask != null) {
             try {
+                // If a newer event cancelled this task between the lock release and here, schedule()
+                // throws IllegalStateException — harmless (the newer event owns the state) and caught.
                 groupTypingTimer.schedule(resetTask, GROUP_TYPING_RESET_TIMEOUT_MS);
             } catch (Exception e) {
                 logger.error("Failed to schedule group typing reset", e);
@@ -631,10 +690,39 @@ public class GroupServiceImpl implements GroupService {
         }
     }
 
+    /**
+     * Timeout path of the auto-reset timer (fork review M-11): clears the member's typing state
+     * ONLY when {@code expectedGeneration} is still the current generation for this
+     * (group, member) — i.e. no newer typing event arrived while this task was firing.
+     */
+    private void clearMemberTypingIfCurrent(long groupDatabaseId, @NonNull String identity, @NonNull String timerKey, long expectedGeneration) {
+        final Set<String> snapshot;
+        synchronized (groupTypingLock) {
+            Long current = groupTypingGenerations.get(timerKey);
+            if (current == null || current != expectedGeneration) {
+                // Superseded — never clear fresh state or remove the newer task.
+                return;
+            }
+            groupTypingGenerations.remove(timerKey);
+            groupTypingTimerTasks.remove(timerKey);
+
+            Set<String> members = typingMembersByGroup.get(groupDatabaseId);
+            if (members != null) {
+                members.remove(identity);
+                if (members.isEmpty()) {
+                    typingMembersByGroup.remove(groupDatabaseId);
+                }
+            }
+            Set<String> remaining = typingMembersByGroup.get(groupDatabaseId);
+            snapshot = remaining != null ? new HashSet<>(remaining) : Collections.emptySet();
+        }
+        ListenerManager.groupTypingListeners.handle(listener -> listener.onGroupTypingChanged(groupDatabaseId, snapshot));
+    }
+
     @NonNull
     @Override
     public Set<String> getTypingMembers(long groupDatabaseId) {
-        synchronized (typingMembersByGroup) {
+        synchronized (groupTypingLock) {
             Set<String> members = typingMembersByGroup.get(groupDatabaseId);
             return members != null ? new HashSet<>(members) : Collections.emptySet();
         }

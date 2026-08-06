@@ -177,27 +177,12 @@ public class GeoLocationUtil {
             targetView.setText(address);
 
             if (messageModel != null && messageService != null) {
-
-                // Apply the passed ´address´ value to the existing message model
-                LocationDataModel locationDataModel = messageModel.getLocationData();
-                final @Nullable Poi updatedPoi;
-                if (address != null && locationDataModel.poiNameOrNull != null) {
-                    updatedPoi = new Poi.Named(locationDataModel.poiNameOrNull, address);
-                } else if (address != null) {
-                    updatedPoi = new Poi.Unnamed(address);
-                } else {
-                    updatedPoi = null;
-                }
-
-                messageModel.setLocationData(
-                    new LocationDataModel(
-                        locationDataModel.latitude,
-                        locationDataModel.longitude,
-                        locationDataModel.accuracy,
-                        updatedPoi
-                    )
-                );
-                this.messageService.save(messageModel);
+                // F1Whisper (seventh fork review, F7-05): the one column this owns, conditionally, against the current
+                // row. This used to build the new location data here and full-row-save the ADAPTER's instance - a
+                // timeline snapshot taken whenever the row was last read - so a geocoder result arriving after the send
+                // task had completed wrote that snapshot's SENDING state and null countdown back over the terminal
+                // state and deadline the task had just persisted.
+                this.messageService.updateLocationAddress(messageModel, address);
             }
         }
     }

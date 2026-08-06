@@ -2043,24 +2043,6 @@
         <item quantity="other">%d group members</item>
     </plurals>
     <!-- F1Whisper: scheduled messages -->
-    <string name="schedule_message">Schedule message</string>
-    <string name="message_scheduled">Message scheduled</string>
-    <string name="scheduled_time_in_past">Pick a time in the future</string>
-    <string name="scheduled_messages_title">Scheduled messages</string>
-    <string name="scheduled_messages_count">%d scheduled</string>
-    <string name="scheduled_message_send_at">%1$s · %2$s</string>
-    <string name="scheduled_message_cancel">Cancel scheduled message</string>
-    <string name="scheduled_message_canceled">Scheduled message canceled</string>
-    <string name="scheduled_message_action_send_now">Send now</string>
-    <string name="scheduled_message_action_reschedule">Reschedule</string>
-    <string name="scheduled_message_edit_title">Edit scheduled message</string>
-    <string name="scheduled_message_rescheduled">Message rescheduled</string>
-    <string name="scheduled_message_updated">Message updated</string>
-    <string name="schedule_message_pick_date">Choose a date</string>
-    <string name="schedule_message_pick_time">Choose a time</string>
-    <string name="no_scheduled_messages">No scheduled messages</string>
-    <string name="schedule_today">Today</string>
-    <string name="schedule_tomorrow">Tomorrow</string>
     <!-- Chat folders -->
     <string name="chat_folders">Chat folders</string>
     <string name="manage_folders">Manage folders</string>

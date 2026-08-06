@@ -43,6 +43,51 @@ message MessageMetadata {
   // Recommended to not exceed 32 grapheme clusters. Should not contain
   // whitespace characters at the beginning or the end of string.
   optional string nickname = 2;
+
+  // F1Whisper: the sender's disappearing-messages timer, in seconds, for THIS
+  // message. See `.claude/tasks/disappearing-per-message-timer-metadata.md`.
+  //
+  // The receiver freezes the message's expiry at this value instead of
+  // re-deriving it from its own copy of the conversation setting, so a
+  // recipient cannot retroactively un-time messages the sender already sent
+  // under a live timer (Signal carries `expireTimer` in every `DataMessage`
+  // for the same reason).
+  //
+  // Tri-state, and all three states are distinct:
+  // - absent: the sender advertised nothing, i.e. it predates v6.4.3-38. The
+  //   receiver falls back to its local shared conversation field, which is the
+  //   pre-v6.4.3-38 behaviour.
+  // - `0`: the sender explicitly disabled the timer for this message. The
+  //   message never expires and the receiver must NOT fall back.
+  // - `> 0`: the sender's timer. Freeze here.
+  //
+  // Field number 100 is far outside upstream's range, so a future upstream
+  // rebase surfaces any collision as a one-line conflict.
+  //
+  // Note: the Rust copy of this file under
+  // `domain/libthreema/threema-protocols/src/csp-e2e.proto` deliberately does
+  // NOT carry this field and must stay byte-identical to upstream. prost
+  // ignores it as an unknown field, so no native rebuild is needed.
+  //
+  // Note: the sender compensates `padding` for this field's encoded size (see
+  // `MetadataCoder.f1CompensatedPaddingLength`), so the serialized length of
+  // this message reveals neither whether a timer is set nor how large it is.
+  // It does still distinguish sender *versions*: the compensation makes an
+  // updated client's metadata a constant 8 bytes longer than a pre-v6.4.3-38
+  // client's, on every message type alike. That leaks nothing new, since the
+  // relay already learns the client version from the user agent and the CSP
+  // handshake.
+  //
+  // Note: this field does NOT inherit forward secrecy. The metadata box is
+  // keyed from the long-term X25519 ECDH (`MetadataCoder.deriveMetadataKey`),
+  // not from the FS ratchet, so for an FS-encapsulated message the body is
+  // forward-secret but this field is not: an adversary who records traffic and
+  // later compromises either party's long-term private key can recover, per
+  // message, whether disappearing was on and at what value. That is a property
+  // of the metadata box as a whole (`nickname`, `created_at` and `message_id`
+  // are equally exposed), not of this field; carrying the timer inside the
+  // FS-encapsulated body instead would fix it.
+  optional uint32 f1_disappearing_timer = 100;
 }
 
 // Edit an existing message (e.g. a text message or a media message caption).

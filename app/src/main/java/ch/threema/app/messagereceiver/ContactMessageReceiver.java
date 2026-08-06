@@ -137,7 +137,18 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
         m.setSaved(false);
         m.setUid(UUID.randomUUID().toString());
         m.setIdentity(contact.getIdentity());
-        // F1Whisper: stamp disappearing-timer on every outgoing message at creation time.
+        // F1Whisper: stamp the shared conversation disappearing timer on EVERY model this receiver
+        // builds, at creation time.
+        //
+        // For an OUTGOING message this is authoritative and final: it is the policy advertised on the
+        // wire (OutgoingCspMessageTask) and the value the sender's own countdown runs against.
+        //
+        // For an INBOUND message it is only a provisional placeholder. Nothing here knows what the
+        // SENDER's policy was, and the receiver's own setting is not allowed to decide it — that was
+        // exactly the defect. MessageServiceImpl.applyIncomingFreeze OVERWRITES this stamp with the
+        // timer the sender advertised in the message's encrypted metadata, including overwriting it
+        // with 0 when the sender said OFF. It is left in place only as the fallback for a message
+        // from a pre-v6.4.3-38 peer, which advertises nothing.
         ch.threema.app.services.DisappearingMessageService.stampOutgoing(
             m, contact.getDisappearingMessagesTimerSeconds());
         return m;
@@ -164,15 +175,20 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
     }
 
     @Override
-    public void saveLocalModel(MessageModel save) {
-        databaseService.getMessageModelFactory().createOrUpdate(save);
+    public boolean saveLocalModel(MessageModel save) {
+        return databaseService.getMessageModelFactory().createOrUpdate(save);
     }
 
     @Override
     public void createAndSendTextMessage(@NonNull MessageModel messageModel) {
         // Create and assign a new message id
         messageModel.setMessageId(MessageId.random());
-        saveLocalModel(messageModel);
+        if (!saveLocalModel(messageModel)) {
+            // F1Whisper (seventh fork review, F7-01): the row has gone since this send began. Scheduling now would
+            // archive a persistent task whose payload the user has already deleted.
+            logger.info("Not scheduling a text send for {}: its row is gone", messageModel.getId());
+            return;
+        }
 
         // Mark the contact as non-hidden and unarchived
         contactService.setAcquaintanceLevel(contact.getIdentity(), ContactModel.AcquaintanceLevel.DIRECT);
@@ -203,7 +219,11 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
     public void createAndSendLocationMessage(@NonNull MessageModel messageModel) {
         // Create and assign a new message id
         messageModel.setMessageId(MessageId.random());
-        saveLocalModel(messageModel);
+        if (!saveLocalModel(messageModel)) {
+            // F1Whisper (seventh fork review, F7-01): see createAndSendTextMessage.
+            logger.info("Not scheduling a location send for {}: its row is gone", messageModel.getId());
+            return;
+        }
 
         // Mark the contact as non-hidden and unarchived
         contactService.setAcquaintanceLevel(contact.getIdentity(), ContactModel.AcquaintanceLevel.DIRECT);
@@ -233,7 +253,7 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
     }
 
     @Override
-    public void createAndSendFileMessage(
+    public boolean createAndSendFileMessage(
         @Nullable byte[] thumbnailBlobId,
         @Nullable byte[] fileBlobId,
         @Nullable SymmetricEncryptionResult encryptionResult,
@@ -254,7 +274,17 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
         if (messageModel.getMessageId() == null) {
             messageModel.setMessageId(MessageId.random());
         }
-        saveLocalModel(messageModel);
+        if (!saveLocalModel(messageModel)) {
+            // F1Whisper (seventh fork review, F7-01): see createAndSendTextMessage. This is the deterministic case the
+            // review reproduces: the blob is already uploaded, so the archived task would carry a live blob id and key.
+            //
+            // F1Whisper (eighth fork review, H8-01): the same refusal now also covers the row the user deleted for
+            // everyone while this upload was running. The write above is what asks - it cannot touch a deleted row - so
+            // the blob id, the key, the body and the caption stay out of the tombstone, and the caller is told to
+            // publish nothing.
+            logger.info("Not scheduling a file send for {}: its row is gone or was deleted", messageModel.getId());
+            return false;
+        }
 
         // Mark the contact as non-hidden and unarchived
         contactService.setAcquaintanceLevel(contact.getIdentity(), ContactModel.AcquaintanceLevel.DIRECT);
@@ -269,6 +299,7 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
             Set.of(messageModel.getIdentity()),
             thumbnailBlobId
         ));
+        return true;
     }
 
     @Override
@@ -282,7 +313,11 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
     ) throws ThreemaException {
         // Save the given message id to the model
         messageModel.setMessageId(messageId);
-        saveLocalModel(messageModel);
+        if (!saveLocalModel(messageModel)) {
+            // F1Whisper (seventh fork review, F7-01): see createAndSendTextMessage.
+            logger.info("Not scheduling a poll setup send for {}: its row is gone", messageModel.getId());
+            return;
+        }
 
         final BallotId ballotId = new BallotId(Utils.hexStringToByteArray(ballotModel.getApiBallotId()));
 
@@ -451,13 +486,17 @@ public class ContactMessageReceiver implements MessageReceiver<MessageModel> {
         );
     }
 
-    public void sendEditMessage(int messageModelId, @NonNull String newText, @NonNull Date editedAt) {
+    /**
+     * F1Whisper (seventh fork review, F7-03): the edit text is no longer passed. The caller commits the edit to the row
+     * first (in one transaction with its history entry) and this task announces what the row says, so no edit plaintext
+     * is stored in the persistent task archive while the device is offline.
+     */
+    public void sendEditMessage(int messageModelId, @NonNull Date editedAt) {
         scheduleTask(
             new OutgoingContactEditMessageTask(
                 contact.getIdentity(),
                 messageModelId,
                 MessageId.random(),
-                newText,
                 editedAt
             )
         );

@@ -77,6 +77,7 @@ import ch.threema.app.services.ballot.BallotUpdateResult;
 import ch.threema.app.services.messageplayer.ListenOnceBurnRegistry;
 import ch.threema.app.services.messageplayer.MessagePlayerService;
 import ch.threema.app.services.notification.NotificationService;
+import ch.threema.app.tasks.PersistentTaskRowGate;
 import ch.threema.app.ui.MediaItem;
 import ch.threema.app.utils.BallotUtil;
 import ch.threema.app.utils.BitmapUtil;
@@ -143,8 +144,9 @@ import ch.threema.domain.taskmanager.TriggerSource;
 import ch.threema.libthreema.CryptoException;
 import ch.threema.protobuf.csp.e2e.Reaction;
 import ch.threema.storage.DatabaseService;
-import ch.threema.storage.factories.GroupMessageModelFactory;
-import ch.threema.storage.factories.MessageModelFactory;
+import ch.threema.storage.MessageCacheCoherence;
+import ch.threema.storage.MessageRowUpdate;
+import ch.threema.storage.TimelineKeyset;
 import ch.threema.storage.factories.ServerMessageModelFactory;
 import ch.threema.storage.models.AbstractMessageModel;
 import ch.threema.storage.models.ContactModel;
@@ -158,6 +160,7 @@ import ch.threema.storage.models.MessageType;
 import ch.threema.storage.models.ServerMessageModel;
 import ch.threema.storage.models.access.GroupAccessModel;
 import ch.threema.storage.models.ballot.BallotModel;
+import ch.threema.storage.models.data.DisplayTag;
 import ch.threema.storage.models.data.LocationDataModel;
 import ch.threema.storage.models.data.MessageContentsType;
 import ch.threema.storage.models.data.media.BallotDataModel;
@@ -366,8 +369,12 @@ public class MessageServiceImpl implements MessageService {
             updateOutgoingMessageState(messageModel, MessageState.PENDING, new Date());
         } else if (clearedTerminal) {
             // Persist the cleared bit; updateOutgoingMessageState was not called above.
-            save(messageModel);
-            fireOnModifiedMessage(messageModel);
+            // F1Whisper (seventh fork review, F7-05): the one column this owns, conditionally. It used to full-row-save
+            // a model whose send is in flight, so it could write back the pre-transition state and countdown of a
+            // message the send task had just completed.
+            if (clearDisplayTag(messageModel, DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL)) {
+                fireOnModifiedMessage(messageModel);
+            }
         }
     }
 
@@ -520,6 +527,21 @@ public class MessageServiceImpl implements MessageService {
         MessageReceiver receiver,
         int messageFlags,
         ForwardSecurityMode forwardSecurityMode) {
+        return createNewBallotMessage(messageId, ballotModel, type, receiver, messageFlags, forwardSecurityMode, null);
+    }
+
+    /**
+     * F1Whisper (fourth fork review, F4-05): as above, but for an INCOMING poll, whose sender advertised a per-message
+     * disappearing timer that has to be on the row from its very first write. See {@link #freezeIncomingBeforeFirstWrite}.
+     */
+    private AbstractMessageModel createNewBallotMessage(
+        MessageId messageId,
+        BallotModel ballotModel,
+        BallotDataModel.Type type,
+        MessageReceiver receiver,
+        int messageFlags,
+        ForwardSecurityMode forwardSecurityMode,
+        @Nullable Integer advertisedDisappearingTimerSeconds) {
         AbstractMessageModel model = receiver.createLocalModel(MessageType.BALLOT, MessageContentsType.BALLOT, TrustedClock.now()); // F1Whisper: server-corrected outgoing postedAt
         if (model != null) {
             //hack: save ballot id into body string
@@ -530,6 +552,9 @@ public class MessageServiceImpl implements MessageService {
             model.setMessageId(messageId);
             model.setMessageFlags(messageFlags);
             model.setForwardSecurityMode(forwardSecurityMode);
+            if (!model.isOutbox()) {
+                freezeIncomingBeforeFirstWrite(model, advertisedDisappearingTimerSeconds);
+            }
             receiver.saveLocalModel(model);
             cache(model);
             fireOnCreatedMessage(model);
@@ -570,15 +595,19 @@ public class MessageServiceImpl implements MessageService {
 
         logger.debug("{}: save db", tag);
         messageReceiver.saveLocalModel(messageModel);
-        DisappearingMessageService.armOutgoingClock(messageModel); // F1Whisper: start disappearing countdown
-        DisappearingMessageService.getInstance().piggybackTimerReassert(messageReceiver); // F1Whisper E2
         logger.debug("{}: fire create message", tag);
         fireOnCreatedMessage(messageModel);
 
         messageReceiver.createAndSendTextMessage(messageModel);
         String messageId = messageModel.getApiMessageId();
         logger.info("{}: message {} successfully queued", tag, (messageId != null ? messageId : messageModel.getId()));
-        messageReceiver.saveLocalModel(messageModel);
+        // F1Whisper (seventh fork review, F7-05): NO second save here. The receiver has already assigned the message id,
+        // persisted the row and scheduled the persistent task, and a direct receiver save takes no cache monitor and
+        // writes EVERY lifecycle column from a snapshot built before the SQL update. So the task's acknowledged
+        // completion - terminal state, authoritative timestamp and the disappearing countdown, written together - could
+        // land between that snapshot and its update and be overwritten by the stale SENDING and null clock. The
+        // resulting row is neither due nor repairable (startup repair deliberately skips outgoing rows with no start),
+        // so a reflected message kept its content past the interval it advertised.
 
         fireOnModifiedMessage(messageModel);
 
@@ -614,23 +643,32 @@ public class MessageServiceImpl implements MessageService {
             return;
         }
 
-        if (receiver instanceof ContactMessageReceiver) {
-            ((ContactMessageReceiver) receiver).sendEditMessage(
-                message.getId(),
-                trimmedNewText,
-                editedAt
-            );
-        } else if (receiver instanceof GroupMessageReceiver) {
-            ((GroupMessageReceiver) receiver).sendEditMessage(
-                message.getId(),
-                trimmedNewText,
-                editedAt
-            );
-        } else {
+        if (!(receiver instanceof ContactMessageReceiver) && !(receiver instanceof GroupMessageReceiver)) {
             throw new ThreemaException("Unsupported receiver type of: " + receiver.getClass());
         }
 
-        saveEditedMessageText(message, newText, editedAt);
+        // F1Whisper (seventh fork review, F7-03): commit the edit LOCALLY FIRST, then announce it.
+        //
+        // The old order archived the outgoing edit task - carrying the new plaintext - before it even tried the local
+        // write. Delete-for-everyone landing in between made the local write correctly refuse (a deleted row is out of
+        // bounds for every lifecycle write) while the queued task still loaded the soft-deleted parent row and
+        // transmitted the new text to the peer and to the user's other devices. The local message showed as deleted the
+        // whole time, so nothing said the edit had gone out anyway.
+        //
+        // Committing first makes the row the single source of both the permission and the content: the task carries no
+        // text at all and announces what the committed row says, or nothing.
+        //
+        // The text stored locally is now the TRIMMED text, the same string the peer receives. The two used to differ.
+        if (!saveEditedMessageText(message, trimmedNewText, editedAt)) {
+            logger.info("Not announcing the edit of {}: it did not commit locally", message.getApiMessageId());
+            return;
+        }
+
+        if (receiver instanceof ContactMessageReceiver) {
+            ((ContactMessageReceiver) receiver).sendEditMessage(message.getId(), editedAt);
+        } else {
+            ((GroupMessageReceiver) receiver).sendEditMessage(message.getId(), editedAt);
+        }
     }
 
     private boolean isNotesGroup(@NonNull MessageReceiver receiver) {
@@ -641,35 +679,137 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void saveEditedMessageText(@NonNull AbstractMessageModel message, String text, @Nullable Date editedAt) {
+    public boolean saveEditedMessageText(@NonNull AbstractMessageModel message, String text, @Nullable Date editedAt) {
         logger.info("Save edited message = {}", message.getApiMessageId());
 
-        if (editedAt != null) {
-            editHistoryRepository.createEntry(message);
+        final EditCommit committed = commitEditDurably(message, text, editedAt);
+        if (committed == null) {
+            logger.info("Not publishing the edit of {}: its row is gone or was superseded", message.getApiMessageId());
+            return false;
         }
 
-        // Edit `message` as defined by the associated _Edit applies to_ property and
-        //  add an indicator to `message`, informing the user that the message has
-        //  been edited by the user at `created-at`.
-        switch (message.getType()) {
-            case TEXT:
-                message.setBody(text);
-                break;
-            case FILE:
-                message.setCaption(text);
-                message.getFileData().setCaption(text);
-                message.setBody(message.getFileData().toString());
-                break;
-            default:
-                logger.error("Tried saving an edited message of unsupported type {} for messageId = {}}", message.getType(), message.getId());
-                return;
+        // Committed. Only now does anything become visible: the caller's instance, the in-memory edit history, the
+        // listeners. Publishing before the commit was how a rolled-back history entry stayed on screen.
+        if (committed.historyEntry != null) {
+            editHistoryRepository.publishEntry(committed.historyEntry);
         }
-
+        applyEditTo(message, text);
         message.setEditedAt(editedAt);
-
-        save(message);
         fireOnModifiedMessage(message);
         fireOnEditMessage(message);
+        return true;
+    }
+
+    /**
+     * A committed edit. Distinct from {@code null}, which means the row was lost: a commit that wrote no history entry
+     * (an incoming edit carrying no {@code editedAt}) is still a commit.
+     */
+    private static final class EditCommit {
+        @Nullable
+        final EditHistoryRepository.PendingHistoryEntry historyEntry;
+
+        EditCommit(@Nullable EditHistoryRepository.PendingHistoryEntry historyEntry) {
+            this.historyEntry = historyEntry;
+        }
+    }
+
+    /** Thrown inside the edit transaction to roll it back; never escapes {@link #commitEditDurably}. */
+    private static final class EditSupersededException extends RuntimeException {
+        EditSupersededException() {
+            super(null, null, false, false);
+        }
+    }
+
+    /**
+     * F1Whisper (seventh fork review, F7-03): write the edit's history entry and the edited row as ONE transaction
+     * against a freshly reloaded, undeleted row.
+     *
+     * <p>The defect this closes: the history entry - which stores the message's OLD plaintext - was inserted before the
+     * row write was even attempted, and by an independent statement. Delete-for-everyone landing in between cleared the
+     * row's body and deleted all of its history, and then this insert put a fresh copy of the old plaintext back. The
+     * row write itself correctly refused (its deletion predicate is structural), so nothing rolled the entry back and
+     * nothing pointed at it: the message showed as deleted while the text it was supposed to have destroyed was
+     * recoverable from the history sheet. The row update's deletion predicate protects the message table only; anything
+     * written outside its transaction can still contradict deletion.</p>
+     *
+     * <p>The history entry is taken from the RELOADED row rather than from the caller's instance, so the "old text" it
+     * preserves is the text that was actually on disk a moment ago rather than whatever snapshot the caller held.</p>
+     *
+     * @return the commit, carrying the history entry to publish if it wrote one, or {@code null} if the row was lost.
+     */
+    @Nullable
+    private EditCommit commitEditDurably(
+        @NonNull AbstractMessageModel message,
+        String text,
+        @Nullable Date editedAt
+    ) {
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            try {
+                return databaseService.inTransaction(() -> {
+                    final AbstractMessageModel current = reloadPersistedModel(message);
+                    if (current == null || current.getDeletedAt() != null) {
+                        // Never fall back to the caller's instance: that fallback is how an insert-capable save became
+                        // reachable for a row that had gone.
+                        throw new EditLostException();
+                    }
+
+                    // Read the pre-edit values for the history entry BEFORE the edit is applied to `current`.
+                    final EditHistoryRepository.PendingHistoryEntry pending =
+                        editedAt != null ? editHistoryRepository.createEntryDeferred(current) : null;
+
+                    final String priorBody = current.getBody();
+                    if (!applyEditTo(current, text)) {
+                        throw new EditLostException();
+                    }
+                    final MessageRowUpdate update = MessageLifecycleUpdates.edit(
+                        current.getBody(),
+                        current.getCaption(),
+                        editedAt,
+                        priorBody
+                    );
+                    if (!applyRowUpdate(current, update)) {
+                        // Rolls the history insert back with the transaction.
+                        throw new EditSupersededException();
+                    }
+                    return new EditCommit(pending);
+                });
+            } catch (EditSupersededException superseded) {
+                logger.debug("The edit of {} was superseded, re-reading (attempt {})", message.getId(), attempt + 1);
+            } catch (EditLostException lost) {
+                return null;
+            }
+        }
+        logger.warn("Gave up storing the edit of uid={} after {} superseded attempts",
+            message.getUid(), CONDITIONAL_WRITE_ATTEMPTS);
+        return null;
+    }
+
+    /** Thrown inside the edit transaction when the row has gone or cannot carry an edit; never escapes. */
+    private static final class EditLostException extends RuntimeException {
+        EditLostException() {
+            super(null, null, false, false);
+        }
+    }
+
+    /**
+     * Apply an edit's new text to {@code target}, in the shape the message type stores it.
+     *
+     * @return whether this type can carry an edit at all.
+     */
+    private boolean applyEditTo(@NonNull AbstractMessageModel target, String text) {
+        switch (target.getType()) {
+            case TEXT:
+                target.setBody(text);
+                return true;
+            case FILE:
+                target.setCaption(text);
+                target.getFileData().setCaption(text);
+                target.setBody(target.getFileData().toString());
+                return true;
+            default:
+                logger.error("Tried saving an edited message of unsupported type {} for messageId = {}}", target.getType(), target.getId());
+                return false;
+        }
     }
 
     @Override
@@ -703,28 +843,66 @@ public class MessageServiceImpl implements MessageService {
         return true;
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-05): decided from, and written against, the CURRENT row.
+     *
+     * <p>It used to decide from the caller's instance - the emoji-reaction repository's timeline model - and full-row-save
+     * it, so withdrawing a reaction wrote every lifecycle column that instance had captured back over whatever the row
+     * had done since it was loaded.</p>
+     */
     @Override
     public void clearMessageState(@NonNull AbstractMessageModel targetMessage) {
-        if (targetMessage.getState() != MessageState.USERACK && targetMessage.getState() != MessageState.USERDEC) {
-            return;
-        }
+        final String myIdentity = identityStore != null ? identityStore.getIdentityString() : null;
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            final AbstractMessageModel current = reloadPersistedModel(targetMessage);
+            if (current == null) {
+                logger.info("Not clearing the reaction state of uid={}: its row is gone", targetMessage.getUid());
+                return;
+            }
+            if (isDeletedForEveryone(current)) {
+                logger.info("Not clearing the reaction state of uid={}: it was deleted for everyone",
+                    targetMessage.getUid());
+                return;
+            }
+            final MessageState priorState = current.getState();
+            if (priorState != MessageState.USERACK && priorState != MessageState.USERDEC) {
+                return;
+            }
 
-        MessageState newMessageState;
-        String myIdentity = identityStore != null ? identityStore.getIdentityString() : null;
+            final MessageState newMessageState;
+            if (current.isRead()) {
+                newMessageState = MessageState.READ;
+            } else if (current.getDeliveredAt() != null) {
+                newMessageState = MessageState.DELIVERED;
+            } else {
+                newMessageState = MessageState.SENT;
+            }
 
-        if (targetMessage.isRead()) {
-            newMessageState = MessageState.READ;
-        } else if (targetMessage.getDeliveredAt() != null) {
-            newMessageState = MessageState.DELIVERED;
-        } else {
-            newMessageState = MessageState.SENT;
-        }
+            final boolean clearsGroupStates = current instanceof GroupMessageModel && myIdentity != null;
+            String priorStates = null;
+            String mergedStates = null;
+            if (clearsGroupStates) {
+                priorStates = MessageLifecycleUpdates.serialiseGroupMessageStates(
+                    ((GroupMessageModel) current).getGroupMessageStates());
+                groupService.removeGroupMessageState((GroupMessageModel) current, myIdentity);
+                mergedStates = MessageLifecycleUpdates.serialiseGroupMessageStates(
+                    ((GroupMessageModel) current).getGroupMessageStates());
+            }
 
-        targetMessage.setState(newMessageState);
-        if (targetMessage instanceof GroupMessageModel && myIdentity != null) {
-            groupService.removeGroupMessageState((GroupMessageModel) targetMessage, myIdentity);
+            if (applyRowUpdate(current, MessageLifecycleUpdates.clearedReactionState(
+                newMessageState, priorState, clearsGroupStates, mergedStates, priorStates))) {
+                targetMessage.setState(newMessageState);
+                if (clearsGroupStates) {
+                    ((GroupMessageModel) targetMessage).setGroupMessageStates(
+                        ((GroupMessageModel) current).getGroupMessageStates());
+                }
+                return;
+            }
+            logger.debug("Clearing the reaction state of {} was superseded, re-reading (attempt {})",
+                targetMessage.getId(), attempt + 1);
         }
-        save(targetMessage);
+        logger.warn("Gave up clearing the reaction state of uid={} after {} superseded attempts",
+            targetMessage.getUid(), CONDITIONAL_WRITE_ATTEMPTS);
     }
 
     @WorkerThread
@@ -900,7 +1078,14 @@ public class MessageServiceImpl implements MessageService {
         }
 
         // Replace `message` with a message informing the user that the message of the user has been removed at `created-at`.
-        deleteMessageContentsAndRelatedData(message, createdAt);
+        // F1Whisper (seventh fork review, F7-01 / F7-02): this write CREATES the soft-deleted tombstone the delete
+        // control task loads and transmits from. If it did not win the row there is no tombstone, and scheduling would
+        // be exactly the load-a-vanished-model-from-the-cache transmission the review closes.
+        if (!deleteMessageContentsAndRelatedData(message, createdAt)) {
+            logger.info("Not announcing the deletion of {}: its row is gone or was already deleted",
+                message.getApiMessageId());
+            return;
+        }
 
         if (receiver instanceof ContactMessageReceiver) {
             ((ContactMessageReceiver) receiver).sendDeleteMessage(
@@ -917,23 +1102,54 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-02): claim the row FIRST, then remove what it governs.
+     *
+     * <p>The defect this closes: this used to delete the message's files and only afterwards write the emptied row. In
+     * between, the row still existed and still had a null {@code deletedAt}, so a media download finishing in that
+     * window wrote its file, won its conditional completion write against a row that looked perfectly current, and
+     * published - listener, blob-complete, and with "save to gallery" enabled a permanent clear copy in the device
+     * gallery. Deletion then emptied the row and never looked at the disk again. The message was gone and its media was
+     * not.</p>
+     *
+     * <p>Now the deletion mark is a single conditional statement taken under the same per-type monitor every lifecycle
+     * write takes, and it is what authorises everything after it. A completion racing it either wins the row first (and
+     * this cleanup, which runs afterwards, removes what it wrote) or loses it (and cleans up its own write, publishing
+     * nothing) - in both orders, nothing survives.</p>
+     *
+     * @return whether this caller won the row. {@code false} means it had already gone or had already been deleted for
+     * everyone, in which case that owner did, or is doing, the cleanup.
+     */
     @Override
-    public void deleteMessageContentsAndRelatedData(@NonNull AbstractMessageModel message, Date deletedAt) {
+    public boolean deleteMessageContentsAndRelatedData(@NonNull AbstractMessageModel message, Date deletedAt) {
         logger.info("deleteMessageContents = {}", message.getApiMessageId());
 
-        fileService.removeMessageFiles(message, true);
+        if (!applyRowUpdate(message, MessageLifecycleUpdates.deletedForEveryone(
+            deletedAt, message instanceof GroupMessageModel))) {
+            logger.info("Not deleting the contents of {} for everyone: its row is gone or already deleted",
+                message.getApiMessageId());
+            return false;
+        }
 
         message.setBody(null);
         message.setCaption(null);
-
         message.setState(null);
         if (message instanceof GroupMessageModel) {
             ((GroupMessageModel) message).setGroupMessageStates(null);
         }
-
         message.setDeletedAt(deletedAt);
 
-        save(message);
+        // Owned from here on: no concurrent download completion can win this row any more.
+        //
+        // F1Whisper (eighth fork review, H8-01): and no outgoing UPLOAD carries on either. The UI offers
+        // delete-for-everyone for a PENDING, UPLOADING or SENDING media message, and an upload runs for seconds or
+        // minutes, so "delete the photo I just picked while the progress bar is still moving" is an ordinary action
+        // rather than a race. This path used to cancel only the incoming download, so the outgoing send machine kept
+        // running and its handoff wrote the finished blob id and encryption key back into the row it had just emptied.
+        // Hard deletion has always aborted the send here; deleting for everyone does the same now.
+        abortPendingSend(message);
+        cancelMessageDownload(message);
+        fileService.removeMessageFiles(message, true);
 
         // Delete the edit history and emoji reactions. Note that the foreign keys do not work in this case, as the
         // original message entry is not removed from the database.
@@ -943,6 +1159,7 @@ public class MessageServiceImpl implements MessageService {
 
         fireOnModifiedMessage(message);
         fireOnMessageDeletedForAll(message);
+        return true;
     }
 
     @Override
@@ -983,8 +1200,6 @@ public class MessageServiceImpl implements MessageService {
         messageModel.setState(MessageState.PENDING);
         messageModel.setSaved(true);
         receiver.saveLocalModel(messageModel);
-        DisappearingMessageService.armOutgoingClock(messageModel); // F1Whisper: start disappearing countdown
-        DisappearingMessageService.getInstance().piggybackTimerReassert(receiver); // F1Whisper E2
 
         fireOnCreatedMessage(messageModel);
 
@@ -1252,6 +1467,12 @@ public class MessageServiceImpl implements MessageService {
 
             @Override
             public boolean send() throws Exception {
+                // F1Whisper (ninth follow-up review, F9-01): the row decides whether this resend may still act. It has
+                // been waiting behind another upload for as long as that upload took, and the user could delete it
+                // throughout; nothing below asks again until the handoff, which is after both blobs are on the server.
+                if (!mayStillSend(messageModel)) {
+                    return false;
+                }
                 SendMachine sendMachine = getSendMachine(messageModel);
                 sendMachine.reset()
                     .next(() -> {
@@ -1339,14 +1560,27 @@ public class MessageServiceImpl implements MessageService {
                         }
                     })
                     .next(() -> {
-                        getReceiver().createAndSendFileMessage(
+                        if (!getReceiver().createAndSendFileMessage(
                             blobIdThumbnail,
                             blobId,
                             contentEncryptResult,
                             messageModel,
                             recipientIdentities
-                        );
-                        save(messageModel);
+                        )) {
+                            // F1Whisper (eighth fork review, H8-01): the row refused the handoff, so this resend has
+                            // nothing left to announce. Aborting makes every remaining step a no-op, which is what
+                            // "publish nothing" has to mean: no SENDING state, no listener, no completion handler.
+                            // Deliberately not an exception - the sending service reacts to those by retrying and
+                            // finally marking SENDFAILED, which would be a failure notice for a message the user
+                            // deleted on purpose.
+                            logger.info("Resend handoff refused for {}: its row is gone or was deleted",
+                                messageModel.getId());
+                            sendMachine.abort();
+                            return;
+                        }
+                        // F1Whisper (seventh fork review, F7-05): NO save here. createAndSendFileMessage persisted the
+                        // enriched file data before it scheduled the task; this second full-row save added nothing but
+                        // a post-schedule writer of every lifecycle column. See sendText for the failure.
                     })
                     .next(() -> {
                         updateOutgoingMessageState(messageModel, MessageState.SENDING, new Date());
@@ -1525,74 +1759,10 @@ public class MessageServiceImpl implements MessageService {
             return;
         }
 
+        final boolean applied;
         synchronized (this) {
-            logger.debug(
-                "Updating message state from {} to {} at {}",
-                messageModel.getState(), state, date.getTime()
-            );
-
-            boolean hasChanges = true;
-
-            // Save date of state change
-            switch (state) {
-                case SENT:
-                    // Note that we do not check whether the posted at time already exists as this
-                    // value is already set when the message model has been created. We just update
-                    // it when the message actually has been sent.
-                    messageModel.setPostedAt(date);
-                    messageModel.setModifiedAt(date);
-                    break;
-                case DELIVERED:
-                    if (messageModel.getDeliveredAt() != null) {
-                        logger.warn("'Delivered at' already set for message {}", messageModel.getApiMessageId());
-                    }
-                    messageModel.setDeliveredAt(date);
-                    messageModel.setModifiedAt(date);
-                    break;
-                case READ:
-                    if (messageModel.getReadAt() != null) {
-                        logger.warn("'Read at' already set for message {}", messageModel.getApiMessageId());
-                    }
-                    messageModel.setReadAt(date);
-                    messageModel.setModifiedAt(date);
-                    break;
-                case SENDFAILED:
-                case FS_KEY_MISMATCH:
-                case CONSUMED:
-                    messageModel.setModifiedAt(date);
-                    break;
-                default:
-                    hasChanges = false;
-            }
-
-            // Change the state only if it is possible
-            if (MessageUtil.canChangeToState(messageModel.getState(), state, messageModel instanceof GroupMessageModel)) {
-                messageModel.setState(state);
-                hasChanges = true;
-
-                // F1Whisper auto-resend: the terminal-failure marker is maintained centrally here
-                // because every transition INTO SENDFAILED is terminal by construction - the media
-                // pipeline's transient connectivity failures never reach SENDFAILED (they go through
-                // markConnectivityPending instead). So set the terminal bit whenever we enter
-                // SENDFAILED (so the reconnect scan skips it and the nag still fires), and clear it
-                // whenever the message leaves the failed state (manual/auto resend -> SENDING/
-                // PENDING, or a success state), so a later transient failure stays auto-eligible.
-                if (state == MessageState.SENDFAILED) {
-                    if (!messageModel.isSendFailedTerminal()) {
-                        messageModel.setSendFailedTerminal(true);
-                    }
-                } else if (messageModel.isSendFailedTerminal()) {
-                    messageModel.setSendFailedTerminal(false);
-                }
-            } else {
-                logger.warn(
-                    "State transition from {} to {}, ignoring",
-                    messageModel.getState(), state
-                );
-            }
-
-            if (hasChanges) {
-                save(messageModel);
+            applied = applyOutgoingStateTransition(messageModel, state, date, null, false);
+            if (applied) {
                 fireOnModifiedMessage(messageModel);
             }
         }
@@ -1600,9 +1770,172 @@ public class MessageServiceImpl implements MessageService {
         // F1Whisper: once an outgoing "listen once" voice message has actually been sent (its blob is
         // now on the server, ready for the recipient to fetch once), burn the sender's own copy too,
         // so the sender can never replay it either (Telegram/WhatsApp view-once behaviour).
-        if (state == MessageState.SENT || state == MessageState.DELIVERED || state == MessageState.READ) {
+        if (OutgoingClockDecision.hasLeftTheDevice(messageModel.getState())) {
             burnOutgoingListenOnceIfNeeded(messageModel);
         }
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-06): the ONE clock-aware, durable outgoing transition. Every writer of a
+     * successful outgoing terminal state goes through it.
+     *
+     * <p><b>What it replaces.</b> Terminal state and countdown used to be TWO writes: the state (and its timestamp) went
+     * to disk, the synchronized block was left, and only then did the clock arming read the wall clock and save again. A
+     * process death in between left a terminal row with no deadline, and the startup repair pass deliberately refuses
+     * outgoing rows with no start - so the message stayed forever unless another receipt happened to arrive. Both writes
+     * were also full-row upserts from a detached model, so either could recreate a message deleted in between.</p>
+     *
+     * <p><b>What it fixes about the clock itself.</b> The start is derived from {@code transitionAt}, the timestamp of
+     * the transition being recorded, not from "now". A {@code SENT} update reflected from another device carries an
+     * authoritative send time that the old arming discarded, so a reflection delayed by minutes extended the message's
+     * life by those minutes. See {@link OutgoingClockDecision#resolveStart}, which also encodes that a receipt may start
+     * the clock provisionally, an authoritative send time may move it earlier, and nothing may move it later.</p>
+     *
+     * <p>State, state timestamp, modified timestamp, the terminal-failure display bit, start and deadline are ONE
+     * conditional update-only write. It requires the row to exist and not be deleted for everyone, so it can neither
+     * insert nor contradict a deletion.</p>
+     *
+     * <p>F1Whisper (sixth fork review, F6-03): what to write is decided by {@link OutgoingTransitionPlanner}, which is
+     * reachable from a JVM test; what is left here is the reload, the write, the retry and the mirror. The defect that
+     * forced the split lived in this method and not in the decision it called: the clock was asked about the state the
+     * row ended up with rather than the state being processed, so an authoritative {@code SENT} arriving behind a
+     * receipt could never shorten the countdown that receipt had provisionally started.</p>
+     *
+     * @param forwardSecurityMode  written in the same transition when the caller has it; {@code null} leaves the column alone.
+     * @param bypassStateGate      set by the two callers that deliberately record a state {@code canChangeToState} would
+     *                             refuse: the group completion, which must stamp {@code postedAt} even when the outcome is
+     *                             {@code FS_KEY_MISMATCH}, and the task-layer terminal failure, which must set the
+     *                             non-retryable marker for a message in any state at all.
+     * @return whether anything was written.
+     */
+    @Override
+    public boolean applyOutgoingStateTransition(
+        @NonNull AbstractMessageModel messageModel,
+        @NonNull MessageState state,
+        @NonNull Date transitionAt,
+        @Nullable ForwardSecurityMode forwardSecurityMode,
+        boolean bypassStateGate
+    ) {
+        logger.debug(
+            "Updating message state from {} to {} at {}",
+            messageModel.getState(), state, transitionAt.getTime()
+        );
+
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            // Decide from the CURRENT row, not from the caller's instance. Callbacks in the send pipeline hold a model
+            // captured when their task started, which can be minutes old by the time an ack returns; deciding the clock
+            // from that instance's null start is how a late DELIVERED receipt could move a start that a SENT transition
+            // had already established, quietly extending the retention window the sender committed to.
+            final AbstractMessageModel current = reloadPersistedModel(messageModel);
+            if (current == null) {
+                logger.info("Outgoing transition to {} for uid={} wrote nothing; the row is gone",
+                    state, messageModel.getUid());
+                return false;
+            }
+            if (isDeletedForEveryone(current)) {
+                logger.info("Outgoing transition to {} for uid={} wrote nothing; it was deleted for everyone",
+                    state, messageModel.getUid());
+                return false;
+            }
+
+            final MessageRowUpdate built = OutgoingTransitionPlanner.plan(
+                current, state, transitionAt, forwardSecurityMode, bypassStateGate);
+            if (built == null) {
+                return false;
+            }
+            final boolean startsCountdown = built.getAssignments().containsKey(AbstractMessageModel.COLUMN_EXPIRES_AT);
+
+            if (applyRowUpdate(current, built)) {
+                mirrorOutgoingTransition(messageModel, current);
+                if (startsCountdown) {
+                    try {
+                        DisappearingMessageService.getInstance().rescheduleNextAlarm(ch.threema.app.ThreemaApplication.getAppContext());
+                    } catch (Exception e) {
+                        logger.warn("Could not rearm the disappearing alarm after an outgoing transition", e);
+                    }
+                }
+                return true;
+            }
+            if (built.getConditions().isEmpty()) {
+                // Unconditional, so a false answer means the row is gone or deleted for everyone - retrying cannot help.
+                logger.info("Outgoing transition to {} for uid={} wrote nothing; the row is gone or deleted",
+                    state, messageModel.getUid());
+                return false;
+            }
+            logger.debug("Outgoing transition for {} was superseded, re-reading (attempt {})", messageModel.getId(), attempt + 1);
+        }
+        logger.warn("Gave up recording the outgoing transition to {} for uid={} after {} superseded attempts",
+            state, messageModel.getUid(), CONDITIONAL_WRITE_ATTEMPTS);
+        return false;
+    }
+
+    /** Make the caller's instance agree with the row the transition actually wrote. */
+    private void mirrorOutgoingTransition(@NonNull AbstractMessageModel target, @NonNull AbstractMessageModel written) {
+        if (target == written) {
+            return;
+        }
+        target.setState(written.getState());
+        target.setPostedAt(written.getPostedAt());
+        target.setDeliveredAt(written.getDeliveredAt());
+        target.setReadAt(written.getReadAt());
+        target.setModifiedAt(written.getModifiedAt());
+        target.setDisplayTags(written.getDisplayTags());
+        target.setForwardSecurityMode(written.getForwardSecurityMode());
+        target.setExpireStartedAt(written.getExpireStartedAt());
+        target.setExpiresAt(written.getExpiresAt());
+    }
+
+    @Override
+    public boolean updateForwardSecurityMode(@NonNull AbstractMessageModel messageModel, @NonNull ForwardSecurityMode mode) {
+        // F1Whisper (fifth fork review, F5-06): the forward-security state arrives in a callback AFTER the terminal
+        // transition, and used to be persisted by full-row-saving the detached model that callback had captured. That
+        // could recreate a row deleted in between, and it wrote back the whole of a superseded snapshot - undoing a
+        // higher state or an earlier clock that the terminal transition had just established. It is one column.
+        messageModel.setForwardSecurityMode(mode);
+        return applyRowUpdate(messageModel, MessageRowUpdate.builder()
+            .set(AbstractMessageModel.COLUMN_FORWARD_SECURITY_MODE, mode.getValue())
+            .build());
+    }
+
+    @Override
+    public boolean toggleDisplayTag(@NonNull AbstractMessageModel messageModel, int tag) {
+        return writeDisplayTag(messageModel, tag, true);
+    }
+
+    @Override
+    public boolean clearDisplayTag(@NonNull AbstractMessageModel messageModel, int tag) {
+        return writeDisplayTag(messageModel, tag, false);
+    }
+
+    /**
+     * F1Whisper (sixth fork review, F6-01): the reload-recompute-compare-and-set loop behind
+     * {@link #toggleDisplayTag} and {@link #clearDisplayTag}.
+     */
+    private boolean writeDisplayTag(@NonNull AbstractMessageModel messageModel, int tag, boolean toggle) {
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            final AbstractMessageModel current = reloadPersistedModel(messageModel);
+            if (current == null) {
+                logger.info("Not changing display tags of uid={}: its row is gone", messageModel.getUid());
+                return false;
+            }
+            if (isDeletedForEveryone(current)) {
+                logger.info("Not changing display tags of uid={}: it was deleted for everyone", messageModel.getUid());
+                return false;
+            }
+            final int priorTags = current.getDisplayTags();
+            final int newTags = toggle ? (priorTags ^ tag) : (priorTags & ~tag);
+            if (newTags == priorTags) {
+                return false;
+            }
+            if (applyRowUpdate(current, MessageLifecycleUpdates.displayTags(newTags, priorTags))) {
+                messageModel.setDisplayTags(newTags);
+                return true;
+            }
+            logger.debug("Display tags of {} moved under us, re-reading (attempt {})", messageModel.getId(), attempt + 1);
+        }
+        logger.warn("Gave up changing the display tags of uid={} after {} superseded attempts",
+            messageModel.getUid(), CONDITIONAL_WRITE_ATTEMPTS);
+        return false;
     }
 
     /**
@@ -1620,12 +1953,26 @@ public class MessageServiceImpl implements MessageService {
         }
         try {
             logger.info("Burning sent listen-once voice message {}", messageModel.getId());
+            // F1Whisper (fifth fork review, F5-04): the metadata write comes FIRST, and it is conditional. It used to
+            // delete the files, mutate the caller's detached instance and full-row-save it, so a message hard-deleted
+            // between the send and this burn came back - as a row whose media had just been deleted. Writing the row
+            // first means a lost race deletes nothing, and a crash after the write leaves flags that say "burned", which
+            // is the state the repair burn already knows how to finish.
+            final boolean burned = updateMediaMetadata(messageModel, current -> {
+                final FileDataModel currentFileData = current.getFileData();
+                if (currentFileData == null || !currentFileData.isListenOnce() || currentFileData.isListenOnceConsumed()) {
+                    return false;
+                }
+                currentFileData.setListenOnceConsumed();
+                currentFileData.isDownloaded(false);
+                current.setFileData(currentFileData);
+                return true;
+            });
+            if (!burned) {
+                return;
+            }
             // Delete the stored encrypted media + thumbnail; the recipient still gets it from the blob.
             fileService.removeMessageFiles(messageModel, true);
-            fileDataModel.setListenOnceConsumed();
-            fileDataModel.isDownloaded(false);
-            messageModel.setFileData(fileDataModel);
-            save(messageModel);
             // F1Whisper: play the one-shot burn animation on the sender's own bubble too (once, on
             // the re-render below). Consumed by the decorator; not replayed on chat reopen.
             ListenOnceBurnRegistry.markForBurnAnimation(messageModel.getId());
@@ -1701,12 +2048,17 @@ public class MessageServiceImpl implements MessageService {
 
             Date readAt = new Date();
 
-            //save is read
-            message.setRead(true);
-            message.setReadAt(readAt);
-            message.setModifiedAt(readAt);
-
-            save(message);
+            // F1Whisper (fifth fork review, F5-04): read state and countdown are decided against a FRESHLY RELOADED row
+            // and written as ONE conditional, non-inserting update. They used to be a mutation of the caller's detached
+            // instance followed by a full-row save, which could recreate a message hard-deleted while this was deciding,
+            // overwrite a newer delete-for-everyone, and clobber a concurrent freeze's corrected sender timer.
+            final boolean countdownStarted = markReadDurably(message, readAt);
+            if (!message.isRead()) {
+                // The row had gone, had been deleted for everyone, or another thread had already marked it read. None of
+                // those is a read this device performed, so no receipt is owed for it.
+                logger.info("Not marking {} as read: the row was superseded", message.getApiMessageId());
+                return false;
+            }
 
             if (!silent) {
                 //fire on modified if not silent
@@ -1715,30 +2067,14 @@ public class MessageServiceImpl implements MessageService {
 
             saved = true;
 
-            // F1Whisper: start the incoming countdown on first-read (first-write-wins guard).
-            // Prefer the per-message frozen timer (set at receive-time via E1 receive-freeze).
-            // Back-compat fallback: if no frozen timer, read the PEER's advertised timer (peer col)
-            // so that a local timer toggle-off between arrive and read cannot suppress expiry.
-            if (!message.isOutbox()
-                    && message.getExpireStartedAt() == null
-                    && message.getType() != MessageType.DISAPPEARING_STATUS) {
-                Integer timerSecs = message.getDisappearingTimerSeconds();
-                if (timerSecs == null || timerSecs <= 0) {
-                    timerSecs = peerDisappearingTimer(message);
-                }
-                if (timerSecs != null && timerSecs > 0) {
-                    message.setDisappearingTimerSeconds(timerSecs); // freeze on incoming
-                    message.setExpireStartedAt(readAt.getTime());
-                    message.setExpiresAt(readAt.getTime() + timerSecs * 1000L);
-                    save(message);
-                    logger.info("Disappearing: started incoming countdown uid={} timer={}s expiresAt={}",
-                        message.getUid(), timerSecs, message.getExpiresAt());
-                    try {
-                        ch.threema.app.services.DisappearingMessageService.getInstance()
-                            .rescheduleNextAlarm(ch.threema.app.ThreemaApplication.getAppContext());
-                    } catch (Exception ex) {
-                        logger.warn("Could not rearm disappearing alarm after markAsRead", ex);
-                    }
+            if (countdownStarted) {
+                logger.info("Disappearing: started incoming countdown uid={} timer={}s expiresAt={}",
+                    message.getUid(), message.getDisappearingTimerSeconds(), message.getExpiresAt());
+                try {
+                    ch.threema.app.services.DisappearingMessageService.getInstance()
+                        .rescheduleNextAlarm(ch.threema.app.ThreemaApplication.getAppContext());
+                } catch (Exception ex) {
+                    logger.warn("Could not rearm disappearing alarm after markAsRead", ex);
                 }
             }
 
@@ -1760,6 +2096,15 @@ public class MessageServiceImpl implements MessageService {
                 if (message instanceof GroupMessageModel) {
                     // F1Whisper: a group read receipt goes ONLY to the message sender (not all members)
                     sendGroupReceiptToSender((GroupMessageModel) message, ProtocolDefines.DELIVERYRECEIPT_MSGREAD);
+                    // F1Whisper (seventh fork review, F7-04): and the read INTENT goes to this user's other devices.
+                    //
+                    // A group delivery receipt is explicitly not reflected (GroupDeliveryReceiptMessage.reflectOutgoing
+                    // returns false, and the reflected-outgoing handler accepts reactions only), so with read receipts
+                    // enabled a group message read on a linked device produced nothing at all on the primary device: it
+                    // stayed unread, with no countdown, and the startup repair pass will not touch an unread row either.
+                    // The incoming-message update below is D2D-only, so emitting it as well announces the read to the
+                    // user's own devices without sending the peer a second receipt.
+                    reflectGroupReadToLinkedDevices((GroupMessageModel) message, readAt);
                 } else {
                     contactService.createReceiver(contactModel).sendDeliveryReceipt(
                         ProtocolDefines.DELIVERYRECEIPT_MSGREAD,
@@ -1775,16 +2120,7 @@ public class MessageServiceImpl implements MessageService {
                         Set.of(message.getMessageId()), readAt.getTime()
                     );
                 } else if (message instanceof GroupMessageModel) {
-                    int localGroupId = ((GroupMessageModel) message).getGroupId();
-                    GroupModelOld groupModel = groupService.getById(localGroupId);
-                    if (groupModel != null) {
-                        groupService.createReceiver(groupModel).sendIncomingMessageUpdateRead(
-                            Set.of(message.getMessageId()),
-                            readAt.getTime()
-                        );
-                    } else {
-                        logger.warn("Could not find group with local group id {}", localGroupId);
-                    }
+                    reflectGroupReadToLinkedDevices((GroupMessageModel) message, readAt);
                 }
             }
         }
@@ -1800,43 +2136,32 @@ public class MessageServiceImpl implements MessageService {
      * preference.
      */
     /**
-     * F1Whisper: look up the per-conversation disappearing-messages timer (in seconds) for the
-     * conversation this message belongs to. Returns null if the conversation has no timer set.
-     * Used by {@link #markAsRead} to freeze the timer onto incoming messages at read-time.
+     * F1Whisper: returns the ONE shared conversation disappearing timer, the conversation-level
+     * <em>setting</em>, for {@code message}'s conversation.
+     *
+     * <p><strong>Scope, since the per-message-timer wave.</strong> This is the timer that governs
+     * messages <em>this device sends</em>, and it is the back-compat fallback for an incoming message
+     * whose sender advertised nothing. It is NOT the authority for an incoming message in general:
+     * that authority is the timer the sender put in the message's own encrypted metadata, resolved by
+     * {@link DisappearingFreezeDecision#resolveIncomingTimer(Integer, Integer)}. An earlier revision of
+     * this doc claimed {@code createLocalModel} stamps "the same value the freeze lookup would return"
+     * so the two directions could not diverge — that is no longer true, and it must not be: the whole
+     * point is that a recipient's setting can no longer rewrite a sender's per-message policy.
+     *
+     * <p>For 1:1 messages: reads {@code ContactModel.getDisappearingMessagesTimerSeconds()},
+     * normalised through {@link DisappearingTimerConvergence#governingTimerSeconds(Integer)} so that
+     * {@code 0} and any legacy negative value resolve to "off" in exactly one place.
+     * {@code ContactModel.getPeerDisappearingTimerSeconds()} is NOT read here, nor by any other code:
+     * the per-direction column is dead for 1:1 as well as for groups.
+     *
+     * <p>For group messages (single-shared-field convergence model, Option X): reads
+     * {@code GroupModelOld.getDisappearingMessagesTimerSeconds()} — the ONE shared group timer that
+     * also governs this device's outgoing group messages.
+     *
+     * <p>Returns {@code null} when the conversation timer is off.
      */
     @Nullable
     private Integer conversationDisappearingTimer(@NonNull AbstractMessageModel message) {
-        try {
-            if (message instanceof GroupMessageModel) {
-                ch.threema.storage.models.group.GroupModelOld group =
-                    groupService.getById(((GroupMessageModel) message).getGroupId());
-                return group != null ? group.getDisappearingMessagesTimerSeconds() : null;
-            } else {
-                ContactModel c = contactService.getByIdentity(message.getIdentity());
-                return c != null ? c.getDisappearingMessagesTimerSeconds() : null;
-            }
-        } catch (Exception e) {
-            logger.warn("Could not read conversation disappearing timer for uid={}", message.getUid(), e);
-            return null;
-        }
-    }
-
-    /**
-     * F1Whisper: returns the per-conversation disappearing timer that governs INCOMING-message
-     * freezing for [message].
-     *
-     * For 1:1 messages (per-direction model): reads {@code ContactModel.getPeerDisappearingTimerSeconds()}
-     * — the value the remote contact last sent us via a 0x85 control message. Does NOT fall back to
-     * the my-field, so my local timer changes cannot affect incoming-message expiry after the fact.
-     * Returns {@code null} when the peer has never advertised a timer (treated as OFF for incoming).
-     *
-     * For group messages (single-shared-field convergence model, Option X): reads
-     * {@code GroupModelOld.getDisappearingMessagesTimerSeconds()} — the ONE shared group timer that
-     * also governs outgoing freezing, so every member freezes group messages at the same converged
-     * value. The per-direction peer column is unused for groups.
-     */
-    @Nullable
-    private Integer peerDisappearingTimer(@NonNull AbstractMessageModel message) {
         try {
             if (message instanceof GroupMessageModel) {
                 // F1Whisper GROUP convergence fix (Option X): groups use the SINGLE shared field for
@@ -1846,11 +2171,497 @@ public class MessageServiceImpl implements MessageService {
                     groupService.getById(((GroupMessageModel) message).getGroupId());
                 return group != null ? group.getDisappearingMessagesTimerSeconds() : null;
             } else {
+                // F1Whisper 1:1 shared-field LWW: one conversation timer, both directions.
                 ContactModel c = contactService.getByIdentity(message.getIdentity());
-                return c != null ? c.getPeerDisappearingTimerSeconds() : null;
+                return c != null
+                    ? DisappearingTimerConvergence.governingTimerSeconds(c.getDisappearingMessagesTimerSeconds())
+                    : null;
             }
         } catch (Exception e) {
-            logger.warn("Could not read peer disappearing timer for uid={}", message.getUid(), e);
+            logger.warn("Could not read conversation disappearing timer for uid={}", message.getUid(), e);
+            return null;
+        }
+    }
+
+    /**
+     * F1Whisper: freeze an incoming message at the timer its SENDER advertised, authoritatively.
+     *
+     * <p>Shared by the 1:1 and the group receive paths, which differ only in which model they hold.
+     * The decision itself is pure and exhaustively unit-tested
+     * ({@link DisappearingFreezeDecision#resolveIncomingTimer(Integer, Integer)}); this method is the
+     * side-effecting half — persist, and emit the positive log line naming which of the three sources
+     * the freeze came from.
+     *
+     * <p>The result OVERWRITES whatever {@code createLocalModel} provisionally stamped, including
+     * overwriting a non-zero local timer with {@code 0} when the sender said OFF. That is why it goes
+     * through {@link DisappearingMessageService#freezeIncomingTimer(AbstractMessageModel, Integer)}
+     * and not {@code freezeTimer}, which is idempotent and cannot store a zero.
+     *
+     * @param advertisedBySender {@code AbstractMessage.getDisappearingTimerSeconds()} — {@code null}
+     *                           when the peer transmitted no timer (a pre-v6.4.3-38 client).
+     */
+    @Override
+    public void freezeIncomingDisappearingPolicy(@NonNull AbstractMessageModel messageModel, @Nullable Integer advertisedBySender) {
+        repairDuplicateIncomingFreeze(messageModel, advertisedBySender);
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-05): repair a duplicate's frozen policy from what the SENDER advertised, and from
+     * nothing else.
+     *
+     * <p>The defect: F4-05 made a duplicate redelivery repair the sender's policy, which is right when the sender
+     * advertised one - that redelivery is the message's only second chance if the app died between the insert and the
+     * freeze. But it ran the same repair when the sender advertised NOTHING, and an absent value resolves against the
+     * conversation's timer AS IT IS NOW. So an at-least-once duplicate of an old message from a pre-v6.4.3-38 client
+     * silently re-froze it at whatever the timer had since been changed to: receive and read a message with the timer
+     * off, turn a 30-second timer on, and a duplicate arriving afterwards gave that already-read message a 30-second
+     * deadline measured from its old read time, making it immediately overdue. A 30-to-300 change extended retention the
+     * same way.</p>
+     *
+     * <p>A duplicate is a network event. It is not new information about policy, and it must not be treated as any. Only
+     * an explicit advertised value - {@code 0} for "the sender says OFF" or a positive timer - is information, and only
+     * that is applied. An absent value leaves the policy frozen at first acceptance, which is what "frozen" means.</p>
+     *
+     * <p>Not fixed by persisting receive-time provenance instead: that would be a schema change for a case where the
+     * correct answer is already known, since the value frozen at first acceptance IS the provenance.</p>
+     */
+    private void repairDuplicateIncomingFreeze(@NonNull AbstractMessageModel messageModel, @Nullable Integer advertisedBySender) {
+        if (advertisedBySender == null) {
+            logger.info("Disappearing: duplicate of uid={} advertised no timer; keeping the policy frozen at first acceptance",
+                messageModel.getUid());
+            return;
+        }
+        applyIncomingFreeze(messageModel, advertisedBySender);
+    }
+
+    @Override
+    public void freezeIncomingDisappearingPolicyBeforeFirstWrite(
+        @NonNull AbstractMessageModel messageModel,
+        @Nullable Integer advertisedBySender
+    ) {
+        freezeIncomingBeforeFirstWrite(messageModel, advertisedBySender);
+    }
+
+    /**
+     * F1Whisper (fourth fork review, F4-05): stamp the timer the SENDER advertised onto a freshly built INCOMING model
+     * BEFORE its first durable write, so that accepting the message and accepting its policy are one write rather than two.
+     *
+     * The defect this closes: the row was inserted carrying only the PROVISIONAL local conversation timer that
+     * {@code createLocalModel} stamps, and the sender's authoritative value was applied by a second write afterwards. A
+     * process death between the two left a row with the wrong policy, and the retry the server then performed hit the
+     * duplicate-message guard, which returns success without ever reaching the freeze. The wrong timer therefore became
+     * permanent: the message could be kept forever, deleted too early, or deleted too late, in defiance of what the sender
+     * asked for. Nothing errored and nothing logged, because from the app's point of view the message had been delivered.
+     *
+     * Deliberately model-only. It performs no re-read and no save, because the row does not exist yet - the caller's own
+     * insert is what persists this. That is the opposite of {@link #applyIncomingFreeze}, which corrects an already-written
+     * row and therefore must re-read it first.
+     *
+     * Must be called after the model's identity (or group id) is set, since the conversation timer is resolved from it.
+     */
+    private void freezeIncomingBeforeFirstWrite(
+        @NonNull AbstractMessageModel messageModel,
+        @Nullable Integer advertisedBySender
+    ) {
+        DisappearingMessageService.freezeIncomingTimer(
+            messageModel,
+            DisappearingFreezeDecision.resolveIncomingTimer(
+                advertisedBySender,
+                conversationDisappearingTimer(messageModel)
+            )
+        );
+    }
+
+    private void applyIncomingFreeze(@NonNull AbstractMessageModel messageModel, @Nullable Integer advertisedBySender) {
+        Integer resolved = DisappearingFreezeDecision.resolveIncomingTimer(
+            advertisedBySender,
+            conversationDisappearingTimer(messageModel)
+        );
+        // Named source, on every branch. Before this wave a message frozen at "off" logged NOTHING,
+        // so the only signature of the defect was an ABSENT line — which is how two wrong conclusions
+        // were reached while debugging it. No decision here is observable only by silence.
+        final String source;
+        if (advertisedBySender != null) {
+            source = "metadata";
+        } else if (resolved != null) {
+            source = "shared-field";
+        } else {
+            source = "none";
+        }
+        // Re-read the row before deciding and writing. saveBoxMessage/saveGroupMessage have already
+        // fired the new-message listener by the time we get here, and that reaches MarkAsReadRoutine
+        // on another thread, working from its OWN re-read of the row; with "save media to gallery"
+        // enabled there is blocking disk I/O in between, so it can comfortably win.
+        //
+        // F1Whisper (fifth fork review, F5-04): the two corrections this loop exists for.
+        //
+        // 1. A failed re-read no longer falls back to the caller's detached instance. That fallback was the one path by
+        //    which an insert-capable full-row save could still run against a row that had gone, recreating a message the
+        //    user had deleted; and against a row deleted for everyone it restored the old body and nulled the deletion.
+        //    If the row cannot be read there is nothing to freeze, and that is the whole answer.
+        //
+        // 2. The write is column-scoped and conditional on the four fields the freeze decision READ, so a concurrent
+        //    first-read that lands in between makes it fail rather than succeed wrongly. The retry re-reads, and
+        //    freezeIncomingTimer then re-derives the deadline from the countdown that first-read just started - the two
+        //    transitions compose instead of overwriting one another, in either completion order.
+        AbstractMessageModel target = null;
+        boolean wrote = false;
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            target = reloadPersistedModel(messageModel);
+            if (target == null) {
+                logger.info("Disappearing: not freezing uid={}; its row is gone or unreadable", messageModel.getUid());
+                return;
+            }
+            if (isDeletedForEveryone(target)) {
+                logger.info("Disappearing: not freezing uid={}; it was deleted for everyone", messageModel.getUid());
+                return;
+            }
+            final Integer priorTimer = target.getDisappearingTimerSeconds();
+            final Long priorStart = target.getExpireStartedAt();
+            final Long priorExpires = target.getExpiresAt();
+            final boolean priorRead = target.isRead();
+            if (!DisappearingMessageService.freezeIncomingTimer(target, resolved)) {
+                break;
+            }
+            wrote = applyRowUpdate(target, MessageRowUpdate.builder()
+                .set(AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS, target.getDisappearingTimerSeconds())
+                .set(AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT, target.getExpireStartedAt())
+                .set(AbstractMessageModel.COLUMN_EXPIRES_AT, target.getExpiresAt())
+                .expect(AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS, priorTimer)
+                .expect(AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT, priorStart)
+                .expect(AbstractMessageModel.COLUMN_EXPIRES_AT, priorExpires)
+                .expect(AbstractMessageModel.COLUMN_IS_READ, priorRead)
+                .build());
+            if (wrote) {
+                break;
+            }
+            logger.debug("Disappearing: freeze for {} was superseded, re-reading (attempt {})", messageModel.getId(), attempt + 1);
+        }
+        if (wrote) {
+            if (target != messageModel) {
+                // Keep the instance the caller, the cache and the already-notified listeners hold
+                // coherent with what was written, for the disappearing fields this method owns.
+                messageModel.setDisappearingTimerSeconds(target.getDisappearingTimerSeconds());
+                messageModel.setExpireStartedAt(target.getExpireStartedAt());
+                messageModel.setExpiresAt(target.getExpiresAt());
+            }
+            // The freeze can start, re-derive or cancel a countdown, so the earliest pending expiry
+            // may have moved. Re-arm exactly as markAsRead does, including the guard: the alarm is a
+            // best-effort optimisation over enforceIfExpired, never a correctness dependency.
+            try {
+                DisappearingMessageService.getInstance()
+                    .rescheduleNextAlarm(ch.threema.app.ThreemaApplication.getAppContext());
+            } catch (Exception ex) {
+                logger.warn("Could not rearm disappearing alarm after incoming freeze", ex);
+            }
+        }
+        // "E1 receive-freeze" is kept inside the message text on purpose: the two-phone smoke script
+        // greps for it, and one line per incoming message is enough. Logged from `target`, which is the
+        // instance actually written — logging the caller's would report a stale timer whenever the
+        // freeze was a no-op, and the point of this line is that it can be trusted.
+        final AbstractMessageModel logged = target != null ? target : messageModel;
+        logger.info("Disappearing: froze incoming (E1 receive-freeze) uid={} timer={}s expiresAt={} source={}",
+            logged.getUid(), logged.getDisappearingTimerSeconds(), logged.getExpiresAt(), source);
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-04): how many times a conditional lifecycle write re-reads and re-decides before
+     * giving up.
+     *
+     * <p>Bounded rather than unbounded on purpose. Every retry is caused by a CONCURRENT transition winning the row, and
+     * those are finite events (one first-read, one freeze, one claim) rather than a livelock source; a caller that loses
+     * three in a row has almost certainly lost to something it should not be fighting, and spinning would be worse than
+     * logging and leaving the row to the startup repair pass.</p>
+     */
+    private static final int CONDITIONAL_WRITE_ATTEMPTS = 3;
+
+    /**
+     * F1Whisper (fifth fork review, F5-04): mark {@code message} read, and start its countdown if reading it starts one, as
+     * ONE conditional, non-inserting write against the CURRENT row.
+     *
+     * <p>The defect this closes: the old code mutated the caller's detached instance and called {@link #save}, a full-row
+     * upsert. If the message had been hard-deleted while this was deciding, that upsert recreated it; if it had been
+     * deleted for everyone, the write restored the old body and nulled the deletion timestamp; and because the whole row
+     * went to disk, it also reverted whatever a concurrent incoming freeze had just written for the sender's corrected
+     * timer.</p>
+     *
+     * <p>So: reload, decide from the reloaded values, and write with the four fields the decision READ as
+     * compare-and-set conditions. A freeze that lands in between makes this write fail rather than succeed wrongly, and
+     * the retry re-reads and applies the read state on top of the freeze's timer instead of underneath it. Both survive,
+     * in either completion order, which is the property F4-05's model-only freeze could not give on its own.</p>
+     *
+     * <p>The caller's instance is updated to exactly what was written, and left untouched when nothing was, so
+     * {@code markAsRead} can tell a real read from a superseded one by asking the model.</p>
+     *
+     * @return whether a countdown was started by this write (the caller re-arms the alarm for it).
+     */
+    private boolean markReadDurably(@NonNull AbstractMessageModel message, @NonNull Date readAt) {
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            final AbstractMessageModel current = reloadPersistedModel(message);
+            if (current == null) {
+                // Never fall back to the detached instance: that fallback is what made an insert-capable save reachable
+                // for a row that had gone.
+                return false;
+            }
+            if (isDeletedForEveryone(current)) {
+                // U-02: permanent, not contention. Retrying re-reads the same tombstone and is refused again; this is
+                // the branch whose absence spent three attempts and a warning on every open of the reported chat.
+                logger.info("Not marking {} as read: it was deleted for everyone", message.getApiMessageId());
+                return false;
+            }
+            if (current.isRead()) {
+                // Another thread got there first. Its read is the read; this one owes no receipt. The caller's instance
+                // adopts the winner so it does not go on claiming to be unread (sixth fork review, F6-01).
+                message.adoptPersistedRow(current);
+                return false;
+            }
+
+            final FirstReadDecision.Countdown countdown = FirstReadDecision.countdownAtFirstRead(
+                current.isOutbox(),
+                current.getType() == MessageType.DISAPPEARING_STATUS,
+                current.getExpireStartedAt(),
+                current.getDisappearingTimerSeconds(),
+                conversationDisappearingTimer(current),
+                readAt.getTime()
+            );
+
+            final MessageRowUpdate update = MessageLifecycleUpdates.firstRead(
+                readAt,
+                current.getDisappearingTimerSeconds(),
+                current.getExpireStartedAt(),
+                current.getExpiresAt(),
+                countdown
+            );
+
+            if (applyRowUpdate(current, update)) {
+                message.setRead(true);
+                message.setReadAt(readAt);
+                message.setModifiedAt(readAt);
+                if (countdown != null) {
+                    message.setDisappearingTimerSeconds(countdown.timerSeconds);
+                    message.setExpireStartedAt(countdown.startedAt);
+                    message.setExpiresAt(countdown.expiresAt);
+                }
+                return countdown != null;
+            }
+            logger.debug("markAsRead: row {} moved under us, re-reading (attempt {})", message.getId(), attempt + 1);
+        }
+        logger.warn("markAsRead: gave up marking {} read after {} superseded attempts",
+            message.getApiMessageId(), CONDITIONAL_WRITE_ATTEMPTS);
+        return false;
+    }
+
+    @Override
+    public boolean updateReceivedTimestamp(@NonNull AbstractMessageModel message, @NonNull Date receivedAt) {
+        final AbstractMessageModel current = reloadPersistedModel(message);
+        if (current == null) {
+            return false;
+        }
+        current.setCreatedAt(receivedAt);
+        final boolean written = applyRowUpdate(current, MessageLifecycleUpdates.receivedTimestamp(
+            receivedAt,
+            TimelineKeyset.effectiveSortDate(current)
+        ));
+        if (written) {
+            message.setCreatedAt(receivedAt);
+        }
+        return written;
+    }
+
+    @Override
+    public boolean updateLocationAddress(@NonNull AbstractMessageModel message, @Nullable String address) {
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            final AbstractMessageModel current = reloadPersistedModel(message);
+            if (current == null) {
+                logger.info("Not storing a location address for uid={}: its row is gone", message.getUid());
+                return false;
+            }
+            if (isDeletedForEveryone(current)) {
+                logger.info("Not storing a location address for uid={}: it was deleted for everyone", message.getUid());
+                return false;
+            }
+            final LocationDataModel locationData = current.getLocationData();
+            if (locationData == null) {
+                return false;
+            }
+            final Poi updatedPoi;
+            if (address != null && locationData.poiNameOrNull != null) {
+                updatedPoi = new Poi.Named(locationData.poiNameOrNull, address);
+            } else if (address != null) {
+                updatedPoi = new Poi.Unnamed(address);
+            } else {
+                updatedPoi = null;
+            }
+
+            final String priorBody = current.getBody();
+            current.setLocationData(new LocationDataModel(
+                locationData.latitude,
+                locationData.longitude,
+                locationData.accuracy,
+                updatedPoi
+            ));
+            if (TestUtil.compare(priorBody, current.getBody())) {
+                return true;
+            }
+            if (applyRowUpdate(current, MessageLifecycleUpdates.locationAddress(current.getBody(), priorBody))) {
+                message.adoptPersistedBody(current.getBody());
+                return true;
+            }
+            logger.debug("The location address of {} was superseded, re-reading (attempt {})",
+                message.getId(), attempt + 1);
+        }
+        logger.warn("Gave up storing the location address of uid={} after {} superseded attempts",
+            message.getUid(), CONDITIONAL_WRITE_ATTEMPTS);
+        return false;
+    }
+
+    @Override
+    public boolean markAsReadFromSync(@NonNull AbstractMessageModel message, @NonNull Date readAt) {
+        final boolean countdownStarted = markReadDurably(message, readAt);
+        if (!message.isRead()) {
+            logger.info("Not recording the reflected read of {}: the row was superseded", message.getApiMessageId());
+            return false;
+        }
+        if (countdownStarted) {
+            logger.info("Disappearing: started incoming countdown from a reflected read uid={} expiresAt={}",
+                message.getUid(), message.getExpiresAt());
+            try {
+                DisappearingMessageService.getInstance()
+                    .rescheduleNextAlarm(ch.threema.app.ThreemaApplication.getAppContext());
+            } catch (Exception e) {
+                logger.warn("Could not rearm the disappearing alarm after a reflected read", e);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-04): run one {@link MessageRowUpdate} against {@code model}'s row, choosing the
+     * factory from the model's own type. Never inserts; see {@link MessageRowUpdate}.
+     *
+     * <p>F1Whisper (sixth fork review, F6-01): the write and the reconciliation of every cached instance of that row are
+     * ONE operation under the SAME monitor {@link #save} takes. Column-scoped writing was only half the invariant: the
+     * service caches an incoming message from the moment it is created, and a full-row save from any other live instance
+     * of the row - an edit resolved through the cache, a group receipt, a star or pin toggle - wrote its own
+     * pre-transition snapshot straight back over the top. Serialising the two halves removes the window in which such a
+     * save can observe a row that has already moved, and refreshing the instances removes the stale snapshot itself.</p>
+     */
+    private boolean applyRowUpdate(@NonNull AbstractMessageModel model, @NonNull MessageRowUpdate update) {
+        try {
+            if (model.getId() <= 0) {
+                return false;
+            }
+            final Collection<? extends AbstractMessageModel> cache = cacheFor(model);
+            if (cache == null) {
+                return false;
+            }
+            synchronized (cache) {
+                final boolean written;
+                if (model instanceof GroupMessageModel) {
+                    written = databaseService.getGroupMessageModelFactory().applyRowUpdate(model.getId(), update);
+                } else if (model instanceof DistributionListMessageModel) {
+                    written = databaseService.getDistributionListMessageModelFactory().applyRowUpdate(model.getId(), update);
+                } else {
+                    written = databaseService.getMessageModelFactory().applyRowUpdate(model.getId(), update);
+                }
+                if (written) {
+                    reconcileCache(model, cache);
+                }
+                return written;
+            }
+        } catch (Exception e) {
+            logger.warn("Could not apply a conditional row update to uid={}", model.getUid(), e);
+            return false;
+        }
+    }
+
+    /**
+     * F1Whisper (sixth fork review, F6-01): the per-type cache whose monitor guards writes to {@code model}'s row, or
+     * {@code null} for a model of no known type.
+     *
+     * <p>The collection IS the lock, exactly as in {@link #save}. Two writers that pick different monitors for the same
+     * row are not serialised at all, so this must stay the only way either side chooses one.</p>
+     */
+    @Nullable
+    private Collection<? extends AbstractMessageModel> cacheFor(@NonNull AbstractMessageModel model) {
+        if (model instanceof GroupMessageModel) {
+            return groupMessageCache;
+        }
+        if (model instanceof DistributionListMessageModel) {
+            return distributionListMessageCache;
+        }
+        if (model instanceof MessageModel) {
+            return contactMessageCache;
+        }
+        return null;
+    }
+
+    /**
+     * F1Whisper (sixth fork review, F6-01): re-read the row that was just written and make every cached instance of it
+     * agree. Called with the cache monitor already held.
+     *
+     * <p>The row is re-read rather than the update's assignments being replayed onto the instances: a column-to-setter
+     * mapping would be a second definition of what each write means, and it would drift silently the first time a column
+     * is added. Nothing is re-read when nothing is cached, which is the ordinary case.</p>
+     */
+    private void reconcileCache(
+        @NonNull AbstractMessageModel model,
+        @NonNull Collection<? extends AbstractMessageModel> cache
+    ) {
+        if (!MessageCacheCoherence.holds(cache, model.getId())) {
+            return;
+        }
+        final AbstractMessageModel persisted = reloadPersistedModel(model);
+        MessageCacheCoherence.reconcile(cache, model.getId(), persisted);
+    }
+
+    /**
+     * F1Whisper (device report 2026-08-06, U-02): whether {@code current} has been deleted for everyone, which for
+     * every conditional lifecycle write means REFUSED, permanently.
+     *
+     * <p>{@link MessageRowUpdate} carries {@code deletedAtUtc IS NULL} structurally, so a write against a tombstone
+     * matches zero rows. The reload-decide-write loops read zero rows as "another transition won the row", which is
+     * true of every OTHER cause of zero rows and false of this one: re-reading returns the same tombstone and deciding
+     * again reaches the same refusal, so the loop spends every attempt it has and then reports contention that never
+     * happened. It is the twin of the {@code current == null} check each of these loops already makes - a row that has
+     * gone and a row that has been deleted are the same answer to these writers - and it was missing from all nine but
+     * {@link #commitEditDurably}, which has refused a deleted row explicitly since F7-03.</p>
+     *
+     * <p>Only the read path showed it, because only the read path has a query that keeps handing the same row back:
+     * the message stayed unread, so every chat open tried again (see U-01, and
+     * {@code AbstractMessageModelFactory.UNREAD_ROW_WHERE}).</p>
+     */
+    private static boolean isDeletedForEveryone(@NonNull AbstractMessageModel current) {
+        return current.getDeletedAt() != null;
+    }
+
+    /**
+     * F1Whisper: re-read {@code messageModel}'s row straight from its factory, bypassing the message
+     * caches, so a freeze decision is made and written against current state rather than an instance
+     * that a concurrent {@code markAsRead} may already have superseded.
+     *
+     * @return the fresh model, or {@code null} if the row cannot be re-read (unsaved, unknown subtype,
+     *         or a database error) — in which case the caller falls back to the instance it holds,
+     *         which is exactly the pre-existing behaviour.
+     */
+    @Nullable
+    private AbstractMessageModel reloadPersistedModel(@NonNull AbstractMessageModel messageModel) {
+        try {
+            if (messageModel.getId() <= 0) {
+                return null;
+            }
+            if (messageModel instanceof GroupMessageModel) {
+                return databaseService.getGroupMessageModelFactory().getById(messageModel.getId());
+            }
+            if (messageModel instanceof DistributionListMessageModel) {
+                return databaseService.getDistributionListMessageModelFactory().getById(messageModel.getId());
+            }
+            if (messageModel instanceof MessageModel) {
+                return databaseService.getMessageModelFactory().getById(messageModel.getId());
+            }
+            return null;
+        } catch (Exception e) {
+            logger.warn("Disappearing: could not re-read model uid={} before freezing", messageModel.getUid(), e);
             return null;
         }
     }
@@ -1873,6 +2684,28 @@ public class MessageServiceImpl implements MessageService {
      * Send a group delivery/read receipt for {@code messageModel} to its sender only. Does NOT gate
      * on preferences — callers are responsible for the gating.
      */
+    /**
+     * F1Whisper (seventh fork review, F7-04): announce a group message's read state to this user's OTHER devices.
+     *
+     * <p>The incoming-message update is D2D-only - the receiver schedules it solely when multi-device is active, and it
+     * never reaches the peer - so it can be emitted alongside the peer-facing group receipt without duplicating it. It
+     * is handled on the linked device by {@code ReflectedIncomingMessageUpdateTask}, which routes it through the same
+     * durable first-read transition the local read uses, so every device ends up with the same read timestamp, start
+     * and deadline.</p>
+     */
+    private void reflectGroupReadToLinkedDevices(@NonNull GroupMessageModel message, @NonNull Date readAt) {
+        final int localGroupId = message.getGroupId();
+        final GroupModelOld groupModel = groupService.getById(localGroupId);
+        if (groupModel == null) {
+            logger.warn("Could not find group with local group id {}", localGroupId);
+            return;
+        }
+        groupService.createReceiver(groupModel).sendIncomingMessageUpdateRead(
+            Set.of(message.getMessageId()),
+            readAt.getTime()
+        );
+    }
+
     private void sendGroupReceiptToSender(@NonNull GroupMessageModel messageModel, int receiptType) {
         final String senderIdentity = messageModel.getIdentity();
         if (senderIdentity == null) {
@@ -1917,17 +2750,42 @@ public class MessageServiceImpl implements MessageService {
         if (state != MessageState.DELIVERED && state != MessageState.READ) {
             return;
         }
-        Map<String, Object> states = messageModel.getGroupMessageStates();
-        states = (states != null) ? new HashMap<>(states) : new HashMap<>();
-        final Object existing = states.get(fromIdentity);
-        // never downgrade READ -> DELIVERED (a late "delivered" must not clobber a "read")
-        if (MessageState.READ.toString().equals(existing) && state == MessageState.DELIVERED) {
-            return;
+        // F1Whisper (sixth fork review, F6-01): a receipt owns ONE column, and it is merged into the row's current value
+        // rather than into the caller's. The model reaching this method is resolved through the group message cache, so
+        // it is whatever snapshot was cached when the message was sent; full-row-saving it restored that snapshot
+        // wholesale - the outgoing state going back to FS_KEY_MISMATCH, the countdown a resolved-reject SENT transition
+        // had just started being cleared. It could also recreate a row that expiry had claimed while the receipt was in
+        // flight.
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            final AbstractMessageModel reloaded = reloadPersistedModel(messageModel);
+            if (!(reloaded instanceof GroupMessageModel)) {
+                logger.info("Not recording the {} receipt from {}: the row is gone", state, fromIdentity);
+                return;
+            }
+            if (isDeletedForEveryone(reloaded)) {
+                logger.info("Not recording the {} receipt from {}: the message was deleted for everyone",
+                    state, fromIdentity);
+                return;
+            }
+            final GroupMessageModel current = (GroupMessageModel) reloaded;
+            final String priorStates = MessageLifecycleUpdates.serialiseGroupMessageStates(current.getGroupMessageStates());
+            final Map<String, Object> merged = MessageLifecycleUpdates.mergeGroupReceipt(
+                current.getGroupMessageStates(), fromIdentity, state);
+            if (merged == null) {
+                // Already recorded, or a late DELIVERED behind a READ from the same member.
+                return;
+            }
+            final MessageRowUpdate update = MessageLifecycleUpdates.groupReceipt(
+                MessageLifecycleUpdates.serialiseGroupMessageStates(merged), priorStates);
+            if (applyRowUpdate(current, update)) {
+                messageModel.setGroupMessageStates(merged);
+                fireOnModifiedMessage(messageModel);
+                return;
+            }
+            logger.debug("The {} receipt from {} was superseded, re-reading (attempt {})", state, fromIdentity, attempt + 1);
         }
-        states.put(fromIdentity, state.toString());
-        messageModel.setGroupMessageStates(states);
-        save(messageModel);
-        fireOnModifiedMessage(messageModel);
+        logger.warn("Gave up recording the {} receipt from {} after {} superseded attempts",
+            state, fromIdentity, CONDITIONAL_WRITE_ATTEMPTS);
     }
 
     @NonNull
@@ -1970,21 +2828,97 @@ public class MessageServiceImpl implements MessageService {
     @WorkerThread
     public boolean markAsConsumed(AbstractMessageModel message) throws ThreemaException {
         logger.debug("markAsConsumed message = {}", message.getApiMessageId());
-        boolean saved = false;
 
-        if (MessageUtil.canMarkAsConsumed(message)) {
-            // save consumed state
-            message.setState(MessageState.CONSUMED);
-            message.setModifiedAt(new Date());
-
-            save(message);
-
-            saved = true;
-
+        // F1Whisper (fifth fork review, F5-04): consuming a message writes its state, and only its state. It used to
+        // full-row-save the caller's detached instance, which could recreate a row deleted in between and reverted every
+        // other column to whatever that instance happened to hold.
+        final boolean saved = consumeAndUpdateMediaMetadata(message, current -> false);
+        if (saved) {
             fireOnModifiedMessage(message);
         }
-
         return saved;
+    }
+
+    @Override
+    @WorkerThread
+    public boolean updateMediaMetadata(@NonNull AbstractMessageModel messageModel, @NonNull MediaMetadataMutation mutation) {
+        return writeMediaMetadata(messageModel, mutation, false);
+    }
+
+    @Override
+    @WorkerThread
+    public boolean consumeAndUpdateMediaMetadata(@NonNull AbstractMessageModel messageModel, @NonNull MediaMetadataMutation mutation) {
+        return writeMediaMetadata(messageModel, mutation, true);
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-04): the reload-merge-write-retry loop behind {@link #updateMediaMetadata} and
+     * {@link #consumeAndUpdateMediaMetadata}.
+     *
+     * <p>The mutation is applied to a model read from the database on EVERY attempt, so a write that loses to a
+     * concurrent one is not merely refused, it is recomputed on top of the value that won. The write names the body (and,
+     * when consuming, the state and modified timestamp) and nothing else, and is conditional on both as they were read.
+     * The caller's instance is then made to agree with what was actually stored.</p>
+     */
+    @WorkerThread
+    private boolean writeMediaMetadata(
+        @NonNull AbstractMessageModel messageModel,
+        @NonNull MediaMetadataMutation mutation,
+        boolean consume
+    ) {
+        for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
+            final AbstractMessageModel current = reloadPersistedModel(messageModel);
+            if (current == null) {
+                logger.info("Not writing media metadata for uid={}: its row is gone or unreadable", messageModel.getUid());
+                return false;
+            }
+            if (isDeletedForEveryone(current)) {
+                logger.info("Not writing media metadata for uid={}: it was deleted for everyone", messageModel.getUid());
+                return false;
+            }
+            final String priorBody = current.getBody();
+            final MessageState priorState = current.getState();
+            final String priorCaption = current.getCaption();
+
+            boolean changed;
+            try {
+                changed = mutation.apply(current);
+            } catch (Exception e) {
+                logger.error("A media-metadata mutation failed for uid={}", messageModel.getUid(), e);
+                return false;
+            }
+
+            final Date consumedAt = new Date();
+            final boolean consuming = consume && MessageUtil.canMarkAsConsumed(current);
+            changed = changed || consuming;
+            if (!changed) {
+                return false;
+            }
+
+            // F1Whisper (sixth fork review, F6-02): the caption travels with the completion, because the legacy image
+            // format carries it in the EXIF of the blob and this is the only moment it exists.
+            final MessageRowUpdate update = MessageLifecycleUpdates.mediaMetadata(
+                current.getBody(),
+                priorBody,
+                priorState,
+                !TestUtil.compare(priorCaption, current.getCaption()),
+                current.getCaption(),
+                consuming ? consumedAt : null
+            );
+
+            if (applyRowUpdate(current, update)) {
+                messageModel.adoptPersistedBody(current.getBody());
+                if (consuming) {
+                    messageModel.setState(MessageState.CONSUMED);
+                    messageModel.setModifiedAt(consumedAt);
+                }
+                return true;
+            }
+            logger.debug("Media metadata for {} moved under us, re-reading (attempt {})", messageModel.getId(), attempt + 1);
+        }
+        logger.warn("Gave up writing media metadata for uid={} after {} superseded attempts",
+            messageModel.getUid(), CONDITIONAL_WRITE_ATTEMPTS);
+        return false;
     }
 
     @Override
@@ -1992,8 +2926,140 @@ public class MessageServiceImpl implements MessageService {
         remove(messageModel, false);
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-02): delete the row and evict its cache FIRST, under the monitor every
+     * lifecycle write takes, and only then touch what the row governed.
+     *
+     * <p>The defect this closes: hard removal used to delete the files first and the row afterwards, without taking
+     * the cache monitor at all. A media download finishing between those two steps wrote its file and won its
+     * conditional completion against a row that still existed, so it published a completion event, marked the blob
+     * done, and - with "save to gallery" on - exported a permanent clear copy, all for a message that was a moment
+     * later deleted. The one file cleanup had already run, so the media it had just written stayed on disk.</p>
+     *
+     * <p>Deleting the row first inverts that: any completion still in flight now loses its conditional write, cleans up
+     * the media it wrote and publishes nothing, and any completion that got there first has its files removed by the
+     * cleanup below. The cache eviction shares the deletion's monitor so no writer can be part-way through re-admitting
+     * the model while it is being removed.</p>
+     *
+     * <p>The claim decides OWNERSHIP of the row, not whether cleanup is worth doing: a caller that finds no row lost a
+     * race with another remover, and still deletes the files, because refusing to would leave exactly the orphan this
+     * closes.</p>
+     */
     @Override
     public void remove(final AbstractMessageModel messageModel, boolean silent) {
+        final Collection<? extends AbstractMessageModel> cache = cacheFor(messageModel);
+        if (cache != null) {
+            synchronized (cache) {
+                if (messageModel instanceof GroupMessageModel) {
+                    databaseService.getGroupMessageModelFactory().delete((GroupMessageModel) messageModel);
+                } else if (messageModel instanceof DistributionListMessageModel) {
+                    databaseService.getDistributionListMessageModelFactory().delete((DistributionListMessageModel) messageModel);
+                } else {
+                    databaseService.getMessageModelFactory().delete((MessageModel) messageModel);
+                }
+                MessageCacheCoherence.reconcile(cache, messageModel.getId(), null);
+            }
+        }
+
+        abortPendingSend(messageModel);
+        cancelMessageDownload(messageModel);
+
+        //remove from sdcard
+        fileService.removeMessageFiles(messageModel, true);
+
+        if (!silent) {
+            fireOnRemovedMessage(messageModel);
+        }
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-04): remove {@code messageModel} if, and only if, it is STILL the overdue row the
+     * caller decided about.
+     *
+     * <p>The defect this closes: all three expiry paths (lazy enforcement, the alarm fire, the startup sweep) selected a
+     * due row and then deleted its files, its ballot aggregate and the row itself from that DETACHED snapshot, with no
+     * final check. Between the selection and the side effects a duplicate advertising an explicit OFF could clear the
+     * timer, or a freeze could re-derive the deadline from the sender's corrected value; the snapshot was still overdue,
+     * so content the sender had just said to KEEP was destroyed anyway. A deadline merely repaired earlier in the same
+     * pass was likewise treated as authorisation for an unconditional delete much later.</p>
+     *
+     * <p>The conditional DELETE is the claim AND the deletion in one indivisible step: it re-checks timer, start, deadline,
+     * deletion state and due-ness at write time. Winning it is what makes this caller the owner of everything that row
+     * governed - files, caches, listeners, and the ballot aggregate the caller removes afterwards. Losing it destroys
+     * nothing, and two concurrent enforcers can never both proceed.</p>
+     *
+     * @return {@code true} if this caller now owns the removal.
+     */
+    @Override
+    public boolean removeIfStillDue(@NonNull AbstractMessageModel messageModel, long nowMillis) {
+        final boolean claimed;
+        try {
+            if (messageModel.getId() <= 0) {
+                return false;
+            }
+            final Long expireStartedAt = messageModel.getExpireStartedAt();
+            final Long expiresAt = messageModel.getExpiresAt();
+            final Collection<? extends AbstractMessageModel> cache = cacheFor(messageModel);
+            if (cache == null || messageModel instanceof DistributionListMessageModel) {
+                // Distribution-list messages carry no countdown (only Contact/GroupMessageReceiver stamp one), so there
+                // is nothing here to claim.
+                return false;
+            }
+            // F1Whisper (sixth fork review, F6-01): the claim and the cache eviction take the same monitor a full-row
+            // save takes, so no writer can be part-way through re-adding this row while it is being claimed.
+            synchronized (cache) {
+                if (messageModel instanceof GroupMessageModel) {
+                    claimed = databaseService.getGroupMessageModelFactory()
+                        .deleteIfStillDue(messageModel.getId(), expireStartedAt, expiresAt, nowMillis);
+                } else {
+                    claimed = databaseService.getMessageModelFactory()
+                        .deleteIfStillDue(messageModel.getId(), expireStartedAt, expiresAt, nowMillis);
+                }
+                if (claimed) {
+                    MessageCacheCoherence.reconcile(cache, messageModel.getId(), null);
+                }
+            }
+        } catch (Exception e) {
+            logger.warn("Could not claim the expired row uid={}", messageModel.getUid(), e);
+            return false;
+        }
+        if (!claimed) {
+            return false;
+        }
+
+        abortPendingSend(messageModel);
+        fileService.removeMessageFiles(messageModel, true);
+        fireOnRemovedMessage(messageModel);
+        return true;
+    }
+
+    /**
+     * F1Whisper (ninth follow-up review, F9-01): stop this message from being sent, whether or not it has started.
+     *
+     * <p>The defect this closes: every media send goes through ONE worker
+     * ({@link ch.threema.app.utils.ExponentialBackOffUtil}'s single-thread executor), so sending two attachments over a
+     * slow link leaves the second one waiting - visible as PENDING, for as long as the first upload or its retry backoff
+     * takes. This method used to look only for resources a RUNNING process owns: a {@link SendMachine}, which is created
+     * inside {@code send()}, and a registered {@code BlobUploader}, which is registered in a later machine step. A
+     * process still in the queue has neither, so a deletion found nothing to cancel and left it queued. When it reached
+     * the front it encrypted the file, uploaded the content blob and the thumbnail blob, and only then met the guarded
+     * handoff, which refused. The peer got nothing and the payload had already left the device - as a persistent
+     * ({@code persist=1}) blob for a group, with nothing left to ask the server to remove it.</p>
+     *
+     * <p>The queued future was retained for exactly this, and nothing called it. It is cancelled FIRST, because a
+     * process that never starts needs none of the rest; the machine and the uploader still follow, for the one that had
+     * already started. Keyed by {@code getUid()}, which is per message per receiver, so deleting one recipient's copy
+     * leaves its siblings in a multi-recipient batch alone.</p>
+     *
+     * <p>Cancellation is not the boundary on its own - {@code addToQueue} registers the future just after submitting it,
+     * so a process can be running before there is anything to cancel. That window is closed by {@link #mayStillSend},
+     * which every queued media process consults before it acts.</p>
+     */
+    private void abortPendingSend(@NonNull AbstractMessageModel messageModel) {
+        //drop it from the sending queue if it has not started: nothing else here can reach a process that owns nothing yet
+        if (messageSendingService != null) {
+            messageSendingService.abort(messageModel.getUid());
+        }
 
         SendMachine machine = getSendMachine(messageModel, false);
         if (machine != null) {
@@ -2004,56 +3070,32 @@ public class MessageServiceImpl implements MessageService {
 
         //remove pending uploads
         cancelUploader(messageModel);
+    }
 
-        //remove from sdcard
-        fileService.removeMessageFiles(messageModel, true);
-
-        //remove from dao
-        if (messageModel instanceof GroupMessageModel) {
-            databaseService.getGroupMessageModelFactory().delete(
-                (GroupMessageModel) messageModel
-            );
-
-            //remove from cache
-            synchronized (groupMessageCache) {
-                Iterator<GroupMessageModel> i = groupMessageCache.iterator();
-                while (i.hasNext()) {
-                    if (i.next().getId() == messageModel.getId()) {
-                        i.remove();
-                    }
-                }
-            }
-        } else if (messageModel instanceof DistributionListMessageModel) {
-            databaseService.getDistributionListMessageModelFactory().delete(
-                (DistributionListMessageModel) messageModel
-            );
-
-            //remove from cache
-            synchronized (distributionListMessageCache) {
-                Iterator<DistributionListMessageModel> i = distributionListMessageCache.iterator();
-                while (i.hasNext()) {
-                    if (i.next().getId() == messageModel.getId()) {
-                        i.remove();
-                    }
-                }
-            }
-        } else if (messageModel instanceof MessageModel) {
-            databaseService.getMessageModelFactory().delete((MessageModel) messageModel);
-
-            //remove from cache
-            synchronized (contactMessageCache) {
-                Iterator<MessageModel> i = contactMessageCache.iterator();
-                while (i.hasNext()) {
-                    if (i.next().getId() == messageModel.getId()) {
-                        i.remove();
-                    }
-                }
-            }
+    /**
+     * F1Whisper (ninth follow-up review, F9-01): whether a queued media send process may still act on its message.
+     *
+     * <p>Asked at the entry of every queued media process, and again before {@code encryptAndSend} persists or queues
+     * anything, because between the row being created PENDING and its upload starting there are two intervals the user
+     * can delete in and the process cannot see: preprocessing (image scaling, audio trimming) and the wait behind
+     * another upload. The process holds a model captured when the message was created, and that instance says nothing
+     * about a deletion that happened afterwards, so the ROW is asked - through the same gate a persistent content task
+     * uses, because it is the same question.</p>
+     *
+     * <p>A refusal is quiet and final: the caller returns {@code false}, which the backoff runnable treats as a normal
+     * completion, so there is no retry and no {@code processingFailed} - a message the user deleted on purpose must not
+     * produce a send-failure notice. A row that cannot be re-read at all is refused too, as every reload-decide-write
+     * loop in this class does: if the row is unreadable, the handoff save at the end cannot succeed either, so refusing
+     * here only moves an already-doomed send in front of the upload instead of behind it.</p>
+     */
+    @WorkerThread
+    private boolean mayStillSend(@NonNull AbstractMessageModel messageModel) {
+        if (PersistentTaskRowGate.transmits(reloadPersistedModel(messageModel))) {
+            return true;
         }
-
-        if (!silent) {
-            fireOnRemovedMessage(messageModel);
-        }
+        logger.info("Not sending {}: its row is gone or was deleted before anything left the device",
+            messageModel.getUid());
+        return false;
     }
 
     @Override
@@ -2104,7 +3146,17 @@ public class MessageServiceImpl implements MessageService {
                     logger.info("ContactMessage {}: checklist re-broadcast, merging into existing ballot", message.getMessageId());
                     messageModel = savedMessageModel;
                 } else {
-                    //do nothing!
+                    // F1Whisper (fourth fork review, F4-05): a duplicate is the ONLY second chance this message gets, so
+                    // repair the sender's policy here before dropping it. If the app died between the insert and the
+                    // freeze, this redelivery is what would otherwise make the wrong timer permanent - the row exists, so
+                    // the guard returns success and nothing downstream ever revisits it. Idempotent: freezeIncomingTimer
+                    // returns false when the row already carries the sender's value, so an ordinary duplicate writes
+                    // nothing.
+                    //
+                    // Fifth review, F5-05: ONLY an explicitly advertised value. An absent one resolves against the
+                    // conversation timer as it is NOW, so repairing from it re-froze an old message at a setting chosen
+                    // long after it arrived. See repairDuplicateIncomingFreeze.
+                    repairDuplicateIncomingFreeze(savedMessageModel, message.getDisappearingTimerSeconds());
                     return true;
                 }
             } else {
@@ -2146,6 +3198,8 @@ public class MessageServiceImpl implements MessageService {
                     && preferenceService.isSaveMedia()
                     && messageModel.getImageData().isDownloaded()
                     && !conversationCategoryService.isPrivateChat(ContactUtil.getUniqueIdString(messageModel.getIdentity()))
+                    // F1Whisper (seventh fork review, F7-02): the row, not just the downloaded flag. See ownsCurrentRow.
+                    && ownsCurrentRow(messageModel)
             ) {
                 fileService.saveMedia(null, null, new CopyOnWriteArrayList<>(Collections.singletonList(messageModel)), true);
             }
@@ -2160,19 +3214,18 @@ public class MessageServiceImpl implements MessageService {
             return false;
         }
 
-        // F1Whisper E1: freeze the PEER's advertised disappearing timer onto the incoming model at
-        // receive time (not read time).  Uses the peer column so a later local timer toggle cannot
-        // affect messages that arrived with an active peer advertisement.  expireStartedAt/expiresAt
-        // NOT set here — countdown still starts in markAsRead.
-        if (messageModel.getDisappearingTimerSeconds() == null) {
-            Integer peerTimer = peerDisappearingTimer(messageModel);
-            if (peerTimer != null && peerTimer > 0) {
-                DisappearingMessageService.freezeTimer(messageModel, peerTimer);
-                if (messageModel.getDisappearingTimerSeconds() != null) {
-                    save(messageModel);
-                    logger.info("Disappearing: E1 receive-freeze (peer) uid={} timer={}s", messageModel.getUid(), peerTimer);
-                }
-            }
+        // F1Whisper E1: freeze the timer the SENDER advertised for THIS message onto the incoming
+        // model at receive time (not read time).  expireStartedAt/expiresAt NOT set here — the
+        // countdown still starts in markAsRead.
+        //
+        // Fifth review, F5-05: only when the sender actually advertised something. The freeze that matters already
+        // happened BEFORE the insert (freezeIncomingBeforeFirstWrite, on every save path above), so for an absent value
+        // this call could only re-resolve the same question against a conversation timer that may have changed in the
+        // meantime - a second answer to a question already answered correctly. For an explicit value it is kept, and is
+        // idempotent, because it is also the correction for a countdown a racing markAsRead may have derived from the
+        // provisional timer.
+        if (message.getDisappearingTimerSeconds() != null) {
+            applyIncomingFreeze(messageModel, message.getDisappearingTimerSeconds());
         }
 
         logger.info("processIncomingContactMessage: {} SUCCESS - Message ID = {}", message.getMessageId(), messageModel.getId());
@@ -2250,7 +3303,9 @@ public class MessageServiceImpl implements MessageService {
                     logger.info("GroupMessage {}: checklist re-broadcast, merging into existing ballot", message.getMessageId());
                     messageModel = existingModel;
                 } else {
-                    //do nothing!
+                    // F1Whisper (fourth fork review, F4-05, fifth F5-05): same repair as the 1:1 duplicate path, and the
+                    // same restriction to an explicitly advertised value. See the comment there.
+                    repairDuplicateIncomingFreeze(existingModel, message.getDisappearingTimerSeconds());
                     logger.error("GroupMessage {}: error: message already exists", message.getMessageId());
                     return true;
                 }
@@ -2270,7 +3325,9 @@ public class MessageServiceImpl implements MessageService {
                 && preferenceService != null
                 && preferenceService.isSaveMedia()
                 && messageModel.getImageData().isDownloaded()
-                && !conversationCategoryService.isPrivateChat(GroupUtil.getUniqueIdString(groupModel))) {
+                && !conversationCategoryService.isPrivateChat(GroupUtil.getUniqueIdString(groupModel))
+                // F1Whisper (seventh fork review, F7-02): the row, not just the downloaded flag. See ownsCurrentRow.
+                && ownsCurrentRow(messageModel)) {
                 fileService.saveMedia(null, null, new CopyOnWriteArrayList<>(Collections.singletonList(messageModel)), true);
             }
         } else if (message.getClass().equals(GroupLocationMessage.class)) {
@@ -2280,17 +3337,14 @@ public class MessageServiceImpl implements MessageService {
         }
 
         if (messageModel != null) {
-            // F1Whisper E1: freeze PEER's advertised group timer at receive time (same rationale as
-            // processIncomingContactMessage — uses peer column, not my-field).
-            if (messageModel.getDisappearingTimerSeconds() == null) {
-                Integer peerTimer = peerDisappearingTimer(messageModel);
-                if (peerTimer != null && peerTimer > 0) {
-                    DisappearingMessageService.freezeTimer(messageModel, peerTimer);
-                    if (messageModel.getDisappearingTimerSeconds() != null) {
-                        save(messageModel);
-                        logger.info("Disappearing: E1 group receive-freeze (peer) uid={} timer={}s", messageModel.getUid(), peerTimer);
-                    }
-                }
+            // F1Whisper E1: freeze the timer the SENDING MEMBER advertised for this message (same
+            // rationale as processIncomingContactMessage — the sender's per-message policy, not the
+            // receiver's copy of the group setting). A group member turning the group timer off must
+            // not retroactively un-time what other members already sent.
+            //
+            // Fifth review, F5-05: only when the member actually advertised something; see the 1:1 path.
+            if (message.getDisappearingTimerSeconds() != null) {
+                applyIncomingFreeze(messageModel, message.getDisappearingTimerSeconds());
             }
             logger.info("processIncomingGroupMessage: {} SUCCESS - Message ID = {}", message.getMessageId(), messageModel.getId());
             return true;
@@ -2323,6 +3377,7 @@ public class MessageServiceImpl implements MessageService {
             messageModel.setIdentity(contactModel.getIdentity());
             messageModel.setForwardSecurityMode(message.getForwardSecurityMode());
             messageModel.setSaved(true);
+            freezeIncomingBeforeFirstWrite(messageModel, message.getDisappearingTimerSeconds());
 
             databaseService.getMessageModelFactory().create(messageModel);
 
@@ -2348,6 +3403,7 @@ public class MessageServiceImpl implements MessageService {
             messageModel,
             message.getMessageFlags(),
             message.getForwardSecurityMode(),
+            message.getDisappearingTimerSeconds(),
             // Note that this may also be remote, but it is certainly never local. To be safe,
             // we use sync as this will prevent sending any csp messages.
             TriggerSource.SYNC
@@ -2426,6 +3482,7 @@ public class MessageServiceImpl implements MessageService {
             messageModel,
             message.getMessageFlags(),
             message.getForwardSecurityMode(),
+            message.getDisappearingTimerSeconds(),
             // Note that this may also be remote, but it is certainly never local. To be safe,
             // we use sync as this will prevent sending any csp messages.
             TriggerSource.SYNC
@@ -2440,6 +3497,25 @@ public class MessageServiceImpl implements MessageService {
         @Nullable AbstractMessageModel messageModel,
         int messageFlags,
         @Nullable ForwardSecurityMode forwardSecurityMode,
+        @NonNull TriggerSource triggerSource
+    ) throws ThreemaException, BadMessageException {
+        return saveBallotCreateMessage(
+            receiver, messageId, message, messageModel, messageFlags, forwardSecurityMode, null, triggerSource
+        );
+    }
+
+    /**
+     * F1Whisper (fourth fork review, F4-05): as above, carrying the disappearing timer the sender of an INCOMING poll
+     * advertised so it reaches the row's first write rather than a second one.
+     */
+    private AbstractMessageModel saveBallotCreateMessage(
+        @NonNull MessageReceiver<?> receiver,
+        @NonNull MessageId messageId,
+        @NonNull BallotSetupInterface message,
+        @Nullable AbstractMessageModel messageModel,
+        int messageFlags,
+        @Nullable ForwardSecurityMode forwardSecurityMode,
+        @Nullable Integer advertisedDisappearingTimerSeconds,
         @NonNull TriggerSource triggerSource
     ) throws ThreemaException, BadMessageException {
         BallotUpdateResult result = ballotService.update(message, messageId, triggerSource);
@@ -2459,7 +3535,8 @@ public class MessageServiceImpl implements MessageService {
                         BallotDataModel.Type.BALLOT_CLOSED),
                     receiver,
                     messageFlags,
-                    forwardSecurityMode);
+                    forwardSecurityMode,
+                    advertisedDisappearingTimerSeconds);
         }
 
         return messageModel;
@@ -2546,6 +3623,7 @@ public class MessageServiceImpl implements MessageService {
             messageModel.setSaved(true);
             messageModel.setIdentity(message.getFromIdentity());
             messageModel.setForwardSecurityMode(message.getForwardSecurityMode());
+            freezeIncomingBeforeFirstWrite(messageModel, message.getDisappearingTimerSeconds());
 
             r.saveLocalModel(messageModel);
 
@@ -2637,8 +3715,6 @@ public class MessageServiceImpl implements MessageService {
             return null;
         }
 
-        GroupMessageModelFactory messageModelFactory = databaseService.getGroupMessageModelFactory();
-
         //download thumbnail
         if (messageModel == null) {
             MessageReceiver r = groupService.createReceiver(groupModel);
@@ -2658,6 +3734,7 @@ public class MessageServiceImpl implements MessageService {
 
             // Mark as saved to show message without image e.g.
             messageModel.setSaved(true);
+            freezeIncomingBeforeFirstWrite(messageModel, message.getDisappearingTimerSeconds());
             r.saveLocalModel(messageModel);
         }
 
@@ -2710,15 +3787,18 @@ public class MessageServiceImpl implements MessageService {
 
                     try {
                         if (saveStrippedImage(blob, messageModel)) {
-
-                            messageModel.getImageData().isDownloaded(true);
-                            messageModel.writeDataModelToBody();
-                            messageModelFactory.update(messageModel);
-
-                            fireOnModifiedMessage(messageModel);
-
-                            downloadService.complete(messageModel.getId(), message.getBlobId());
-
+                            // F1Whisper (sixth fork review, F6-02): the same current-row completion ownership the
+                            // ordinary download path uses. This handler used to mutate the detached model, hand the
+                            // whole row to a factory update that ignores its own affected-row count, and then let the
+                            // caller copy the image into the device gallery - none of which asks whether the message
+                            // still exists. A hard deletion during the download therefore left an orphaned file and a
+                            // permanent gallery copy of content whose message was gone. A lost race now removes the
+                            // media this attempt wrote and publishes nothing: no listener, no blob-complete, and no
+                            // gallery copy, because the caller's model is only marked downloaded when the row was won.
+                            if (!setDownloadCompleted(messageModel, messageModel.getImageData(), messageModel.getCaption())) {
+                                logger.info("Legacy group image {} lost its row while downloading; publishing nothing",
+                                    messageModel.getApiMessageId());
+                            }
                             return messageModel;
                         }
                     } catch (Exception e) {
@@ -2733,8 +3813,10 @@ public class MessageServiceImpl implements MessageService {
             downloadService.error(messageModel.getId());
         }
 
+        // F1Whisper (sixth fork review, F6-02): the one column this tail owns, conditionally. It was a full-row update
+        // whose only effect was this flag.
+        applyRowUpdate(messageModel, MessageLifecycleUpdates.saved());
         messageModel.setSaved(true);
-        messageModelFactory.update(messageModel);
 
         // download failed...let adapter know
         fireOnModifiedMessage(messageModel);
@@ -2761,6 +3843,7 @@ public class MessageServiceImpl implements MessageService {
             messageModel.setMessageFlags(message.getMessageFlags());
             messageModel.setOutbox(false);
             messageModel.setIdentity(message.getFromIdentity());
+            freezeIncomingBeforeFirstWrite(messageModel, message.getDisappearingTimerSeconds());
 
             r.saveLocalModel(messageModel);
             isNewMessage = true;
@@ -2814,8 +3897,6 @@ public class MessageServiceImpl implements MessageService {
 
         logger.info("saveBoxMessage: {} - A", message.getMessageId());
 
-        MessageModelFactory messageModelFactory = databaseService.getMessageModelFactory();
-
         logger.info("saveBoxMessage: {} - B", message.getMessageId());
 
         if (messageModel == null) {
@@ -2837,6 +3918,7 @@ public class MessageServiceImpl implements MessageService {
 
             // Mark as saved to show message without image e.g.
             messageModel.setSaved(true);
+            freezeIncomingBeforeFirstWrite(messageModel, message.getDisappearingTimerSeconds());
             r.saveLocalModel(messageModel);
             /*
             //create the record
@@ -2866,18 +3948,12 @@ public class MessageServiceImpl implements MessageService {
                 if (image != null) {
                     try {
                         if (saveStrippedImage(image, messageModel)) {
-
-                            // Mark as downloaded
-                            messageModel.getImageData().isDownloaded(true);
-                            messageModel.writeDataModelToBody();
-                            messageModelFactory.update(messageModel);
-
-                            //fire on new
-                            fireOnModifiedMessage(messageModel);
-
-                            // remove blob
-                            downloadService.complete(messageModel.getId(), message.blobId);
-
+                            // F1Whisper (sixth fork review, F6-02): current-row completion ownership. See the group
+                            // handler above for the failure this closes; the two are the same code and the same race.
+                            if (!setDownloadCompleted(messageModel, messageModel.getImageData(), messageModel.getCaption())) {
+                                logger.info("Legacy image {} lost its row while downloading; publishing nothing",
+                                    messageModel.getApiMessageId());
+                            }
                             return messageModel;
                         }
                     } catch (Exception e) {
@@ -2892,8 +3968,9 @@ public class MessageServiceImpl implements MessageService {
             downloadService.error(messageModel.getId());
         }
 
+        // F1Whisper (sixth fork review, F6-02): the one column this tail owns, conditionally.
+        applyRowUpdate(messageModel, MessageLifecycleUpdates.saved());
         messageModel.setSaved(true);
-        messageModelFactory.update(messageModel);
 
         // download failed...let adapter know
         fireOnModifiedMessage(messageModel);
@@ -2986,6 +4063,7 @@ public class MessageServiceImpl implements MessageService {
 
         // We save the message model already here to ensure it is in the database in case the app
         // gets killed before resolving the address.
+        freezeIncomingBeforeFirstWrite(messageModel, message.getDisappearingTimerSeconds());
         databaseService.getMessageModelFactory().create(messageModel);
 
         // If the location model is missing an address, we perform a lookup based on the coordinates
@@ -3059,7 +4137,8 @@ public class MessageServiceImpl implements MessageService {
             for (AbstractMessageModel m : messageModels) {
                 flags.add(m == null
                     ? UnreadDividerLocator.MessageFlags.NOT_UNREAD
-                    : new UnreadDividerLocator.MessageFlags(m.isOutbox(), m.isRead(), m.isStatusMessage(), m.isSaved()));
+                    : new UnreadDividerLocator.MessageFlags(
+                        m.isOutbox(), m.isRead(), m.isStatusMessage(), m.isSaved(), m.getDeletedAt() != null));
             }
 
             final int insertIndex = UnreadDividerLocator.findDividerInsertIndex(flags);
@@ -3474,7 +4553,13 @@ public class MessageServiceImpl implements MessageService {
 
         if (data != null && !data.isDownloaded()) {
             if (downloadAndWriteMediaData(mediaMessageModel, data, progressListener)) {
-                setDownloadCompleted(mediaMessageModel, data);
+                if (!setDownloadCompleted(mediaMessageModel, data)) {
+                    // F1Whisper (fifth fork review, F5-04): the row lost a deletion race while this download was
+                    // running, so nothing may be published from it. Reporting failure here is what keeps the gallery
+                    // save, the completion listener and the download-complete notification from firing for content whose
+                    // message no longer exists.
+                    return false;
+                }
                 saveImagesAndVideosToGalleryIfEnabled(mediaMessageModel, data);
                 return true;
             } else {
@@ -3563,29 +4648,109 @@ public class MessageServiceImpl implements MessageService {
         return success;
     }
 
-    private void setDownloadCompleted(@NonNull AbstractMessageModel mediaMessageModel, @NonNull MediaMessageDataInterface data) {
-        if (mediaMessageModel.getType() == MessageType.IMAGE) {
-            mediaMessageModel.getImageData().isDownloaded(true);
-        } else if (mediaMessageModel.getType() == MessageType.VIDEO) {
-            mediaMessageModel.getVideoData().isDownloaded(true);
-        } else if (mediaMessageModel.getType() == MessageType.VOICEMESSAGE) {
-            mediaMessageModel.getAudioData().isDownloaded(true);
-        } else if (mediaMessageModel.getType() == MessageType.FILE) {
-            mediaMessageModel.getFileData().isDownloaded(true);
-        }
-        mediaMessageModel.writeDataModelToBody();
+    /**
+     * F1Whisper (fifth fork review, F5-04): record that the media arrived, as a conditional non-inserting write that owns
+     * the download metadata and nothing else.
+     *
+     * <p>The defect: a download takes as long as it takes, and this completion used to mutate the caller's DETACHED model
+     * and full-row-save it. A message hard-deleted, deleted for everyone, first-read or burned while the bytes were in
+     * flight therefore had that stale row written back over the top - recreated in the first case, un-deleted in the
+     * second, and in the others silently reverted to whatever download-era values the instance carried.</p>
+     *
+     * <p>Now the flag is applied to the CURRENT row and re-applied on a lost race. If the row is gone or has been deleted
+     * for everyone there is nothing to record, and the media this attempt just wrote is deleted rather than left orphaned
+     * on disk - operation-owned by construction, because the files are keyed by the uid of the row that has gone, and a
+     * replacement row would have a different one.</p>
+     *
+     * @return whether the completion was recorded. A {@code false} answer means the caller must publish nothing.
+     */
+    private boolean setDownloadCompleted(@NonNull AbstractMessageModel mediaMessageModel, @NonNull MediaMessageDataInterface data) {
+        return setDownloadCompleted(mediaMessageModel, data, null);
+    }
 
-        save(mediaMessageModel);
+    /**
+     * @param extractedCaption a caption recovered from the media itself during this download (the legacy image format
+     *                         carries one in its EXIF), written in the same conditional statement, or {@code null}.
+     */
+    private boolean setDownloadCompleted(
+        @NonNull AbstractMessageModel mediaMessageModel,
+        @NonNull MediaMessageDataInterface data,
+        @Nullable String extractedCaption
+    ) {
+        final boolean recorded = updateMediaMetadata(mediaMessageModel, current -> {
+            final MediaMessageDataInterface currentData = getDataForMessageType(current);
+            if (currentData == null) {
+                return false;
+            }
+            boolean changed = false;
+            if (extractedCaption != null && !TestUtil.compare(extractedCaption, current.getCaption())) {
+                current.setCaption(extractedCaption);
+                changed = true;
+            }
+            if (currentData.isDownloaded()) {
+                return changed;
+            }
+            currentData.isDownloaded(true);
+            current.writeDataModelToBody();
+            return true;
+        });
+
+        if (!recorded) {
+            final AbstractMessageModel current = reloadPersistedModel(mediaMessageModel);
+            if (current == null || current.getDeletedAt() != null) {
+                logger.info("Download for uid={} lost a deletion race; removing the media it had written",
+                    mediaMessageModel.getUid());
+                try {
+                    fileService.removeMessageFiles(mediaMessageModel, true);
+                } catch (Exception e) {
+                    logger.warn("Could not remove media written for a message that no longer exists", e);
+                }
+                return false;
+            }
+            final MediaMessageDataInterface currentData = getDataForMessageType(current);
+            if (currentData != null && currentData.isDownloaded()) {
+                // Another downloader recorded the same arrival first. The files on disk belong to this still-current row,
+                // so they are ITS media and must not be cleaned up; there is simply nothing left for this attempt to do.
+                mediaMessageModel.adoptPersistedBody(current.getBody());
+                logger.info("Download for uid={} was already recorded by another attempt", mediaMessageModel.getUid());
+                return true;
+            }
+            return false;
+        }
 
         fireOnModifiedMessage(mediaMessageModel);
 
         downloadService.complete(mediaMessageModel.getId(), data.getBlobId());
+        return true;
+    }
+
+    /**
+     * F1Whisper (seventh fork review, F7-02): whether {@code model}'s row is still there and still undeleted, asked
+     * under the monitor deletion takes.
+     *
+     * <p>A gallery export writes a permanent CLEAR copy outside the message lifecycle: nothing in the app can take it
+     * back, so it must not be started for a message that is already being deleted. Deletion claims the row under this
+     * same monitor before it removes anything, so an export that asks here after that claim sees the row gone. The
+     * residual window - deletion claiming between this answer and the asynchronous copy actually reading the file - is
+     * closed by the file removal that deletion performs immediately after its claim: the copy then finds nothing to
+     * read and fails.</p>
+     */
+    private boolean ownsCurrentRow(@NonNull AbstractMessageModel model) {
+        final Collection<? extends AbstractMessageModel> cache = cacheFor(model);
+        if (cache == null) {
+            return false;
+        }
+        synchronized (cache) {
+            final AbstractMessageModel current = reloadPersistedModel(model);
+            return current != null && current.getDeletedAt() == null;
+        }
     }
 
     private void saveImagesAndVideosToGalleryIfEnabled(@NonNull AbstractMessageModel mediaMessageModel, @NonNull MediaMessageDataInterface data) {
         if (preferenceService != null
             && preferenceService.isSaveMedia()
-            && isImageOrVideoFile(mediaMessageModel, data)) {
+            && isImageOrVideoFile(mediaMessageModel, data)
+            && ownsCurrentRow(mediaMessageModel)) {
             boolean isPrivate = mediaMessageModel instanceof GroupMessageModel
                 ? conversationCategoryService.isPrivateChat(GroupUtil.getUniqueIdString(((GroupMessageModel) mediaMessageModel).getGroupId()))
                 : conversationCategoryService.isPrivateChat(ContactUtil.getUniqueIdString(mediaMessageModel.getIdentity()));
@@ -3746,57 +4911,60 @@ public class MessageServiceImpl implements MessageService {
         fileService.deleteMediaFiles();
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-01): persist, and only then cache.
+     *
+     * <p>The defect this closes: the sixth review taught {@code createOrUpdate} to refuse to reinsert a row that had
+     * gone, and this method threw that answer away. It cached the supplied model regardless, and the service's id
+     * getters read the cache BEFORE the database, so a persistent outgoing task loading its message by local id got the
+     * detached model back - body, blob id and encryption key intact - for a message the user had already deleted, and
+     * sent it. The database was empty throughout, so nothing in the UI could show that the deleted payload had left the
+     * device. A non-reinsertion guard is not a deletion boundary while a cache-backed sender can continue from the same
+     * deleted model.</p>
+     *
+     * <p>So a failed save now EVICTS instead of admitting: every cached instance of that id goes, and the caller is
+     * told. The persistence attempt and the cache reconciliation are one operation under the same per-type monitor
+     * {@link #applyRowUpdate} takes, so a conditional lifecycle write can neither interleave with the write nor observe
+     * a cache that disagrees with the row.</p>
+     */
     @Override
-    public void save(final AbstractMessageModel messageModel) {
-        if (messageModel != null) {
-            if (messageModel instanceof MessageModel) {
-                synchronized (contactMessageCache) {
-                    databaseService.getMessageModelFactory().createOrUpdate(
-                        (MessageModel) messageModel
-                    );
-
-                    // Update the cache
-                    Iterator<MessageModel> iterator = contactMessageCache.iterator();
-                    while (iterator.hasNext()) {
-                        MessageModel cached = iterator.next();
-                        if (cached.getId() == messageModel.getId() && cached != messageModel) {
-                            // Remove old message model from cache if not the same object
-                            iterator.remove();
-                        }
-                    }
-
-                }
-            } else if (messageModel instanceof GroupMessageModel) {
-                synchronized (groupMessageCache) {
-                    databaseService.getGroupMessageModelFactory().createOrUpdate(
-                        (GroupMessageModel) messageModel);
-
-                    // remove "old" message models from cache
-                    groupMessageCache.stream()
-                        .filter(model -> model.getId() == messageModel.getId() && model != messageModel)
-                        .forEach(model -> {
-                            logger.debug("Updating cached data for group message model {}", messageModel.getApiMessageId());
-                            model.copyFrom((GroupMessageModel) messageModel);
-                        });
-                }
+    public boolean save(final AbstractMessageModel messageModel) {
+        if (messageModel == null) {
+            return false;
+        }
+        final Collection<? extends AbstractMessageModel> cache = cacheFor(messageModel);
+        if (cache == null) {
+            return false;
+        }
+        synchronized (cache) {
+            final boolean persisted;
+            if (messageModel instanceof GroupMessageModel) {
+                persisted = databaseService.getGroupMessageModelFactory().createOrUpdate((GroupMessageModel) messageModel);
             } else if (messageModel instanceof DistributionListMessageModel) {
-                synchronized (distributionListMessageCache) {
-                    databaseService.getDistributionListMessageModelFactory().createOrUpdate(
-                        (DistributionListMessageModel) messageModel);
-
-                    // remove "old" message models from cache
-                    distributionListMessageCache.stream()
-                        .filter(model -> model.getId() == messageModel.getId() && model != messageModel)
-                        .forEach(model -> {
-                            // remove cached unsaved object
-                            logger.debug("copy from distribution list message model fix");
-                            model.copyFrom(messageModel);
-                        });
-                }
+                persisted = databaseService.getDistributionListMessageModelFactory()
+                    .createOrUpdate((DistributionListMessageModel) messageModel);
+            } else {
+                persisted = databaseService.getMessageModelFactory().createOrUpdate((MessageModel) messageModel);
             }
 
-            // Cache the element for more actions
-            cache(messageModel);
+            if (!persisted) {
+                // F1Whisper (eighth fork review, H8-01): "could not be persisted" now covers a row that is still there
+                // but has been deleted for everyone. The content of a deleted message may not be written back, and a
+                // model holding that content may not be cached, whichever of the two happened.
+                logger.info("Not caching message {}: its row is gone or was deleted", messageModel.getId());
+            }
+            // Every OTHER live instance of this row now holds a pre-save snapshot, so on success it adopts what was
+            // just written - the same reconciliation a conditional write performs, through the same code. It used to be
+            // three different rules: the contact cache dropped stale instances, the group and distribution-list caches
+            // copied a hand-maintained SUBSET of the columns across. That subset had drifted; GroupMessageModel.copyFrom
+            // carries none of this fork's disappearing or display-tag columns, so a cached group instance kept a stale
+            // timer after every full-row save.
+            return MessageCacheCoherence.admit(
+                cache,
+                messageModel,
+                persisted,
+                !(messageModel instanceof DistributionListMessageModel)
+            );
         }
     }
 
@@ -4858,7 +6026,19 @@ public class MessageServiceImpl implements MessageService {
                 // Otherwise we initialize the message model with pending to show a progress bar
                 messageModel.setState(MessageState.PENDING); // shows a progress bar
             }
-            save(messageModel);
+            // F1Whisper (ninth follow-up review, F9-01): this save IS the question, and its answer used to be thrown
+            // away. Preprocessing ran between the PENDING row being created and this point - scaling an image, trimming
+            // an audio file - and the message was selectable and deletable for all of it, so a message the user had
+            // already deleted still got its derived media written to disk and its upload queued. The derived output the
+            // losing operation wrote goes with it: the thumbnail written moments ago by writeThumbnails is the one file
+            // the deletion's own cleanup cannot have caught, because it did not exist yet. The tombstone is untouched -
+            // the deletion-control task still needs the row it announces.
+            if (!save(messageModel)) {
+                logger.info("Not sending {}: its row is gone or was deleted while its media was being prepared",
+                    messageModel.getUid());
+                fileService.removeMessageFiles(messageModel, true);
+                continue;
+            }
 
             try {
                 fileService.writeConversationMedia(messageModel, contentData, NaCl.BOX_OVERHEAD_BYTES, contentData.length - NaCl.BOX_OVERHEAD_BYTES);
@@ -4874,6 +6054,14 @@ public class MessageServiceImpl implements MessageService {
             if (messageModel == null) {
                 // no messagemodel has been created for this receiver - skip
                 logger.info("Mo MessageModel could be created for this receiver - skip");
+                continue;
+            }
+
+            // F1Whisper (ninth follow-up review, F9-01): asked again rather than remembered from the loop above,
+            // because the loop above writes the local media for every receiver before this one queues anything, so a
+            // deletion can land in between. The process gates itself at entry too; this is what stops it being queued
+            // at all, which is also what stops the deletion having to find a future to cancel.
+            if (!mayStillSend(messageModel)) {
                 continue;
             }
 
@@ -4895,6 +6083,13 @@ public class MessageServiceImpl implements MessageService {
 
                 @Override
                 public boolean send() throws Exception {
+                    // F1Whisper (ninth follow-up review, F9-01): ask the row FIRST. This process may have spent minutes
+                    // in the single-worker queue behind another attachment, and the message is deletable for that whole
+                    // time. Everything below leaves the device or writes to it; the next question anyone asked used to
+                    // be the handoff, by which point both blobs were already on the server.
+                    if (!mayStillSend(messageModel)) {
+                        return false;
+                    }
                     SendMachine sendMachine = getSendMachine(messageModel);
                     sendMachine.reset()
                         .next(() -> {
@@ -4915,8 +6110,14 @@ public class MessageServiceImpl implements MessageService {
                                 messageModel.setState(MessageState.UPLOADING);
                                 hasChanges = true;
                             }
-                            if (hasChanges) {
-                                save(messageModel);
+                            if (hasChanges && !save(messageModel)) {
+                                // F1Whisper (ninth follow-up review, F9-01): this answer has been correct since H8-01
+                                // and was thrown away. It is the same refusal the handoff acts on, three steps earlier -
+                                // before the content blob and the thumbnail blob are uploaded rather than after - and it
+                                // covers a deletion that lands between the entry gate above and this write.
+                                logger.info("Media send refused for {}: its row is gone or was deleted", messageModel.getId());
+                                sendMachine.abort();
+                                return;
                             }
                             fileDataModel.setFileSize(contentData.length - NaCl.BOX_OVERHEAD_BYTES);
                             messageModel.setFileData(fileDataModel);
@@ -4977,29 +6178,46 @@ public class MessageServiceImpl implements MessageService {
                             }
                         })
                         .next(() -> {
-                            getReceiver().createAndSendFileMessage(
+                            if (!getReceiver().createAndSendFileMessage(
                                 thumbnailBlobId,
                                 contentBlobId,
                                 contentEncryptResult[0],
                                 messageModel,
                                 null
-                            );
+                            )) {
+                                // F1Whisper (eighth fork review, H8-01): the user deleted this message while its
+                                // content blob was uploading, so the row refused to take the blob id and key back. The
+                                // remaining steps exist to announce a send that is not happening - the dispatch state,
+                                // the saved flag, the completion listener - so the machine stops here and publishes
+                                // nothing. The upload itself was already cancelled by the deletion; this is the second
+                                // half, for the handoff that had already begun when the cancellation arrived.
+                                logger.info("Media handoff refused for {}: its row is gone or was deleted",
+                                    messageModel.getId());
+                                sendMachine.abort();
+                                return;
+                            }
+                            // F1Whisper (fifth fork review, F5-02): the state this pipeline may claim once the send
+                            // layer has the message. It used to be decided by `offerRetry()`, which answers a question
+                            // about the retry UI and returns false for a group - so group media was recorded as SENT the
+                            // instant its task had been SCHEDULED, and the disappearing countdown started on a message
+                            // still sitting in an offline queue. See OutgoingSendBoundaryDecision.
                             updateOutgoingMessageState(messageModel,
-                                getReceiver().shouldSendMediaData() && getReceiver().offerRetry() ?
-                                    MessageState.SENDING :
-                                    MessageState.SENT, new Date());
-
-                            messageModel.setFileData(fileDataModel);
-                            // save updated model
-                            save(messageModel);
+                                OutgoingSendBoundaryDecision.stateAtDispatch(getReceiver().hasPendingRemoteCompletion()),
+                                new Date());
+                            // F1Whisper (seventh fork review, F7-01 / F7-05): NO full-row save here. The blob id and
+                            // encryption key were written into the row by createAndSendFileMessage's own save, before
+                            // it scheduled the task; re-setting the same FileDataModel instance and saving the whole row
+                            // added nothing but a post-schedule writer of every lifecycle column. It was also the exact
+                            // step the review pauses to reproduce F7-01: with the message hard-deleted while this step
+                            // was suspended, the save re-admitted the detached model - body, blob id and key - to the
+                            // service cache, and the already-archived task read it back and sent it.
                         })
                         .next(() -> {
                             messageModel.setSaved(true);
                             // Verify current saved state
                             updateOutgoingMessageState(messageModel,
-                                getReceiver().shouldSendMediaData() && getReceiver().offerRetry() ?
-                                    MessageState.SENDING :
-                                    MessageState.SENT, new Date());
+                                OutgoingSendBoundaryDecision.stateAtDispatch(getReceiver().hasPendingRemoteCompletion()),
+                                new Date());
 
                             if (!getReceiver().shouldSendMediaData()) {
                                 // update status for message that stay local
@@ -5047,8 +6265,12 @@ public class MessageServiceImpl implements MessageService {
             messageModel.setSaved(true);
 
             messageReceiver.saveLocalModel(messageModel);
-            DisappearingMessageService.armOutgoingClock(messageModel); // F1Whisper: start disappearing countdown
-            DisappearingMessageService.getInstance().piggybackTimerReassert(messageReceiver); // F1Whisper E2
+            // F1Whisper: the disappearing countdown is deliberately NOT armed here. This model is
+            // still PENDING — transcoding, encryption, thumbnail and content blob uploads and the
+            // send handoff all happen afterwards, and an upload is not bounded by the picker's
+            // shortest timer (30 s). Arming here let the alarm hard-delete the sender's own copy
+            // mid-upload while the send machine still held the model. It is armed instead once the
+            // handoff has succeeded, in the final stage of the media send machine below.
 
             messageReceiver.bumpLastUpdate();
 
