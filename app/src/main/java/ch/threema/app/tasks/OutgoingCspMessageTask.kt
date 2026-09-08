@@ -13,6 +13,7 @@ import ch.threema.app.services.DisappearingFreezeDecision
 import ch.threema.app.services.FileService
 import ch.threema.app.services.GroupService
 import ch.threema.app.services.MessageService
+import ch.threema.app.services.OutgoingSendEvidence
 import ch.threema.app.services.UserService
 import ch.threema.app.utils.GroupUtil
 import ch.threema.app.utils.OutgoingCspContactMessageCreator
@@ -153,7 +154,7 @@ sealed class OutgoingCspMessageTask :
             toIdentity,
         ) { message }
 
-        val markAsSent = { sentAt: ULong ->
+        val markAsSent = { sentAt: ULong, _: Set<String> ->
             if (messageModel != null) {
                 // Update the message state for the outgoing message
                 messageService.updateOutgoingMessageState(
@@ -250,6 +251,28 @@ sealed class OutgoingCspMessageTask :
             .map { it.toBasicContact() }
             .toSet()
 
+        // F1Whisper (eleventh fork review, F11-04): the ONE canonical intended-remote set, computed from the caller's
+        // recipient list rather than trusted to it.
+        //
+        // The normal file path passes getGroupMemberIdentities(), which INCLUDES the local user, while the send layer
+        // filters the local user out only later, inside the send steps. Classifying on the raw list therefore
+        // mistook a self-only notes-group file under multi-device for a group send with one intended remote recipient
+        // and zero acceptances: state SENT instead of READ, and the sender's listen-once burn refused forever, even
+        // though the reflection had been acknowledged and there was never anybody else to wait for.
+        //
+        // Membership is intersected so an identity that is no longer a remote group member cannot keep a send looking
+        // pending, and the creator is excluded exactly when messages are not sent to it (gateway groups) - a
+        // recipient that will never acknowledge must not count as intended. Blocked or temporarily unavailable REAL
+        // remote members stay in: they are intended-but-unaccepted, which is the distinction the evidence exists to
+        // carry. The set feeds the notes classification and the completion evidence only; who is actually sent to
+        // (finalRecipients) is deliberately unchanged.
+        val currentMemberIdentities = groupService.getGroupMemberIdentities(group).toSet()
+        val intendedRemoteRecipients = recipients
+            .filter { it != userService.identity }
+            .filter { it in currentMemberIdentities }
+            .filterIf(!GroupUtil.shouldSendMessagesToCreator(group)) { it != group.creatorIdentity }
+            .toSet()
+
         // F1Whisper: createAbstractMessage is invoked once per recipient, so the stamp goes inside the factory
         // rather than onto a single instance — every per-member copy must carry the sender's policy. The value
         // is resolved (and logged) once, outside the factory, so a large group produces one line, not N.
@@ -269,8 +292,15 @@ sealed class OutgoingCspMessageTask :
         // captured here and spent once, below.
         var acceptedAt: Date? = null
 
-        val markAsSent = { sentAt: ULong ->
+        // F1Whisper (tenth fork review, F10-03): how many recipients the server actually acknowledged. The completion
+        // needs this because no MessageState can tell a group send that reached some members from one that reached
+        // none - FS_KEY_MISMATCH means "at least one rejection", not "no acceptance" - and only the second of those
+        // keeps the sender's own listen-once copy.
+        var acceptedRemoteRecipients = 0
+
+        val markAsSent = { sentAt: ULong, accepted: Set<String> ->
             acceptedAt = Date(sentAt.toLong())
+            acceptedRemoteRecipients = accepted.size
         }
 
         val updateFsState = { fsStateMap: Map<String, ForwardSecurityMode> ->
@@ -284,8 +314,12 @@ sealed class OutgoingCspMessageTask :
                 // read, otherwise sent. If there are (still) some rejected identities, we set the state
                 // to fs key mismatch, so that the message can be sent again to those. Note that we use
                 // the fs key mismatch state to represent the 're-send requested'-mark.
+                //
+                // F1Whisper (eleventh fork review, F11-04): classified on the canonical intended-remote set, not on
+                // the raw caller list - the file path's list includes the local user, and a self-only notes group
+                // must reach READ here, not SENT.
                 val state = when {
-                    recipients.isEmpty() -> MessageState.READ
+                    intendedRemoteRecipients.isEmpty() -> MessageState.READ
 
                     databaseService.rejectedGroupMessageFactory.getMessageRejects(messageId, groupModel)
                         .isNotEmpty() -> MessageState.FS_KEY_MISMATCH
@@ -323,18 +357,39 @@ sealed class OutgoingCspMessageTask :
                 // remote recipient to wait for and the state goes straight to READ, and with multi-device active this
                 // callback runs only after the reflection has been acknowledged. Either way the boundary timestamp, the
                 // state, the start and the deadline reach disk together.
-                messageService.applyOutgoingStateTransition(
+                // F1Whisper (tenth fork review, F10-03): through the shared completion boundary, so the side effects
+                // a successful send owes the sender's own copy happen here too. Going straight to the transition is
+                // what left a group listen-once voice message replayable on the sender after every recipient had
+                // already consumed it.
+                messageService.applyOutgoingCompletion(
                     messageModel,
                     state,
                     acceptedAt ?: Date(),
                     resolvedForwardSecurityMode,
                     true,
+                    // F1Whisper (eleventh fork review, F11-04): the same canonical set the state classification
+                    // used. recipients.size counted the local user, so a multi-device notes-group file reported one
+                    // intended remote recipient with zero accepted and the sender's burn was refused.
+                    OutgoingSendEvidence.groupSend(intendedRemoteRecipients.size, acceptedRemoteRecipients),
                 )
 
                 // Trigger listener
                 ListenerManager.messageListeners.handle { listener: MessageListener ->
                     listener.onModified(listOf(messageModel))
                 }
+            }
+        }
+
+        // F1Whisper (eleventh fork review, F11-03): the burn a group listen-once owes its sender is applied per
+        // acknowledged MAIN payload, from inside the send steps. updateFsState above cannot carry it alone: it runs
+        // only after every recipient's steps succeed, so recipient A's acknowledgement followed by a network failure
+        // on recipient B used to exit the task with the acceptance held in an attempt-local set only - the retry
+        // started empty, and A could listen while the sender's copy stayed playable for the whole retry period. The
+        // service call is idempotent and non-throwing, so the remaining recipients stay retryable and the final
+        // state stays deferred exactly as before.
+        val onPayloadAccepted = { _: String ->
+            if (messageModel != null) {
+                messageService.applyGroupPayloadAcceptance(messageModel)
             }
         }
 
@@ -345,6 +400,7 @@ sealed class OutgoingCspMessageTask :
                     messageCreator,
                     markAsSent,
                     updateFsState,
+                    onPayloadAccepted,
                 ),
                 services = outgoingCspMessageServices,
                 identityBlockedSteps = identityBlockedSteps,

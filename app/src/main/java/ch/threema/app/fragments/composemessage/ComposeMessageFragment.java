@@ -384,6 +384,9 @@ public class ComposeMessageFragment extends Fragment implements
     private static final String DIALOG_TAG_EMPTY_CHAT = "ccc";
     private static final String DIALOG_TAG_CONFIRM_BLOCK = "block";
     private static final String DIALOG_TAG_DECRYPTING_MESSAGES = "dcr";
+    // F1Whisper (twelfth fork review, F12-04): the share caption dialog used to be shown with a null tag, so
+    // nothing could ever find it again to dismiss it when its message expired or was removed.
+    private static final String DIALOG_TAG_SHARE_CAPTION = "shareCaption";
     private static final String DIALOG_TAG_SEARCHING = "src";
     private static final String DIALOG_TAG_LOADING_MESSAGES = "loadm";
     private static final String DIALOG_TAG_MESSAGE_DETAIL = "messageLog";
@@ -568,6 +571,19 @@ public class ComposeMessageFragment extends Fragment implements
     // helpers are also re-entered from the permission callback after the popup is gone), threaded into
     // the sub-activity as an Intent extra, and cleared when the sub-activity returns.
     private @Nullable String pendingQuoteApiMessageId;
+    // F1Whisper (twelfth fork review, F12-04): the share in flight behind the caption dialog (models, share
+    // URIs, decrypted temp copies), and the watches that kill an open share dialog / quote popup at the
+    // held message's deadline. Volatile: the decrypt callbacks record the share on their worker thread; the
+    // confirm, the watches and the removal listener consume it on the main thread.
+    private volatile @Nullable PendingMediaShare pendingMediaShare;
+    private final MessageExpiryWatch pendingShareExpiryWatch = new MessageExpiryWatch(
+        MessageExpiryWatch.onMainThread(),
+        DisappearingMessageService::enforceIfExpired,
+        System::currentTimeMillis);
+    private final MessageExpiryWatch quotePopupExpiryWatch = new MessageExpiryWatch(
+        MessageExpiryWatch.onMainThread(),
+        DisappearingMessageService::enforceIfExpired,
+        System::currentTimeMillis);
     private OpenBallotNoticeView openBallotNoticeView;
     private ReportSpamView reportSpamView;
     private AvailabilityStatusContactBannerView availabilityStatusBannerView;
@@ -812,6 +828,12 @@ public class ComposeMessageFragment extends Fragment implements
                 if (composeMessageAdapter != null && removedMessageModel != null) {
                     composeMessageAdapter.remove(removedMessageModel);
                 }
+                // F1Whisper (twelfth fork review, F12-04): removal used to only take the row out of the adapter;
+                // an in-flight share (open caption dialog, decrypted copy) or an open quote popup of the removed
+                // message survived it. They die with the message now.
+                if (removedMessageModel != null) {
+                    abortInFlightOperationsFor(removedMessageModel);
+                }
                 // F1Whisper: a removed message may have been pinned; drop it from the banner set
                 // (no crash, no stale jump) and re-render / hide the banner accordingly.
                 updatePinnedBanner();
@@ -824,6 +846,14 @@ public class ComposeMessageFragment extends Fragment implements
                 if (composeMessageAdapter != null && removedMessageModels != null) {
                     for (AbstractMessageModel removedMessageModel : removedMessageModels) {
                         composeMessageAdapter.remove(removedMessageModel);
+                    }
+                }
+                // F1Whisper (twelfth fork review, F12-04): same as the single-removal path.
+                if (removedMessageModels != null) {
+                    for (AbstractMessageModel removedMessageModel : removedMessageModels) {
+                        if (removedMessageModel != null) {
+                            abortInFlightOperationsFor(removedMessageModel);
+                        }
                     }
                 }
                 // F1Whisper: same as the single-removal path — keep the pinned banner consistent.
@@ -2134,6 +2164,11 @@ public class ComposeMessageFragment extends Fragment implements
 
             dismissMentionPopup();
             dismissQuotePopup();
+            // F1Whisper (twelfth fork review, F12-04): the share deadline watch must not outlive the fragment
+            // (dismissQuotePopup above already disarmed the quote watch). The pending share itself is left
+            // alone: on a configuration change the restored dialog's confirm finds no pending share and exports
+            // nothing, and the cache-directory temp goes with the cache.
+            pendingShareExpiryWatch.cancel();
 
             if (this.emojiButton != null) {
                 this.emojiButton.detach(this.emojiPicker);
@@ -5113,7 +5148,22 @@ public class ComposeMessageFragment extends Fragment implements
                     fileService.loadDecryptedMessageFiles(selectedMessages, new FileService.OnDecryptedFilesComplete() {
                         @Override
                         public void complete(ArrayList<Uri> uris) {
-                            shareMediaMessages(uris);
+                            // F1Whisper (twelfth fork review, F12-04): the decrypt outlives the selection-time
+                            // expiry check. Revalidate every member at this boundary: whatever expired mid-flight
+                            // is dropped and its decrypted copy deleted; the rest still shares. Nothing left ->
+                            // abort silently (logged) - the export of expired content is what must not happen.
+                            final PendingMediaShare share = PendingMediaShare.of(
+                                new ArrayList<>(selectedMessages),
+                                uris,
+                                DisappearingMessageService::enforceIfExpired,
+                                shareUriDeleter());
+                            if (!share.revalidateForExport()) {
+                                logger.info("Every shareable message expired during decrypt; aborting the share");
+                                share.cancelAndCleanup();
+                                return;
+                            }
+                            messageService.shareMediaMessages(activity, share.models(), share.uris(), null);
+                            share.discardAfterHandoff();
                         }
 
                         @Override
@@ -5136,12 +5186,28 @@ public class ComposeMessageFragment extends Fragment implements
                 fileService.loadDecryptedMessageFile(messageModel, new FileService.OnDecryptedFileComplete() {
                     @Override
                     public void complete(File decryptedFile) {
+                        // F1Whisper (twelfth fork review, F12-04): the decrypt outlives the selection-time
+                        // expiry check. Revalidate at this boundary: expired -> the decrypted copy dies right
+                        // here and nothing is exported or offered a caption dialog.
+                        if (DisappearingMessageService.enforceIfExpired(messageModel)) {
+                            logger.info("Message expired during share decrypt; discarding the decrypted copy");
+                            if (decryptedFile != null && !decryptedFile.delete() && decryptedFile.exists()) {
+                                logger.warn("Could not delete the decrypted copy of an expired share");
+                            }
+                            return;
+                        }
                         if (decryptedFile != null) {
                             String filename = null;
                             if (messageModel.getType() == MessageType.FILE) {
                                 filename = messageModel.getFileData().getFileName();
                             }
-                            shareMediaMessages(Collections.singletonList(fileService.getShareFileUri(decryptedFile, filename)));
+                            showShareCaptionDialog(new PendingMediaShare(
+                                Collections.singletonList(new PendingMediaShare.Member(
+                                    messageModel,
+                                    fileService.getShareFileUri(decryptedFile, filename),
+                                    decryptedFile)),
+                                DisappearingMessageService::enforceIfExpired,
+                                shareUriDeleter()));
                         } else {
                             messageService.shareTextMessage(activity, messageModel);
                         }
@@ -5156,30 +5222,98 @@ public class ComposeMessageFragment extends Fragment implements
         }
     }
 
-    private void shareMediaMessages(List<Uri> uris) {
-        if (selectedMessages.size() == 1) {
-            logger.info("Showing share dialog for {} message(s)", selectedMessages.size());
-            ExpandableTextEntryDialog alertDialog = ExpandableTextEntryDialog.newInstance(
-                getString(R.string.share_media),
-                R.string.add_caption_hint, selectedMessages.get(0).getCaption(),
-                R.string.label_continue, R.string.cancel, true);
-            alertDialog.setData(uris);
-            alertDialog.setTargetFragment(this, 0);
-            alertDialog.show(getParentFragmentManager(), null);
-        } else {
-            messageService.shareMediaMessages(activity,
-                new ArrayList<>(selectedMessages),
-                new ArrayList<>(uris), null);
+    /**
+     * F1Whisper (twelfth fork review, F12-04): opens the caption dialog over a recorded pending share instead of
+     * loose URIs. The share is what the confirm exports (revalidated, see {@link #onYes(String, Object, String)}),
+     * the dialog carries a real tag so expiry or removal can dismiss it, and the expiry watch kills both at the
+     * message's deadline - the decrypted copy must not sit exportable behind an open dialog past it.
+     */
+    private void showShareCaptionDialog(@NonNull PendingMediaShare share) {
+        logger.info("Showing share dialog for 1 message(s)");
+        cancelPendingShare();
+        pendingMediaShare = share;
+        ExpandableTextEntryDialog alertDialog = ExpandableTextEntryDialog.newInstance(
+            getString(R.string.share_media),
+            R.string.add_caption_hint, share.models().get(0).getCaption(),
+            R.string.label_continue, R.string.cancel, true);
+        alertDialog.setData(share.uris());
+        alertDialog.setTargetFragment(this, 0);
+        alertDialog.show(getParentFragmentManager(), DIALOG_TAG_SHARE_CAPTION);
+        pendingShareExpiryWatch.watch(share.models().get(0), this::onPendingShareDeadline);
+    }
+
+    /** The pending share's message expired while the caption dialog was open: dialog and decrypted copy die now. */
+    private void onPendingShareDeadline() {
+        logger.info("The pending share's message expired; dismissing the dialog and deleting the decrypted copy");
+        cancelPendingShare();
+        if (isAdded()) {
+            DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SHARE_CAPTION, true);
         }
+    }
+
+    /** Abandons any pending share: watch disarmed, every decrypted temp copy deleted. */
+    private void cancelPendingShare() {
+        final PendingMediaShare share = pendingMediaShare;
+        pendingMediaShare = null;
+        pendingShareExpiryWatch.cancel();
+        if (share != null) {
+            share.cancelAndCleanup();
+        }
+    }
+
+    /**
+     * F1Whisper (twelfth fork review, F12-04): a removed message takes its in-flight operations with it - the
+     * pending share (caption dialog dismissed, decrypted copies deleted) and the quote popup quoting it.
+     */
+    @UiThread
+    private void abortInFlightOperationsFor(@NonNull AbstractMessageModel removedMessageModel) {
+        final PendingMediaShare share = pendingMediaShare;
+        if (share != null && share.contains(removedMessageModel)) {
+            cancelPendingShare();
+            if (isAdded()) {
+                DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SHARE_CAPTION, true);
+            }
+        }
+        if (isQuotePopupShown()) {
+            final AbstractMessageModel quotedMessageModel = quotePopup.getQuoteInfo().getMessageModel();
+            if (quotedMessageModel != null && PendingMediaShare.isSameMessage(quotedMessageModel, removedMessageModel)) {
+                dismissQuotePopup();
+            }
+        }
+    }
+
+    /** Deletes the decrypted temp copy behind a share URI (androidx FileProvider delete removes the file). */
+    private java.util.function.Consumer<Uri> shareUriDeleter() {
+        return uri -> {
+            try {
+                final Context context = activity != null ? activity : ThreemaApplication.getAppContext();
+                context.getContentResolver().delete(uri, null, null);
+            } catch (Exception e) {
+                logger.warn("Could not delete the decrypted copy behind an expired share URI", e);
+            }
+        };
     }
 
     @Override
     public void onYes(String tag, Object data, String text) {
         logger.info("Sharing dialog confirmed");
-        List<Uri> uris = (List<Uri>) data;
-        messageService.shareMediaMessages(activity,
-            new ArrayList<>(selectedMessages),
-            new ArrayList<>(uris), text);
+        // F1Whisper (twelfth fork review, F12-04): the confirm exports the recorded pending share, revalidated -
+        // never whatever the selection list or the dialog payload holds by now. Expired between the dialog opening
+        // and the confirm -> nothing leaves the device and the decrypted copy is deleted.
+        final PendingMediaShare share = pendingMediaShare;
+        pendingMediaShare = null;
+        pendingShareExpiryWatch.cancel();
+        if (share == null) {
+            logger.info("Share confirmed with no pending share; nothing to export");
+            return;
+        }
+        if (!share.revalidateForExport()) {
+            logger.info("The pending share expired before it was confirmed; nothing leaves the device");
+            share.cancelAndCleanup();
+            return;
+        }
+        messageService.shareMediaMessages(activity, share.models(), share.uris(), text);
+        share.discardAfterHandoff();
     }
 
     @UiThread
@@ -5226,7 +5360,16 @@ public class ComposeMessageFragment extends Fragment implements
         final @NonNull ColorStateList barColorFinal = barColor;
         Runnable showPopup = () -> {
             if (isVisible()) {
+                // F1Whisper (twelfth fork review, F12-04): this runnable fires 150-550 ms after the decision to
+                // quote. Revalidate at the boundary - the composer must not (re)acquire content whose deadline
+                // passed in between - and, once shown, watch the deadline: the popup holds the quoted content and
+                // must die with it instead of outliving it for as long as the user leaves it open.
+                if (DisappearingMessageService.enforceIfExpired(quotedMessageModel)) {
+                    logger.info("Quoted message expired before the quote popup opened; not showing it");
+                    return;
+                }
                 quotePopup.show(activity, messageText, textInputLayout, quotedMessageModel, identity, barColorFinal, quotePopupListener);
+                quotePopupExpiryWatch.watch(quotedMessageModel, this::dismissQuotePopup);
             }
         };
 
@@ -5264,6 +5407,9 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     private void dismissQuotePopup(@Nullable Runnable runAfterQuotePopupClosed) {
+        // F1Whisper (twelfth fork review, F12-04): the deadline watch dies with the popup - or with the attempt
+        // to open one (showQuotePopup dismisses before re-showing, and the new show re-arms).
+        quotePopupExpiryWatch.cancel();
         if (isQuotePopupShown()) {
             try {
                 quotePopup.dismiss();
@@ -6730,6 +6876,11 @@ public class ComposeMessageFragment extends Fragment implements
 
     @Override
     public void onNo(String tag) {
+        // F1Whisper (twelfth fork review, F12-04): cancelling the share caption dialog abandons the share; the
+        // decrypted copy must not linger exportable in the cache directory.
+        if (DIALOG_TAG_SHARE_CAPTION.equals(tag)) {
+            cancelPendingShare();
+        }
     }
 
     //region VoipStatusDataChatListener
@@ -6864,7 +7015,15 @@ public class ComposeMessageFragment extends Fragment implements
             boolean canSendImageReply = isSingleMessage && MessageUtil.canSendImageReply(selectedMessages.get(0));
             boolean canStarMessage = isSingleMessage && MessageUtil.canStarMessage(selectedMessages.get(0));
 
-            if (selectedMessages.stream().anyMatch(AbstractMessageModel::isDeleted)) {
+            // F1Whisper (eleventh fork review, F11-07): an overdue disappearing message collapses the
+            // menu exactly like a deleted one. Its row already binds as the payload-free tombstone, but
+            // the model still carries content until the worker deletion lands, so copy/forward/save/
+            // share/quote/edit here would expose it. Discard stays (removing it early is fine) and Info
+            // stays for a single selection (showMessageDetailScreen re-checks expiry and refuses).
+            // enforceIfExpired is synchronous on the model; nothing is deleted on this thread. This
+            // stream is not a live iterator any listener can invalidate: post-F10-06 the enforcement
+            // never mutates inline, it only schedules the worker.
+            if (selectedMessages.stream().anyMatch(m -> m.isDeleted() || DisappearingMessageService.enforceIfExpired(m))) {
                 if (isSingleMessage) {
                     onlyShowItems(menu, R.id.menu_message_discard, R.id.menu_info);
                 } else {

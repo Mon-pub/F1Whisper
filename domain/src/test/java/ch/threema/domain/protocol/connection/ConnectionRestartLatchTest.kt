@@ -8,23 +8,15 @@ import ch.threema.domain.protocol.connection.csp.socket.CspSocket
 import ch.threema.domain.protocol.connection.csp.socket.SocketFactory
 import ch.threema.domain.protocol.connection.data.CspMessage
 import ch.threema.domain.protocol.connection.data.InboundD2mMessage
-import ch.threema.domain.protocol.connection.data.InboundMessage
 import ch.threema.domain.protocol.connection.layer.AuthLayer
 import ch.threema.domain.protocol.connection.layer.CspFrameLayer
 import ch.threema.domain.protocol.connection.layer.EndToEndLayer
-import ch.threema.domain.protocol.connection.layer.Layer5Codec
 import ch.threema.domain.protocol.connection.layer.MonitoringLayer
 import ch.threema.domain.protocol.connection.layer.MultiplexLayer
 import ch.threema.domain.protocol.connection.layer.ServerConnectionLayers
-import ch.threema.domain.protocol.connection.socket.ServerSocketCloseReason
 import ch.threema.domain.protocol.csp.coders.MessageBox
 import ch.threema.domain.taskmanager.ActiveTaskCodec
 import ch.threema.domain.taskmanager.IncomingMessageProcessor
-import ch.threema.domain.taskmanager.InternalTaskManager
-import ch.threema.domain.taskmanager.QueueSendCompleteListener
-import ch.threema.domain.taskmanager.Task
-import ch.threema.domain.taskmanager.TaskCodec
-import ch.threema.domain.taskmanager.TaskManager
 import java.security.SecureRandom
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -35,8 +27,6 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 
@@ -399,24 +389,5 @@ internal class ConnectionRestartLatchTest {
                 override fun release() = Unit
                 override fun isHeld() = false
             }
-    }
-
-    private class NoopTaskManager : TaskManager, InternalTaskManager {
-        override fun processInboundMessage(message: InboundMessage, lock: ConnectionLock) = Unit
-
-        override suspend fun startRunningTasks(
-            layer5Codec: Layer5Codec,
-            incomingMessageProcessor: IncomingMessageProcessor,
-        ) = Unit
-
-        override suspend fun pauseRunningTasks(closeReason: ServerSocketCloseReason) = Unit
-
-        override fun <R> schedule(task: Task<R, TaskCodec>): Deferred<R> = CompletableDeferred()
-
-        override fun hasPendingTasks(): Boolean = false
-
-        override fun addQueueSendCompleteListener(listener: QueueSendCompleteListener) = Unit
-
-        override fun removeQueueSendCompleteListener(listener: QueueSendCompleteListener) = Unit
     }
 }

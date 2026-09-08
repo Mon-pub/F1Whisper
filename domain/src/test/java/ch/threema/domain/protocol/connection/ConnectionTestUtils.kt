@@ -6,7 +6,10 @@ import ch.threema.domain.protocol.connection.csp.DeviceCookieManager
 import ch.threema.domain.protocol.connection.csp.socket.ChatServerAddressProvider
 import ch.threema.domain.protocol.connection.d2m.MultiDevicePropertyProvider
 import ch.threema.domain.protocol.connection.data.CspMessage
+import ch.threema.domain.protocol.connection.data.InboundMessage
 import ch.threema.domain.protocol.connection.data.OutboundMessage
+import ch.threema.domain.protocol.connection.layer.Layer5Codec
+import ch.threema.domain.protocol.connection.socket.ServerSocketCloseReason
 import ch.threema.domain.protocol.csp.coders.MessageBox
 import ch.threema.domain.protocol.urls.AppRatingUrl
 import ch.threema.domain.protocol.urls.BlobUrl
@@ -14,6 +17,12 @@ import ch.threema.domain.protocol.urls.MapPoiAroundUrl
 import ch.threema.domain.protocol.urls.MapPoiNamesUrl
 import ch.threema.domain.protocol.urls.MediatorUrl
 import ch.threema.domain.stores.IdentityStore
+import ch.threema.domain.taskmanager.IncomingMessageProcessor
+import ch.threema.domain.taskmanager.InternalTaskManager
+import ch.threema.domain.taskmanager.QueueSendCompleteListener
+import ch.threema.domain.taskmanager.Task
+import ch.threema.domain.taskmanager.TaskCodec
+import ch.threema.domain.taskmanager.TaskManager
 import ch.threema.domain.types.IdentityString
 import ch.threema.testhelpers.MUST_NOT_BE_CALLED
 import java.io.InputStream
@@ -23,6 +32,8 @@ import java.io.PipedOutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 import java.net.SocketAddress
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 
 internal class TestIdentityStore : IdentityStore {
     companion object {
@@ -272,4 +283,27 @@ fun getFromOutboundMessage(message: OutboundMessage): MessageBox? {
     } catch (e: Exception) {
         throw AssertionError("Could not parse csp message: " + e.message)
     }
+}
+
+/**
+ * A task manager that does nothing, for connection tests whose subject is the connection lifecycle rather than the
+ * tasks that ride on it. Shared here since the tenth review added a second such test.
+ */
+internal class NoopTaskManager : TaskManager, InternalTaskManager {
+    override fun processInboundMessage(message: InboundMessage, lock: ConnectionLock) = Unit
+
+    override suspend fun startRunningTasks(
+        layer5Codec: Layer5Codec,
+        incomingMessageProcessor: IncomingMessageProcessor,
+    ) = Unit
+
+    override suspend fun pauseRunningTasks(closeReason: ServerSocketCloseReason) = Unit
+
+    override fun <R> schedule(task: Task<R, TaskCodec>): Deferred<R> = CompletableDeferred()
+
+    override fun hasPendingTasks(): Boolean = false
+
+    override fun addQueueSendCompleteListener(listener: QueueSendCompleteListener) = Unit
+
+    override fun removeQueueSendCompleteListener(listener: QueueSendCompleteListener) = Unit
 }

@@ -9,7 +9,7 @@ import java.util.Set;
  * plays exactly once over the FULL bubble and the bubble only collapses to the small "expired" note
  * AFTER the burst finishes — regardless of how many re-renders the burn fires.
  *
- * <p>Two states per message id:</p>
+ * <p>Two states per message:</p>
  * <ul>
  *   <li><b>pending</b>: set by {@link AudioMessagePlayer} the moment the message burns; consumed
  *   (check-and-remove) by the first burned bind, which then starts the burst.</li>
@@ -21,40 +21,45 @@ import java.util.Set;
  *
  * <p>Both sets are in-memory only: after a process death / chat reopen they are empty, so a
  * previously-burned message just shows the collapsed note with NO animation.</p>
+ *
+ * <p>F1Whisper (twelfth fork review, F12-01): keyed by {@link ListenOnceMessageIdentity}, not the
+ * table-local integer row id — equal ids across the contact/group/distribution-list tables are
+ * normal, and an integer key played the burst (or froze the collapse) on an unrelated bubble that
+ * happened to share the number.</p>
  */
 public final class ListenOnceBurnRegistry {
 
-    private static final Set<Integer> pending = Collections.synchronizedSet(new HashSet<>());
-    private static final Set<Integer> burning = Collections.synchronizedSet(new HashSet<>());
+    private static final Set<ListenOnceMessageIdentity> pending = Collections.synchronizedSet(new HashSet<>());
+    private static final Set<ListenOnceMessageIdentity> burning = Collections.synchronizedSet(new HashSet<>());
 
     private ListenOnceBurnRegistry() {
     }
 
-    /** Mark that the given message id just burned and its bubble should play the burst once. */
-    public static void markForBurnAnimation(int messageId) {
-        pending.add(messageId);
+    /** Mark that the given message just burned and its bubble should play the burst once. */
+    public static void markForBurnAnimation(ListenOnceMessageIdentity identity) {
+        pending.add(identity);
     }
 
     /**
-     * @return {@code true} exactly once per {@link #markForBurnAnimation(int)} call: the first burned
+     * @return {@code true} exactly once per {@link #markForBurnAnimation} call: the first burned
      * bind consumes the signal so the burst is started a single time (and never on reopen / scroll).
      */
-    public static boolean consumeBurnAnimation(int messageId) {
-        return pending.remove(messageId);
+    public static boolean consumeBurnAnimation(ListenOnceMessageIdentity identity) {
+        return pending.remove(identity);
     }
 
-    /** @return {@code true} while the burst animation for this id is running. */
-    public static boolean isBurning(int messageId) {
-        return burning.contains(messageId);
+    /** @return {@code true} while the burst animation for this message is running. */
+    public static boolean isBurning(ListenOnceMessageIdentity identity) {
+        return burning.contains(identity);
     }
 
     /** Mark the burst as running (keeps the bubble full and uncollapsed until it ends). */
-    public static void setBurning(int messageId) {
-        burning.add(messageId);
+    public static void setBurning(ListenOnceMessageIdentity identity) {
+        burning.add(identity);
     }
 
     /** Clear the running state when the burst ends, allowing the bubble to collapse to the note. */
-    public static void clearBurning(int messageId) {
-        burning.remove(messageId);
+    public static void clearBurning(ListenOnceMessageIdentity identity) {
+        burning.remove(identity);
     }
 }

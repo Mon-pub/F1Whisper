@@ -149,6 +149,91 @@ class MediaMetadataWriteTest {
         )
     }
 
+    // -----------------------------------------------------------------------------------------------------------------------------
+    // F12-02: the consuming write's outcome classification, per return site.
+    // -----------------------------------------------------------------------------------------------------------------------------
+
+    @Test
+    fun `each return site of the write names its own durable outcome`() {
+        // The listen-once settlement decides from these (ListenOnceSettlementDecision, executed in
+        // ListenOnceBurnBarrierTest with mocks speaking this discriminated language); what must hold HERE is that the
+        // real loop's return sites classify truthfully. The loop itself needs the database service graph, so the
+        // classification is pinned where it lives, one assertion per situation.
+        val body = bodyOf(messageServiceImpl.readText(), "private MediaConsumeOutcome writeMediaMetadata(")
+
+        // An unreadable row: the raw read's failure propagates and is caught as INDETERMINATE, never folded into null.
+        assertTrue(
+            body.contains("current = readPersistedRow(messageModel);"),
+            "the consuming write must use the read that keeps absence and unreadability apart",
+        )
+        val unreadableAt = body.indexOf("its row is unreadable")
+        assertTrue(
+            unreadableAt in 0 until body.indexOf("MediaConsumeOutcome.INDETERMINATE", unreadableAt) &&
+                body.indexOf("MediaConsumeOutcome.INDETERMINATE", unreadableAt) < body.indexOf("if (current == null)"),
+            "a read failure is INDETERMINATE: nothing durable is known about the row",
+        )
+
+        // An absent row and a delete-for-everyone tombstone are both ROW_GONE.
+        val goneAt = body.indexOf("its row is gone")
+        assertTrue(
+            goneAt >= 0 && body.indexOf("MediaConsumeOutcome.ROW_GONE", goneAt) in 0 until body.indexOf("isDeletedForEveryone"),
+            "a confirmed-absent row is ROW_GONE",
+        )
+        val deletedAt = body.indexOf("deleted for everyone")
+        assertTrue(
+            deletedAt >= 0 && body.indexOf("MediaConsumeOutcome.ROW_GONE", deletedAt) >= 0,
+            "a delete-for-everyone tombstone is ROW_GONE to this writer",
+        )
+
+        // A throwing mutation and the exhausted retry loop are INDETERMINATE.
+        val mutationFailedAt = body.indexOf("A media-metadata mutation failed")
+        assertTrue(
+            mutationFailedAt >= 0 && body.indexOf("MediaConsumeOutcome.INDETERMINATE", mutationFailedAt) >= 0,
+            "a throwing mutation wrote nothing durable",
+        )
+        val gaveUpAt = body.indexOf("Gave up writing media metadata")
+        assertTrue(
+            gaveUpAt >= 0 && body.indexOf("MediaConsumeOutcome.INDETERMINATE", gaveUpAt) >= 0,
+            "an exhausted conditional retry loop wrote nothing durable",
+        )
+
+        // The applied write is the only APPLIED.
+        assertTrue(body.contains("return MediaConsumeOutcome.APPLIED;"))
+    }
+
+    @Test
+    fun `a terminal decline reconciles the caller's instance before reporting terminal`() {
+        // ALREADY_TERMINAL lets the listen-once settlement lower the replay barrier, and admission decides from the
+        // INSTANCE the player holds (the fail-open path holds one whose claim write never landed). So the decline
+        // must adopt the persisted body into that instance - on the consuming path only; the claim path's decline
+        // keeps its F5-04 shape.
+        val body = bodyOf(messageServiceImpl.readText(), "private MediaConsumeOutcome writeMediaMetadata(")
+        val declineAt = body.indexOf("if (!changed) {")
+        val terminalAt = body.indexOf("return MediaConsumeOutcome.ALREADY_TERMINAL;")
+        assertTrue(declineAt in 0 until terminalAt, "the decline must be the site that reports ALREADY_TERMINAL")
+        val declineBlock = body.substring(declineAt, terminalAt)
+        assertTrue(
+            declineBlock.contains("if (consume) {") &&
+                declineBlock.contains("messageModel.adoptPersistedBody(current.getBody());"),
+            "the consuming decline must make the caller's instance agree with the terminal row before reporting it",
+        )
+    }
+
+    @Test
+    fun `the raw row read lets a database error propagate instead of folding it into null`() {
+        val body = bodyOf(messageServiceImpl.readText(), "private AbstractMessageModel readPersistedRow(")
+        assertFalse(
+            body.contains("catch"),
+            "readPersistedRow exists precisely because reloadPersistedModel folds errors into null; catching here " +
+                "would rebuild the fold the consuming write cannot accept",
+        )
+        val reloadBody = bodyOf(messageServiceImpl.readText(), "private AbstractMessageModel reloadPersistedModel(")
+        assertTrue(
+            reloadBody.contains("readPersistedRow(") && reloadBody.contains("catch"),
+            "and the folding variant must delegate to the raw read, so there is one instanceof chain to maintain",
+        )
+    }
+
     /** The text from [signature] to the end of its body, matched by brace depth, so one method's assertion cannot be satisfied by another's. */
     private fun bodyOf(source: String, signature: String): String {
         val start = source.indexOf(signature)

@@ -8,8 +8,10 @@ import ch.threema.app.ThreemaApplication
 import ch.threema.app.managers.ServiceManager
 import ch.threema.app.messagereceiver.MessageReceiver
 import ch.threema.app.receivers.DisappearingMessageAlarmReceiver
+import ch.threema.app.utils.RuntimeUtil
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.storage.models.AbstractMessageModel
+import ch.threema.storage.models.ConversationModel
 import ch.threema.storage.models.MessageType
 import ch.threema.storage.models.ballot.BallotModel
 import ch.threema.storage.models.group.GroupMessageModel
@@ -75,6 +77,31 @@ class DisappearingMessageService private constructor() {
         @JvmStatic
         fun enforceIfExpired(model: AbstractMessageModel): Boolean =
             getInstance().enforceIfExpiredInternal(model)
+
+        /**
+         * F1Whisper (eleventh fork review, F11-07): the conversation-list half of the presentation fix.
+         *
+         * The `getAll` sweep used to enforce expiry on each conversation's latest message and then return
+         * the cached list unchanged, so while the worker deletion was still pending (or had failed) the
+         * conversation row kept showing the expired message as its preview. This nulls the cached
+         * [ConversationModel.latestMessage] the moment the synchronous decision says "gone": every preview
+         * consumer already handles a null latest message (an empty conversation renders the same way), and
+         * when the durable delete lands the listener-driven refresh re-derives the true latest message.
+         * Only the in-memory preview is touched; the removal itself stays asynchronous and conditional.
+         *
+         * Called from `ConversationServiceImpl.getAll` through `ExpirySweep.collectThenEnforce`, i.e. never
+         * while an iterator over the conversation cache is live (see the [ExpirySweep] Javadoc). A field
+         * write on the conversation is not a structural modification of the cache list, but the listener
+         * dispatch a deletion can trigger IS, so the traversal rule still applies to this method.
+         */
+        @AnyThread
+        @JvmStatic
+        fun sweepConversationPreview(conversation: ConversationModel) {
+            val latest = conversation.latestMessage ?: return
+            if (enforceIfExpired(latest)) {
+                conversation.latestMessage = null
+            }
+        }
 
         /**
          * Freeze the SHARED per-conversation disappearing timer onto [model] at creation time.
@@ -686,51 +713,106 @@ class DisappearingMessageService private constructor() {
     // -------------------------------------------------------------------------
 
     /**
-     * F1Whisper: the funnel runs on whatever thread is about to put the row in front of the user, main thread included,
-     * because every caller needs the answer BEFORE it draws. A synchronous boolean is the entire contract: hand the work
-     * to a worker and the expired message is rendered first and removed afterwards, which is the leak this funnel exists
-     * to prevent.
+     * F1Whisper (tenth fork review, F10-06): answer the PRESENTATION question here and now, and do the durable work
+     * somewhere else.
      *
-     * `@WorkerThread` on the callees is therefore a preference here, not a requirement: what they do is one conditional
-     * row update and one delete against a thread-safe SQLite handle. Suppressed at the boundary, deliberately NOT added
-     * to `lint-baseline-onprem.xml`, so the exception stays next to the reason for it instead of in an 8 MB file nobody
-     * reads.
+     * **The defect this removes.** This used to be one synchronous method that computed the answer AND performed the
+     * removal, on whatever thread was about to draw the row - the UI thread, from an Activity's initialisation, from
+     * user-interface actions, and from adapters that posted the enforcement back to the main looper. The full lint gate
+     * called that out as `WrongThread` and it was suppressed rather than fixed, on the stated grounds that the work is
+     * "one conditional row update and one delete". It is not: [repairMissingDeadline] does a lookup, an update and a
+     * reload, and the deletion runs `MessageService.removeIfStillDue`, which performs SQL, cache reconciliation,
+     * pending-send cancellation, filesystem removal and synchronous listener dispatch, and can take an entire ballot
+     * aggregate with it. On a build that was reporting ANRs, that is a liveness risk regardless of whether any
+     * particular ANR is attributable to it.
+     *
+     * **Why the boolean can still be synchronous.** The two questions were never actually coupled. "Must I withhold
+     * this content" is decided entirely from the model in memory - [isExpired] applies the same expiry arithmetic,
+     * including deriving a missing deadline from the frozen timer - and only "remove it from disk" needs the database.
+     * So the caller still gets its answer before it draws, and nothing expired is rendered for a frame; what moved is
+     * the removal.
+     *
+     * That also removes an inversion the adapters had adopted: they already used the pure predicate to hide the row and
+     * then posted the durable enforcement to the MAIN looper, so the disk work ran on the UI thread by construction.
+     * They now call this directly.
+     *
+     * **What is deliberately unchanged.** The removal stays database-authoritative: the worker re-reads and claims
+     * through the conditional delete, so a row whose timer was turned off or whose deadline moved between this decision
+     * and the write survives. A model that merely LOOKS expired to a stale UI snapshot therefore cannot destroy
+     * anything; failing closed for presentation and failing safe for deletion are two different tolerances, and this
+     * split is what lets each have the one it needs.
+     *
+     * @return whether the caller must treat this message as gone. Scheduling is best-effort and deduplicated; the
+     *   answer does not depend on it.
      */
-    @Suppress("WrongThread")
     @AnyThread
     private fun enforceIfExpiredInternal(model: AbstractMessageModel): Boolean {
-        try {
-            // 1. Only act on messages with a started countdown.
-            if (model.expireStartedAt == null) return false
-
-            // 2. Lazily compute expiresAt if missing (repair path).
-            if (model.expiresAt == null && !repairMissingDeadline(model)) {
-                return false
-            }
-
-            // 3. Check if expired.
-            val now = System.currentTimeMillis()
-            val expiresAt = model.expiresAt ?: return false
-            if (expiresAt > now) return false
-
-            // 4. Guard against double-delete.
-            val uid = model.uid ?: return false
-            if (!inFlight.add(uid)) return false
-
-            // 5. Hard delete - claimed, so a row that stopped being due between step 3 and here survives.
-            try {
-                val serviceManager = ThreemaApplication.getServiceManager() ?: return false
-                if (!deleteExpiredMessage(serviceManager, serviceManager.messageService, model, now)) {
-                    return false
-                }
-                logger.info("Disappearing enforceIfExpired: deleted uid={}", uid)
-                return true
-            } finally {
-                inFlight.remove(uid)
-            }
+        val expired = try {
+            isExpired(model)
         } catch (e: Exception) {
             logger.error("enforceIfExpired: unexpected error for uid={}", model.uid, e)
             return false
+        }
+        if (expired) {
+            enqueueExpiryEnforcement(model)
+        }
+        return expired
+    }
+
+    /**
+     * F1Whisper (tenth fork review, F10-06): schedule the durable removal of an expired row on a worker.
+     *
+     * The in-flight set is what keeps a list that binds the same expired row on every frame from scheduling a worker
+     * per bind; it is claimed BEFORE the hop and released after the work, so it now bounds scheduling as well as
+     * concurrent deletion.
+     */
+    @AnyThread
+    private fun enqueueExpiryEnforcement(model: AbstractMessageModel) {
+        val uid = model.uid ?: return
+        if (!inFlight.add(uid)) {
+            return
+        }
+        try {
+            RuntimeUtil.runOnWorkerThread {
+                try {
+                    enforceExpiredOnWorker(model, uid)
+                } finally {
+                    inFlight.remove(uid)
+                }
+            }
+        } catch (e: Exception) {
+            // Never leave the uid claimed by a hop that did not happen, or this message could never be enforced again.
+            inFlight.remove(uid)
+            logger.error("enforceIfExpired: could not schedule enforcement for uid={}", uid, e)
+        }
+    }
+
+    /**
+     * F1Whisper (tenth fork review, F10-06): the durable half. Everything here touches the database, the filesystem or
+     * the listeners, which is precisely why it is no longer on the caller's thread.
+     */
+    @WorkerThread
+    private fun enforceExpiredOnWorker(model: AbstractMessageModel, uid: String) {
+        try {
+            // The deadline is re-derived here rather than trusted from the presentation decision: repairing it is a
+            // write, and the claim below compares against what is actually on the row.
+            if (model.expiresAt == null && !repairMissingDeadline(model)) {
+                return
+            }
+            val now = System.currentTimeMillis()
+            val expiresAt = model.expiresAt ?: return
+            if (expiresAt > now) {
+                // The row was repaired to a deadline that has not arrived. Presentation failed closed on the in-memory
+                // arithmetic, which is the safe direction; the row itself is not due and must not be removed.
+                logger.debug("Disappearing enforceIfExpired: uid={} is not due after repair; left alone", uid)
+                return
+            }
+            val serviceManager = ThreemaApplication.getServiceManager() ?: return
+            if (deleteExpiredMessage(serviceManager, serviceManager.messageService, model, now)) {
+                logger.info("Disappearing enforceIfExpired: deleted uid={}", uid)
+            }
+        } catch (e: Exception) {
+            logger.error("enforceIfExpired: unexpected error for uid={}", uid, e)
         }
     }
 
@@ -750,8 +832,7 @@ class DisappearingMessageService private constructor() {
      *
      * @return whether [model] now carries a deadline that current state agrees with.
      */
-    @Suppress("WrongThread") // reached only from the funnel above, which explains why this runs on the calling thread
-    @AnyThread
+    @WorkerThread
     private fun repairMissingDeadline(model: AbstractMessageModel): Boolean {
         val db = ThreemaApplication.getServiceManager()?.databaseService ?: return false
         val timerSecs = model.disappearingTimerSeconds ?: return false

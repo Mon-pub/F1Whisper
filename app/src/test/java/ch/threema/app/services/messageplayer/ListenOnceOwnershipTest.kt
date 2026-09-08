@@ -37,8 +37,9 @@ import kotlin.test.assertTrue
  * device. The ownership rule they consult is what is pinned here, plus the fact that both repair sites consult it.
  */
 class ListenOnceOwnershipTest {
-    private val messageId = 42
-    private val otherMessageId = 43
+    // F1Whisper (twelfth fork review, F12-01): the registry keys by stable identity, so the tests do too.
+    private val messageId = ListenOnceMessageIdentity.of(ch.threema.storage.models.MessageModel().apply { id = 42 })
+    private val otherMessageId = ListenOnceMessageIdentity.of(ch.threema.storage.models.MessageModel().apply { id = 43 })
 
     private val player = File("src/main/java/ch/threema/app/services/messageplayer/AudioMessagePlayer.java")
     private val decorator = File("src/main/java/ch/threema/app/adapters/decorators/AudioChatAdapterDecorator.java")
@@ -50,7 +51,7 @@ class ListenOnceOwnershipTest {
     fun tearDown() = ListenOnceOwnership.forgetAll()
 
     /** The repair rule as both sites now apply it: burn only a claim that nothing is actively playing. */
-    private fun wouldRepairBurn(messageId: Int, isClaimed: Boolean, isConsumed: Boolean): Boolean {
+    private fun wouldRepairBurn(messageId: ListenOnceMessageIdentity, isClaimed: Boolean, isConsumed: Boolean): Boolean {
         val gate = ListenOnceDecision.evaluate(
             isOutbox = false,
             isFileMessage = true,

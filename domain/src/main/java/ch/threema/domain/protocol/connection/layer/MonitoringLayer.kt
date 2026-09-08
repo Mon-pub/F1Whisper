@@ -66,7 +66,9 @@ internal class MonitoringLayer(
     private var stopped = false
 
     init {
-        CoroutineScope(controller.dispatcher.coroutineContext).launch {
+        // F1Whisper (tenth fork review, F10-02): owned by the attempt. Both waiters park on a deferred that a
+        // superseded attempt may never complete, so without an owner they were unreachable for the rest of the process.
+        controller.dispatcher.scope.launch {
             launch {
                 controller.cspAuthenticated.await()
                 startMonitoring()

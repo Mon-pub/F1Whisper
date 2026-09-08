@@ -1457,4 +1457,5 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
     <string name="connectivity_probe_label_hints">További jelzések</string>
     <string name="connectivity_probe_hint_middlebox">Gyors kapcsolat, de lassú titkosított kézfogás — ez arra utal, hogy egy átlátszó proxy vagy forgalomalakító eszköz avatkozik be a kapcsolatba.</string>
     <string name="connectivity_probe_hint_port53">Az eszköz DNS-lekérdezése gyanúsan gyorsan válaszolt, miközben minden más lassú volt — ez arra utal, hogy ez a hálózat elfogja a DNS-lekérdezéseket.</string>
+    <string name="rogue_device_warning"><![CDATA[Kapcsolódást észleltünk egy másik eszközről ugyanazzal a(z) ${app_name_short}-azonosítóval. Használta mostanában a(z) ${app_name_short}-azonosítóját egy másik eszközön? <br><br> Ha igen, figyelmen kívül hagyhatja ezt az üzenetet. <br><br> Ha nem, akkor a titkos kulcsa illetéktelen kezekbe kerülhetett. Kérjük, <a href="https://threema.com/faq/another_connection">kövesse a javaslatainkat</a> az eszköze és az adatai védelme érdekében, mielőtt új azonosítót hozna létre.]]></string>
 </resources>

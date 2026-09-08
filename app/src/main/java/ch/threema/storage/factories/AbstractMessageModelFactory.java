@@ -584,6 +584,81 @@ abstract class AbstractMessageModelFactory extends ModelFactory {
     }
 
     /**
+     * F1Whisper (tenth fork review, F10-01): the ONE definition of "a row the expiry engine may still act on".
+     *
+     * <p><b>The defect this removes.</b> The readers and the claim disagreed. {@link #deleteIfStillDueSql(String)} has
+     * required {@code deletedAtUtc IS NULL} and a positive timer since F5-04, but the due, earliest-deadline and repair
+     * readers selected on {@code expiresAtUtc} alone. A message deleted for everyone keeps its timer and its deadline -
+     * the tombstone is the row, only the body is gone - so it stayed in every reader's result set and could never leave
+     * it: the alarm read it as due, the claim refused it, the alarm re-armed from the same past deadline, and the cycle
+     * repeated as fast as {@code AlarmManager} would deliver. One reporting device fired that loop 13,256 times over
+     * roughly 20 hours, about five seconds apart, with no deletion progress between firings.</p>
+     *
+     * <p><b>Why it is a query fix and not a migration.</b> Every v6.4.3-38 database already contains these tombstones.
+     * Clearing timer fields when a NEW tombstone is written would leave the existing ones looping forever, so the
+     * correction has to be in what the readers select, where it repairs installed databases the moment the new build
+     * runs. Nothing is rewritten and no row is touched.</p>
+     *
+     * <p>Aligning the readers with the claim also removes the other no-progress shapes the broad predicate admitted: a
+     * deadline with no countdown start, and a deadline left behind by a timer that was since turned off. The claim
+     * refuses both, so both were re-armable forever for the same reason.</p>
+     *
+     * <p>This is the selection for a row whose countdown is running and whose deadline is known. The claim adds the
+     * caller's exact start/deadline values and due-ness on top; see {@link #deleteIfStillDueSql(String)}.</p>
+     */
+    static String pendingExpirySelection() {
+        return NOT_SOFT_DELETED
+            + " AND `" + AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` > 0"
+            + " AND `" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + "` IS NOT NULL"
+            + " AND `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` IS NOT NULL";
+    }
+
+    /**
+     * F1Whisper (tenth fork review, F10-01): the selection the sweep uses, {@code now} bound as the single argument.
+     *
+     * <p>Composed here rather than at each call site so the two tables and the executable test all drive one string. A
+     * re-assembled copy is exactly how the readers drifted from the claim in the first place.</p>
+     */
+    static String expiredBeforeSelection() {
+        return pendingExpirySelection() + " AND `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` <= ?";
+    }
+
+    /**
+     * F1Whisper (tenth fork review, F10-01): the whole earliest-deadline query for {@code tableName}.
+     *
+     * <p>Its {@code WHERE} is {@link #pendingExpirySelection()}, so the alarm can only ever be armed at a deadline the
+     * claim is able to act on. That equivalence is the fix: the alarm used to re-arm at a past deadline the claim
+     * refused, which is a loop rather than a delay.</p>
+     */
+    static String earliestExpirySql(String tableName) {
+        return "SELECT MIN(`" + AbstractMessageModel.COLUMN_EXPIRES_AT + "`) FROM `" + tableName + "`"
+            + " WHERE " + pendingExpirySelection();
+    }
+
+    /**
+     * F1Whisper (tenth fork review, F10-01): the selection for a row whose countdown can never reach a deadline on its
+     * own, and which the bounded startup repair pass may therefore stamp one onto.
+     *
+     * <p>Shares the tombstone exclusion and the positive-timer requirement with {@link #pendingExpirySelection()}, and
+     * differs only in the broken shape it looks for. The tombstone exclusion matters here for a second reason: the scan
+     * is ordered by id and capped at {@code REPAIR_SCAN_LIMIT}, so a thousand low-id tombstones could fill every launch's
+     * batch and permanently starve the valid rows behind them of the deadline they are waiting for. The conditional
+     * writer already refused to repair a tombstone, so this never wrote anything wrong - it merely spent the whole budget
+     * on rows it was going to refuse.</p>
+     */
+    static String repairableExpirySelection() {
+        return NOT_SOFT_DELETED
+            + " AND `" + AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` > 0"
+            + " AND ("
+            + "(`" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + "` IS NOT NULL"
+            + " AND `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` IS NULL)"
+            + " OR (`" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + "` IS NULL"
+            + " AND `" + AbstractMessageModel.COLUMN_IS_READ + "` = 1"
+            + " AND `" + AbstractMessageModel.COLUMN_OUTBOX + "` = 0)"
+            + ")";
+    }
+
+    /**
      * F1Whisper (fifth fork review, F5-04): the SQL that CLAIMS an expired row by deleting it, for {@code tableName}.
      *
      * <p>Package-visible and built here so the executable test drives the exact statement that ships.</p>

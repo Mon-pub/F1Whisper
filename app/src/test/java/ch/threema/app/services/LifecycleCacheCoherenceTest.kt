@@ -495,16 +495,9 @@ class LifecycleCacheCoherenceTest {
         )
     }
 
-    private fun applyGroupReceipt(from: AbstractMessageModel, identity: String, state: MessageState): Boolean {
-        val current = harness.readModel(GROUP_TABLE, from.id) as? GroupMessageModel ?: return false
-        val prior = MessageLifecycleUpdates.serialiseGroupMessageStates(current.groupMessageStates)
-        val merged = MessageLifecycleUpdates.mergeGroupReceipt(current.groupMessageStates, identity, state) ?: return false
-        return harness.apply(
-            GROUP_TABLE,
-            from.id,
-            MessageLifecycleUpdates.groupReceipt(MessageLifecycleUpdates.serialiseGroupMessageStates(merged), prior),
-        )
-    }
+    /** RB-01: the shared shipped-flow replica - raw stored text as the condition, merge parsed from those bytes. */
+    private fun applyGroupReceipt(from: AbstractMessageModel, identity: String, state: MessageState): Boolean =
+        harness.applyGroupReceipt(from.id, identity, state)
 
     private fun toggleDisplayTag(from: AbstractMessageModel, tag: Int): Boolean = writeDisplayTag(from, tag, toggle = true)
 

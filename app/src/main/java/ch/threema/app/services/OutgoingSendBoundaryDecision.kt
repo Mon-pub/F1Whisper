@@ -59,4 +59,78 @@ object OutgoingSendBoundaryDecision {
     @JvmStatic
     fun completesLocally(hasNoOtherMembers: Boolean, hasPendingRemoteCompletion: Boolean): Boolean =
         hasNoOtherMembers && !hasPendingRemoteCompletion
+
+    /**
+     * F1Whisper (tenth fork review, F10-03): whether a completion that ACTUALLY APPLIED has proved enough for the
+     * sender to burn its own listen-once copy.
+     *
+     * **The defect.** The burn lived in `updateOutgoingMessageState`, the wrapper. F5-02/F5-06 correctly moved group
+     * completion off premature queue dispatch and onto real CSP/reflection acceptance, and the corrected group path
+     * calls the lower-level transition directly so it can persist state, server timestamp, forward-security mode and
+     * countdown as one write. Correct in itself, and it stepped straight past the wrapper-only side effect: in the
+     * supplied trace, group message 3474 was reflected, acknowledged by every recipient, and then played back by its
+     * own sender. The 1:1 control in the same log burned as intended.
+     *
+     * **Why the state cannot answer this for a group.** [MessageState.FS_KEY_MISMATCH] deliberately does not satisfy
+     * [OutgoingClockDecision.hasLeftTheDevice], and it cannot distinguish a send that reached some members from one
+     * that reached none: it means "at least one rejection", not "no acceptance". Nor can `SENT` distinguish them, since
+     * a send to recipients who were all filtered out reports the same state as one that reached everybody. So the
+     * decision takes counts, not a state: it burns when at least one remote recipient actually accepted the payload,
+     * and keeps the sender copy when none did.
+     *
+     * **Notes groups keep their own rule.** A group with no other members has no remote recipient to wait for, so
+     * reaching its completion IS the boundary - and that completion already carries multi-device: the send steps call
+     * `storeSentAt` only after the sent-update reflection has been acknowledged, so a multi-device notes message
+     * reaches here after reflection and a local-only one after its durable local completion. An unsent draft reaches
+     * neither.
+     *
+     * No Android imports, so the rule is unit-testable without a device.
+     */
+    @JvmStatic
+    fun burnsSenderCopy(state: MessageState?, evidence: OutgoingSendEvidence): Boolean {
+        if (!evidence.isGroupSend) {
+            return OutgoingClockDecision.hasLeftTheDevice(state)
+        }
+        if (evidence.intendedRemoteRecipients == 0) {
+            return true
+        }
+        return evidence.acceptedRemoteRecipients > 0
+    }
+}
+
+/**
+ * F1Whisper (tenth fork review, F10-03): what a completed outgoing send actually achieved, as opposed to what its
+ * [MessageState] is called.
+ *
+ * Deliberately counts rather than flags. "Some recipients rejected" and "no recipient accepted" are different facts,
+ * only the second of them keeps the sender's copy, and no single state distinguishes them.
+ */
+class OutgoingSendEvidence private constructor(
+    val isGroupSend: Boolean,
+    val intendedRemoteRecipients: Int,
+    val acceptedRemoteRecipients: Int,
+) {
+    companion object {
+        /**
+         * A 1:1 send, whose completion the state already answers on its own: there is exactly one recipient, and the
+         * task's own completion is what records the state.
+         */
+        @JvmStatic
+        fun contactSend(): OutgoingSendEvidence =
+            OutgoingSendEvidence(isGroupSend = false, intendedRemoteRecipients = 1, acceptedRemoteRecipients = 1)
+
+        /**
+         * @param intendedRemoteRecipients the recipient set the send was directed at. Zero means a notes group, the
+         *   same predicate the completion uses to choose [MessageState.READ].
+         * @param acceptedRemoteRecipients how many of them the server acknowledged. Recipients that were filtered out
+         *   before anything was sent, for instance because they are blocked, count as intended and not accepted.
+         */
+        @JvmStatic
+        fun groupSend(intendedRemoteRecipients: Int, acceptedRemoteRecipients: Int): OutgoingSendEvidence =
+            OutgoingSendEvidence(
+                isGroupSend = true,
+                intendedRemoteRecipients = intendedRemoteRecipients,
+                acceptedRemoteRecipients = acceptedRemoteRecipients,
+            )
+    }
 }

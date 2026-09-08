@@ -241,10 +241,17 @@ public class ConversationServiceImpl implements ConversationService {
             // helps: the mutation arrives on the SAME thread and intrinsic locks are reentrant.
             // Nor would a try/catch — the exception is thrown afterwards by our own iterator, not
             // by #enforceIfExpired. See the ExpirySweep Javadoc for the full reasoning.
+            //
+            // F1Whisper (eleventh fork review, F11-07): the sweep extracts the CONVERSATION (a pure
+            // read; a null latestMessage skips it) and the enforce phase runs
+            // #sweepConversationPreview, which nulls the cached latestMessage the moment the
+            // synchronous decision says the message is gone. Without that, the list returned below
+            // kept showing the expired message as the conversation preview for as long as the
+            // worker deletion was delayed or failing. The removal itself stays on the worker.
             ExpirySweep.collectThenEnforce(
                 this.conversationCache,
-                conv -> conv.latestMessage,
-                DisappearingMessageService::enforceIfExpired
+                conv -> conv.latestMessage != null ? conv : null,
+                DisappearingMessageService::sweepConversationPreview
             );
 
             if (filter != null) {

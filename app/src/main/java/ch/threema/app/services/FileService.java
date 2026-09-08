@@ -72,6 +72,17 @@ public interface FileService {
     boolean removeMessageFiles(@NonNull String messageUid, boolean withThumbnails);
 
     /**
+     * F1Whisper (twelfth fork review, F12-02): whether an encrypted media file for this message is still stored.
+     *
+     * <p>{@link #removeMessageFiles} answers "did I delete something", which is {@code false} BOTH when the file was
+     * already gone (nothing left to protect) and when the deletion failed (decryptable media remains). The listen-once
+     * settlement needs the fact itself: a replay barrier for a row that is gone may only come down once no decryptable
+     * media remains, so it asks this after the removal attempt instead of guessing from the removal's answer. A model
+     * that was never persisted (no UID) has no stored media.</p>
+     */
+    boolean hasPersistedMessageMedia(@Nullable AbstractMessageModel messageModel);
+
+    /**
      * return a decrypted file from a message
      * null if the message or file does not exist
      */

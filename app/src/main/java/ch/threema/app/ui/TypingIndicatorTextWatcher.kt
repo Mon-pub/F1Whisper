@@ -72,11 +72,19 @@ private class TypingIndicatorSendManager(
     }
 
     /**
-     * Observes the typing state flow and sends a corresponding typing indicator when it changes. Note that the initial state (not-typing) is skipped
-     * as we do not need to send a message in that case.
+     * Observes the typing state flow and sends a typing indicator whenever it changes. Note that the initial state
+     * (not-typing) is skipped as we do not need to send a message in that case.
+     *
+     * F1Whisper: BOTH transitions are still reported, including the end of a burst. The stop is not put on the wire -
+     * `TypingIndicatorAdmission` drops it - but the admission gate has to learn that composing ended, because that is
+     * what cancels a start it coalesced. Suppressing the report here instead of the wire message left a coalesced
+     * start alive past the send that should have killed it, so the peer's indicator came back on after the message
+     * had already cleared it.
      */
     private suspend fun observeIsTypingStateFlow() {
-        isTypingStateFlow.drop(1).collect { isTyping -> sendTypingIndicator(isTyping) }
+        isTypingStateFlow.drop(1).collect { isTyping ->
+            sendTypingIndicator(isTyping)
+        }
     }
 
     /**

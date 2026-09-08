@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -24,6 +25,7 @@ import java.util.Map;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.media3.session.MediaController;
 import ch.threema.app.R;
@@ -320,14 +322,20 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
             return;
         }
 
-        // F1Whisper: belt-and-suspenders disappearing-messages enforcement at decorate time. As in
-        // ComposeMessageAdapter.getView, this runs during the bind/layout pass, so we only CHECK here
-        // (pure predicate) and DEFER the hard-delete to after layout via a main-thread post — deleting
-        // inline would mutate the adapter's backing list mid-bind and crash the neighbor reads.
-        if (ch.threema.app.services.DisappearingMessageService.isExpired(getMessageModel())) {
-            final ch.threema.storage.models.AbstractMessageModel doomed = getMessageModel();
-            new android.os.Handler(android.os.Looper.getMainLooper())
-                .post(() -> ch.threema.app.services.DisappearingMessageService.enforceIfExpired(doomed));
+        final @NonNull ComposeMessageHolder viewHolder = (ComposeMessageHolder) abstractViewHolder;
+
+        // F1Whisper (eleventh fork review, F11-07): the second belt of the expired-row fix. The first belt is
+        // ComposeMessageAdapter.getItemType routing an overdue row to the deleted tombstone; this one catches a row
+        // whose deadline passes BETWEEN that routing decision and this bind, where the selected decorator is still a
+        // payload one. When the synchronous decision says "gone" and this decorator is not already the tombstone,
+        // bind nothing: blank and hide every payload-bearing view (a recycled holder may still be showing this very
+        // message's previous bind), keep the date, and overwrite the bubble's click listeners so no stale action
+        // survives. The result mirrors what DeletedChatAdapterDecorator binds. As before, nothing is deleted on this
+        // thread - enforceIfExpired answers from the model and the durable removal stays on the worker (F10-06).
+        if (ch.threema.app.services.DisappearingMessageService.enforceIfExpired(getMessageModel())
+            && !(this instanceof DeletedChatAdapterDecorator)) {
+            withholdExpiredContent(viewHolder, context);
+            return;
         }
 
         boolean isUserMessage = !getMessageModel().isStatusMessage()
@@ -337,8 +345,6 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
         String identity = messageModel.isOutbox()
             ? helper.getMyIdentity()
             : messageModel.getIdentity();
-
-        final @NonNull ComposeMessageHolder viewHolder = (ComposeMessageHolder) abstractViewHolder;
 
         applyContentColor(viewHolder, getUiContentColor(getMessageModel(), context));
 
@@ -471,6 +477,23 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
                     disappearingIcon.setVisibility(View.VISIBLE);
                     if (expireStartedAt != null && timerSeconds != null && timerSeconds > 0) {
                         // Running countdown: bind the window and animate down to zero.
+                        //
+                        // F1Whisper (twelfth fork review, F12-03): the countdown's zero is an EVENT on the bound
+                        // row, not just the last frame. Expiry used to be checked only at bind time, so a row
+                        // bound while live stayed fully visible and actionable past its deadline until the durable
+                        // worker deletion happened to land - and indefinitely when that deletion failed. The
+                        // badge's tick is the only code guaranteed to be running on such a row at its deadline, so
+                        // arm it: re-ask the synchronous authority (which also re-enqueues the conditional durable
+                        // removal on the worker, F10-06) and withhold this exact holder like the second belt above.
+                        // The reaction dies with the binding - stopAnimation() (run first on every re-bind,
+                        // withhold and detach) clears the listener, and the tick fires it only while it is still
+                        // the current tick, so it can never target a recycled holder's new content.
+                        disappearingIcon.setDeadlineListener(() -> {
+                            if (ch.threema.app.services.DisappearingMessageService.enforceIfExpired(getMessageModel())
+                                && !(this instanceof DeletedChatAdapterDecorator)) {
+                                withholdExpiredContent(viewHolder, context);
+                            }
+                        });
                         disappearingIcon.setExpirationTime(expireStartedAt, timerSeconds * 1000L);
                         disappearingIcon.startAnimation();
                     } else {
@@ -494,6 +517,83 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
 
             if (viewHolder.controller != null) {
                 viewHolder.controller.setIsUsedForOutboxMessage(getMessageModel().isOutbox());
+            }
+        }
+    }
+
+    /**
+     * F1Whisper (eleventh fork review, F11-07): withhold an expired row's content on a holder whose layout is still a
+     * payload one (the intra-bind race the second belt in {@link #configure} catches). Every payload- or
+     * stale-state-bearing view the holder may carry is blanked or hidden - each layout inflates only a subset, hence
+     * the null checks - because a recycled holder can still be displaying content from its previous bind, including
+     * this very message's own payload. What remains matches the deleted tombstone: the date, and a bubble whose click
+     * listeners are OVERWRITTEN (not merely skipped - skipping would leave the recycled view's stale listeners live).
+     */
+    @VisibleForTesting
+    void withholdExpiredContent(@NonNull ComposeMessageHolder viewHolder, @NonNull Context context) {
+        blankAll(
+            viewHolder.bodyTextView,
+            viewHolder.secondaryTextView,
+            viewHolder.tertiaryTextView,
+            viewHolder.size,
+            viewHolder.senderName,
+            viewHolder.tapToResend
+        );
+        if (viewHolder.attachmentImage != null) {
+            viewHolder.attachmentImage.setImageBitmap(null);
+        }
+        if (viewHolder.disappearingIcon != null) {
+            // A recycled row's countdown must not keep ticking over the withheld bubble.
+            viewHolder.disappearingIcon.stopAnimation();
+        }
+        hideAll(
+            viewHolder.attachmentImage,
+            viewHolder.contentView,
+            viewHolder.controller,
+            viewHolder.seekBar,
+            viewHolder.transcoderView,
+            viewHolder.readOnContainer,
+            viewHolder.audioMessageIcon,
+            viewHolder.linkPreviewInfo,
+            viewHolder.forwardedLabelView,
+            viewHolder.editedText,
+            viewHolder.emojiReactionGroup,
+            viewHolder.quoteBar,
+            viewHolder.quoteThumbnail,
+            viewHolder.quoteTypeImage,
+            viewHolder.senderView,
+            viewHolder.avatarView,
+            viewHolder.deliveredIndicator,
+            viewHolder.starredIcon,
+            viewHolder.disappearingIcon,
+            viewHolder.tapToResend
+        );
+        hideQuoteHeader(viewHolder);
+        if (viewHolder.dateView != null) {
+            viewHolder.dateView.setText(MessageUtil.getDisplayDate(
+                context,
+                getMessageModel().getPostedAt(),
+                getMessageModel().isOutbox(),
+                getMessageModel().getModifiedAt(),
+                true
+            ));
+        }
+        setOnClickListener(v -> {
+        }, viewHolder.messageBlockView);
+    }
+
+    private static void blankAll(@Nullable TextView... views) {
+        for (TextView view : views) {
+            if (view != null) {
+                view.setText("");
+            }
+        }
+    }
+
+    private static void hideAll(@Nullable View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setVisibility(View.GONE);
             }
         }
     }

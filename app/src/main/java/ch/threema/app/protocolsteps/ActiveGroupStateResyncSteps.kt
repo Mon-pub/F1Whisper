@@ -16,6 +16,7 @@ import ch.threema.data.models.GroupModelData
 import ch.threema.domain.models.BasicContact
 import ch.threema.domain.models.MessageId
 import ch.threema.domain.protocol.csp.messages.GroupDeleteProfilePictureMessage
+import ch.threema.domain.protocol.csp.messages.GroupDisappearingTimerMessage
 import ch.threema.domain.protocol.csp.messages.GroupNameMessage
 import ch.threema.domain.protocol.csp.messages.GroupSetProfilePictureMessage
 import ch.threema.domain.protocol.csp.messages.GroupSetupMessage
@@ -94,6 +95,19 @@ suspend fun runActiveGroupStateResyncSteps(
             groupModel,
             groupCallManager,
         ),
+        // F1Whisper (tenth fork review, F10-05): a resync transfers the group's current state, and the disappearing
+        // timer is part of that state. Omitting it left a stale member holding whatever timer it last happened to
+        // hear - including a positive one for a group that has since turned the timer off - and a resync is precisely
+        // the moment that is meant to be corrected. Targeted at the resync members only, and listed after setup so the
+        // recipient can resolve the group before it processes the 0x95.
+        createDisappearingTimerMessageHandle(
+            preGeneratedMessageIds.disappearingTimerMessageId,
+            currentTimestamp,
+            updatedTargetMembers,
+            groupModel,
+            groupModelData,
+            outgoingCspMessageServices,
+        ),
     )
 
     handle.runBundledMessagesSendSteps(messages, outgoingCspMessageServices, identityBlockedSteps)
@@ -116,7 +130,49 @@ data class PreGeneratedMessageIds(
     val secondMessageId: MessageId,
     val thirdMessageId: MessageId,
     val fourthMessageId: MessageId,
-)
+) {
+    /**
+     * F1Whisper (tenth fork review, F10-05): the id of the disappearing-timer control, its own and not one of the four
+     * above. Derived the same way and for the same reasons as
+     * [PredefinedMessageIds.disappearingTimerMessageId]; these ids are not persisted, but deriving keeps one rule
+     * rather than two.
+     */
+    val disappearingTimerMessageId: MessageId
+        get() = MessageId(firstMessageId.messageIdLong xor PredefinedMessageIds.DISAPPEARING_TIMER_ID_DERIVATION)
+}
+
+/**
+ * F1Whisper (tenth fork review, F10-05): a `0x95` carrying the group's current shared timer to the resync targets.
+ *
+ * Sends an explicit `0` when the timer is off, so a stale member holding a positive timer converges to OFF rather than
+ * keeping it. Pure state transfer: no local write, no status row, and nothing sent to members who are already in step.
+ */
+private fun createDisappearingTimerMessageHandle(
+    messageId: MessageId,
+    currentTimestamp: Date,
+    receivers: Set<BasicContact>,
+    groupModel: GroupModel,
+    groupModelData: GroupModelData,
+    outgoingCspMessageServices: OutgoingCspMessageServices,
+): OutgoingCspMessageHandle? {
+    if (receivers.isEmpty()) {
+        return null
+    }
+    val timerSeconds = currentGroupDisappearingTimerSeconds(groupModel, outgoingCspMessageServices)
+    logger.info("Resyncing the group disappearing timer to {} member(s): {}s", receivers.size, timerSeconds)
+    return OutgoingCspMessageHandle(
+        receivers,
+        OutgoingCspGroupMessageCreator(
+            messageId,
+            currentTimestamp,
+            groupModelData.groupIdentity,
+        ) {
+            GroupDisappearingTimerMessage().apply {
+                this.timerSeconds = timerSeconds
+            }
+        },
+    )
+}
 
 private fun createSetupMessageHandle(
     messageId: MessageId,

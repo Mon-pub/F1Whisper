@@ -172,7 +172,10 @@ class VolatileLifecycleWriteTest {
     @Test
     fun `lazy deadline repair cannot become the basis of a deletion it did not earn`() {
         val source = disappearingService.readText()
-        val enforceBody = bodyOf(source, "private fun enforceIfExpiredInternal(")
+        // F1Whisper (tenth fork review, F10-06): the durable half of the funnel moved out of enforceIfExpiredInternal,
+        // which now answers the presentation question from the model in memory and schedules this on a worker. The
+        // guarantee is unchanged and so is what it protects; only the method holding it has a new name.
+        val enforceBody = bodyOf(source, "private fun enforceExpiredOnWorker(")
 
         assertFalse(
             enforceBody.contains("messageService?.save(model)"),
@@ -193,7 +196,7 @@ class VolatileLifecycleWriteTest {
         val source = disappearingService.readText()
 
         // Named one by one rather than counted, so a path that stops routing through the claim fails by name.
-        for (path in listOf("fun fireDue(", "fun purgeOverdueAndRearm(", "private fun enforceIfExpiredInternal(")) {
+        for (path in listOf("fun fireDue(", "fun purgeOverdueAndRearm(", "private fun enforceExpiredOnWorker(")) {
             assertTrue(
                 bodyOf(source, path).contains("deleteExpiredMessage(serviceManager"),
                 "$path must remove an expired message through the claim, not directly",

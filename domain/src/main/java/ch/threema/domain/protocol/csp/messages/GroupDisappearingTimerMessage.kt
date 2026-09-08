@@ -31,7 +31,21 @@ class GroupDisappearingTimerMessage : AbstractGroupMessage() {
 
     override fun allowUserProfileDistribution() = false
 
-    override fun exemptFromBlocking() = false
+    // F1Whisper (eleventh fork review, F11-06): TRUE, matching the group setup this message accompanies, and the 1:1
+    // [DisappearingTimerMessage] deliberately stays FALSE.
+    //
+    // The same predicate gates both directions - the outgoing recipient filter in the bundled send steps and the
+    // incoming discard in IncomingMessageTask - and group SETUP is exempt while this was not. So an explicitly
+    // blocked contact who was added, re-added or resynced received the setup and joined the group, but the 0x95
+    // bootstrap that follows it was silently dropped; the same happened inbound when the recipient had blocked the
+    // group creator. The member ended up INSIDE the group but under the wrong retention policy: OFF where the group
+    // says 30 seconds, or a stale positive timer where the group has since turned it off. Messages then outlive or
+    // predecease what every other member agreed to, which is a policy defeat, not a cosmetic drift.
+    //
+    // The rule this encodes: the timer is GROUP STATE, like the setup, the name and the membership, and group state
+    // must flow to members regardless of 1:1 blocking or the group desynchronises. Content stays blocked; the 1:1
+    // timer stays blocked too, because there blocking the peer means exactly "I want no state from you".
+    override fun exemptFromBlocking() = true
 
     override fun createImplicitlyDirectContact() = false
 
@@ -42,6 +56,32 @@ class GroupDisappearingTimerMessage : AbstractGroupMessage() {
     // a timer control mutates conversation state without creating a tracked outgoing message model,
     // so we reflect incoming + outgoing but NOT a sent-update (there is no outgoing message whose
     // sent state could be reflected). Both flags are no-ops when multi device is inactive.
+    //
+    // F1Whisper (tenth fork review, section 10): the flags above are LOAD-BEARING OUTWARD and
+    // UNIMPLEMENTED INWARD, and that asymmetry is deliberate. Do not "tidy" either half without
+    // reading this.
+    //
+    // OUTWARD (this device is the leader). Reflection works and linked Desktop depends on it.
+    // `Reflect.kt` builds the envelope with `.setTypeValue(message.type)`, the RAW-INT setter, and a
+    // proto3 enum field is int32 on the wire, so a type with no named constant serialises correctly.
+    // `common.proto` therefore has no 0x85/0x95 entry and does not need one; that omission is
+    // cosmetic for sending. Setting either flag to false would stop the timer reaching Desktop and
+    // silently break a working feature.
+    //
+    // INWARD (this device as a follower). NOT supported, and it fails LOUDLY rather than quietly.
+    // `IncomingReflectedMessageTask` and `ReflectedOutgoingMessageTask` both switch on the NAMED
+    // enum and answer an unknown value with `UNRECOGNIZED -> throw IllegalStateException`. A
+    // reflected timer control would therefore throw inside the task. It follows that
+    // `executeMessageStepsFromSync() = DISCARD` in the two incoming timer subtasks is UNREACHABLE
+    // for these types: the dispatcher throws before the subtask is built.
+    //
+    // Why that is fine today: this fork ships Android as the only leader, Desktop cannot set the
+    // timer, and no second Android device is linked to one identity. The inward path is never taken.
+    //
+    // BEFORE linking a second Android device to one identity, or letting Desktop set the timer:
+    // handle 0x85/0x95 in BOTH reflected dispatchers first, or the first reflected timer control
+    // will throw. That is a topology change, not a code change, which is why it is written here
+    // rather than fixed - see ANDROID-FORK-TENTH-REVIEW-REMEDIATION-HANDOFF-2026-08-13.md.
     override fun reflectIncoming() = true
 
     override fun reflectOutgoing() = true

@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.media3.session.MediaController;
 import ch.threema.app.R;
@@ -57,6 +58,7 @@ import ch.threema.app.emojis.EmojiMarkupUtil;
 import ch.threema.app.messagereceiver.MessageReceiver;
 import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.services.ContactService;
+import ch.threema.app.services.DisappearingMessageService;
 import ch.threema.app.services.DownloadService;
 import ch.threema.app.services.FileService;
 import ch.threema.app.services.MessageService;
@@ -367,7 +369,7 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
     public @ItemLayoutType int getItemViewType(int position) {
         if (position < values.size()) {
             final AbstractMessageModel m = this.getItem(position);
-            return this.getItemType(m);
+            return getItemType(m);
         }
         return TYPE_STATUS;
     }
@@ -383,7 +385,8 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
         return null;
     }
 
-    private @ItemLayoutType int getItemType(AbstractMessageModel m) {
+    @VisibleForTesting
+    static @ItemLayoutType int getItemType(AbstractMessageModel m) {
         if (m != null) {
             if (m.isStatusMessage()) {
                 // Special handling for data status messages
@@ -400,7 +403,18 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 }
             } else {
                 boolean o = m.isOutbox();
-                if (m.isDeleted()) {
+                // F1Whisper (eleventh fork review, F11-07): an overdue disappearing message routes
+                // to the SAME payload-free tombstone as a deleted one, decided here because this is
+                // the single point that feeds BOTH getItemViewType (the ListView's recycling key,
+                // so a recycled holder whose itemType no longer matches is re-inflated from the
+                // deleted layout instead of keeping its payload views) AND getView's layout +
+                // decorator selection (the deleted branch binds DeletedChatAdapterDecorator: date
+                // only, no payload, no media, no thumbnail, no quote, neutral click).
+                // enforceIfExpired answers synchronously from the model and schedules the durable,
+                // conditional removal on a worker (deduplicated), so a row whose deletion is
+                // delayed or has failed can no longer bind its content - the review's trigger.
+                // Only presentation is decided here; nothing is deleted on this thread.
+                if (m.isDeleted() || DisappearingMessageService.enforceIfExpired(m)) {
                     return o ? TYPE_DELETED_SEND : TYPE_DELETED_RECV;
                 }
                 switch (m.getType()) {
@@ -511,19 +525,17 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
         ComposeMessageHolder holder = itemView != null ? (ComposeMessageHolder) itemView.getTag() : null;
         final AbstractMessageModel messageModel = values.get(position);
 
-        // F1Whisper: belt-and-suspenders disappearing-messages enforcement. We must NOT hard-delete
-        // during the layout pass — that mutates the backing list mid-bind and IOOBEs the neighbor
-        // reads in adjustMarginsForMessageGrouping. So we only CHECK here (pure predicate) and defer
-        // the actual delete to after this layout pass via parent.post(); the row vanishes next frame
-        // when the delete + notifyDataSetChanged lands. Render the about-to-be-removed row normally.
-        if (ch.threema.app.services.DisappearingMessageService.isExpired(messageModel)) {
-            final AbstractMessageModel doomed = messageModel;
-            parent.post(() -> ch.threema.app.services.DisappearingMessageService.enforceIfExpired(doomed));
-        }
-
+        // F1Whisper (eleventh fork review, F11-07): the disappearing-expiry decision moved INTO
+        // getItemType below, where its result routes the row to the deleted tombstone instead of
+        // being ignored. The old standalone enforcement call here checked and then rendered the
+        // payload anyway ("Render the about-to-be-removed row normally" - written when deletion
+        // was a posted main-looper hop, invalidated by F10-06 moving it to a worker that can be
+        // delayed or fail). Do NOT reintroduce a call here: ExpiredRowPresentationTest pins
+        // getItemType as the single adapter-side decision point. Still nothing is deleted during
+        // the layout pass: the decision is pure and the durable removal stays on the worker.
         MessageType messageType = messageModel.getType();
 
-        @ItemLayoutType int itemType = this.getItemType(messageModel);
+        @ItemLayoutType int itemType = getItemType(messageModel);
 
         if (messageModel.isStatusMessage() && messageModel instanceof FirstUnreadMessageModel) {
             firstUnreadPos = position;

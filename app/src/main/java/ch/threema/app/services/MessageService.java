@@ -464,6 +464,55 @@ public interface MessageService {
     );
 
     /**
+     * F1Whisper (tenth fork review, F10-03): {@link #applyOutgoingStateTransition} plus the side effects that a
+     * SUCCESSFUL completion owes the sender's own copy, in one call.
+     *
+     * <p>Today that means one thing: burning the sender's listen-once voice message. That burn used to live in
+     * {@link #updateOutgoingMessageState}, the wrapper, and the corrected group completion calls the lower-level
+     * transition directly so it can persist state, timestamp, forward-security mode and countdown as one write. The
+     * group send therefore completed without ever burning, and the sender could replay a listen-once voice message its
+     * recipients had already consumed. Routing both paths through here is what stops the two from drifting again.</p>
+     *
+     * <p>The side effects run only when the conditional transition actually applied, so a completion that lost to a
+     * delete-for-everyone deletes no files from a stale detached model.</p>
+     *
+     * @param evidence what the send achieved, which for a group is a question of counts rather than of state; see
+     *                 {@link OutgoingSendBoundaryDecision#burnsSenderCopy}.
+     * @return whether anything was written.
+     */
+    @WorkerThread
+    boolean applyOutgoingCompletion(
+        @NonNull AbstractMessageModel messageModel,
+        @NonNull MessageState state,
+        @NonNull Date transitionAt,
+        @Nullable ForwardSecurityMode forwardSecurityMode,
+        boolean bypassStateGate,
+        @NonNull OutgoingSendEvidence evidence
+    );
+
+    /**
+     * F1Whisper (eleventh fork review, F11-03): apply what follows from ONE group recipient's server acknowledgement
+     * of the main payload, at acknowledgement time, without treating the send as complete.
+     *
+     * <p>{@link #applyOutgoingCompletion} runs at the END of the group send steps, so a failure after one recipient's
+     * acknowledgement used to exit the task with the acceptance held only in an attempt-local set; the retry started
+     * from an empty one, and for as long as the retries kept failing the recipient could listen to a listen-once
+     * voice message while the sender's own copy stayed playable. The acknowledgement is the moment the server holds
+     * the payload for that recipient, so the sender-copy burn happens here, durably (the conditional consumed
+     * metadata IS the checkpoint) and idempotently (a second acknowledgement, a retry, or the completion boundary
+     * finding it already burned all write nothing).</p>
+     *
+     * <p>Deliberately NOT a state transition: the message's final state stays deferred until every send,
+     * acknowledgement and reflection step has finished, exactly as before. For partial group delivery this supersedes
+     * the tenth review's rule that the burn waits for the conditional terminal transition; that rule cannot represent
+     * "one recipient accepted, a later one failed", because the task is not terminal yet. Never throws: on a failed
+     * write the evidence is retained by construction, since the accumulated acceptance set still reaches the
+     * completion boundary and a retried task re-collects the same acknowledgement.</p>
+     */
+    @WorkerThread
+    void applyGroupPayloadAcceptance(@NonNull AbstractMessageModel messageModel);
+
+    /**
      * F1Whisper (fifth fork review, F5-06): persist the forward-security mode alone, conditionally.
      *
      * <p>It arrives in a callback AFTER the terminal transition, and used to be persisted by full-row-saving the detached
@@ -636,9 +685,17 @@ public interface MessageService {
      * <p>Burning a listen-once message is a single fact - it is consumed, its media is gone, and its flags say so - and
      * persisting it as a state save followed by a metadata save left a window in which a process death could produce a
      * message that was CONSUMED but still advertised itself as playable, or the reverse.</p>
+     *
+     * <p>F1Whisper (twelfth fork review, F12-02): reports the discriminated {@link MediaConsumeOutcome} instead of a
+     * boolean. The old {@code false} conflated "already terminal" with "row gone", "unreadable", "mutation threw" and
+     * "lost every retry" - and the listen-once burn, which must decide whether its settlement is durable before it
+     * lowers the replay barrier, cannot make that decision from a bit. On {@link MediaConsumeOutcome#ALREADY_TERMINAL}
+     * the caller's instance is reconciled to the persisted body, so admission decisions made from the instance agree
+     * with the row.</p>
      */
     @WorkerThread
-    boolean consumeAndUpdateMediaMetadata(@NonNull AbstractMessageModel messageModel, @NonNull MediaMetadataMutation mutation);
+    @NonNull
+    MediaConsumeOutcome consumeAndUpdateMediaMetadata(@NonNull AbstractMessageModel messageModel, @NonNull MediaMetadataMutation mutation);
 
     void remove(AbstractMessageModel messageModel);
 

@@ -298,16 +298,37 @@ class OutgoingCspMessageHandle(
     /**
      * This callback is run as soon as the sent at timestamp is determined.
      */
-    val markAsSent: (sentAt: ULong) -> Unit = { },
+    /**
+     * F1Whisper (tenth fork review, F10-03): reports the send's completion timestamp AND which recipients the server
+     * actually acknowledged. The second half exists because no [ch.threema.storage.models.MessageState] can
+     * distinguish a group send that reached some members from one that reached none, and only the second of those
+     * keeps the sender's listen-once copy.
+     */
+    val markAsSent: (sentAt: ULong, acceptedRecipients: Set<String>) -> Unit = { _, _ -> },
     /**
      * This callback is run as soon as the forward security modes are known.
      */
     val addForwardSecurityStateInfo: (stateMap: Map<String, ForwardSecurityMode>) -> Unit = { },
+    /**
+     * F1Whisper (eleventh fork review, F11-03): run the moment the server acknowledges the MAIN payload for one
+     * recipient, from inside the send steps rather than after them.
+     *
+     * [markAsSent] cannot carry this fact: it runs only after every send, acknowledgement and reflection step of
+     * every bundled sender has succeeded, so a failure AFTER one recipient's acknowledgement exits the task, the
+     * retry builds a fresh sender with an empty acceptance set, and the accepted delivery is forgotten for as long
+     * as the retries keep failing. Anything that must follow from "this recipient can now fetch the payload" - above
+     * all burning the sender's own listen-once copy - has to be applied here, durably and idempotently, without
+     * treating the task as complete.
+     *
+     * Only the payload's own acknowledgement fires this. A forward-security init or empty control message is
+     * acknowledged too, but its ack proves nothing about the payload; see the message-id match in `awaitServerAck`.
+     */
+    val onPayloadAccepted: (recipientIdentity: String) -> Unit = { },
 ) {
     constructor(
         receiver: BasicContact,
         messageCreator: OutgoingCspMessageCreator,
-        markAsSent: (sentAt: ULong) -> Unit = { },
+        markAsSent: (sentAt: ULong, acceptedRecipients: Set<String>) -> Unit = { _, _ -> },
         addForwardSecurityStateInfo: (stateMap: Map<String, ForwardSecurityMode>) -> Unit = { },
     ) : this(setOf(receiver), messageCreator, markAsSent, addForwardSecurityStateInfo)
 }
@@ -333,6 +354,7 @@ private fun OutgoingCspMessageHandle.toOutgoingCspMessageSender(
         genericMessage,
         markAsSent,
         addForwardSecurityStateInfo,
+        onPayloadAccepted,
         services.multiDeviceManager,
         services.forwardSecurityMessageProcessor,
         services.identityStore,
@@ -348,8 +370,9 @@ private class OutgoingCspMessageSender(
      * A generic message that can be used to check message type properties.
      */
     val genericMessage: AbstractMessage,
-    private val markAsSent: (sentAt: ULong) -> Unit,
+    private val markAsSent: (sentAt: ULong, acceptedRecipients: Set<String>) -> Unit,
     private val addForwardSecurityStateInfo: (stateMap: Map<String, ForwardSecurityMode>) -> Unit,
+    private val onPayloadAccepted: (recipientIdentity: String) -> Unit,
     multiDeviceManager: MultiDeviceManager,
     private val forwardSecurityMessageProcessor: ForwardSecurityMessageProcessor,
     private val identityStore: IdentityStore,
@@ -403,6 +426,11 @@ private class OutgoingCspMessageSender(
      * e.g., a forward security control message.
      */
     private val fsModeMap by lazy { mutableMapOf<String, ForwardSecurityMode>() }
+
+    /**
+     * F1Whisper (tenth fork review, F10-03): the recipients whose messages the server acknowledged on this send.
+     */
+    private val acceptedRecipients = mutableSetOf<String>()
 
     /**
      * Reflect the message. Note that the message will only be reflected if multi device is enabled.
@@ -523,6 +551,27 @@ private class OutgoingCspMessageSender(
         pendingCspMessageAcks.forEach { (receiverIdentity, messageId) ->
             logger.info("Awaiting server ack of message {} to {}", messageId, receiverIdentity)
             handle.awaitOutgoingMessageAck(messageId, receiverIdentity)
+            // F1Whisper (tenth fork review, F10-03): the ack IS the acceptance, so this is where acceptance is
+            // recorded. A recipient filtered out before sending - blocked, unknown - never reaches here, which is
+            // what makes "intended but not accepted" a distinguishable outcome further up.
+            //
+            // F1Whisper (eleventh fork review, F11-03): only the MAIN payload's own ack counts, and it counts NOW.
+            //
+            // The id match is what separates the payload from the forward-security control messages sent alongside
+            // it: the FS envelope that encapsulates the payload inherits the inner message's id
+            // (ForwardSecurityEnvelopeMessage takes it from innerMessage), while an FS init or empty message carries
+            // a fresh id of its own. Recording those control acks as acceptance would burn a listen-once sender copy
+            // whose actual payload the connection dropped one frame later.
+            //
+            // And the callback fires here, per acknowledgement, not from markAsSent: that one runs only after every
+            // step of every bundled sender has succeeded, so a later recipient's failure would exit the task with
+            // this attempt-local set and a retry would start from an empty one. The server has this payload for this
+            // recipient from this moment on, whatever happens to the rest of the send, and what follows from that
+            // must not wait on the rest of the send.
+            if (messageId == messageCreator.messageId) {
+                acceptedRecipients.add(receiverIdentity)
+                onPayloadAccepted(receiverIdentity)
+            }
             logger.info("Awaited server ack of message {} to {}", messageId, receiverIdentity)
         }
         pendingCspMessageAcks.clear()
@@ -568,7 +617,7 @@ private class OutgoingCspMessageSender(
     }
 
     fun storeSentAt(sentAt: ULong) {
-        markAsSent(sentAt)
+        markAsSent(sentAt, acceptedRecipients.toSet())
     }
 }
 

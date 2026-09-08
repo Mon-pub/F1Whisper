@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.TimeUnit;
 
 import ch.threema.app.R;
 import ch.threema.app.utils.RuntimeUtil;
@@ -31,6 +30,15 @@ import ch.threema.app.utils.RuntimeUtil;
  * if it has been superseded, as belt-and-braces against a tick that slips past the cancellation.
  * {@link #startAnimation()} is idempotent (guarded by {@code stopped}), so re-binding the same row never
  * stacks multiple runnables.
+ * <p>
+ * F1Whisper (twelfth fork review, F12-03): the tick is also where the DEADLINE becomes an event. Each tick decides
+ * via {@link DisappearingTickDecision}; at {@link DisappearingTick#DEADLINE} it paints the final frame, retires the
+ * countdown (no further posts) and fires the {@link #setDeadlineListener(Runnable) deadline listener} exactly once -
+ * after re-confirming under the lock that it is still the current tick, so a listener can never fire for a row that
+ * was re-bound or stopped in between ({@link #stopAnimation()} clears the listener, and every re-bind and detach
+ * goes through it first). The binder arms the listener with the expiry enforcement + withhold reaction; without it
+ * the clock used to tick to zero and then keep the fully bound, actionable row on screen until the durable worker
+ * deletion happened to land.
  */
 public class DisappearingTimerBadgeView extends androidx.appcompat.widget.AppCompatImageView {
 
@@ -44,6 +52,11 @@ public class DisappearingTimerBadgeView extends androidx.appcompat.widget.AppCom
     // letting one trailing tick fire on a recycled row and repaint a previous message's frame.
     @Nullable
     private AnimationUpdateRunnable pendingUpdate;
+
+    // Fired exactly once when the running countdown crosses its deadline (F12-03). Cleared by stopAnimation(),
+    // which every re-bind, withhold and detach runs first, so it can never outlive the binding that armed it.
+    @Nullable
+    private Runnable deadlineListener;
 
     // Ordered by frame INDEX, not by asset name. The Signal frame math is
     // {@code frame = ceil((1 - progress) * 12)}: at progress 0 (nothing elapsed) it selects index 12,
@@ -110,6 +123,17 @@ public class DisappearingTimerBadgeView extends androidx.appcompat.widget.AppCom
         return Math.max(0, Math.min(frame, frameCount - 1));
     }
 
+    /**
+     * Arms (or with {@code null} disarms) the one-shot callback fired when the running countdown reaches its
+     * deadline. Set by the binder BEFORE {@link #startAnimation()}; cleared automatically by {@link #stopAnimation()}
+     * so a recycled row can never inherit the previous binding's reaction (F12-03).
+     */
+    public void setDeadlineListener(@Nullable Runnable listener) {
+        synchronized (this) {
+            deadlineListener = listener;
+        }
+    }
+
     public void startAnimation() {
         final AnimationUpdateRunnable update;
         synchronized (this) {
@@ -136,6 +160,9 @@ public class DisappearingTimerBadgeView extends androidx.appcompat.widget.AppCom
             stopped = true;
             update = pendingUpdate;
             pendingUpdate = null;
+            // The deadline reaction dies with the binding that armed it: a recycled row must neither fire
+            // the previous message's withhold nor keep any reference to its holder (F12-03).
+            deadlineListener = null;
             // Clear the timing fields so a subsequent bind that only paints the static full-disc frame
             // (setPercentComplete(0f), the frozen/not-started branch) cannot carry over a prior
             // message's startedAt/expiresIn if any stray repaint were to occur.
@@ -159,12 +186,9 @@ public class DisappearingTimerBadgeView extends androidx.appcompat.widget.AppCom
     private long calculateAnimationDelay(long startedAt, long expiresIn) {
         long progressed = System.currentTimeMillis() - startedAt;
         long remaining = expiresIn - progressed;
-
-        if (remaining < TimeUnit.SECONDS.toMillis(30)) {
-            return 50;
-        } else {
-            return 1000;
-        }
+        // Single source of the cadence AND the deadline threshold (F12-03): a countdown armed at or past its
+        // deadline schedules the prompt tick that will deliver the DEADLINE event, not a one-second wait.
+        return DisappearingTickDecision.delayFor(DisappearingTickDecision.decide(remaining));
     }
 
     @Override
@@ -211,12 +235,35 @@ public class DisappearingTimerBadgeView extends androidx.appcompat.widget.AppCom
                 }
             }
 
+            final long remaining = view.expiresIn - (System.currentTimeMillis() - view.startedAt);
+            final DisappearingTick tick = DisappearingTickDecision.decide(remaining);
+
+            // Repaint for "now". At the deadline this is the final frame: calculateProgress clamps the
+            // elapsed fraction to 1, selecting the empty clock face.
             view.setExpirationTime(view.startedAt, view.expiresIn);
 
-            RuntimeUtil.handler.postDelayed(
-                this,
-                view.calculateAnimationDelay(view.startedAt, view.expiresIn)
-            );
+            if (tick == DisappearingTick.DEADLINE) {
+                // F1Whisper (twelfth fork review, F12-03): the deadline is an EVENT, not just the last frame.
+                // Retire the countdown (no further posts) and fire the armed reaction exactly once - but only
+                // after re-confirming under the lock that we are STILL the current tick, so a stop/re-bind
+                // that raced in between can never see a stale binding's listener fire against its holder.
+                final Runnable deadlineListener;
+                synchronized (view) {
+                    if (view.pendingUpdate != this) {
+                        return;
+                    }
+                    view.stopped = true;
+                    view.pendingUpdate = null;
+                    deadlineListener = view.deadlineListener;
+                    view.deadlineListener = null;
+                }
+                if (deadlineListener != null) {
+                    deadlineListener.run();
+                }
+                return;
+            }
+
+            RuntimeUtil.handler.postDelayed(this, DisappearingTickDecision.delayFor(tick));
         }
     }
 }

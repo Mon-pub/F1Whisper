@@ -5,8 +5,10 @@ import org.slf4j.Logger;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import ch.threema.app.managers.ListenerManager;
 import ch.threema.app.services.FileService;
+import ch.threema.app.services.MediaConsumeOutcome;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.storage.models.AbstractMessageModel;
@@ -35,6 +37,15 @@ import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
  */
 public final class ListenOnceEnforcer {
     private static final Logger logger = getThreemaLogger("ListenOnceEnforcer");
+
+    /**
+     * F1Whisper (eleventh fork review, F11-05): the hop {@link #burn} uses to reach a worker thread. A field so the
+     * regression test can hold the worker still and fail it, which is the only way to prove the barrier's lifecycle
+     * ordering rather than its happy path. Production never reassigns it.
+     */
+    @NonNull
+    @VisibleForTesting
+    static java.util.concurrent.Executor burnWorker = RuntimeUtil::runOnWorkerThread;
 
     private ListenOnceEnforcer() {
     }
@@ -118,7 +129,20 @@ public final class ListenOnceEnforcer {
     ) {
         logger.info("Enforcing listen-once deletion for {}", messageModel.getId());
 
-        RuntimeUtil.runOnWorkerThread(() -> {
+        // F1Whisper (twelfth fork review, F12-01): everything below keys the registries by the message's stable
+        // identity (namespace + UID), never by the table-local integer id, which collides across the message tables.
+        final ListenOnceMessageIdentity identity = ListenOnceMessageIdentity.of(messageModel);
+
+        // F1Whisper (eleventh fork review, F11-05): the replay barrier goes up HERE, synchronously, before the hop.
+        // Between "burn queued" and "consumed metadata written" the row can still read as playable - above all when
+        // the fail-open path played without a durable claim - and ownership is released the moment the session
+        // settles, so without this there is an in-process window in which a second playback sails through every
+        // durable check. The barrier comes down only when ListenOnceSettlementDecision judges the settlement durable
+        // (F12-02); anything less retains it, and the refusal path in AudioMessagePlayer.open() re-drives this
+        // method, which is the retry that eventually clears it.
+        ListenOnceBurnBarrier.raise(identity);
+
+        burnWorker.execute(() -> {
             try {
                 // F1Whisper (fifth fork review, F5-04): the burned state and the move to CONSUMED are ONE conditional,
                 // non-inserting write against the current row, and they come BEFORE the files are deleted.
@@ -132,7 +156,7 @@ public final class ListenOnceEnforcer {
                 // clobbered by a later reaction or receipt moving the state away from CONSUMED. A burn always implies a
                 // claim, so both flags are set, which keeps them from disagreeing on a message burned by a path that
                 // never claimed.
-                messageService.consumeAndUpdateMediaMetadata(messageModel, current -> {
+                final MediaConsumeOutcome outcome = messageService.consumeAndUpdateMediaMetadata(messageModel, current -> {
                     final FileDataModel fileData = current.getFileData();
                     if (fileData == null) {
                         return false;
@@ -148,23 +172,48 @@ public final class ListenOnceEnforcer {
                     return true;
                 });
 
-                // Delete the stored encrypted media + thumbnail so it can never be decrypted again. Deliberately NOT
-                // conditional on the write above having changed anything: the shape an interrupted burn leaves behind is
-                // now "flags written, files still on disk", and this call IS the repair for it. A burn must never end
-                // with decryptable media still present because a previous attempt got as far as the metadata.
-                fileService.removeMessageFiles(messageModel, true);
+                // F1Whisper (twelfth fork review, F12-02): the removal comes BEFORE any clear, and the settlement is
+                // decided from the write's discriminated outcome plus the confirmed state of the media - never from
+                // "the call returned". Clearing first left a preemption window in which a stale detached model could
+                // pass the durable gate while the decryptable file still existed; clearing on a bare `false` lowered
+                // the barrier for unreadable rows, throwing mutations and exhausted retries, none of which wrote
+                // anything durable. The removal itself stays deliberately unconditional on the write having changed
+                // anything (an interrupted burn's shape is "flags written, files still on disk", and this call IS the
+                // repair for it) - but an INDETERMINATE settlement skips it and retries the whole sequence instead.
+                boolean mediaConfirmedGone = false;
+                if (ListenOnceSettlementDecision.attemptsFileRemoval(outcome)) {
+                    // Delete the stored encrypted media + thumbnail so it can never be decrypted again.
+                    fileService.removeMessageFiles(messageModel, true);
+                    mediaConfirmedGone = !fileService.hasPersistedMessageMedia(messageModel);
+                }
 
-                if (playBurnAnimation) {
+                if (!ListenOnceSettlementDecision.clearsBarrier(outcome, mediaConfirmedGone)) {
+                    // Nothing durable refuses replay yet (or a gone row still has decryptable media on disk). The
+                    // message stays barred; the refusal path in open() re-drives this method, and that retry is what
+                    // eventually settles it.
+                    logger.warn(
+                        "Listen-once settlement for {} is not durable (outcome {}); the burn barrier stays raised",
+                        messageModel.getId(),
+                        outcome
+                    );
+                    return;
+                }
+                ListenOnceBurnBarrier.clear(identity);
+
+                if (playBurnAnimation && ListenOnceSettlementDecision.marksBurnAnimation(outcome)) {
                     // Signal that this message JUST burned so the bubble plays the one-shot burn
                     // animation exactly once on the re-render below (consumed by the decorator; not
                     // replayed on chat reopen). Recipient path only - the sender never plays it back.
-                    ListenOnceBurnRegistry.markForBurnAnimation(messageModel.getId());
+                    ListenOnceBurnRegistry.markForBurnAnimation(identity);
                 }
 
                 // Refresh any visible bubble for this message
                 ListenerManager.messageListeners.handle(listener -> listener.onModified(List.of(messageModel)));
             } catch (Exception e) {
-                logger.error("Failed to enforce listen-once deletion", e);
+                // The barrier is deliberately NOT cleared here: a burn whose durable half failed leaves the message
+                // in exactly the replay window the barrier exists to close, so it stays barred until a retried burn
+                // gets the metadata written. The retry arrives from the open() refusal path or the next bind.
+                logger.error("Failed to enforce listen-once deletion; the burn barrier stays raised", e);
             }
         });
     }

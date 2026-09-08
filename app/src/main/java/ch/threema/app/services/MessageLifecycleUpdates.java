@@ -3,12 +3,14 @@ package ch.threema.app.services;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import ch.threema.app.utils.JsonUtil;
 import ch.threema.storage.MessageRowUpdate;
 import ch.threema.storage.models.AbstractMessageModel;
 import ch.threema.storage.models.MessageState;
@@ -140,9 +142,17 @@ public final class MessageLifecycleUpdates {
     }
 
     /**
-     * The serialised form of a group message's per-member state map, exactly as
-     * {@code GroupMessageModelFactory.addGroupMessageStates} writes it, so a conditional write and a full-row save can
-     * never disagree about what the same map looks like on disk.
+     * The serialised form of a group message's per-member state map, as every writer - the factory's full-row save and
+     * the conditional writers here - stores it. An empty map is stored as SQL {@code NULL}, never {@code "{}"}.
+     *
+     * <p><b>Never use this to reconstruct a compare-and-set condition</b> (group receipt regression RB-01). On Android,
+     * {@code JSONObject} preserves the iteration order of the map it is built from, and {@code HashMap} iteration order
+     * depends on table capacity - so the same entries serialise DIFFERENTLY out of the copy-sized map that wrote the
+     * column and the default-sized map a reload parses them into. A condition rebuilt this way stops matching the
+     * stored text once the orders diverge, every retry rebuilds the same wrong string, and the row becomes permanently
+     * unable to record another receipt. A condition on this column must be the stored TEXT itself
+     * ({@code GroupMessageModelFactory#getGroupMessageStatesRaw}), with the merge input parsed from those same bytes
+     * ({@link #parseGroupMessageStates}).</p>
      */
     @Nullable
     public static String serialiseGroupMessageStates(@Nullable Map<String, Object> states) {
@@ -150,6 +160,26 @@ public final class MessageLifecycleUpdates {
             return null;
         }
         return new JSONObject(states).toString();
+    }
+
+    /**
+     * Parse a group message's per-member state map from the raw column text, exactly as
+     * {@code GroupMessageModelFactory.convert} does ({@code JsonUtil}, unparseable text folded to {@code null}).
+     *
+     * <p>Paired with the raw text as the compare-and-set condition, folding garbage to {@code null} is what lets a
+     * wedged row heal itself: the merge starts over from empty, the byte-exact condition still matches the stored
+     * garbage, and the next receipt replaces it with clean JSON instead of being refused by it.</p>
+     */
+    @Nullable
+    public static Map<String, Object> parseGroupMessageStates(@Nullable String rawStates) {
+        if (rawStates == null) {
+            return null;
+        }
+        try {
+            return JsonUtil.convertObject(rawStates);
+        } catch (JSONException e) {
+            return null;
+        }
     }
 
     /**

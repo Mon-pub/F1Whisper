@@ -38,4 +38,56 @@ public class KDFRatchetTest {
             ratchet.turnUntil(TOO_MANY_TURNS);
         });
     }
+
+    /**
+     * A target further ahead than the catch-up limit and a target BEHIND the ratchet are opposite
+     * failures reported through the same exception, so the exception has to say which one it is.
+     * Callers report and act on the difference.
+     */
+    @Test
+    public void testTurnTooManyReportsTheTargetAsTooFarAhead() {
+        KDFRatchet ratchet = new KDFRatchet(0, INITIAL_CHAIN_KEY);
+
+        KDFRatchet.RatchetRotationException exception = Assert.assertThrows(
+            KDFRatchet.RatchetRotationException.class,
+            () -> ratchet.turnUntil(TOO_MANY_TURNS)
+        );
+
+        Assert.assertEquals(
+            KDFRatchet.RatchetRotationException.Cause.TARGET_TOO_FAR_AHEAD,
+            exception.getRotationCause()
+        );
+    }
+
+    @Test
+    public void testTurnBackwardsReportsTheCounterAsBehind() throws ThreemaException {
+        KDFRatchet ratchet = new KDFRatchet(0, INITIAL_CHAIN_KEY);
+        ratchet.turnUntil(10);
+
+        KDFRatchet.RatchetRotationException exception = Assert.assertThrows(
+            KDFRatchet.RatchetRotationException.class,
+            () -> ratchet.turnUntil(9)
+        );
+
+        Assert.assertEquals(
+            KDFRatchet.RatchetRotationException.Cause.COUNTER_BEHIND,
+            exception.getRotationCause()
+        );
+    }
+
+    /**
+     * The refusal must leave the ratchet where it was: a partially turned ratchet would have
+     * consumed keys for messages that were never decrypted.
+     */
+    @Test
+    public void testARefusedRotationDoesNotMoveTheRatchet() throws ThreemaException {
+        KDFRatchet ratchet = new KDFRatchet(0, INITIAL_CHAIN_KEY);
+        ratchet.turnUntil(10);
+
+        Assert.assertThrows(KDFRatchet.RatchetRotationException.class, () -> ratchet.turnUntil(TOO_MANY_TURNS));
+        Assert.assertEquals(10, ratchet.getCounter());
+
+        Assert.assertThrows(KDFRatchet.RatchetRotationException.class, () -> ratchet.turnUntil(9));
+        Assert.assertEquals(10, ratchet.getCounter());
+    }
 }

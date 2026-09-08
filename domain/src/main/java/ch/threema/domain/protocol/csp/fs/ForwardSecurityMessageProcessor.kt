@@ -532,12 +532,42 @@ class ForwardSecurityMessageProcessor(
             return
         }
 
-        session.processAccept(
-            accept.versionRange,
-            accept.ephemeralPublicKey,
-            contact,
-            identityStore,
-        )
+        try {
+            session.processAccept(
+                accept.versionRange,
+                accept.ephemeralPublicKey,
+                contact,
+                identityStore,
+            )
+        } catch (e: DHSession.MissingEphemeralPrivateKeyException) {
+            // The ephemeral private key is destroyed as soon as the FIRST accept is processed, so
+            // its absence in an already-established session does not mean the session is broken. It
+            // means this is a SECOND accept for a session we already established, which the peer
+            // produces on its own whenever it does not see our first reply. Re-deriving would need
+            // the key we correctly destroyed, and there is nothing left to derive anyway: the
+            // session is already 4DH with both ratchets and the negotiated versions in place. So
+            // keep every bit of it and return without re-announcing establishment.
+            //
+            // ONLY for an established session. In L20 we are still awaiting the first accept and the
+            // key must be present; missing it there is a genuinely broken local session, a different
+            // condition, and must keep failing. An unreadable state is treated the same way.
+            //
+            // Returning normally also fixes what the escape cost us: the task now reports NONE and
+            // takes the ordinary protected-control-message path, which STORES the nonce, so the next
+            // copy of this accept is dropped by the dedup check. The old escape was logged as a
+            // failure and acked without storing it, so every copy came all the way back here.
+            val state = runCatching { session.state }.getOrNull()
+            if (state != DHSession.State.R24 && state != DHSession.State.RL44) {
+                throw e
+            }
+            logger.warn(
+                "Unexpected accept for existing 4DH session {} with {} in state {}",
+                session,
+                contact.identity,
+                state,
+            )
+            return
+        }
         dhSessionStoreInterface.storeDHSession(session)
         logger.info(
             "Established 4DH session {} with {}",
@@ -720,18 +750,36 @@ class ForwardSecurityMessageProcessor(
                 statusListener.messagesSkipped(message.sessionId, contact, numTurns)
             }
         } catch (ratchetRotationException: KDFRatchet.RatchetRotationException) {
-            // The message carries a counter that is behind our current ratchet position, so we can
-            // no longer derive the key needed to decrypt it (ratchets only turn forward). Mirror the
-            // decryption-failure branch below: `Reject` and terminate the session so the sender
-            // resends in a fresh session. Without the reject the sender never learns the message was
-            // lost and never resends (silent loss). Returning NONE (instead of throwing) routes this
-            // through the caller's `message == null` path, which stores the outer nonce, so an
-            // at-least-once redelivery of this same message is filtered by the nonce dedup check
-            // before it reaches this code again and therefore never sends a second reject.
+            // The ratchet cannot be turned to this message's counter, for one of TWO reasons that
+            // this branch used to conflate. Either the counter is BEHIND our position, so the key is
+            // already gone and can never be re-derived (ratchets only turn forward), or it is
+            // further ahead than the catch-up limit, so the key is reachable but only at a cost the
+            // peer would be choosing for us. Both end the session, but they say different things
+            // about what went wrong upstream, so the diagnostics name which one fired instead of
+            // labelling every rotation failure "out of order".
+            //
+            // Note this is NOT the ordinary gap case: a forward skip within the limit is absorbed
+            // above, logged as messagesSkipped, and decryption continues.
+            //
+            // Mirror the decryption-failure branch below: `Reject` and terminate the session so the
+            // sender resends in a fresh session. Without the reject the sender never learns the
+            // message was lost and never resends (silent loss). Returning NONE (instead of throwing)
+            // routes this through the caller's `message == null` path, which stores the outer nonce,
+            // so an at-least-once redelivery of this same message is filtered by the nonce dedup
+            // check before it reaches this code again and therefore never sends a second reject.
             logger.warn(
-                "Rejecting message in session {} with {}, cause: Out of order FS message (message-id={})",
+                "Rejecting message in session {} with {}, cause: {} (ratchet-counter={}, message-counter={}, message-id={})",
                 session,
                 contact.identity,
+                when (ratchetRotationException.rotationCause) {
+                    KDFRatchet.RatchetRotationException.Cause.COUNTER_BEHIND ->
+                        "Out of order FS message, its key is already consumed"
+
+                    KDFRatchet.RatchetRotationException.Cause.TARGET_TOO_FAR_AHEAD ->
+                        "FS message too far ahead to catch up to"
+                },
+                ratchet.counter,
+                message.counter,
                 envelopeMessage.messageId,
             )
             statusListener.messageOutOfOrder(message.sessionId, contact, envelopeMessage.messageId)

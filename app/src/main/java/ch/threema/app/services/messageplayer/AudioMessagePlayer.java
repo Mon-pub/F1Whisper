@@ -104,6 +104,10 @@ public class AudioMessagePlayer extends MessagePlayer {
         @Override
         public void onPlayerError(@Nullable PlaybackException error) {
             logger.error("Error while playing audio", error);
+            // F1Whisper (tenth fork review, F10-04): a failed playback still ends the session. Leaving the owner
+            // registered would keep the durable claim looking live, which is exactly what the bubble's repair path
+            // refuses to touch, so the message would stay stuck until the process died.
+            settleListenOnceSession(false);
         }
 
         @Override
@@ -150,16 +154,22 @@ public class AudioMessagePlayer extends MessagePlayer {
                 // can never be replayed (best-effort, client-side enforcement). Gate on hasPlayed +
                 // matching media so a STATE_ENDED that arrives without real, audible playback of THIS
                 // message never burns it ("expires before being listened").
-                if (hasPlayed && playerMediaMatchesControllerMedia()) {
-                    enforceListenOnceIfNeeded();
-                } else {
-                    // F1Whisper (fourth fork review, F4-10): playback ended without ever becoming audible, so this
-                    // session is over and did not burn. Stop claiming to be the live owner, which lets the bubble
-                    // finish the interrupted burn - the accepted failed-playback tradeoff.
-                    releaseListenOnceOwnership();
-                }
+                //
+                // F1Whisper (tenth fork review, F10-04): both outcomes are now the one settlement, which decides from
+                // hasPlayed rather than from the call site, so the burn-or-release rule cannot differ between the six
+                // routes that can end a session.
+                settleListenOnceSession(true);
                 AudioMessagePlayer.super.stop();
                 ListenerManager.messagePlayerListener.handle(listener -> listener.onAudioPlayEnded(getMessageModel(), mediaControllerFuture));
+            } else if (playbackState == Player.STATE_IDLE) {
+                // F1Whisper (tenth fork review, F10-04): the shared controller went idle under this player, which ends
+                // the session as surely as reaching the end does. Gated on the media still being ours, because
+                // openInternal() stops the controller while it is holding the PREVIOUS item and that transition says
+                // nothing about this session.
+                if (playerMediaMatchesControllerMedia()) {
+                    logger.info("onIdle");
+                    settleListenOnceSession(false);
+                }
             } else if (playbackState == Player.STATE_READY) {
                 logger.info("onReady");
                 markAsConsumed();
@@ -208,11 +218,37 @@ public class AudioMessagePlayer extends MessagePlayer {
         // which is only one of several ways to get here (auto-play, download-complete, rebind).
         final AbstractMessageModel messageModel = getMessageModel();
         if (messageModel != null) {
+            // F1Whisper (twelfth fork review, F12-01): the routing below is ListenOnceAdmissionDecision's, and it
+            // establishes two things the old inline order did not. First, the registries are keyed by the message's
+            // stable identity (namespace + UID), never by the table-local integer id, which collides across the
+            // contact/group/distribution-list tables - an integer-keyed barrier hit used to refuse an UNRELATED audio
+            // message and then burn it (consumed metadata written to its own row, its own media deleted). Second,
+            // applicability comes first: a model that is not an incoming listen-once message is admitted without the
+            // barrier ever being consulted for it, so nothing here can refuse or burn an ordinary message even if a
+            // registry were polluted.
+            //
+            // F1Whisper (eleventh fork review, F11-05, semantics unchanged): for an applicable message the settling
+            // barrier still dominates the durable gate, because it exists precisely for the window in which the
+            // durable row is wrong: a fail-open session played without a written claim, its burn is on the worker (or
+            // its durable write FAILED), and the row still reads playable with no registered owner. The same player's
+            // token is re-entrant by design, so no ownership check can refuse this either - only the barrier can.
             final ListenOnceGate gate = ListenOnceEnforcer.gateOf(messageModel);
-            if (ListenOnceDecision.isPlaybackRefused(gate)) {
+            final ListenOnceMessageIdentity identity = ListenOnceMessageIdentity.of(messageModel);
+            final ListenOnceAdmission admission =
+                ListenOnceAdmissionDecision.decide(gate, ListenOnceBurnBarrier.isSettling(identity));
+            if (admission == ListenOnceAdmission.REFUSE_SETTLING) {
+                // Re-driving the burn here is the retry that pushes a failed durable settlement forward instead of
+                // waiting on it; the burn is conditional and idempotent, so a merely-slow worker is not doubled, only
+                // a failed one is retried. The model passed is the SAME model the settling identity was derived from,
+                // so the retry can only ever target the barred message itself.
+                logger.info("Refusing to open listen-once message {}: its burn is still settling", messageModel.getId());
+                ListenOnceEnforcer.burn(messageModel, messageService, fileService, false);
+                return;
+            }
+            if (admission == ListenOnceAdmission.REFUSE_SPENT) {
                 logger.info("Refusing to open listen-once message {} ({})", messageModel.getId(), gate);
                 if (gate == ListenOnceGate.BLOCKED_BURN_PENDING
-                    && !ListenOnceOwnership.isActive(messageModel.getId())) {
+                    && !ListenOnceOwnership.isActive(identity)) {
                     // A claim with no burn AND no live owner: playback began in an earlier process
                     // and never finished. Finish it now so the media stops occupying disk and the
                     // bubble settles. F1Whisper (fourth fork review, F4-10): with a live owner this
@@ -222,20 +258,41 @@ public class AudioMessagePlayer extends MessagePlayer {
                 }
                 return;
             }
-            if (ListenOnceDecision.needsClaimBeforeRelease(gate)) {
+            if (admission == ListenOnceAdmission.CLAIM_BEFORE_RELEASE) {
                 // F1Whisper (fourth fork review, F4-10): become the message's active owner BEFORE the
                 // claim is written, so no callback can observe the claim without also being able to
                 // observe that it is live. A second session is refused rather than queued: one
                 // message, one playback, and a second caller must not be able to burn this one's
                 // audio out from under it.
-                if (!ListenOnceOwnership.acquire(messageModel.getId(), listenOnceSessionToken)) {
+                if (!ListenOnceOwnership.acquire(identity, listenOnceSessionToken)) {
                     logger.info("Refusing to open listen-once message {}: another session is playing it", messageModel.getId());
                     return;
                 }
+                // F1Whisper (tenth fork review, F10-04): a new session starts here, so any claim callback still in
+                // flight from a previous one belongs to a session that has ended and must not release plaintext into
+                // this one. The token alone cannot express that, since it identifies the PLAYER and this player may
+                // legitimately open the same message again.
+                listenOnceSessionGeneration.incrementAndGet();
                 // Claim first, release second. The hop through the worker is what makes the claim
                 // durable before the player can read a byte; open() runs on the UI thread (media3
                 // requires main-thread controller calls) so the claim cannot be written inline.
-                ListenOnceEnforcer.claim(messageModel, messageService, () -> openInternal(decryptedFile));
+                //
+                // F1Whisper (tenth fork review, F10-04): the callback is gated on the session that asked for it still
+                // being the session that is running. It used to be unconditional, so a chat exit, an explicit stop or
+                // a replacement session landing while the worker ran would release plaintext into a player that had
+                // already been torn down. This is also what keeps the accepted fail-open policy - playback proceeds
+                // even when the claim write fails - confined to a still-current session.
+                final int generation = listenOnceSessionGeneration.get();
+                ListenOnceEnforcer.claim(messageModel, messageService, () -> {
+                    if (!ListenOnceSessionDecision.releasesPlaintext(generation, listenOnceSessionGeneration.get())) {
+                        logger.info(
+                            "Discarding a claim callback for listen-once message {}: its session has ended",
+                            messageModel.getId()
+                        );
+                        return;
+                    }
+                    openInternal(decryptedFile);
+                });
                 return;
             }
         }
@@ -250,14 +307,62 @@ public class AudioMessagePlayer extends MessagePlayer {
     private final Object listenOnceSessionToken = new Object();
 
     /**
-     * Give up active ownership of the listen-once message, if this player held it. Called wherever the playback session
-     * ends, so a message is not left looking permanently live in a process that has stopped playing it.
+     * F1Whisper (tenth fork review, F10-04): which playback session of this player is current.
+     *
+     * <p>Bumped when a session begins and when one settles, so an asynchronous claim callback can tell whether the
+     * session that asked for it is still the session that is running. See
+     * {@link ListenOnceSessionDecision#releasesPlaintext}.</p>
      */
-    private void releaseListenOnceOwnership() {
+    private final java.util.concurrent.atomic.AtomicInteger listenOnceSessionGeneration =
+        new java.util.concurrent.atomic.AtomicInteger();
+
+    /**
+     * F1Whisper (tenth fork review, F10-04): end this player's listen-once session, exactly once, however it ended.
+     *
+     * <p><b>The defect.</b> Ownership was released only from explicit playback-state callbacks, so every other way a
+     * session can end left the registry saying it was still live: leaving the chat, a controller disconnect, a playback
+     * error, an idle transition, the media service being destroyed. The durable row stayed claimed-and-unburned, and the
+     * bubble's repair path correctly refused to finish it because a live owner means the claim is not abandoned. Nothing
+     * recovered until the process died. In the supplied trace, incoming 3476 and the 1:1 control 998 both ended exactly
+     * there: claimed, playback begun, chat left, media service stopped, no burn and no release.</p>
+     *
+     * <p>Idempotent by construction: the first route to arrive is the one that owns the settlement, and the rest see
+     * that the token is no longer registered. The decision itself is
+     * {@link ListenOnceSessionDecision#settlementOnTermination}, so the rule is one rule and is testable without a
+     * device.</p>
+     *
+     * @param naturalEnd whether playback reached its own end, which is the only case where the user is watching and the
+     *                   one-shot burn animation belongs on screen.
+     */
+    private boolean audiblePlaybackOfThisMessageBegan() {
+        // F1Whisper (fourth fork review, F4-10, kept verbatim in meaning): BOTH terms are needed. `hasPlayed` alone
+        // would let a playback event belonging to another item burn this message, which is the "expires before being
+        // listened" defect; the media match alone says nothing about whether a single frame was ever heard.
+        return hasPlayed && playerMediaMatchesControllerMedia();
+    }
+
+    private void settleListenOnceSession(boolean naturalEnd) {
         final AbstractMessageModel messageModel = getMessageModel();
-        if (messageModel != null) {
-            ListenOnceOwnership.release(messageModel.getId(), listenOnceSessionToken);
+        if (messageModel == null) {
+            return;
         }
+        final ListenOnceMessageIdentity identity = ListenOnceMessageIdentity.of(messageModel);
+        final ListenOnceSettlement settlement = ListenOnceSessionDecision.settlementOnTermination(
+            ListenOnceOwnership.isOwnedBy(identity, listenOnceSessionToken),
+            audiblePlaybackOfThisMessageBegan(),
+            ListenOnceEnforcer.gateOf(messageModel)
+        );
+        if (settlement == ListenOnceSettlement.NOTHING) {
+            return;
+        }
+        // Bump first: from here on, a claim callback still in flight belongs to a session that has ended.
+        listenOnceSessionGeneration.incrementAndGet();
+        if (settlement == ListenOnceSettlement.BURN_AND_RELEASE) {
+            // Metadata first, then the files - the burn keeps that order internally, and it is what makes an
+            // interrupted burn repairable rather than a message whose media is gone and whose row says it is playable.
+            ListenOnceEnforcer.burn(messageModel, messageService, fileService, naturalEnd);
+        }
+        ListenOnceOwnership.release(identity, listenOnceSessionToken);
     }
 
     private void openInternal(File decryptedFile) {
@@ -493,6 +598,10 @@ public class AudioMessagePlayer extends MessagePlayer {
     private void releasePlayer() {
         logger.info("Release Player");
 
+        // F1Whisper (tenth fork review, F10-04): the controller is about to be stopped and cleared, so whatever this
+        // player was playing is over. Idempotent, so the usual arrival through stop() costs nothing here.
+        settleListenOnceSession(false);
+
         if (mediaPositionListener != null) {
             logger.debug("mediaPositionListener.interrupt()");
             mediaPositionListener.interrupt();
@@ -530,6 +639,14 @@ public class AudioMessagePlayer extends MessagePlayer {
 
     @Override
     public boolean stop() {
+        // F1Whisper (tenth fork review, F10-04): settle BEFORE the early return below.
+        //
+        // This is the chat-teardown route, reached from MessagePlayerServiceImpl's release/releaseExcept/stopAll and
+        // from MessagePlayer#release. When this player IS the one on the controller - the normal case for the message
+        // that was just playing - the old body did nothing at all, so leaving the chat mid-playback ended the session
+        // without burning it and without releasing ownership. Reaching here also means this player was NOT the one
+        // kept for background continuation: releaseExcept skips stop() entirely for that one.
+        settleListenOnceSession(false);
         if (!playerMediaMatchesControllerMedia()) {
             logger.debug("stop");
             super.stop();
@@ -600,23 +717,6 @@ public class AudioMessagePlayer extends MessagePlayer {
      * <p>This enforcement is purely client-side and best-effort: a modified client, a rooted device
      * or a screen recorder can still capture the audio. It is NOT a cryptographic guarantee.</p>
      */
-    private void enforceListenOnceIfNeeded() {
-        final AbstractMessageModel messageModel = getMessageModel();
-        if (messageModel == null) {
-            return;
-        }
-        final ListenOnceGate gate = ListenOnceEnforcer.gateOf(messageModel);
-        if (gate == ListenOnceGate.NOT_APPLICABLE || gate == ListenOnceGate.BLOCKED_CONSUMED) {
-            releaseListenOnceOwnership();
-            return;
-        }
-        // The user watched this one finish, so the bubble plays the burn burst.
-        ListenOnceEnforcer.burn(messageModel, messageService, fileService, true);
-        // F1Whisper (fourth fork review, F4-10): the session is over, so it stops being the live owner. The burn it just
-        // handed off is what settles the message from here.
-        releaseListenOnceOwnership();
-    }
-
     @Nullable
     public MediaController getMediaController() {
         final ListenableFuture<MediaController> future = mediaControllerFuture;
@@ -699,6 +799,9 @@ public class AudioMessagePlayer extends MessagePlayer {
             // lifecycle releases + deletes on the next chat exit (pre-feature parity). Do NOT release
             // it here (it is mid-recycle).
             VoiceMessagePlaybackHolder.getInstance(getAppContext()).markReattached(getMessageModel().getId());
+            // F1Whisper (tenth fork review, F10-04): the shared player has ended or moved to another message, so this
+            // session is over. super.stop() bypasses the override that would otherwise settle it.
+            settleListenOnceSession(false);
             super.stop();
             return;
         }

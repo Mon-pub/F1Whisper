@@ -34,35 +34,50 @@ import java.util.concurrent.ConcurrentHashMap
  *   [ListenOnceBurnRegistry], for the same reason.
  *
  * Only the holder of the token may [release], so a stale session that lost the race cannot unlock a message it does not own.
+ *
+ * F1Whisper (twelfth fork review, F12-01): keyed by [ListenOnceMessageIdentity], not the table-local integer row id -
+ * equal ids across the contact/group/distribution-list tables are normal, and an integer key let a session in one
+ * table refuse playback of (and suppress the repair burn for) an unrelated message in another.
  */
 object ListenOnceOwnership {
-    private val owners = ConcurrentHashMap<Int, Any>()
+    private val owners = ConcurrentHashMap<ListenOnceMessageIdentity, Any>()
 
     /**
-     * Take ownership of [messageId] for [sessionToken].
+     * Take ownership of [identity] for [sessionToken].
      *
      * @return `true` if this token now owns the message - either because nothing did, or because this same token already
      * did (so a re-entrant open by the owning session is not refused). `false` if another live session owns it.
      */
     @JvmStatic
-    fun acquire(messageId: Int, sessionToken: Any): Boolean {
-        val existing = owners.putIfAbsent(messageId, sessionToken)
+    fun acquire(identity: ListenOnceMessageIdentity, sessionToken: Any): Boolean {
+        val existing = owners.putIfAbsent(identity, sessionToken)
         return existing == null || existing === sessionToken
     }
 
     /**
-     * Whether a live playback session in this process currently owns [messageId]. The repair paths use this to tell a live
+     * Whether a live playback session in this process currently owns [identity]. The repair paths use this to tell a live
      * claim from an abandoned one.
      */
     @JvmStatic
-    fun isActive(messageId: Int): Boolean = owners.containsKey(messageId)
+    fun isActive(identity: ListenOnceMessageIdentity): Boolean = owners.containsKey(identity)
+
+    /**
+     * F1Whisper (tenth fork review, F10-04): whether [sessionToken] is the CURRENT owner of [identity].
+     *
+     * [isActive] answers "is somebody playing this", which is the question the repair paths ask. Settling a session asks a
+     * different one - "is this still mine to settle" - and that is what makes settlement idempotent across the several
+     * terminal routes that can all fire for one session: natural end, playback error, an explicit stop, the chat teardown
+     * and the player release that follows it. The first to arrive settles; the rest see the answer is no and do nothing.
+     */
+    @JvmStatic
+    fun isOwnedBy(identity: ListenOnceMessageIdentity, sessionToken: Any): Boolean = owners[identity] === sessionToken
 
     /**
      * Give up ownership, if [sessionToken] is the owner. A non-owner's call is ignored.
      */
     @JvmStatic
-    fun release(messageId: Int, sessionToken: Any) {
-        owners.remove(messageId, sessionToken)
+    fun release(identity: ListenOnceMessageIdentity, sessionToken: Any) {
+        owners.remove(identity, sessionToken)
     }
 
     /** Test seam: forget every owner, as a process death would. */

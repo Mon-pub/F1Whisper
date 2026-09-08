@@ -225,7 +225,11 @@ class OutgoingTerminalTransitionTest {
 
         assertTrue(body.contains("var acceptedAt: Date? = null"), "the acceptance timestamp is captured, not spent twice")
         assertTrue(
-            body.contains("messageService.applyOutgoingStateTransition("),
+            // F1Whisper (tenth fork review, F10-03): the call is now applyOutgoingCompletion, which IS this transition
+            // plus the side effects a successful completion owes the sender's own copy. The guarantee this test exists
+            // for is unchanged - one write for state, timestamp, forward-security mode and countdown - and F10-03 added
+            // the reason the group path must not call the bare transition: doing so skipped the listen-once burn.
+            body.contains("messageService.applyOutgoingCompletion("),
             "state, timestamp, forward-security mode and countdown go to disk together",
         )
         assertFalse(body.contains("messageService.save(messageModel)"), "these were the two full-row saves it replaced")

@@ -21,11 +21,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import ch.threema.app.R;
 import ch.threema.app.managers.ListenerManager;
+import ch.threema.app.services.messageplayer.ListenOnceBurnBarrier;
 import ch.threema.app.services.messageplayer.ListenOnceBurnRegistry;
 import ch.threema.app.services.messageplayer.ListenOnceDecision;
 import ch.threema.app.services.messageplayer.ListenOnceEnforcer;
 import ch.threema.app.services.messageplayer.ListenOnceGate;
+import ch.threema.app.services.messageplayer.ListenOnceMessageIdentity;
 import ch.threema.app.services.messageplayer.ListenOnceOwnership;
+import ch.threema.app.services.messageplayer.ListenOnceSessionDecision;
 import ch.threema.app.services.messageplayer.MessagePlayer;
 import ch.threema.app.ui.AudioProgressBarView;
 import ch.threema.app.ui.ControllerView;
@@ -150,7 +153,7 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
      * normal {@code onModified} re-render so the CORRECT (possibly re-bound) holder collapses — never
      * a stale captured holder.
      */
-    private void playBurnAnimation(@NonNull ComposeMessageHolder holder, final int burnId) {
+    private void playBurnAnimation(@NonNull ComposeMessageHolder holder, final ListenOnceMessageIdentity burnId) {
         final ViewGroup card = holder.messageBlockView;
         final AbstractMessageModel model = getMessageModel();
         // Run inline: at the burned bind the card was just visible during playback, so it is already
@@ -222,7 +225,7 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
         // burn the message the user had just started - deleting the file and collapsing the controls before playback
         // began. An active owner means the claim is live, not abandoned.
         if (ListenOnceEnforcer.gateOf(getMessageModel()) == ListenOnceGate.BLOCKED_BURN_PENDING
-            && !ListenOnceOwnership.isActive(getMessageModel().getId())) {
+            && !ListenOnceOwnership.isActive(ListenOnceMessageIdentity.of(getMessageModel()))) {
             ListenOnceEnforcer.burn(getMessageModel(), getMessageService(), getFileService(), false);
         }
         final boolean alreadyListened = isListenOnceSpent(getMessageModel());
@@ -306,7 +309,7 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
                 // localized "voice message expired" note (Telegram-style), NOT a flame bubble. If it
                 // JUST burned, the ember burst first plays over the full bubble and THEN it collapses;
                 // on reopen/scroll the registry is empty so the collapsed note shows with no animation.
-                final int burnId = getMessageModel().getId();
+                final ListenOnceMessageIdentity burnId = ListenOnceMessageIdentity.of(getMessageModel());
                 if (ListenOnceBurnRegistry.isBurning(burnId)) {
                     // Burst already running over this bubble; keep it full (do NOT collapse, do NOT
                     // restart) so the extra re-renders the burn fires cannot collapse it mid-burst.
@@ -582,9 +585,28 @@ public class AudioChatAdapterDecorator extends ChatAdapterDecorator {
             return false;
         }
         final FileDataModel fileData = messageModel.getFileData();
-        return fileData != null
-            && fileData.isListenOnce()
-            && (fileData.isListenOnceConsumed() || fileData.isListenOnceClaimed());
+        if (fileData == null) {
+            return false;
+        }
+        // F1Whisper (tenth fork review, F10-04): "finished as far as the screen is concerned" is not the same question
+        // as "may a second playback begin", and conflating them is what collapsed a live playback's own controls.
+        //
+        // The claim is written BEFORE the first audible frame, and persisting it fires onModified, so the bubble
+        // rebinds and re-reads its own session's claim while that session is still running. With no term for a live
+        // owner the answer was "spent": the controls were refused on the next tap and the progress row collapsed under
+        // a message the user had just started. A claim with a live owner in this process is that session's own claim.
+        // F1Whisper (twelfth fork review, F12-01): registries are keyed by the stable identity, never the
+        // table-local integer id, so a settling or playing message in ANOTHER table cannot mark this one spent.
+        final ListenOnceMessageIdentity identity = ListenOnceMessageIdentity.of(messageModel);
+        return ListenOnceSessionDecision.isSpentForPresentation(
+            fileData.isListenOnce(),
+            fileData.isListenOnceClaimed(),
+            fileData.isListenOnceConsumed(),
+            ListenOnceOwnership.isActive(identity),
+            // F1Whisper (eleventh fork review, F11-05): a burn in flight (or failed and awaiting retry) presents as
+            // spent even while the row still reads playable, because playback IS refused for it.
+            ListenOnceBurnBarrier.isSettling(identity)
+        );
     }
 
     @UiThread

@@ -728,11 +728,32 @@ public class GroupServiceImpl implements GroupService {
         }
     }
 
+    /**
+     * F1Whisper: rate-limits the group typing indicators this device SENDS, keyed by group. Deliberately separate from
+     * {@link #typingMembersByGroup} above, which holds the state of indicators RECEIVED.
+     *
+     * <p>This is the expensive path: one group typing event became a measured 10.4 wire messages, so 242 events in 13
+     * days of device logs cost 2516 sends, 6.5 times what group text cost over the same period. There is deliberately
+     * NO recipient cap - the average fan-out means a cap would silently disable the feature in most real groups - so
+     * the rate limit is the only bound.</p>
+     */
+    private final TypingIndicatorAdmission<Long> typingAdmission =
+        new TypingIndicatorAdmission<>(this::sendAdmittedTypingIndicator);
+
     @Override
     public void sendTypingIndicator(long groupDatabaseId, boolean isTyping) {
         if (!serviceManager.getSynchronizedSettingsService().isTypingIndicatorEnabled()) {
             return;
         }
+        typingAdmission.admit(groupDatabaseId, isTyping);
+    }
+
+    /**
+     * F1Whisper: puts an admitted group typing indicator on the wire. Called by {@link #typingAdmission}, possibly from
+     * its scheduler thread once a coalesced start's window has closed, so it re-resolves the group and its members
+     * rather than closing over them.
+     */
+    private void sendAdmittedTypingIndicator(long groupDatabaseId, boolean isTyping) {
         GroupModelOld groupModel = getById((int) groupDatabaseId);
         if (groupModel == null) {
             return;

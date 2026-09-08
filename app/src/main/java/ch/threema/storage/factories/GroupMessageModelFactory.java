@@ -418,16 +418,15 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
     }
 
     /**
-     * F1Whisper disappearing messages: all group messages whose disappear deadline has already passed
-     * ({@code expiresAtUtc <= now} and {@code expiresAtUtc} is set). Mirror of
-     * {@link MessageModelFactory#getMessagesExpiredBefore(long)} for the group table.
+     * F1Whisper disappearing messages: all group messages whose disappear deadline has already passed and which the
+     * deletion claim can still act on. Mirror of {@link MessageModelFactory#getMessagesExpiredBefore(long)} for the
+     * group table, including its {@link AbstractMessageModelFactory#pendingExpirySelection()} eligibility (F10-01).
      */
     public List<GroupMessageModel> getMessagesExpiredBefore(long now) {
         return convertList(getReadableDatabase().query(
             this.getTableName(),
             null,
-            AbstractMessageModel.COLUMN_EXPIRES_AT + " IS NOT NULL"
-                + " AND " + AbstractMessageModel.COLUMN_EXPIRES_AT + "<=?",
+            expiredBeforeSelection(),
             new String[]{String.valueOf(now)},
             null,
             null,
@@ -437,22 +436,16 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
     /**
      * F1Whisper disappearing messages: group rows whose countdown can never reach a deadline. Mirror
      * of {@link MessageModelFactory#getRepairableExpiryCandidates(int)} for the group table; see
-     * there for why a row with no {@code expiresAtUtc} is invisible to the rest of the engine and why
-     * this scan is confined to the boot/app-update path.
+     * there for why a row with no {@code expiresAtUtc} is invisible to the rest of the engine, why
+     * this scan is confined to the boot/app-update path, and why rows deleted for everyone are
+     * excluded from a budget this small (F10-01).
      */
     @NonNull
     public List<GroupMessageModel> getRepairableExpiryCandidates(int limit) {
         return convertList(getReadableDatabase().query(
             this.getTableName(),
             null,
-            AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + " > 0"
-                + " AND ("
-                + "(" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + " IS NOT NULL"
-                + " AND " + AbstractMessageModel.COLUMN_EXPIRES_AT + " IS NULL)"
-                + " OR (" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + " IS NULL"
-                + " AND " + AbstractMessageModel.COLUMN_IS_READ + " = 1"
-                + " AND " + AbstractMessageModel.COLUMN_OUTBOX + " = 0)"
-                + ")",
+            repairableExpirySelection(),
             null,
             null,
             null,
@@ -461,16 +454,14 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
     }
 
     /**
-     * F1Whisper disappearing messages: the soonest pending expiry across all group messages
-     * ({@code MIN(expiresAtUtc)} where set), or {@code null} if nothing is scheduled. Mirror of
-     * {@link MessageModelFactory#getEarliestExpiry()} for the group table.
+     * F1Whisper disappearing messages: the soonest pending expiry across all group messages the deletion claim can
+     * still act on, or {@code null} if nothing is scheduled. Mirror of
+     * {@link MessageModelFactory#getEarliestExpiry()} for the group table, including its
+     * {@link AbstractMessageModelFactory#pendingExpirySelection()} eligibility (F10-01).
      */
     @Nullable
     public Long getEarliestExpiry() {
-        try (Cursor cursor = getReadableDatabase().rawQuery(
-            "SELECT MIN(`" + AbstractMessageModel.COLUMN_EXPIRES_AT + "`) FROM " + this.getTableName()
-                + " WHERE `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` IS NOT NULL",
-            null)) {
+        try (Cursor cursor = getReadableDatabase().rawQuery(earliestExpirySql(this.getTableName()), null)) {
             if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
                 return cursor.getLong(0);
             }
@@ -500,10 +491,38 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return null;
     }
 
+    /**
+     * F1Whisper (group receipt regression, RB-01): the raw serialised per-member state map of row {@code id}, exactly
+     * as stored - byte for byte - or {@code null} when the column is SQL NULL or the row is gone.
+     *
+     * <p>A conditional write on this column must compare against these bytes, never against a parse-and-reserialise
+     * round trip of them: on Android {@code JSONObject} preserves the iteration order of the map it is built from, and
+     * {@code HashMap} iteration order depends on table capacity, so the same entries serialise differently out of the
+     * copy-sized map that wrote the column and the default-sized map the reload parses them into. A condition rebuilt
+     * that way never matches the stored text again once the orders diverge, and the compare-and-set refuses forever
+     * (see {@code MessageLifecycleUpdates.serialiseGroupMessageStates}).</p>
+     */
+    @Nullable
+    public String getGroupMessageStatesRaw(int id) {
+        try (Cursor cursor = getReadableDatabase().rawQuery(
+            "SELECT `" + GroupMessageModel.COLUMN_GROUP_MESSAGE_STATES + "` FROM `" + this.getTableName()
+                + "` WHERE `" + GroupMessageModel.COLUMN_ID + "` = ?",
+            new String[]{String.valueOf(id)})) {
+            if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+                return cursor.getString(0);
+            }
+        }
+        return null;
+    }
+
     private void addGroupMessageStates(@NonNull ContentValues contentValues, @NonNull GroupMessageModel groupMessageModel) {
+        // F1Whisper (group receipt regression, RB-01): an empty map is stored as NULL, exactly as
+        // MessageLifecycleUpdates.serialiseGroupMessageStates stores it - a full-row save writing "{}" where the
+        // column-scoped writers write NULL is a second way for the stored text to stop matching any reconstruction.
         String groupMessageStates = null;
-        if (groupMessageModel.getGroupMessageStates() != null) {
-            groupMessageStates = new JSONObject(groupMessageModel.getGroupMessageStates()).toString();
+        final Map<String, Object> states = groupMessageModel.getGroupMessageStates();
+        if (states != null && !states.isEmpty()) {
+            groupMessageStates = new JSONObject(states).toString();
         }
 
         contentValues.put(GroupMessageModel.COLUMN_GROUP_MESSAGE_STATES, groupMessageStates);

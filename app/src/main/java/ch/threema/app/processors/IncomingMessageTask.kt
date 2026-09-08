@@ -1,5 +1,6 @@
 package ch.threema.app.processors
 
+import androidx.annotation.VisibleForTesting
 import ch.threema.app.AppConstants
 import ch.threema.app.managers.ServiceManager
 import ch.threema.app.multidevice.MultiDeviceManager
@@ -53,6 +54,7 @@ import ch.threema.domain.taskmanager.TriggerSource
 import ch.threema.domain.taskmanager.catchAllExceptNetworkException
 import ch.threema.domain.taskmanager.catchExceptNetworkException
 import ch.threema.domain.taskmanager.getEncryptedIncomingMessageEnvelope
+import ch.threema.domain.taskmanager.runCatchingExceptNetworkException
 import ch.threema.domain.types.IdentityString
 import ch.threema.storage.models.ContactModel.AcquaintanceLevel
 import java.util.Date
@@ -370,29 +372,83 @@ class IncomingMessageTask(
         return Pair(fsDecryptionResult.message, fsDecryptionResult.peerRatchetIdentifier)
     }
 
-    private suspend fun acknowledgeMessage(
+    /**
+     * Persist everything that records this message as processed, and only then tell the server it
+     * may drop its copy.
+     *
+     * The order is load-bearing. The ack is the one thing standing between us and the server
+     * forgetting the message, so anything that has to outlive the server's copy must be written
+     * first. Acking first spent that guarantee before the replay nonce and the peer ratchet were
+     * committed, and a crash in the gap left the message gone from the server with neither written.
+     *
+     * The ack is still sent when persistence fails, deliberately: the incoming queue is processed in
+     * order, so withholding it would have the server redeliver this same message on every reconnect
+     * forever and wedge every message behind it. That is the same reasoning under which [run]
+     * already acks a message whose processing threw. What changes here is that the failure is
+     * reported as one rather than passing unnoticed. A [NetworkException] is NOT caught: there the
+     * ack could not be delivered anyway and the task manager reconnects and receives the message
+     * again, which is the outcome we want.
+     */
+    @VisibleForTesting
+    internal suspend fun acknowledgeMessage(
         messageBox: MessageBox,
         protectAgainstReplay: Boolean,
         peerRatchetIdentifier: PeerRatchetIdentifier?,
         handle: ActiveTaskCodec,
     ) {
+        runCatchingExceptNetworkException {
+            // If the message should be protected against replay, store the nonce
+            if (protectAgainstReplay) {
+                storeNonceForReplayProtection(messageBox)
+            }
+
+            // If there is a peer ratchet identifier known, then turn the peer ratchet
+            peerRatchetIdentifier?.let {
+                forwardSecurityMessageProcessor.commitPeerRatchet(it, handle)
+            }
+        }.onFailure { e ->
+            logger.error(
+                "Could not persist that message {} from {} was processed; acknowledging it anyway to keep the queue moving",
+                messageBox.messageId,
+                messageBox.fromIdentity,
+                e,
+            )
+        }
+
         // If the no-server-ack message flag is not set, send a message-ack to the server
         if (!messageBox.hasFlag(ProtocolDefines.MESSAGE_FLAG_NO_SERVER_ACK)) {
             sendAck(messageBox.messageId, messageBox.fromIdentity, handle)
         }
+    }
 
-        // If the message should be protected against replay, store the nonce
-        if (protectAgainstReplay) {
-            try {
-                nonceFactory.store(NonceScope.CSP, Nonce(messageBox.nonce))
-            } catch (e: IllegalArgumentException) {
-                logger.error("Cannot protect message against replay due to invalid nonce")
-            }
+    /**
+     * Store the message's nonce so that a redelivery of it is dropped by the dedup check in
+     * [processMessage] instead of being processed a second time.
+     *
+     * [NonceFactory.store] answers false to two opposite outcomes: the nonce was already stored,
+     * which is exactly what an at-least-once redelivery looks like and is fine, and the insert
+     * failed, which means this message is NOT protected against replay. Only the second is a defect,
+     * so they are told apart here instead of both passing unremarked.
+     */
+    private fun storeNonceForReplayProtection(messageBox: MessageBox) {
+        val nonce = try {
+            Nonce(messageBox.nonce)
+        } catch (e: IllegalArgumentException) {
+            logger.error("Cannot protect message {} against replay due to invalid nonce", messageBox.messageId, e)
+            return
         }
 
-        // If there is a peer ratchet identifier known, then turn the peer ratchet
-        peerRatchetIdentifier?.let {
-            forwardSecurityMessageProcessor.commitPeerRatchet(it, handle)
+        if (nonceFactory.store(NonceScope.CSP, nonce)) {
+            return
+        }
+        if (nonceFactory.exists(NonceScope.CSP, nonce)) {
+            logger.info("Nonce of message {} was already stored", messageBox.messageId)
+        } else {
+            logger.error(
+                "Could not store the nonce of message {} from {}; it is not protected against replay",
+                messageBox.messageId,
+                messageBox.fromIdentity,
+            )
         }
     }
 
@@ -505,6 +561,44 @@ class IncomingMessageTask(
 
         if (result == ReceiveStepsResult.DISCARD) {
             throw DiscardMessageException(message)
+        }
+
+        clearSenderTyping(message)
+    }
+
+    /**
+     * F1Whisper: a message from X means X is no longer composing it.
+     *
+     * Until now nothing cleared a sender's typing state except another typing message: the only callers of
+     * `ContactServiceImpl.setIsTyping` and `GroupServiceImpl.setMemberTyping` were the two incoming typing indicator
+     * tasks. That made the explicit "stopped typing" message load-bearing, and it is the more expensive half of a
+     * typing burst - typing indicators were 54% of all outbound end-to-end sends in 13 days of device logs, and 54% of
+     * everything wrapped in Forward Security. Deriving the stop from the message that caused it is free on the wire,
+     * and strictly faster: it lands with the message rather than as a separate send behind it.
+     *
+     * The rule is scoped to messages the composer produces, which is exactly the set that asks for a push
+     * (`MessageFlags.flagSendPush`): text, media, location, polls, edits, deletes and reactions. Delivery receipts,
+     * poll votes and group control messages do not clear it, because they can legitimately arrive WHILE the peer is
+     * typing.
+     *
+     * Only the REMOTE path needs this. A reflected incoming message reaches a linked device that was never told about
+     * the typing in the first place: typing indicators are deliberately not reflected.
+     */
+    private fun clearSenderTyping(message: AbstractMessage) {
+        if (!message.flagSendPush()) {
+            return
+        }
+        val senderIdentity = message.fromIdentity ?: return
+        try {
+            if (message is AbstractGroupMessage) {
+                val group = serviceManager.groupService.getByGroupMessage(message) ?: return
+                serviceManager.groupService.setMemberTyping(group.id.toLong(), senderIdentity, false)
+            } else {
+                contactService.setIsTyping(senderIdentity, false)
+            }
+        } catch (e: Exception) {
+            // Never let a cosmetic state update fail a message that was already processed successfully.
+            logger.warn("Could not clear the typing state of {}", senderIdentity, e)
         }
     }
 

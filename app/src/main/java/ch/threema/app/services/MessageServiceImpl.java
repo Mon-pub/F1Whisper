@@ -75,6 +75,7 @@ import ch.threema.app.routines.MarkAsReadRoutine;
 import ch.threema.app.services.ballot.BallotService;
 import ch.threema.app.services.ballot.BallotUpdateResult;
 import ch.threema.app.services.messageplayer.ListenOnceBurnRegistry;
+import ch.threema.app.services.messageplayer.ListenOnceMessageIdentity;
 import ch.threema.app.services.messageplayer.MessagePlayerService;
 import ch.threema.app.services.notification.NotificationService;
 import ch.threema.app.tasks.PersistentTaskRowGate;
@@ -882,8 +883,13 @@ public class MessageServiceImpl implements MessageService {
             String priorStates = null;
             String mergedStates = null;
             if (clearsGroupStates) {
-                priorStates = MessageLifecycleUpdates.serialiseGroupMessageStates(
-                    ((GroupMessageModel) current).getGroupMessageStates());
+                // F1Whisper (group receipt regression, RB-01): condition on the stored TEXT and remove the entry from
+                // a map parsed from those same bytes, as addGroupMessageState does - a condition reconstructed by
+                // re-serialising the reloaded map stops matching once HashMap capacity reorders the keys.
+                priorStates = databaseService.getGroupMessageModelFactory()
+                    .getGroupMessageStatesRaw(current.getId());
+                ((GroupMessageModel) current).setGroupMessageStates(
+                    MessageLifecycleUpdates.parseGroupMessageStates(priorStates));
                 groupService.removeGroupMessageState((GroupMessageModel) current, myIdentity);
                 mergedStates = MessageLifecycleUpdates.serialiseGroupMessageStates(
                     ((GroupMessageModel) current).getGroupMessageStates());
@@ -1767,10 +1773,63 @@ public class MessageServiceImpl implements MessageService {
             }
         }
 
-        // F1Whisper: once an outgoing "listen once" voice message has actually been sent (its blob is
-        // now on the server, ready for the recipient to fetch once), burn the sender's own copy too,
-        // so the sender can never replay it either (Telegram/WhatsApp view-once behaviour).
-        if (OutgoingClockDecision.hasLeftTheDevice(messageModel.getState())) {
+        // F1Whisper (tenth fork review, F10-03): the completion side effects go through the shared boundary, outside
+        // the monitor because the burn writes a row and deletes files. This is a 1:1 send, so the state answers on its
+        // own; a group's completion cannot be read off a state and calls the boundary with counts instead.
+        completeOutgoingSend(applied, messageModel, state, OutgoingSendEvidence.contactSend());
+    }
+
+    @Override
+    public boolean applyOutgoingCompletion(
+        @NonNull AbstractMessageModel messageModel,
+        @NonNull MessageState state,
+        @NonNull Date transitionAt,
+        @Nullable ForwardSecurityMode forwardSecurityMode,
+        boolean bypassStateGate,
+        @NonNull OutgoingSendEvidence evidence
+    ) {
+        final boolean applied = applyOutgoingStateTransition(
+            messageModel, state, transitionAt, forwardSecurityMode, bypassStateGate
+        );
+        completeOutgoingSend(applied, messageModel, state, evidence);
+        return applied;
+    }
+
+    @Override
+    public void applyGroupPayloadAcceptance(@NonNull AbstractMessageModel messageModel) {
+        // F1Whisper (eleventh fork review, F11-03): one accepted remote recipient is the whole burn condition for a
+        // non-notes group (OutgoingSendBoundaryDecision.burnsSenderCopy: acceptedRemoteRecipients > 0), and the
+        // caller by construction IS that acceptance - the send steps invoke this once per acknowledged main payload,
+        // and a notes group has no remote recipient to acknowledge anything, so it never reaches here and keeps its
+        // completion-boundary rule. No state is written: the final state stays deferred until the whole send
+        // finishes, and the burn helper below is the same conditional, idempotent, non-throwing write the completion
+        // boundary uses, so the two paths cannot disagree about what a burn is.
+        burnOutgoingListenOnceIfNeeded(messageModel);
+    }
+
+    /**
+     * F1Whisper (tenth fork review, F10-03): the ONE place a successful outgoing completion performs the side effects
+     * the sender's own copy is owed.
+     *
+     * <p>Both completion paths reach it: the 1:1 wrapper and the group task's direct transition. That is the whole
+     * point of it existing, since the group path bypassing the wrapper is exactly how the burn went missing.</p>
+     *
+     * <p>Gated on the conditional write having applied. A completion that lost the write is not this caller's
+     * completion - the row is gone, or deleted for everyone, or has moved on - and burning from a stale detached model
+     * would delete files for a message this caller no longer owns.</p>
+     */
+    private void completeOutgoingSend(
+        boolean transitionApplied,
+        @NonNull AbstractMessageModel messageModel,
+        @NonNull MessageState state,
+        @NonNull OutgoingSendEvidence evidence
+    ) {
+        if (!transitionApplied) {
+            return;
+        }
+        // Once an outgoing "listen once" voice message has actually been sent - its blob is on the server, ready for
+        // the recipient to fetch once - the sender's own copy is burned too, so the sender can never replay it either.
+        if (OutgoingSendBoundaryDecision.burnsSenderCopy(state, evidence)) {
             burnOutgoingListenOnceIfNeeded(messageModel);
         }
     }
@@ -1975,7 +2034,7 @@ public class MessageServiceImpl implements MessageService {
             fileService.removeMessageFiles(messageModel, true);
             // F1Whisper: play the one-shot burn animation on the sender's own bubble too (once, on
             // the re-render below). Consumed by the decorator; not replayed on chat reopen.
-            ListenOnceBurnRegistry.markForBurnAnimation(messageModel.getId());
+            ListenOnceBurnRegistry.markForBurnAnimation(ListenOnceMessageIdentity.of(messageModel));
             fireOnModifiedMessage(messageModel);
         } catch (Exception e) {
             logger.error("Failed to burn sent listen-once voice message", e);
@@ -2647,23 +2706,38 @@ public class MessageServiceImpl implements MessageService {
     @Nullable
     private AbstractMessageModel reloadPersistedModel(@NonNull AbstractMessageModel messageModel) {
         try {
-            if (messageModel.getId() <= 0) {
-                return null;
-            }
-            if (messageModel instanceof GroupMessageModel) {
-                return databaseService.getGroupMessageModelFactory().getById(messageModel.getId());
-            }
-            if (messageModel instanceof DistributionListMessageModel) {
-                return databaseService.getDistributionListMessageModelFactory().getById(messageModel.getId());
-            }
-            if (messageModel instanceof MessageModel) {
-                return databaseService.getMessageModelFactory().getById(messageModel.getId());
-            }
-            return null;
+            return readPersistedRow(messageModel);
         } catch (Exception e) {
             logger.warn("Disappearing: could not re-read model uid={} before freezing", messageModel.getUid(), e);
             return null;
         }
+    }
+
+    /**
+     * F1Whisper (twelfth fork review, F12-02): the raw row read, with absence and unreadability kept apart.
+     *
+     * <p>{@link #reloadPersistedModel} folds a database error into the same {@code null} as a missing row, which is
+     * the right shape for its callers (they fall back to the instance they hold). The consuming media-metadata write
+     * cannot accept that fold: "the row is gone" lets a listen-once settlement finish once the media is confirmed
+     * gone, while "the row could not be read" must retain the replay barrier - so this variant returns {@code null}
+     * ONLY for a row that is confirmed absent (including a model that was never persisted or is of no persistable
+     * subtype) and lets a read failure propagate to the caller.</p>
+     */
+    @Nullable
+    private AbstractMessageModel readPersistedRow(@NonNull AbstractMessageModel messageModel) {
+        if (messageModel.getId() <= 0) {
+            return null;
+        }
+        if (messageModel instanceof GroupMessageModel) {
+            return databaseService.getGroupMessageModelFactory().getById(messageModel.getId());
+        }
+        if (messageModel instanceof DistributionListMessageModel) {
+            return databaseService.getDistributionListMessageModelFactory().getById(messageModel.getId());
+        }
+        if (messageModel instanceof MessageModel) {
+            return databaseService.getMessageModelFactory().getById(messageModel.getId());
+        }
+        return null;
     }
 
     private boolean isDeliveryReceiptAllowedForContact(@Nullable ContactModel contactModel) {
@@ -2768,9 +2842,14 @@ public class MessageServiceImpl implements MessageService {
                 return;
             }
             final GroupMessageModel current = (GroupMessageModel) reloaded;
-            final String priorStates = MessageLifecycleUpdates.serialiseGroupMessageStates(current.getGroupMessageStates());
+            // F1Whisper (group receipt regression, RB-01): the condition is the stored TEXT itself, and the merge
+            // starts from those same bytes. A condition reconstructed by re-serialising the reloaded map stops matching
+            // the stored text once HashMap capacity reorders the keys (Android's JSONObject preserves map iteration
+            // order), and every retry rebuilds the same wrong string - the row then never records another receipt.
+            final String priorStates = databaseService.getGroupMessageModelFactory()
+                .getGroupMessageStatesRaw(current.getId());
             final Map<String, Object> merged = MessageLifecycleUpdates.mergeGroupReceipt(
-                current.getGroupMessageStates(), fromIdentity, state);
+                MessageLifecycleUpdates.parseGroupMessageStates(priorStates), fromIdentity, state);
             if (merged == null) {
                 // Already recorded, or a late DELIVERED behind a READ from the same member.
                 return;
@@ -2832,7 +2911,7 @@ public class MessageServiceImpl implements MessageService {
         // F1Whisper (fifth fork review, F5-04): consuming a message writes its state, and only its state. It used to
         // full-row-save the caller's detached instance, which could recreate a row deleted in between and reverted every
         // other column to whatever that instance happened to hold.
-        final boolean saved = consumeAndUpdateMediaMetadata(message, current -> false);
+        final boolean saved = consumeAndUpdateMediaMetadata(message, current -> false) == MediaConsumeOutcome.APPLIED;
         if (saved) {
             fireOnModifiedMessage(message);
         }
@@ -2842,12 +2921,13 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @WorkerThread
     public boolean updateMediaMetadata(@NonNull AbstractMessageModel messageModel, @NonNull MediaMetadataMutation mutation) {
-        return writeMediaMetadata(messageModel, mutation, false);
+        return writeMediaMetadata(messageModel, mutation, false) == MediaConsumeOutcome.APPLIED;
     }
 
     @Override
     @WorkerThread
-    public boolean consumeAndUpdateMediaMetadata(@NonNull AbstractMessageModel messageModel, @NonNull MediaMetadataMutation mutation) {
+    @NonNull
+    public MediaConsumeOutcome consumeAndUpdateMediaMetadata(@NonNull AbstractMessageModel messageModel, @NonNull MediaMetadataMutation mutation) {
         return writeMediaMetadata(messageModel, mutation, true);
     }
 
@@ -2859,22 +2939,38 @@ public class MessageServiceImpl implements MessageService {
      * concurrent one is not merely refused, it is recomputed on top of the value that won. The write names the body (and,
      * when consuming, the state and modified timestamp) and nothing else, and is conditional on both as they were read.
      * The caller's instance is then made to agree with what was actually stored.</p>
+     *
+     * <p>F1Whisper (twelfth fork review, F12-02): the return discriminates the outcomes the old boolean collapsed,
+     * because the listen-once burn decides from it whether its settlement is durable. Each return site names its own
+     * situation: an unreadable row, a throwing mutation and an exhausted retry loop are
+     * {@link MediaConsumeOutcome#INDETERMINATE} (nothing durable is known); an absent row and a delete-for-everyone
+     * tombstone are {@link MediaConsumeOutcome#ROW_GONE}; a decline because the row already carries the terminal state
+     * is {@link MediaConsumeOutcome#ALREADY_TERMINAL} - and on the consuming path the caller's instance additionally
+     * adopts the persisted terminal body, so an admission decision made from that instance (the player holds it across
+     * the whole settlement) agrees with the row it could not observe directly.</p>
      */
     @WorkerThread
-    private boolean writeMediaMetadata(
+    @NonNull
+    private MediaConsumeOutcome writeMediaMetadata(
         @NonNull AbstractMessageModel messageModel,
         @NonNull MediaMetadataMutation mutation,
         boolean consume
     ) {
         for (int attempt = 0; attempt < CONDITIONAL_WRITE_ATTEMPTS; attempt++) {
-            final AbstractMessageModel current = reloadPersistedModel(messageModel);
+            final AbstractMessageModel current;
+            try {
+                current = readPersistedRow(messageModel);
+            } catch (Exception e) {
+                logger.warn("Not writing media metadata for uid={}: its row is unreadable", messageModel.getUid(), e);
+                return MediaConsumeOutcome.INDETERMINATE;
+            }
             if (current == null) {
-                logger.info("Not writing media metadata for uid={}: its row is gone or unreadable", messageModel.getUid());
-                return false;
+                logger.info("Not writing media metadata for uid={}: its row is gone", messageModel.getUid());
+                return MediaConsumeOutcome.ROW_GONE;
             }
             if (isDeletedForEveryone(current)) {
                 logger.info("Not writing media metadata for uid={}: it was deleted for everyone", messageModel.getUid());
-                return false;
+                return MediaConsumeOutcome.ROW_GONE;
             }
             final String priorBody = current.getBody();
             final MessageState priorState = current.getState();
@@ -2885,14 +2981,20 @@ public class MessageServiceImpl implements MessageService {
                 changed = mutation.apply(current);
             } catch (Exception e) {
                 logger.error("A media-metadata mutation failed for uid={}", messageModel.getUid(), e);
-                return false;
+                return MediaConsumeOutcome.INDETERMINATE;
             }
 
             final Date consumedAt = new Date();
             final boolean consuming = consume && MessageUtil.canMarkAsConsumed(current);
             changed = changed || consuming;
             if (!changed) {
-                return false;
+                if (consume) {
+                    // The decline says the row already carries the terminal state. The caller's instance may still
+                    // predate it (the fail-open playback path holds a model whose claim write never landed), and it is
+                    // the instance admission decides from - so make it agree with the row before reporting terminal.
+                    messageModel.adoptPersistedBody(current.getBody());
+                }
+                return MediaConsumeOutcome.ALREADY_TERMINAL;
             }
 
             // F1Whisper (sixth fork review, F6-02): the caption travels with the completion, because the legacy image
@@ -2912,13 +3014,13 @@ public class MessageServiceImpl implements MessageService {
                     messageModel.setState(MessageState.CONSUMED);
                     messageModel.setModifiedAt(consumedAt);
                 }
-                return true;
+                return MediaConsumeOutcome.APPLIED;
             }
             logger.debug("Media metadata for {} moved under us, re-reading (attempt {})", messageModel.getId(), attempt + 1);
         }
         logger.warn("Gave up writing media metadata for uid={} after {} superseded attempts",
             messageModel.getUid(), CONDITIONAL_WRITE_ATTEMPTS);
-        return false;
+        return MediaConsumeOutcome.INDETERMINATE;
     }
 
     @Override

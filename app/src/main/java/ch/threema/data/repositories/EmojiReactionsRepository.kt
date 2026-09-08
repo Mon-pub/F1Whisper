@@ -165,7 +165,13 @@ class EmojiReactionsRepository(
     }
 
     /**
-     * Inserts a [DbEmojiReaction] into the db.
+     * Inserts a [DbEmojiReaction] into the db, or leaves an identical one that is already there untouched.
+     *
+     * F1Whisper: applying the same reaction twice is a no-op, not an error. It is reachable without any repeated
+     * user action - a redelivered message that passed the nonce check, two linked devices applying the same emoji
+     * under OUR identity, or a repeated ACK converted to a thumbs-up - and it used to surface as an ERROR and a lost
+     * reaction. What is published to the cache is what [EmojiReactionsDao.create] reports as STORED, so an ignored
+     * insert publishes the original timestamp rather than the one this attempt invented.
      *
      * @param targetMessage The message model to create a reaction to
      * @param senderIdentity The identity of the sender of the reaction to create
@@ -182,7 +188,7 @@ class EmojiReactionsRepository(
         emojiSequence: String,
     ) {
         synchronized(cache) {
-            try {
+            val persistedEntry = try {
                 val reactionEntry = DbEmojiReaction(
                     messageId = targetMessage.id,
                     senderIdentity = senderIdentity,
@@ -190,13 +196,19 @@ class EmojiReactionsRepository(
                     reactedAt = now(),
                 )
                 emojiReactionDao.create(reactionEntry, targetMessage)
-                ReactionMessageIdentifier.fromMessageModel(targetMessage)
-                    ?.let { reactionMessageIdentifier ->
-                        cache.get(reactionMessageIdentifier)?.addEntry(reactionEntry.toDataType())
-                    }
             } catch (exception: SQLiteException) {
                 throw EmojiReactionEntryCreateException(exception)
             }
+            if (persistedEntry == null) {
+                // Neither inserted nor readable afterwards. Not a duplicate, and not something to report as stored.
+                throw EmojiReactionEntryCreateException(
+                    IllegalStateException("The reaction was neither inserted nor already present"),
+                )
+            }
+            ReactionMessageIdentifier.fromMessageModel(targetMessage)
+                ?.let { reactionMessageIdentifier ->
+                    cache.get(reactionMessageIdentifier)?.addEntry(persistedEntry.toDataType())
+                }
         }
     }
 

@@ -74,10 +74,17 @@ class CspSocketTest {
      * by simulating server login messages.
      */
     private suspend fun simulateServerLoginMessages(socket: CspSocket) {
+        // Register the handler BEFORE writing, exactly like the helpers below. The inbound pipe
+        // drops a message when no handler is set, so writing first races the read loop: if it wins,
+        // the frame is delivered into a null handler, the deferred is never completed and the test
+        // blocks until the runTest timeout.
+        val serverHello = receiveMessageAsync(socket)
         testSocket.write(ByteArray(ProtocolDefines.SERVER_HELLO_LEN))
-        receiveMessageAsync(socket).await()
+        serverHello.await()
+
+        val serverLoginAck = receiveMessageAsync(socket)
         testSocket.write(ByteArray(ProtocolDefines.SERVER_LOGIN_ACK_LEN))
-        receiveMessageAsync(socket).await()
+        serverLoginAck.await()
     }
 
     private suspend fun testDataFrame(socket: CspSocket, length: UShort) {

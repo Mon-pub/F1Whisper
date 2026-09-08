@@ -31,6 +31,7 @@ import androidx.core.app.ServiceCompat;
 import androidx.core.content.ContextCompat;
 import ch.threema.app.R;
 import ch.threema.app.activities.DownloadApkActivity;
+import ch.threema.app.connection.CachingDnsResolver;
 import ch.threema.app.notifications.NotificationChannels;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -448,10 +449,16 @@ public class ApkUpdateDownloadService extends Service {
      * H-08 — cross-scheme redirects are disabled AND every hop is asserted HTTPS by a network
      * interceptor, so no part of the APK transfer can be downgraded to plaintext after the initial
      * URL check.
+     *
+     * <p>It does share the app's DNS chain ({@link CachingDnsResolver#resolveForHttp}), so a
+     * download started in a Doze window where name resolution is frozen falls back to the last-good
+     * IP instead of dying at DNS. That is address selection only: HTTPS is still asserted on every
+     * hop above, and the certificate is still validated against the original url host.
      */
     @NonNull
     private static OkHttpClient client() {
         return new OkHttpClient.Builder()
+            .dns(CachingDnsResolver::resolveForHttp)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)

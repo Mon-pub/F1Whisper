@@ -131,6 +131,13 @@ public class ContactServiceImpl implements ContactService {
 
     private final List<String> typingIdentities = new ArrayList<>();
 
+    /**
+     * F1Whisper: rate-limits the typing indicators this device SENDS, keyed by recipient. Deliberately separate from
+     * {@link #typingIdentities} and {@link #typingTimerTasks} above, which hold the state of indicators RECEIVED.
+     */
+    private final TypingIndicatorAdmission<String> typingAdmission =
+        new TypingIndicatorAdmission<>(this::sendAdmittedTypingIndicator);
+
     private ContactModel me;
 
     public final static byte[] THREEMA_PUBLIC_KEY = new byte[]{ // *THREEMA
@@ -648,6 +655,22 @@ public class ContactServiceImpl implements ContactService {
             return;
         }
 
+        // F1Whisper: the gate sits here rather than in the composer's watcher because the watcher is not the only
+        // caller - legacy Web's IsTypingHandler calls this method directly. See TypingIndicatorAdmission.
+        typingAdmission.admit(toIdentity, isTyping);
+    }
+
+    /**
+     * F1Whisper: puts an admitted typing indicator on the wire. Called by {@link #typingAdmission}, possibly from its
+     * scheduler thread once a coalesced start's window has closed, so it re-resolves the contact rather than closing
+     * over one.
+     */
+    private void sendAdmittedTypingIndicator(@NonNull String toIdentity, boolean isTyping) {
+        ContactModel contactModel = getByIdentity(toIdentity);
+        if (contactModel == null) {
+            logger.warn("Cannot send typing indicator: the contact is gone");
+            return;
+        }
         try {
             createReceiver(contactModel).sendTypingIndicatorMessage(isTyping);
         } catch (ThreemaException e) {

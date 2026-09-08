@@ -18,6 +18,7 @@ import ch.threema.data.repositories.ContactModelRepository
 import ch.threema.domain.models.BasicContact
 import ch.threema.domain.models.MessageId
 import ch.threema.domain.protocol.csp.messages.GroupDeleteProfilePictureMessage
+import ch.threema.domain.protocol.csp.messages.GroupDisappearingTimerMessage
 import ch.threema.domain.protocol.csp.messages.GroupNameMessage
 import ch.threema.domain.protocol.csp.messages.GroupSetProfilePictureMessage
 import ch.threema.domain.protocol.csp.messages.GroupSetupMessage
@@ -69,7 +70,28 @@ data class PredefinedMessageIds(
     val messageId3: MessageId,
     val messageId4: MessageId,
 ) {
+    /**
+     * F1Whisper (tenth fork review, F10-05): the id of the disappearing-timer control that carries the group's current
+     * timer to a newly added member.
+     *
+     * **Derived rather than persisted, deliberately.** These ids exist so a retried or process-restarted task re-sends
+     * the SAME message rather than a duplicate, and the four above achieve that by being serialised into the archived
+     * task data. A fifth persisted field would change the encoding of `GroupCreateTaskData` and `GroupUpdateTaskData`,
+     * whose own comments say any modification requires a recovery handler - and `TaskArchiverImpl` DROPS a task whose
+     * decode and recovery both fail, so getting that wrong would silently discard a queued group update from a
+     * v6.4.3-38 database. Deriving the id keeps both encodings byte-identical, so there is no migration to get wrong,
+     * and gives the stability requirement for free: the same archived task always derives the same id.
+     *
+     * XOR with a fixed non-zero constant is a bijection on 64 bits, so this is provably never equal to [messageId1],
+     * and it collides with the other three only with the probability any two random ids do.
+     */
+    val disappearingTimerMessageId: MessageId
+        get() = MessageId(messageId1.messageIdLong xor DISAPPEARING_TIMER_ID_DERIVATION)
+
     companion object {
+        /** ASCII `F1W_TMR1`, so a value seen in a log is recognisable as this derivation rather than a random id. */
+        internal const val DISAPPEARING_TIMER_ID_DERIVATION: Long = 0x4631575F544D5231L
+
         fun random(): PredefinedMessageIds =
             PredefinedMessageIds(
                 messageId1 = MessageId.random(),
@@ -156,6 +178,26 @@ suspend fun runActiveGroupUpdateSteps(
                     predefinedMessageIds.messageId4,
                     groupCallManager,
                 ),
+                // F1Whisper (tenth fork review, F10-05): the group's CURRENT disappearing timer, to the members being
+                // added and to nobody else.
+                //
+                // The defect: the timer is announced only when a user changes the picker, to the membership that
+                // existed at that moment, so a member added afterwards was never a recipient of that message and had
+                // no way to learn the policy. They defaulted to OFF and sent under it - the supplied report shows a
+                // new member sending with `timer=nulls advertised=0` into a 30-second group, and converging only when
+                // another member happened to change the timer later. Multi-device was off in that report, so
+                // reflection cannot explain it.
+                //
+                // Listed AFTER setup so the recipient can resolve the group before it processes the 0x95, and sent on
+                // the wire in that order because the send steps run each stage over the senders in list order.
+                createGroupDisappearingTimer(
+                    addMembers.intersect(groupModelData.otherMembers)
+                        .toBasicContacts(services.contactModelRepository),
+                    groupModel,
+                    groupModelData,
+                    services,
+                    predefinedMessageIds.disappearingTimerMessageId,
+                ),
             ),
         )
     }
@@ -191,6 +233,69 @@ private fun createGroupSetup(
         }
     },
 )
+
+/**
+ * F1Whisper (tenth fork review, F10-05): a `0x95` carrying the group's current shared timer, for [receivers].
+ *
+ * Sends an explicit `0` when the timer is off rather than sending nothing, because a re-added member may still hold a
+ * stale positive timer from before they were removed; silence would leave them counting down messages the group no
+ * longer expires. The recipient's own incoming handler applies it, so this is pure state transfer: no local write, no
+ * status row, and no broadcast to existing members. `setConversationTimer` is deliberately not used here - it mutates
+ * local state, creates a status message and announces to the FULL current membership, which is the piggyback re-assert
+ * the third review removed.
+ *
+ * @return `null` when there is nobody to bootstrap.
+ */
+private fun createGroupDisappearingTimer(
+    receivers: Set<BasicContact>,
+    groupModel: GroupModel,
+    groupModelData: GroupModelData,
+    services: OutgoingCspMessageServices,
+    messageId: MessageId,
+): OutgoingCspMessageHandle? {
+    if (receivers.isEmpty()) {
+        return null
+    }
+    val timerSeconds = currentGroupDisappearingTimerSeconds(groupModel, services)
+    logger.info(
+        "Bootstrapping the group disappearing timer to {} newly added member(s): {}s",
+        receivers.size,
+        timerSeconds,
+    )
+    return OutgoingCspMessageHandle(
+        receivers,
+        OutgoingCspGroupMessageCreator(
+            messageId,
+            Date(),
+            groupModelData.groupIdentity,
+        ) {
+            GroupDisappearingTimerMessage().apply {
+                this.timerSeconds = timerSeconds
+            }
+        },
+    )
+}
+
+/**
+ * F1Whisper (tenth fork review, F10-05): the group's ONE shared disappearing timer, in seconds, `0` when off.
+ *
+ * Read from [ch.threema.storage.models.group.GroupModelOld], which is where the single shared field lives; the newer
+ * [GroupModel] data does not carry it. A failure to read is reported as OFF, so the worst case is a bootstrap that
+ * under-states the timer and is corrected by the next genuine change, never one that invents a timer nobody set.
+ */
+internal fun currentGroupDisappearingTimerSeconds(
+    groupModel: GroupModel,
+    services: OutgoingCspMessageServices,
+): Int =
+    try {
+        services.groupService.getById(groupModel.getDatabaseId())
+            ?.disappearingMessagesTimerSeconds
+            ?.takeIf { it > 0 }
+            ?: 0
+    } catch (e: Exception) {
+        logger.warn("Could not read the group disappearing timer; bootstrapping as off", e)
+        0
+    }
 
 private fun createGroupName(
     receivers: Set<BasicContact>,

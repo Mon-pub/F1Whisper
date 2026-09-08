@@ -235,34 +235,23 @@ jobs:
             --no-parallel \
             --stacktrace
 
-      # Everything except :domain: — no retry, no tolerance. A failure here fails the release.
-      - name: Unit tests (app, common, commonAndroid, lint-rules; debug + release)
+      # Every shipped module, no retry and no tolerance: a failure here fails the release.
+      #
+      # :domain: was briefly split out with a scoped retry, because CspSocketTest hung on this
+      # runner at exactly the 60s runTest ceiling and could not be reproduced locally. That is
+      # fixed at the source now: the test registered its inbound handler after writing to the
+      # socket, so a read loop that won the race delivered the frame into a null handler and the
+      # test waited forever. The retry only hid it, so it is gone.
+      - name: Unit tests (all shipped modules; debug + release)
         run: |
           ./gradlew :app:testOnpremDebugUnitTest :app:testOnpremReleaseUnitTest \
+            :domain:test \
             :common:test \
             :commonAndroid:testDebugUnitTest :commonAndroid:testReleaseUnitTest \
             :lint-rules:test \
             --no-daemon \
             --no-parallel \
             --stacktrace
-
-      # :domain: is split out for ONE reason: the upstream CspSocketTest hangs on this runner and
-      # only on this runner. It failed 2 of the first 3 v6.4.3-38 runs at exactly the 60s runTest
-      # ceiling while its two sibling tests finish in 0.1s, and it cannot be reproduced locally -
-      # not with --rerun-tasks, not with a clean clone, not pinned to a single core (0.6s there).
-      # The fork does not touch that file or the socket code under it.
-      #
-      # So: one retry, scoped to this module only, and it must PASS on the retry. A test that is
-      # genuinely broken fails twice and still fails the release; the other modules keep a
-      # zero-tolerance gate above. When the hang is understood, delete this step and fold :domain:
-      # back into the one above.
-      - name: Unit tests (:domain:, one retry for the flaky upstream socket test)
-        run: |
-          if ./gradlew :domain:test --no-daemon --no-parallel --stacktrace; then
-            exit 0
-          fi
-          echo "::warning::':domain:test' failed on the first attempt; retrying once. If this is CspSocketTest hanging at 60s it is the known upstream flake; anything else is real."
-          ./gradlew :domain:test --rerun-tasks --no-daemon --no-parallel --stacktrace
 
       - name: libthreema Rust tests
         working-directory: domain/libthreema

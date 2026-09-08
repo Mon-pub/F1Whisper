@@ -1,5 +1,6 @@
 package ch.threema.app.services
 
+import ch.threema.app.utils.JsonUtil
 import ch.threema.storage.MessageRowUpdate
 import ch.threema.storage.models.AbstractMessageModel
 import ch.threema.storage.models.MessageModel
@@ -10,6 +11,7 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.util.Date
 import kotlin.test.assertTrue
+import org.json.JSONException
 
 /**
  * F1Whisper (sixth fork review): a real SQLite database holding the real message tables, plus the two operations the
@@ -410,12 +412,36 @@ class MessageRowHarness(vararg tables: String) {
             MessageLifecycleUpdates.deletedForEveryone(Date(atUtc), table == GROUP_TABLE),
         )
 
-    private fun parseStates(serialised: String?): MutableMap<String, Any>? {
+    /**
+     * F1Whisper (group receipt regression, RB-01): one attempt of `MessageServiceImpl.addGroupMessageState`, exactly as
+     * shipped - the compare-and-set condition is the stored column TEXT read back verbatim, and the merge input is
+     * parsed from those same bytes, so the write can never be refused by a serialisation the stored text did not come
+     * from. Returns whether the receipt was recorded (false = no change needed, or the write was superseded).
+     */
+    fun applyGroupReceipt(messageId: Int, identity: String, state: MessageState): Boolean {
+        val rawStates = stringOf(GROUP_TABLE, messageId, "groupMessageStates")
+        val merged = MessageLifecycleUpdates.mergeGroupReceipt(
+            MessageLifecycleUpdates.parseGroupMessageStates(rawStates),
+            identity,
+            state,
+        ) ?: return false
+        return apply(
+            GROUP_TABLE,
+            messageId,
+            MessageLifecycleUpdates.groupReceipt(MessageLifecycleUpdates.serialiseGroupMessageStates(merged), rawStates),
+        )
+    }
+
+    /** Exactly as `GroupMessageModelFactory.convert` parses the column: `JsonUtil`, unparseable text folded to null. */
+    private fun parseStates(serialised: String?): Map<String, Any?>? {
         if (serialised == null) {
             return null
         }
-        val json = org.json.JSONObject(serialised)
-        return json.keys().asSequence().associateWithTo(mutableMapOf()) { key -> json.get(key) }
+        return try {
+            JsonUtil.convertObject(serialised)
+        } catch (e: JSONException) {
+            null
+        }
     }
 
     private fun nullableLong(cursor: java.sql.ResultSet, column: String): Long? {

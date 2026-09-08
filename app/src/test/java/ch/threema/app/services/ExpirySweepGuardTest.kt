@@ -72,31 +72,47 @@ class ExpirySweepGuardTest {
      * ever shows up in the scan, the comment stripping is broken, not the allowlist.
      */
     private val allowedCallSites = setOf(
-        // Declares enforceIfExpired (:66) and enforceIfExpiredInternal (:520); the funnel itself, not a call site.
+        // Declares enforceIfExpired and enforceIfExpiredInternal, plus sweepConversationPreview (F11-07), whose body
+        // invokes the funnel on one conversation's latest message; the funnel itself, not a call site.
+        // ConversationServiceImpl is deliberately ABSENT from this list since F11-07: its sweep now hands
+        // DisappearingMessageService::sweepConversationPreview to ExpirySweep, so the needle no longer appears there
+        // at all (conversationServiceStillSweeps pins the sweep's continued existence, and
+        // conversationServiceMustNotInvokeEnforceDirectly still forbids a direct invocation coming back).
         "ch/threema/app/services/DisappearingMessageService.kt",
-        // Method reference ONLY, handed to ExpirySweep.collectThenEnforce. Direct invocation here is forbidden
-        // (see conversationServiceMustNotInvokeEnforceDirectly): this class owns the cache that the delete/save
-        // listeners structurally modify.
-        "ch/threema/app/services/ConversationServiceImpl.java",
         // :1751 — inside markAsRead(); no traversal at the site, and the one traversing caller
         // (MarkAsReadRoutine.kt:41) always iterates a fresh, listener-unreachable list.
         "ch/threema/app/services/MessageServiceImpl.java",
-        // :4332 — jumpToQuotedMessage(); straight-line, single message model.
-        // :7247 — selectedMessages.removeIf(...). AUDITED SAFE: the only structural mutators of selectedMessages
+        // jumpToQuotedMessage(): straight-line, single message model.
+        // selectedMessages.removeIf(...). AUDITED SAFE: the only structural mutators of selectedMessages
         //   (:2043 posted, :3240, :4234, :4241, :4426-4427) are user-input driven and unreachable from any of the
         //   3 registered MessageListeners. The fragment's own listener runs INLINE (RuntimeUtil:26-33) but touches
         //   only the adapter, never this list.
-        // :7567 — showMessageDetailScreen(); guard clause on one model.
+        // showMessageDetailScreen(): guard clause on one model.
+        // updateActionMenu() (F11-07): collapses the menu for an expired selection like a deleted one. The stream
+        //   over selectedMessages is safe for the same removeIf audit reasons, and post-F10-06 the funnel never
+        //   mutates inline anyway - it only schedules the worker.
+        // shareMessages()'s single-share decrypt callback + showQuotePopup()'s delayed showPopup runnable (F12-04):
+        //   revalidation at the async boundaries the one-shot selection check does not survive. Each is a guard
+        //   clause on one model, no traversal a listener can reach (the multi-share path and the deadline watches
+        //   hand `DisappearingMessageService::enforceIfExpired` as a method reference into PendingMediaShare /
+        //   MessageExpiryWatch, the prescribed route, so those helper files never invoke it themselves).
         "ch/threema/app/fragments/composemessage/ComposeMessageFragment.java",
-        // :221 — initActivity(); one model, finishes the activity on expiry.
+        // initActivity(); one model, finishes the activity on expiry.
         "ch/threema/app/activities/MediaViewerActivity.java",
-        // :521 — inside getView(), so it MUST stay deferred: only the pure isExpired() predicate (:519) runs inline;
-        // the delete is posted via parent.post(). Deleting inline mutates the adapter's backing list mid-bind.
-        // Do not remove the post().
+        // getItemType() (F11-07): the synchronous decision ROUTES an overdue row to the deleted tombstone types,
+        // feeding both getItemViewType and getView's layout + decorator selection. Pure on this thread; the durable
+        // removal is scheduled on a worker (F10-06), so nothing mutates the adapter's backing list mid-bind.
         "ch/threema/app/adapters/ComposeMessageAdapter.java",
-        // :330 — same rule as ComposeMessageAdapter: inside the bind pass, isExpired() inline (:327), delete posted
-        // to the main looper. Do not remove the post().
+        // configure() (F11-07): the second belt. Consumes the same synchronous decision and withholds all payload
+        // binding when it says "gone"; nothing is deleted on the bind pass (worker-scheduled, F10-06).
+        // configure()'s deadline callback (F12-03): the badge's tick fires it when a bound live row's countdown
+        // reaches zero; it re-asks the same synchronous authority and withholds that holder. Runs from a Handler
+        // tick on the main thread - straight-line, one model, no traversal a listener can reach; the durable
+        // removal stays worker-scheduled exactly as at bind time.
         "ch/threema/app/adapters/decorators/ChatAdapterDecorator.java",
+        // isQuoteable() (F11-07): a message treated as gone exposes no quote action (swipe, menu, composer). Guard
+        // clause on one model; no traversal at the site.
+        "ch/threema/app/utils/QuoteUtil.java",
         // :60 — convert(); no traversal at the site. Its caller (GlobalListeners:508) does iterate
         // modifiedMessageModels, but every emitter of that list passes a fresh or immutable list no listener
         // can reach.
@@ -136,8 +152,8 @@ class ExpirySweepGuardTest {
                 "this same class (ListenerManager.handle -> GlobalListeners.onRemoved -> refreshWithDeletedMessage " +
                 "-> messageDeleted -> sort()) and bumps the cache's modCount, killing any live iterator. That is " +
                 "the 6.4.3o-37 crash loop. Route it through ExpirySweep.collectThenEnforce instead, and read the " +
-                "ExpirySweep Javadoc first. A `DisappearingMessageService::enforceIfExpired` method reference " +
-                "handed to ExpirySweep is fine and is what this file is expected to contain.",
+                "ExpirySweep Javadoc first. A `DisappearingMessageService::sweepConversationPreview` method " +
+                "reference handed to ExpirySweep is fine and is what this file is expected to contain.",
         )
     }
 
@@ -154,9 +170,10 @@ class ExpirySweepGuardTest {
                 "overdue message survives a conversation-list refresh. Fix the traversal, never the feature.",
         )
         assertTrue(
-            code.contains("DisappearingMessageService::enforceIfExpired"),
-            "the sweep must still hand DisappearingMessageService::enforceIfExpired to ExpirySweep — a sweep that " +
-                "no longer enforces expiry is not a sweep",
+            code.contains("DisappearingMessageService::sweepConversationPreview"),
+            "the sweep must still hand DisappearingMessageService::sweepConversationPreview to ExpirySweep (F11-07: " +
+                "it both enforces expiry on the latest message AND nulls the stale preview) — a sweep that no " +
+                "longer enforces expiry is not a sweep. ExpiredRowPresentationTest executes the referenced method.",
         )
     }
 

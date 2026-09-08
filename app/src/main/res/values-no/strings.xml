@@ -1716,4 +1716,5 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="connectivity_probe_label_hints">Flere indikatorer</string>
     <string name="connectivity_probe_hint_middlebox">Rask tilkobling, men treg kryptert håndtrykk — en transparent proxy eller en enhet for trafikkstrupning kan avskjære denne tilkoblingen.</string>
     <string name="connectivity_probe_hint_port53">Enhetens DNS-oppslag svarte mistenkelig raskt mens alt annet var tregt — dette nettverket kan avskjære DNS-oppslag.</string>
+    <string name="rogue_device_warning"><![CDATA[Det er oppdaget en tilkobling fra en annen enhet med den samme ${app_name_short}-ID-en. Har du nylig brukt ${app_name_short}-ID-en din på en annen enhet? <br><br> Hvis du har det, kan du se bort fra denne meldingen. <br><br> Hvis ikke, kan den private nøkkelen din være kompromittert. Vennligst <a href="https://threema.com/faq/another_connection">følg anbefalingene våre</a> for å beskytte enheten og dataene dine før du oppretter en ny ID.]]></string>
 </resources>

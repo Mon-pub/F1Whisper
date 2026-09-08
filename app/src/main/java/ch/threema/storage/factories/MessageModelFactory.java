@@ -453,16 +453,18 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
     }
 
     /**
-     * F1Whisper disappearing messages: all 1:1 messages whose disappear deadline has already passed
-     * ({@code expiresAtUtc <= now} and {@code expiresAtUtc} is set). Used by the deletion engine's
-     * sweep-all-due fire and the startup purge.
+     * F1Whisper disappearing messages: all 1:1 messages whose disappear deadline has already passed and which the
+     * deletion claim can still act on. Used by the deletion engine's sweep-all-due fire and the startup purge.
+     *
+     * <p>Eligibility is {@link AbstractMessageModelFactory#pendingExpirySelection()}, deliberately the same shape the
+     * claim requires: selecting a row this engine can never remove is what turned one tombstone into a permanent
+     * five-second alarm loop (F10-01).</p>
      */
     public List<MessageModel> getMessagesExpiredBefore(long now) {
         return convertList(getReadableDatabase().query(
             this.getTableName(),
             null,
-            AbstractMessageModel.COLUMN_EXPIRES_AT + " IS NOT NULL"
-                + " AND " + AbstractMessageModel.COLUMN_EXPIRES_AT + "<=?",
+            expiredBeforeSelection(),
             new String[]{String.valueOf(now)},
             null,
             null,
@@ -477,9 +479,11 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
      * {@code expiresAtUtc IS NOT NULL}, so a row without a deadline is not merely late to the sweep,
      * it is invisible to the entire engine. This query is the only thing that can see it.
      *
-     * <p>Two shapes qualify, both requiring an active frozen timer: a started countdown with no
-     * deadline, and a read incoming message whose countdown never started (the shape a non-atomic
-     * first-read write used to leave behind on a process kill).
+     * <p>Two shapes qualify, both requiring an active frozen timer and a row that has not been
+     * deleted for everyone: a started countdown with no deadline, and a read incoming message whose
+     * countdown never started (the shape a non-atomic first-read write used to leave behind on a
+     * process kill). See {@link AbstractMessageModelFactory#repairableExpirySelection()} for why the
+     * tombstone exclusion matters to a scan this one is bounded by.
      *
      * <p>Deliberately bounded by {@code LIMIT} and deliberately not run on the chat-open path: there
      * is no index that suits this predicate, so it is a table scan, and it belongs on the
@@ -490,14 +494,7 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         return convertList(getReadableDatabase().query(
             this.getTableName(),
             null,
-            AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + " > 0"
-                + " AND ("
-                + "(" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + " IS NOT NULL"
-                + " AND " + AbstractMessageModel.COLUMN_EXPIRES_AT + " IS NULL)"
-                + " OR (" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + " IS NULL"
-                + " AND " + AbstractMessageModel.COLUMN_IS_READ + " = 1"
-                + " AND " + AbstractMessageModel.COLUMN_OUTBOX + " = 0)"
-                + ")",
+            repairableExpirySelection(),
             null,
             null,
             null,
@@ -506,16 +503,15 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
     }
 
     /**
-     * F1Whisper disappearing messages: the soonest pending expiry across all 1:1 messages
-     * ({@code MIN(expiresAtUtc)} where set), or {@code null} if nothing is scheduled. Used to arm
-     * the next alarm.
+     * F1Whisper disappearing messages: the soonest pending expiry across all 1:1 messages the deletion claim can still
+     * act on, or {@code null} if nothing is scheduled. Used to arm the next alarm.
+     *
+     * <p>Shares {@link AbstractMessageModelFactory#pendingExpirySelection()} with the due read and the claim. An
+     * unclaimable past deadline here is not a late alarm, it is an alarm that re-arms in the past forever (F10-01).</p>
      */
     @Nullable
     public Long getEarliestExpiry() {
-        try (Cursor cursor = getReadableDatabase().rawQuery(
-            "SELECT MIN(`" + AbstractMessageModel.COLUMN_EXPIRES_AT + "`) FROM " + this.getTableName()
-                + " WHERE `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` IS NOT NULL",
-            null)) {
+        try (Cursor cursor = getReadableDatabase().rawQuery(earliestExpirySql(this.getTableName()), null)) {
             if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
                 return cursor.getLong(0);
             }

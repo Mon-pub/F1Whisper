@@ -16,17 +16,24 @@ import ch.threema.domain.taskmanager.TaskManager
 import java.io.IOException
 import java.net.SocketException
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlin.math.min
 import kotlin.math.pow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 private val logger = ConnectionLoggingUtil.getConnectionLogger("BaseServerConnection")
 
@@ -205,6 +212,72 @@ internal abstract class BaseServerConnection(
     private val hasLiveConnectionJob: Boolean
         get() = connectionJob?.isActive == true
 
+    /**
+     * F1Whisper (eleventh fork review, F11-01): owns the blocking half of a task-requested restart, so that half never
+     * runs on an attempt's single-thread dispatcher.
+     *
+     * The deadlock this removes: a task that throws `ProtocolException` asks layer 5 to restart the connection, and the
+     * old `EndToEndLayer.restartConnection` resumed after its delay ON the attempt's single executor thread and called
+     * the blocking [stop] there. Socket close then does `runBlocking { closeSocket(reason) }`, and both socket
+     * implementations dispatch `closeInbound` back onto that same executor via `withContext(inputDispatcher)`. Inside
+     * the `runBlocking` the current interceptor is its private event loop, so the `withContext` is a REAL dispatch onto
+     * a queue whose only thread is the one parked inside the `runBlocking`: the thread waits for work that only it can
+     * run, forever, with [startStopLock] held, so every later start or stop from anywhere blocks behind it too.
+     * Messaging is dead until the process restarts. The same cycle exists a second time through the join in [stop]:
+     * disposal waits on the attempt scope, whose coroutines can only unwind on the blocked executor.
+     *
+     * Scoped to the connection, not the attempt, because its whole job is to outlive the attempt that asked: the
+     * executing side must be free to tear that attempt down. A [SupervisorJob] so one failed restart cannot poison the
+     * scope for the life of the process.
+     */
+    private val restartCoordinatorScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
+    /**
+     * The single admitted restart request. A newer request supersedes an older one that has not started executing;
+     * two restarts back to back must produce one working connection, not two full stop/start cycles.
+     */
+    private val pendingRestart = AtomicReference<Job?>(null)
+
+    /**
+     * F1Whisper (eleventh fork review, F11-01): execute a task-requested restart off the attempt dispatcher.
+     *
+     * The requesting side ([ch.threema.domain.protocol.connection.layer.EndToEndLayer.restartConnection]) owns the
+     * delay as a member of the attempt's scope, so a request from a disposed attempt is cancelled with the attempt and
+     * can never fire. This is the handoff that runs the blocking stop and start, and it re-checks under
+     * [startStopLock] immediately before acting:
+     *
+     *  - `reconnectAllowed == false` means an explicit [stop] or a server no-reconnect arrived after the request. A
+     *    restart must not resurrect a connection the user or the server just told us to keep down. (At this point the
+     *    restart's OWN stop has not run yet, so a false reading here can only be external.)
+     *  - [requestingAttemptClosed] completed means the requesting attempt's iteration already ended: the reconnect
+     *    loop is itself producing the replacement, and stopping here would kill that successor, not the requester.
+     *
+     * The gate closes the same windows the old dispatch-rejection trick closed, plus the external-stop one it did not.
+     * What it deliberately does NOT claim: atomicity against the reconnect loop's own attempt transitions, which do
+     * not (and must not - stop() joins the job while holding the lock) take [startStopLock]. In that residual race the
+     * worst case is one spurious clean stop/start of a healthy connection, the same worst case the old code had.
+     */
+    internal fun requestRestart(requestingAttemptClosed: Deferred<Unit>) {
+        val request = restartCoordinatorScope.launch(start = CoroutineStart.LAZY) {
+            synchronized(startStopLock) {
+                if (!reconnectAllowed.get()) {
+                    logger.info("Dropping requested restart: reconnecting is not allowed")
+                    return@launch
+                }
+                if (requestingAttemptClosed.isCompleted) {
+                    logger.info("Dropping requested restart: the requesting attempt is already closed")
+                    return@launch
+                }
+                logger.info("Executing task-requested connection restart")
+                stop()
+                start()
+            }
+        }
+        pendingRestart.getAndSet(request)?.cancel()
+        request.invokeOnCompletion { pendingRestart.compareAndSet(request, null) }
+        request.start()
+    }
+
     final override fun start() {
         logger.info("Start")
 
@@ -306,99 +379,129 @@ internal abstract class BaseServerConnection(
                 while (canConnect) {
                     var monitorCloseEventJob: Job? = null
                     var queueSendCompleteListener: QueueSendCompleteListener? = null
+                    // F1Whisper (tenth fork review, F10-02): the graph THIS attempt created, held locally.
+                    //
+                    // `setup()` overwrites the `dependencies` field on every iteration, and each new graph allocates a
+                    // fresh single-thread executor for its dispatcher. Nothing closed the superseded ones: the only two
+                    // close calls both go through the CURRENT `dependencies`, so by the time either could run, the
+                    // reference to the graph that owned the thread had already been overwritten and was unreachable.
+                    // The result was one leaked executor per reconnect, for the life of the process - 213 of them in
+                    // the reporting device's ANR dump, all parked in their own empty queue.
+                    //
+                    // Holding the graph locally is what makes disposal possible at all: the `finally` below closes the
+                    // graph that allocated the resource, never whatever `dependencies` happens to point at by then.
+                    var attempt: ServerConnectionDependencies? = null
                     try {
-                        setup()
+                        try {
+                            setup()
+                            attempt = dependencies
 
-                        logger.debug("Start connecting")
-                        setConnectionState(ConnectionState.CONNECTING)
-                        socket.connect()
-                        setConnectionState(ConnectionState.CONNECTED)
+                            logger.debug("Start connecting")
+                            setConnectionState(ConnectionState.CONNECTING)
+                            socket.connect()
+                            setConnectionState(ConnectionState.CONNECTED)
 
-                        connectionLock = dependencies.connectionLockProvider.acquire(
-                            60_000,
-                            ConnectionLockProvider.ConnectionLogTag.PURGE_INCOMING_MESSAGE_QUEUE,
-                        )
+                            connectionLock = dependencies.connectionLockProvider.acquire(
+                                60_000,
+                                ConnectionLockProvider.ConnectionLogTag.PURGE_INCOMING_MESSAGE_QUEUE,
+                            )
 
-                        // To prevent races where this while loop has been entered just before stop()
-                        // has been called, and stop() has been called before the socket was
-                        // initialized, check again if a reconnect is still allowed. Otherwise, close
-                        // the socket and abort connection.
-                        if (!reconnectAllowed.get()) {
-                            socket.close(ServerSocketCloseReason("Reconnect not allowed"))
-                            connectionLock?.release()
-                            break
-                        }
-
-                        // We must keep the CPU awake until we have processed all incoming messages
-                        // to avoid missing messages in deeper sleep states.
-                        queueSendCompleteListener = QueueSendCompleteListener {
-                            logger.info("CSP queue was processed, releasing connection lock")
-                            connectionLock?.release()
-                        }
-                        // The listener must be registered before processing io has been started.
-                        // Otherwise the queue send complete event could already have been triggered
-                        // before the listener was added.
-                        dependencies.taskManager.addQueueSendCompleteListener(queueSendCompleteListener)
-
-                        // Handle IO until the connection dies
-                        ioJob = launch { processIo() }
-
-                        controller.connected.complete(Unit)
-                        onConnected()
-
-                        val waitForCspAuthenticatedJob = launch {
-                            controller.cspAuthenticated.await()
-                            onCspAuthenticated()
-                            reconnectAttemptsSinceLastLogin = 0
-                            // F1Whisper: seed inbound-activity timestamp on login so a freshly-logged-in
-                            // connection isn't flagged stale before the first ~60s echo reply arrives.
-                            recordInboundActivity()
-                            setConnectionState(ConnectionState.LOGGEDIN)
-                        }
-                        // Monitor close events of the socket
-                        monitorCloseEventJob = launch {
-                            val reason = socket.closedSignal.await()
-                            logger.warn("Socket was closed, reason={}", reason)
-                            if (reason.reconnectAllowed == false) {
-                                disableReconnect()
+                            // To prevent races where this while loop has been entered just before stop()
+                            // has been called, and stop() has been called before the socket was
+                            // initialized, check again if a reconnect is still allowed. Otherwise, close
+                            // the socket and abort connection.
+                            if (!reconnectAllowed.get()) {
+                                socket.close(ServerSocketCloseReason("Reconnect not allowed"))
+                                connectionLock?.release()
+                                break
                             }
-                            onSocketClosed(reason)
-                            if (!waitForCspAuthenticatedJob.isCompleted) {
-                                // Cancel awaiting the csp authentication when the socket is closed
-                                // as it will never complete
-                                logger.debug("Cancel waiting for csp authentication.")
-                                waitForCspAuthenticatedJob.cancel()
+
+                            // We must keep the CPU awake until we have processed all incoming messages
+                            // to avoid missing messages in deeper sleep states.
+                            queueSendCompleteListener = QueueSendCompleteListener {
+                                logger.info("CSP queue was processed, releasing connection lock")
+                                connectionLock?.release()
+                            }
+                            // The listener must be registered before processing io has been started.
+                            // Otherwise the queue send complete event could already have been triggered
+                            // before the listener was added.
+                            dependencies.taskManager.addQueueSendCompleteListener(queueSendCompleteListener)
+
+                            // Handle IO until the connection dies
+                            ioJob = launch { processIo() }
+
+                            controller.connected.complete(Unit)
+                            onConnected()
+
+                            val waitForCspAuthenticatedJob = launch {
+                                controller.cspAuthenticated.await()
+                                onCspAuthenticated()
+                                reconnectAttemptsSinceLastLogin = 0
+                                // F1Whisper: seed inbound-activity timestamp on login so a freshly-logged-in
+                                // connection isn't flagged stale before the first ~60s echo reply arrives.
+                                recordInboundActivity()
+                                setConnectionState(ConnectionState.LOGGEDIN)
+                            }
+                            // Monitor close events of the socket
+                            monitorCloseEventJob = launch {
+                                val reason = socket.closedSignal.await()
+                                logger.warn("Socket was closed, reason={}", reason)
+                                if (reason.reconnectAllowed == false) {
+                                    disableReconnect()
+                                }
+                                onSocketClosed(reason)
+                                if (!waitForCspAuthenticatedJob.isCompleted) {
+                                    // Cancel awaiting the csp authentication when the socket is closed
+                                    // as it will never complete
+                                    logger.debug("Cancel waiting for csp authentication.")
+                                    waitForCspAuthenticatedJob.cancel()
+                                } else {
+                                    logger.debug("Csp authentication already completed")
+                                }
+                                logger.debug("Socket watchdog completed")
+                            }
+
+                            waitForCspAuthenticatedJob.join()
+
+                            ioJob?.join()
+                        } catch (e: Exception) {
+                            // F1Whisper (eleventh fork review, F11-02): a cancellation is not a connection failure.
+                            // stop() now cancels the job so its readiness and backoff waits are interruptible, which
+                            // makes this catch reachable with a CancellationException on the ordinary teardown path.
+                            // It is logged as what it is and NOT reported through onException; the tail below still
+                            // runs (it is non-suspending), so state, socket close and connectionClosed are settled
+                            // exactly as on any other exit, and the next suspension point re-raises the cancellation.
+                            if (e is CancellationException) {
+                                logger.info("Connection attempt cancelled")
                             } else {
-                                logger.debug("Csp authentication already completed")
+                                if (e is IOException || e.cause is IOException) {
+                                    logger.warn("Connection exception", e)
+                                } else {
+                                    logger.error("Unexpected connection exception", e)
+                                }
+                                onException(e)
                             }
-                            logger.debug("Socket watchdog completed")
                         }
 
-                        waitForCspAuthenticatedJob.join()
+                        setConnectionState(ConnectionState.DISCONNECTED)
 
-                        ioJob?.join()
-                    } catch (e: Exception) {
-                        if (e is IOException || e.cause is IOException) {
-                            logger.warn("Connection exception", e)
-                        } else {
-                            logger.error("Unexpected connection exception", e)
+                        closeSocket("Disconnected")
+
+                        controller.connectionClosed.complete(Unit)
+
+                        if (canConnect) {
+                            prepareReconnect()
                         }
-                        onException(e)
+                    } finally {
+                        // F1Whisper (tenth fork review, F10-02): every exit of an attempt disposes that attempt.
+                        //
+                        // The routes this now covers that the old straight-line tail did not: the `break` above when a
+                        // reconnect is no longer allowed, a throw from the tail itself, and cancellation of the backoff
+                        // delay inside prepareReconnect(). The last one is not hypothetical - any failure in a child
+                        // coroutine of this job cancels the parent, and prepareReconnect() rethrows the cancellation on
+                        // purpose (see its own comment), so a cancelled backoff is a normal way for an attempt to end.
+                        disposeAttempt(attempt, queueSendCompleteListener, monitorCloseEventJob)
                     }
-
-                    setConnectionState(ConnectionState.DISCONNECTED)
-
-                    closeSocket("Disconnected")
-
-                    controller.connectionClosed.complete(Unit)
-
-                    queueSendCompleteListener?.let { dependencies.taskManager.removeQueueSendCompleteListener(it) }
-
-                    if (canConnect) {
-                        prepareReconnect()
-                    }
-                    connectionLock?.release()
-                    monitorCloseEventJob?.cancel()
                 }
                 logger.info("Connection ended")
             } finally {
@@ -464,11 +567,28 @@ internal abstract class BaseServerConnection(
             if (hasLiveConnectionJob || running.get()) {
                 logger.info("Stop")
                 disableReconnect()
-                closeSocket("Connection stopped")
+                // F1Whisper (tenth fork review, F10-02): a stop can arrive before the job has reached its first
+                // setup(), and `dependencies` is a lateinit field, so both of these used to throw
+                // UninitializedPropertyAccessException out of stop() in that window. Reachable in the ordinary way -
+                // start() launches the job and returns, so any stop() that overtakes it lands here - and surfaced by
+                // the disposal test doing exactly that. The connection job's own `finally` disposes the attempt once
+                // it exists, so skipping these when there is nothing yet to close leaks nothing.
+                val hasGraph = this::dependencies.isInitialized
+                if (hasGraph) {
+                    closeSocket("Connection stopped")
+                }
                 logger.trace("Join connection job")
-                runBlocking { connectionJob?.join() }
+                // F1Whisper (eleventh fork review, F11-02): CANCEL, then join. A plain join could wait forever: before
+                // the first setup() the job is suspended in awaitAppReady(), which the app implements as
+                // AppStartupMonitor.awaitAll() and which is documented to suspend forever when startup has an error -
+                // and with no graph there is no socket whose close could unblock anything. The same applies to the
+                // backoff delay between attempts. Cancelling makes both interruptible; the attempt's own disposal is
+                // unaffected because it runs in a finally under NonCancellable, in the same order as before.
+                runBlocking { connectionJob?.cancelAndJoin() }
                 logger.trace("Connection job joined")
-                controller.dispatcher.close()
+                if (hasGraph || this::dependencies.isInitialized) {
+                    controller.dispatcher.close()
+                }
                 // DECISION: stop() clears the latch as well, even though the job's `finally` already
                 // does. The two cover different holes. The `finally` cannot run if no job was ever
                 // created, which is exactly the case where `start()` set the flag and then took an
@@ -529,6 +649,54 @@ internal abstract class BaseServerConnection(
                         }
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * F1Whisper (tenth fork review, F10-02): release everything one connection attempt allocated, exactly once.
+     *
+     * <p><b>Why the order is what it is.</b> The dispatcher's executor is the last thing to go, because everything
+     * above it may still need a thread to unwind on: the listener is detached first so the task manager cannot call
+     * back into a graph that is being torn down, then the attempt's own coroutines are cancelled and joined, and only
+     * then does [ServerConnectionDispatcher.closeAndJoin] cancel the layers' coroutines and shut the executor down.
+     * Closing first would not lose the work - kotlinx answers a rejected dispatch by cancelling the job and falling
+     * back to another dispatcher - but it would move cleanup off the thread `assertDispatcherContext` expects.</p>
+     *
+     * <p>Runs [NonCancellable] because its most important caller is a `finally` on the cancellation route, where every
+     * suspending call would otherwise throw immediately and the attempt would leak precisely when it was cancelled.</p>
+     *
+     * <p>Takes the attempt's graph rather than reading the [dependencies] field: by the time a later attempt is
+     * disposed the field has moved on, and closing the current graph instead of the finished one would tear down the
+     * live connection while leaving the dead one's thread parked. That inversion is worth being explicit about, since
+     * it is the same reference confusion that produced the leak.</p>
+     */
+    private suspend fun disposeAttempt(
+        attempt: ServerConnectionDependencies?,
+        queueSendCompleteListener: QueueSendCompleteListener?,
+        monitorCloseEventJob: Job?,
+    ) {
+        if (attempt == null) {
+            // setup() threw before it produced a graph, so there is nothing this attempt allocated.
+            return
+        }
+        withContext(NonCancellable) {
+            try {
+                queueSendCompleteListener?.let { attempt.taskManager.removeQueueSendCompleteListener(it) }
+            } catch (e: Exception) {
+                logger.warn("Could not detach the queue send complete listener", e)
+            }
+            connectionLock?.release()
+            connectionLock = null
+            monitorCloseEventJob?.cancelAndJoin()
+            // Normally already finished: both the reconnect path and the exception path join io processing before they
+            // get here. It is cancelled anyway for the routes that do not, above all cancellation of the backoff.
+            ioJob?.cancelAndJoin()
+            ioJob = null
+            try {
+                attempt.mainController.dispatcher.closeAndJoin()
+            } catch (e: Exception) {
+                logger.warn("Could not close the connection dispatcher of a finished attempt", e)
             }
         }
     }

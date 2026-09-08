@@ -20,16 +20,44 @@ private val logger = getThreemaLogger("EmojiReactionsDaoImpl")
 class EmojiReactionsDaoImpl(
     private val databaseProvider: DatabaseProvider,
 ) : EmojiReactionsDao {
-    override fun create(entry: DbEmojiReaction, messageModel: AbstractMessageModel) {
+    override fun create(entry: DbEmojiReaction, messageModel: AbstractMessageModel): DbEmojiReaction? {
         val table = getReactionTableForMessage(messageModel)
             ?: throw EmojiReactionEntryCreateException(
                 IllegalArgumentException("Cannot create reaction entry for message of class ${messageModel.javaClass.name}"),
             )
-        databaseProvider.writableDatabase.insert(
+        val inserted = databaseProvider.writableDatabase.insert(
             table = table,
-            conflictAlgorithm = SQLiteDatabase.CONFLICT_ROLLBACK,
+            conflictAlgorithm = SQLiteDatabase.CONFLICT_IGNORE,
             values = entry.getContentValues(),
-        )
+        ) >= 0
+        if (inserted) {
+            return entry
+        }
+        // The unique key was already taken. Report what is actually stored, timestamp included: this attempt invented
+        // a `now()` that was never written, and publishing it would leave the cache and the database disagreeing about
+        // when the reaction happened.
+        return findByKey(table, entry).also { persisted ->
+            if (persisted == null) {
+                logger.warn("Reaction {} was neither inserted nor found", entry)
+            } else {
+                logger.debug("Reaction {} was already present since {}", entry, persisted.reactedAt)
+            }
+        }
+    }
+
+    private fun findByKey(table: String, entry: DbEmojiReaction): DbEmojiReaction? {
+        val query = "SELECT * FROM $table WHERE ${DbEmojiReaction.COLUMN_MESSAGE_ID} = ? " +
+            "AND ${DbEmojiReaction.COLUMN_SENDER_IDENTITY} = ? AND ${DbEmojiReaction.COLUMN_EMOJI_SEQUENCE} = ?"
+
+        val cursor = databaseProvider.readableDatabase
+            .rawQuery(
+                query,
+                entry.messageId,
+                entry.senderIdentity,
+                entry.emojiSequence,
+            )
+
+        return cursor.use { getResult(it) }.firstOrNull()
     }
 
     override fun remove(entry: DbEmojiReaction, messageModel: AbstractMessageModel) {

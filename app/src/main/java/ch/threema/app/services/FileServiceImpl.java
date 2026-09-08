@@ -306,6 +306,16 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    public boolean hasPersistedMessageMedia(@Nullable AbstractMessageModel messageModel) {
+        // F1Whisper (twelfth fork review, F12-02): the fact the listen-once settlement decides from - see the
+        // interface doc. A model without a UID never had a stored media file.
+        if (messageModel == null || messageModel.getUid() == null) {
+            return false;
+        }
+        return messageFileHandleProvider.get(messageModel.getUid()).exists();
+    }
+
+    @Override
     public File getDecryptedMessageFile(AbstractMessageModel messageModel) throws Exception {
         String ext = getMediaFileExtension(messageModel);
 

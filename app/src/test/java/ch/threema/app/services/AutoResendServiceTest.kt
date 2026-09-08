@@ -211,9 +211,18 @@ class AutoResendServiceTest {
         // Fire many requests rapidly; the debounce must collapse them.
         repeat(20) { svc.scheduleScan("burst-$it") }
 
-        // Wait past the debounce window for the single scan to run.
-        Thread.sleep(AutoResendService.DEBOUNCE_MS + 1_500)
+        // Wait FOR the scan rather than for a duration. A fixed sleep asserts that the scheduler got
+        // its turn inside a wall-clock window, which is not what this test is about and which loses
+        // the race when the machine is busy (it read 0 runs during a full gate).
+        val deadline = System.nanoTime() + 30_000L * 1_000_000L
+        while (runCount.get() == 0 && System.nanoTime() < deadline) {
+            Thread.sleep(10)
+        }
+        assertEquals(1, runCount.get(), "the burst must produce a scan")
 
-        assertEquals(1, runCount.get())
+        // Then let the whole debounce window pass again: collapsing means no SECOND scan follows.
+        Thread.sleep(AutoResendService.DEBOUNCE_MS + 500)
+
+        assertEquals(1, runCount.get(), "the burst must collapse to exactly one scan")
     }
 }

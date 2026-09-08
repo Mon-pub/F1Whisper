@@ -55,8 +55,13 @@ public class ConversationNotificationUtil {
         @NonNull ConversationCategoryService conversationCategoryService,
         @NonNull ContactNameFormat contactNameFormat
     ) {
-        // F1Whisper: suppress notification if the message has already expired.
-        // enforceIfExpired() deletes the model and returns true when expired.
+        // F1Whisper: suppress the notification if the message has already expired.
+        //
+        // F1Whisper (tenth fork review, F10-06): the thread contract, stated because this is called from notification
+        // construction and used to be a route into synchronous database and filesystem work. enforceIfExpired now
+        // answers from the model in memory and schedules the removal on a worker, so this call performs no I/O on
+        // whatever thread builds the notification. It returns whether the message must be treated as gone, which is
+        // the only thing this caller needs.
         if (DisappearingMessageService.enforceIfExpired(messageModel)) {
             logger.debug("Suppressing notification for expired disappearing message uid={}", messageModel.getUid());
             return null;

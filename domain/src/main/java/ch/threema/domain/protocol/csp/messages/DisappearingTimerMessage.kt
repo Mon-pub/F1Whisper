@@ -39,6 +39,32 @@ class DisappearingTimerMessage : AbstractMessage() {
     // control mutates conversation state without creating a tracked outgoing message model, so we
     // reflect incoming + outgoing but NOT a sent-update (there is no outgoing message whose sent
     // state could be reflected). Both flags are no-ops when multi device is inactive.
+    //
+    // F1Whisper (tenth fork review, section 10): the flags above are LOAD-BEARING OUTWARD and
+    // UNIMPLEMENTED INWARD, and that asymmetry is deliberate. Do not "tidy" either half without
+    // reading this.
+    //
+    // OUTWARD (this device is the leader). Reflection works and linked Desktop depends on it.
+    // `Reflect.kt` builds the envelope with `.setTypeValue(message.type)`, the RAW-INT setter, and a
+    // proto3 enum field is int32 on the wire, so a type with no named constant serialises correctly.
+    // `common.proto` therefore has no 0x85/0x95 entry and does not need one; that omission is
+    // cosmetic for sending. Setting either flag to false would stop the timer reaching Desktop and
+    // silently break a working feature.
+    //
+    // INWARD (this device as a follower). NOT supported, and it fails LOUDLY rather than quietly.
+    // `IncomingReflectedMessageTask` and `ReflectedOutgoingMessageTask` both switch on the NAMED
+    // enum and answer an unknown value with `UNRECOGNIZED -> throw IllegalStateException`. A
+    // reflected timer control would therefore throw inside the task. It follows that
+    // `executeMessageStepsFromSync() = DISCARD` in the two incoming timer subtasks is UNREACHABLE
+    // for these types: the dispatcher throws before the subtask is built.
+    //
+    // Why that is fine today: this fork ships Android as the only leader, Desktop cannot set the
+    // timer, and no second Android device is linked to one identity. The inward path is never taken.
+    //
+    // BEFORE linking a second Android device to one identity, or letting Desktop set the timer:
+    // handle 0x85/0x95 in BOTH reflected dispatchers first, or the first reflected timer control
+    // will throw. That is a topology change, not a code change, which is why it is written here
+    // rather than fixed - see ANDROID-FORK-TENTH-REVIEW-REMEDIATION-HANDOFF-2026-08-13.md.
     override fun reflectIncoming() = true
 
     override fun reflectOutgoing() = true
