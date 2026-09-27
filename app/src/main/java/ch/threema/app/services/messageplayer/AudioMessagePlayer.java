@@ -133,13 +133,24 @@ public class AudioMessagePlayer extends MessagePlayer {
         public void onIsPlayingChanged(boolean isPlaying) {
             MediaController mediaController = getMediaController();
             if (mediaController != null) {
-                if (isPlaying) {
+                if (isPlaying && playerMediaMatchesControllerMedia()) {
                     logger.info("onPlay");
                     // F1Whisper: record that audible playback actually began, so a listen-once is only
                     // burned after it was genuinely played (see hasPlayed / enforceListenOnceIfNeeded).
+                    //
+                    // F1Whisper (listen-once double burn): the media match is NOT optional, and it is the
+                    // same guard the pause branch below already carries. All players share one
+                    // MediaController and every player receives every event, so an orphaned listener left
+                    // behind by a stopped player observes the NEXT message's first frame here. Unguarded,
+                    // it recorded that frame as its own playback and called makeResume, which reaches
+                    // MessagePlayerServiceImpl.stopOtherPlayers and stops the message that is genuinely
+                    // playing. That victim then settles with hasPlayed still false, so it releases instead
+                    // of burning, leaving a claimed-but-ownerless row that the adapter's abandoned-claim
+                    // repair destroys on the next bind. That is how a 210 s voice message was deleted one
+                    // second into playback while its audio kept running from the already-decrypted file.
                     hasPlayed = true;
                     makeResume(SOURCE_UI_TOGGLE);
-                } else if (mediaController.getPlaybackState() != Player.STATE_ENDED && playerMediaMatchesControllerMedia()) {
+                } else if (!isPlaying && mediaController.getPlaybackState() != Player.STATE_ENDED && playerMediaMatchesControllerMedia()) {
                     logger.info("onPause");
                     makePause(SOURCE_UI_TOGGLE);
                 }
@@ -172,7 +183,15 @@ public class AudioMessagePlayer extends MessagePlayer {
                 }
             } else if (playbackState == Player.STATE_READY) {
                 logger.info("onReady");
-                markAsConsumed();
+                // F1Whisper (listen-once double burn): only the player whose media is actually on the
+                // controller may mark ITS OWN message consumed. An orphaned listener reaches this branch
+                // when a DIFFERENT message becomes ready, and unguarded it wrote consumed state for its
+                // own, unrelated message. prepared() keeps its own match check rather than being folded
+                // into this guard, so the "Player media does not match controller media" diagnostic is
+                // still logged when a foreign item becomes ready.
+                if (playerMediaMatchesControllerMedia()) {
+                    markAsConsumed();
+                }
                 prepared();
             }
         }

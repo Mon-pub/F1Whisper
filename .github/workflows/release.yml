@@ -171,6 +171,10 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+        with:
+          # The action's default also installs the legacy "tools" package, which current
+          # cmdline-tools no longer provide; sdkmanager itself comes from cmdline-tools.
+          packages: platform-tools
 
       - name: Install Android NDK ${{ env.NDK_VERSION }}
         run: |
@@ -425,6 +429,10 @@ jobs:
 
       - name: Set up Android build-tools (zipalign + apksigner)
         uses: android-actions/setup-android@9fc6c4e9069bf8d3d10b2204b1fb8f6ef7065407 # v3.2.2
+        with:
+          # The action's default also installs the legacy "tools" package, which current
+          # cmdline-tools no longer provide; sdkmanager itself comes from cmdline-tools.
+          packages: platform-tools
 
       - name: Install build-tools 35.0.0
         run: yes | sdkmanager --install "build-tools;35.0.0"

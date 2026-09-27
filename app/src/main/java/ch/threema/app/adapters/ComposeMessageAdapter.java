@@ -1252,6 +1252,20 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
     }
 
     /**
+     * F1Whisper: the highest position {@link ListView#getItemAtPosition(int)} may safely be asked for,
+     * given the list's last visible position and the wrapped adapter's current item count. Returns a value
+     * below the caller's start position when there is nothing left to sweep, which ends the loop.
+     *
+     * @param lastVisiblePosition what the ListView reports, which counts children and so can name a
+     *                            position the adapter no longer has
+     * @param itemCount           the adapter's live count, headers and footers included
+     */
+    @VisibleForTesting
+    static int lastSweepablePosition(int lastVisiblePosition, int itemCount) {
+        return Math.min(lastVisiblePosition, itemCount - 1);
+    }
+
+    /**
      * Refresh only items in this adapter that contain the specified AbstractMessageModels
      *
      * @param targetMessageModels List of affected AbstractMessageModels
@@ -1262,8 +1276,30 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
             if (listView != null) {
                 int n = 0;
                 final int targetSize = targetMessageModels.size();
-                final int firstVisiblePosition = listView.getFirstVisiblePosition();
-                for (int i = firstVisiblePosition, j = listView.getLastVisiblePosition(); i <= j; i++) {
+                final int firstVisiblePosition = Math.max(listView.getFirstVisiblePosition(), 0);
+                // F1Whisper: bound the sweep by the adapter's LIVE item count, never by the visible-position
+                // range alone. The two are different quantities and they do drift apart:
+                // getLastVisiblePosition() is mFirstPosition + getChildCount() - 1, a property of the CHILD
+                // VIEWS, whereas the count is a property of the adapter. The adapter's count updates
+                // synchronously; the attached children can still reflect an earlier state, because a data
+                // change only requestLayout()s and a stopped window runs no layout at all. So the gap
+                // persists for as long as the chat sits in the background.
+                // On 2026-09-13 that gap froze the app for 5m43s. The chat was backgrounded with the peer's
+                // typing footer attached; the peer's next message cleared the typing state, removing the
+                // footer from the adapter but NOT the child view, so the list reported one more position than
+                // the adapter had. A delivery receipt for an unrelated chat then swept this one (onModified
+                // does not filter by receiver), reached that last position, and HeaderViewListAdapter.getItem
+                // fell past the items into an empty footer list: IndexOutOfBoundsException on the MAIN thread,
+                // posted there from a background message-state update, so it escaped the looper.
+                // The count must come from getAdapter().getCount(): that is the SAME quantity
+                // HeaderViewListAdapter.getItem consults, so the loop cannot disagree with the method it
+                // calls. (listView.getCount() is not stale here, but it is a different number, and it is 0
+                // after notifyDataSetInvalidated() while the adapter still holds rows, which would silently
+                // skip refreshes instead.)
+                final int lastSweepablePosition = lastSweepablePosition(
+                    listView.getLastVisiblePosition(),
+                    listView.getAdapter() != null ? listView.getAdapter().getCount() : 0);
+                for (int i = firstVisiblePosition, j = lastSweepablePosition; i <= j; i++) {
                     AbstractMessageModel messageModel = (AbstractMessageModel) listView.getItemAtPosition(i);
                     if (messageModel != null) {
                         for (AbstractMessageModel targetMessageModel : targetMessageModels) {

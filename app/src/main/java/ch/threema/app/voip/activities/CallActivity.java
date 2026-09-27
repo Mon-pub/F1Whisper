@@ -962,8 +962,15 @@ public class CallActivity extends ThreemaActivity implements
         // remove lockscreen keepalive
         keepAliveHandler.removeCallbacksAndMessages(null);
 
-        // Remove uncaught exception handler
-        Thread.setDefaultUncaughtExceptionHandler(null);
+        // F1Whisper: do NOT clear the default uncaught exception handler here. Upstream cleared it
+        // unconditionally, but nothing in this activity ever installed one - the only handler is the
+        // process-wide ThreemaUncaughtExceptionHandler that ThreemaApplication.onCreate() installs
+        // once. Clearing it left the process with NO default handler for the rest of its life, which
+        // makes a later main-thread throwable non-fatal: ThreadGroup.uncaughtException prints to
+        // System.err and returns, ART detaches the main thread and enters DestroyJavaVM, and
+        // WaitForOtherNonDaemonThreadsToExit blocks forever because dozens of non-daemon threads are
+        // alive. The app then looks "running" - the CSP connection keeps echoing - while the UI is
+        // dead and no broadcast is ever dispatched, until the system ANRs it.
 
         super.onDestroy();
     }

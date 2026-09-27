@@ -571,8 +571,15 @@ abstract public class MediaSelectionBaseActivity extends ThreemaActivity impleme
                             .setPopupStyle(RecyclerViewUtil.thumbScrollerPopupStyle)
                             .setPopupTextProvider((view, position) -> {
                                 int firstVisible = gridLayoutManager.findFirstCompletelyVisibleItemPosition();
-                                if (firstVisible >= 0) {
-                                    MediaAttachItem item = mediaAttachAdapter.getMediaAttachItems().get(firstVisible);
+                                // F1Whisper: the upper bound completes the guard that was already here. The
+                                // position comes from the layout manager, which keeps its positions until the
+                                // next layout pass, so a list replaced under it (a filter change) leaves this
+                                // naming an item that is gone and get() throws on the main thread. Same shape
+                                // as MediaGalleryAdapter.getItemAtPosition and as the chat-list sweep that
+                                // did crash in the field; the fallback below already exists for this case.
+                                List<MediaAttachItem> items = mediaAttachAdapter.getMediaAttachItems();
+                                if (firstVisible >= 0 && firstVisible < items.size()) {
+                                    MediaAttachItem item = items.get(firstVisible);
                                     return LocaleUtil.formatDateRelative(item.getDateModified() * 1000);
                                 }
 

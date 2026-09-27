@@ -238,8 +238,15 @@ class MediaGalleryAdapter(
         return messageModels?.size ?: 0
     }
 
+    // F1Whisper: getOrNull, not get. The fast-scroll popup asks for
+    // gridLayoutManager.findFirstCompletelyVisibleItemPosition(), a LAYOUT-derived position, which outlives
+    // the data it names: the layout manager keeps its positions until the next layout pass, so a list that
+    // shrinks under it (filter change, deletion, expiry) leaves that position pointing past the end. The
+    // return type is already nullable and both call sites null-check, so out of range belongs here as null.
+    // This is the same defect class as the chat list's sweep bound, which did crash in the field; see
+    // ComposeMessageAdapter.lastSweepablePosition.
     fun getItemAtPosition(position: Int): AbstractMessageModel? {
-        return messageModels?.get(position)
+        return messageModels?.getOrNull(position)
     }
 
     override fun getItemId(position: Int): Long {
@@ -308,7 +315,13 @@ class MediaGalleryAdapter(
     fun getCheckedItemAt(i: Int): AbstractMessageModel? {
         if (i >= 0 && i < checkedItems.size()) {
             messageModels?.let {
-                return it[checkedItems.keyAt(i)]
+                // F1Whisper: getOrNull. `i` was already checked against the SELECTION's size; the key it
+                // yields is a position into the item list, and setItems() replaces that list without
+                // clearing the selection. So a selection made before a filter change can name a position
+                // past the end of the shorter list that replaced it: select item 50, filter down to 10,
+                // then "Show in chat". getCheckedItems() two methods up already bounds-checks the same
+                // key; this one did not, while its own doc comment above promised it did.
+                return it.getOrNull(checkedItems.keyAt(i))
             }
         }
         return null
