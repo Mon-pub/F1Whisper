@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ A single pass/fail row in the F1Whisper connectivity diagnostics dialog. Inflated once per probe
+  ~ (and per DNS resolver) into the results list. The status glyph doubles as a colour-independent
+  ~ pass/fail cue for accessibility; the label is a plain probe name, the detail is a short outcome.
+  -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/grid_unit_x4"
+    android:orientation="horizontal"
+    android:paddingTop="@dimen/grid_unit_x0_5"
+    android:paddingBottom="@dimen/grid_unit_x0_5">
+
+    <TextView
+        android:id="@+id/probe_status"
+        android:layout_width="@dimen/grid_unit_x3"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/grid_unit_x1"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/probe_label"
+            style="@style/Threema.MaterialAlertDialog.Body.Style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/probe_detail"
+            style="@style/Threema.MaterialAlertDialog.Body.Style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

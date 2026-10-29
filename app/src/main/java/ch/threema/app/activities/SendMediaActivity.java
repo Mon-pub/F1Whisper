@@ -9,6 +9,7 @@ import static ch.threema.app.preference.service.PreferenceService.VIDEO_SIZE_MED
 import static ch.threema.app.preference.service.PreferenceService.VIDEO_SIZE_ORIGINAL;
 import static ch.threema.app.preference.service.PreferenceService.VIDEO_SIZE_SEND_AS_FILE;
 import static ch.threema.app.preference.service.PreferenceService.VIDEO_SIZE_SMALL;
+import static ch.threema.app.ui.MediaItem.TYPE_AUDIO_FILE;
 import static ch.threema.app.ui.MediaItem.TYPE_IMAGE;
 import static ch.threema.app.ui.MediaItem.TYPE_IMAGE_CAM;
 import static ch.threema.app.ui.MediaItem.TYPE_VIDEO;
@@ -173,6 +174,10 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
     private boolean useExternalCamera;
     private MenuItem settingsItem, editFilenameItem;
     private MediaFilterQuery lastMediaFilter;
+    // F1Whisper: apiMessageId of the message being replied-to when this media send was launched from
+    // an active quote (camera / gallery-edit / file / external-camera). Applied to every sent item.
+    @Nullable
+    private String pendingQuoteApiMessageId;
     private TextView itemCountText;
 
     private RootViewDeferringInsetsCallback rootInsetsDeferringCallback = null;
@@ -240,6 +245,8 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
         this.messageReceivers = IntentDataUtil.getMessageReceiversFromIntent(intent);
         // check if we previously filtered media in MediaAttachActivity to reuse the filter when adding additional media items
         this.lastMediaFilter = IntentDataUtil.getLastMediaFilterFromIntent(intent);
+        // F1Whisper: a reply-quote id present when this media send was launched from an active quote.
+        this.pendingQuoteApiMessageId = IntentDataUtil.getQuotedApiMessageIdFromIntent(intent);
 
         if (this.pickFromCamera && savedInstanceState == null) {
             launchCamera();
@@ -628,6 +635,10 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
 
     private void setImageDropdown(@NonNull PopupMenu popup, @NonNull MediaItem mediaItem) {
         popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.spoiler_item) {
+                toggleSpoiler();
+                return true;
+            }
             final @PreferenceService.ImageScale int oldSetting = mediaItem.getImageScale();
             final @PreferenceService.ImageScale int newSetting = item.getOrder();
             mediaItem.setImageScale(newSetting);
@@ -638,6 +649,7 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
             return true;
         });
         popup.inflate(R.menu.view_image_settings);
+        MenuCompat.setGroupDividerEnabled(popup.getMenu(), true);
 
         if (mediaItem.hasChanges()) {
             popup.getMenu().removeItem(R.id.menu_send_as_file);
@@ -649,10 +661,15 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
         }
 
         popup.getMenu().getItem(currentScale).setChecked(true);
+        popup.getMenu().findItem(R.id.spoiler_item).setChecked(mediaItem.isSpoiler());
     }
 
     private void setVideoDropdown(@NonNull PopupMenu popup, @NonNull MediaItem mediaItem) {
         popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.spoiler_item) {
+                toggleSpoiler();
+                return true;
+            }
             if (item.getItemId() == R.id.mute_item) {
                 toggleMuteVideo();
                 return true;
@@ -692,6 +709,9 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
         } else {
             popup.getMenu().findItem(R.id.mute_item).setChecked(mediaItem.isMuted());
         }
+
+        // Update spoiler option (available also when sending as file - the metadata still rides along)
+        popup.getMenu().findItem(R.id.spoiler_item).setChecked(mediaItem.isSpoiler());
     }
 
     private void launchCamera() {
@@ -900,7 +920,19 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
                             incomingMediaItem.setExifRotation((int) exifOrientation.getRotation());
                             incomingMediaItem.setExifFlip(exifOrientation.getFlip());
 
-                            if (MimeUtil.isVideoFile(incomingMediaItem.getMimeType())) {
+                            // F1Whisper: an attached audio file (mp3, opus/ogg, m4a, mp4-audio, ...)
+                            // gets a trim timeline in the preview, just like a video. Re-classify it
+                            // as TYPE_AUDIO_FILE here, at the attach boundary -- regardless of whether
+                            // the picker classified it as TYPE_FILE (mp3/opus/flac) or TYPE_VOICEMESSAGE
+                            // (m4a/aac). This keeps the voice-recorder path (which builds its own
+                            // TYPE_VOICEMESSAGE item directly) and every other consumer untouched.
+                            if (MimeUtil.isAttachedAudioFile(incomingMediaItem.getMimeType())) {
+                                incomingMediaItem.setType(TYPE_AUDIO_FILE);
+                                incomingMediaItem.setRenderingType(FileData.RENDERING_DEFAULT);
+                            }
+
+                            if (MimeUtil.isVideoFile(incomingMediaItem.getMimeType())
+                                || incomingMediaItem.getType() == TYPE_AUDIO_FILE) {
                                 // do not use automatic resource management on MediaMetadataRetriever
                                 MediaMetadataRetriever metaDataRetriever = new MediaMetadataRetriever();
                                 try {
@@ -1021,6 +1053,14 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
     private void sendMedia() {
         if (mediaAdapterManager.size() < 1) {
             return;
+        }
+
+        // F1Whisper: if this send was launched from an active quote, tag every item with the quoted
+        // apiMessageId so the answer (photo/video/file) carries the reply-quote E2E via "qi".
+        if (pendingQuoteApiMessageId != null) {
+            for (MediaItem mediaItem : mediaAdapterManager.getItems()) {
+                mediaItem.setQuotedMessageId(pendingQuoteApiMessageId);
+            }
         }
 
         dependencies.getMessageService().sendMediaAsync(mediaAdapterManager.getItems(), messageReceivers, null);
@@ -1157,6 +1197,16 @@ public class SendMediaActivity extends ThreemaToolbarActivity implements
 
         currentItem.setMuted(!currentItem.isMuted());
         mediaAdapterManager.updateMuteState(NOTIFY_BOTH_ADAPTERS);
+    }
+
+    private void toggleSpoiler() {
+        MediaItem currentItem = mediaAdapterManager.getCurrentItem();
+        if (currentItem == null) {
+            logger.error("Cannot toggle spoiler as current media item is null");
+            return;
+        }
+
+        currentItem.setSpoiler(!currentItem.isSpoiler());
     }
 
     private void updateMenu() {

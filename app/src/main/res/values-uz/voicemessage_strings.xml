@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recording">Xabar yozib olinmoqda</string>
+    <string name="recording_stopped_title">Yozib olish toʻxtatildi</string>
+    <string name="recording_stopped_message">Yozib olingan ovozli xabarni hozir yubormoqchimisiz?</string>
+    <string name="recording_canceled">Nomaʼlum xato tufayli yozib olish bekor qilindi.</string>
+    <string name="cancel_recording">Yozuvni oʻchirib tashlash</string>
+    <string name="cancel_recording_message">Yozib olishni bekor qilib, yozuvni oʻchirib tashlamoqchimisiz?</string>
+    <string name="stop">Toʻxtatish</string>
+</resources>

@@ -11,7 +11,9 @@ import ch.threema.app.multidevice.MultiDeviceManager
 import ch.threema.app.preference.service.SynchronizedSettingsService
 import ch.threema.app.profilepicture.GroupProfilePictureUploader
 import ch.threema.app.services.ApiService
+import ch.threema.app.services.AutoResendService
 import ch.threema.app.services.BlockedIdentitiesService
+import ch.threema.app.services.ChatFolderService
 import ch.threema.app.services.ContactService
 import ch.threema.app.services.ConversationCategoryService
 import ch.threema.app.services.ConversationService
@@ -77,7 +79,9 @@ val sessionScopedModule = module {
 
     sessionScoped<APIConnector> { apiConnector }
     sessionScoped<ApiService> { apiService }
+    sessionScoped<AutoResendService> { autoResendService }
     sessionScoped<BlockedIdentitiesService> { blockedIdentitiesService }
+    sessionScoped<ChatFolderService> { chatFolderService }
     sessionScoped<ContactModelRepository> { modelRepositories.contacts }
     sessionScoped<ContactService> { contactService }
     sessionScoped<ContactStore> { contactStore }

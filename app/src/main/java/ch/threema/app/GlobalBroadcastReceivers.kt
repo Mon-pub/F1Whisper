@@ -10,12 +10,14 @@ import android.os.Build
 import android.os.PowerManager
 import androidx.core.content.getSystemService
 import ch.threema.app.backuprestore.csv.BackupService
+import ch.threema.app.connection.ConnectionNetworkCallback
 import ch.threema.app.di.injectNullableNonBinding
 import ch.threema.app.receivers.ConnectivityChangeReceiver
 import ch.threema.app.restrictions.AppRestrictionService
 import ch.threema.app.services.LifetimeService
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.base.utils.getThreemaLogger
+import ch.threema.domain.protocol.connection.ServerConnection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,13 +32,45 @@ object GlobalBroadcastReceivers : KoinComponent {
     private val appRestrictionService: AppRestrictionService by inject()
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val lifetimeService: LifetimeService? by injectNullableNonBinding()
+    private val connection: ServerConnection? by injectNullableNonBinding()
+
+    // Strongly hold the network callback for the process lifetime. A GC'd NetworkCallback is
+    // silently unregistered by the framework, so it must not be a local.
+    private var connectionNetworkCallback: ConnectionNetworkCallback? = null
+
+    /**
+     * F1Whisper: ask the network callback to force a reconnect (re-resolving DNS) through its
+     * serialized/debounced executor. Called when the app returns to the foreground after a Doze
+     * background in which the connection used a cached IP ([ch.threema.app.connection.CachingDnsResolver]).
+     * No-op if the callback is not registered yet.
+     */
+    @JvmStatic
+    fun requestConnectionReconnect(reason: String) {
+        connectionNetworkCallback?.requestReconnect(reason)
+    }
 
     @JvmStatic
     fun registerBroadcastReceivers(context: Context) {
         registerConnectivityChangeReceiver(context)
+        registerConnectionNetworkCallback(context)
         registerDeviceIdleModeChangedReceiver(context)
         registerNotificationChannelGroupBlockStateChangedReceiver(context)
         registerAppRestrictionsChangeReceiver(context)
+    }
+
+    private fun registerConnectionNetworkCallback(context: Context) {
+        // Trigger a reconnect of the persistent server connection when the default network changes.
+        // The legacy CONNECTIVITY_ACTION receiver above never reconnects a live-but-dead socket;
+        // this callback closes that gap (additive, complementary). Both lifetime and connection are
+        // resolved lazily at reconnect time so an inactive session scope is handled by the gates
+        // inside the callback rather than failing here. This MUST NOT capture them eagerly:
+        // registerBroadcastReceivers() runs synchronously in onCreate() before the session scope
+        // is ready, so an eager null-guard here would silently disable the feature on every cold start.
+        connectionNetworkCallback = ConnectionNetworkCallback(
+            context = context.applicationContext,
+            lifetimeServiceProvider = { lifetimeService },
+            connectionProvider = { connection },
+        ).also { it.register() }
     }
 
     private fun registerConnectivityChangeReceiver(context: Context) {

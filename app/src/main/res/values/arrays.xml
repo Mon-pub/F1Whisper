@@ -142,6 +142,13 @@
         <item>Schwiizertüütsch</item> <!-- Swiss German -->
         <item>Slovenčina</item> <!-- Slovak -->
         <item>Türkçe</item>
+        <item>Oʻzbekcha</item> <!-- Uzbek -->
+        <item>العربية</item> <!-- Arabic -->
+        <item>فارسی</item> <!-- Persian -->
+        <item>اردو</item> <!-- Urdu -->
+        <item>ئۇيغۇرچە</item> <!-- Uyghur -->
+        <item>हिन्दी</item> <!-- Hindi -->
+        <item>বাংলা</item> <!-- Bengali -->
         <item>Беларуская</item> <!-- Belarusian -->
         <item>Български</item> <!-- Bulgarian -->
         <item>Pусский</item> <!-- Russian -->
@@ -168,6 +175,13 @@
         <item>gsw</item> <!-- Swiss German -->
         <item>sk</item> <!-- Slovak -->
         <item>tr</item>
+        <item>uz</item> <!-- Uzbek -->
+        <item>ar</item> <!-- Arabic -->
+        <item>fa</item> <!-- Persian -->
+        <item>ur</item> <!-- Urdu -->
+        <item>ug</item> <!-- Uyghur -->
+        <item>hi</item> <!-- Hindi -->
+        <item>bn</item> <!-- Bengali -->
         <item>be-BY</item> <!-- Belarusian -->
         <item>bg</item> <!-- Bulgarian -->
         <item>ru</item> <!-- Russian -->

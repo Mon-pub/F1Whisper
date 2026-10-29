@@ -47,6 +47,26 @@ interface FileService {
     fun deleteMessageFiles(messageUid: MessageUid, keepThumbnails: Boolean = false): Boolean
 
     /**
+     * Remove all files (content file and, if [withThumbnails] is set, the thumbnail) of a message.
+     * Does nothing and returns false for a model that was never persisted (no UID).
+     */
+    fun removeMessageFiles(messageModel: AbstractMessageModel?, withThumbnails: Boolean): Boolean {
+        val messageUid = messageModel?.uid ?: return false
+        return deleteMessageFiles(messageUid, keepThumbnails = !withThumbnails)
+    }
+
+    /**
+     * F1Whisper: whether an encrypted media file for this message is still stored.
+     *
+     * [removeMessageFiles] answers "did I delete something", which is `false` BOTH when the file was already gone (nothing
+     * left to protect) and when the deletion failed (decryptable media remains). The listen-once settlement needs the fact
+     * itself: a replay barrier for a row that is gone may only come down once no decryptable media remains, so it asks this
+     * after the removal attempt instead of guessing from the removal's answer. A model that was never persisted (no UID) has
+     * no stored media.
+     */
+    fun hasPersistedMessageMedia(messageModel: AbstractMessageModel?): Boolean
+
+    /**
      * @return a decrypted file from a message, or null if the message or file does not exist
      * The file may *not* be shared with other apps.
      */
@@ -61,6 +81,15 @@ interface FileService {
     @Throws(IOException::class)
     @WorkerThread
     fun decryptMessageFileToShareableTempFile(message: AbstractMessageModel): File?
+
+    /**
+     * F1Whisper: like [decryptMessageFileToShareableTempFile] (the player reads it through the file provider), but always
+     * under a fresh, unpredictable name. Playback may decrypt listen-once media, so its file must never land on a path an
+     * earlier share already handed to another app.
+     */
+    @Throws(IOException::class)
+    @WorkerThread
+    fun decryptMessageFileToPlaybackTempFile(message: AbstractMessageModel): File?
 
     @Throws(IOException::class)
     fun decryptMessageFileToStream(messageUid: MessageUid): InputStream?
@@ -286,23 +315,43 @@ interface FileService {
     /**
      * Copies the already-decrypted file of a file message into the 'share' directory, such that
      * it can be shared with other apps.
+     *
+     * Returns null for a restricted message (see [ch.threema.app.utils.RestrictedMediaOutput]).
      */
     @WorkerThread
     fun copyDecryptedMessageFileToShareDirectory(message: AbstractMessageModel, decryptedFile: File): Uri?
 
     /**
      * Decrypt the files of [messages].
-     * The returned list may not contain all files, in case some fail to be decrypted.
+     * The returned list may not contain all files, in case some fail to be decrypted or are restricted.
      */
     @WorkerThread
     fun decryptMessageFiles(messages: List<AbstractMessageModel>): List<File>
 
     /**
+     * F1Whisper: like [decryptMessageFiles], but the result has exactly one slot per message, in the order of [messages].
+     * A slot is `null` where the file could not be decrypted or the message is restricted (see
+     * [ch.threema.app.utils.RestrictedMediaOutput]). Callers that pair the result with their own message list must use this
+     * variant: dropping slots would pair a file with the wrong message.
+     */
+    @WorkerThread
+    fun decryptMessageFilesPositional(messages: List<AbstractMessageModel>): List<File?>
+
+    /**
      * Decrypt the files of [messages] into the 'share' directory, such that they can then be shared.
-     * The returned list may not contain all files, in case some fail to be decrypted.
+     * The returned list may not contain all files, in case some fail to be decrypted or are restricted.
      */
     @WorkerThread
     fun decryptMessageFilesForSharing(messages: List<AbstractMessageModel>): List<Uri>
+
+    /**
+     * F1Whisper: like [decryptMessageFilesForSharing], but the result has exactly one slot per message, in the order of
+     * [messages]. A slot is `null` where the file could not be decrypted or the message is restricted (see
+     * [ch.threema.app.utils.RestrictedMediaOutput]), so a mixed selection still shares everything else. Callers that pair
+     * the result with their own message list must use this variant: dropping slots would pair a URI with the wrong message.
+     */
+    @WorkerThread
+    fun decryptMessageFilesForSharingPositional(messages: List<AbstractMessageModel>): List<Uri?>
 
     /**
      * Copy the decrypted thumbnail to a temporary file accessible through our FileProvider and return the Uri of the temporary file

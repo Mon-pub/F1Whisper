@@ -1,0 +1,111 @@
+<resources>
+    <string name="voip_title">Threema چاقىرىقى</string>
+    <string name="voip_hangup">تېلېفوننى قويۇش</string>
+    <string name="voip_toggle_mic">مىكروفوننى ئالماشتۇرۇش</string>
+    <string name="voip_toggle_speaker">ياڭراتقۇنى ئالماشتۇرۇش</string>
+    <string name="voip_switch_cam">كامېرا ئالماشتۇرۇش</string>
+    <string name="voip_switch_cam_front">ئالدى كامېراغا ئالماشتۇرۇلدى</string>
+    <string name="voip_switch_cam_rear">ئارقا كامېراغا ئالماشتۇرۇلدى</string>
+    <string name="voip_toggle_video">سىن ھالىتىنى ئالماشتۇرۇش</string>
+    <string name="voip_call_confirm">%1$s نى چاقىرامسىز؟</string>
+    <string name="voip_error_call">Threema چاقىرىقى جەريانىدا خاتالىق كۆرۈلدى</string>
+    <string name="voip_error_init_call">چاقىرىقنى دەسلەپلەشتۈرۈشتە خاتالىق كۆرۈلدى</string>
+    <string name="voip_notification_title">كىرىۋاتقان Threema چاقىرىقى</string>
+    <string name="voip_notification_text">%1$s چاقىرىۋاتىدۇ</string>
+    <!-- Shown when starting a call, before the peer device is ringing -->
+    <string name="voip_status_initializing">دەسلەپلەشتۈرۈلۈۋاتىدۇ</string>
+    <!-- Shown when the callee has accepted the call and the connection is being established -->
+    <string name="voip_status_connecting">ئۇلىنىۋاتىدۇ</string>
+    <!-- Shown when a call is being disconnected -->
+    <string name="voip_status_disconnecting">ئۇلىنىش ئۈزۈلۈۋاتىدۇ</string>
+    <!-- Shown when the device of the callee is ringing -->
+    <string name="voip_status_ringing">جىرىڭلاۋاتىدۇ</string>
+    <string name="voip_mic_enable">مىكروفوننى قوزغىتىش</string>
+    <string name="voip_mic_disable">مىكروفوننى چەكلەش</string>
+    <string name="voip_checking_compatibility">بۇ ئالاقەداشنىڭ Threema چاقىرىقىنى قوبۇل قىلالايدىغانلىقى تەكشۈرۈلۈۋاتىدۇ</string>
+    <string name="voip_incompatible">بۇ ئالاقەداش تېخى Threema چاقىرىقىنى قوبۇل قىلالمايدۇ.</string>
+    <string name="voip_call_status_unavailable">چاقىرىق تاپشۇرۇۋالغۇچى مەۋجۇت ئەمەس</string>
+    <string name="voip_call_status_rejected">چاقىرىق رەت قىلىندى</string>
+    <string name="voip_call_status_busy">چاقىرىق تاپشۇرۇۋالغۇچى ئالدىراش</string>
+    <string name="voip_call_status_busy_short">ئالدىراش</string>
+    <string name="voip_call_status_disabled">Threema چاقىرىقى تاپشۇرۇۋالغۇچى تەرىپىدىن چەكلەنگەن</string>
+    <string name="voip_call_status_missed">ئۆتۈپ كەتكەن چاقىرىق</string>
+    <string name="voip_call_finished_outbox">چىقىۋاتقان چاقىرىق</string>
+    <string name="voip_call_finished_inbox">كىرىۋاتقان چاقىرىق</string>
+    <string name="voip_call_status_aborted">چاقىرىق توختىتىلدى</string>
+    <string name="voip_return_call">چاقىرىقنى قايتۇرۇش</string>
+    <string name="voip_accept">قوبۇل قىلىش</string>
+    <string name="voip_reject">رەت قىلىش</string>
+    <string name="voip_speakerphone">ياڭراتقۇ</string>
+    <string name="voip_wired_headset">قۇلاقچىن</string>
+    <string name="voip_earpiece">تېلېفون</string>
+    <string name="voip_bluetooth">كۆكچىش</string>
+    <string name="voip_none">مەۋجۇت ئەمەس</string>
+    <string name="voip_call_finished">Threema چاقىرىقى ئاخىرلاشتى</string>
+    <string name="voip_another_call">ئۇلىنالمىدى. ھازىر باشقا بىر Threema چاقىرىقى ئاكتىپ ھالەتتە.</string>
+    <string name="voip_prefs_title_aec">ساداڭ تەڭشىمى</string>
+    <string name="voip_prefs_aec_sw">يۇمشاق دېتال ساداڭ تەڭشىمى</string>
+    <string name="voip_prefs_aec_hw">قاتتىق دېتال ساداڭ تەڭشىمى</string>
+    <string name="voip_prefs_title_video_codec">سىن كودلىغۇچلىرى</string>
+    <string name="voip_prefs_video_aec_hw">قاتتىق دېتال تېزلىتىلگەن</string>
+    <string name="voip_prefs_video_codec_no_vp8">VP8 نى چەكلەش</string>
+    <string name="voip_prefs_video_codec_no_h264hip">H264-HiP نى چەكلەش</string>
+    <string name="voip_prefs_video_codec_sw">يۇمشاق دېتال كودلىغۇچلىرى</string>
+    <string name="voip_connection_failed">ئۇلىنىش ئورنىتىلمىدى</string>
+    <string name="voip_call_disconnected">چاقىرىق ئۈزۈلدى</string>
+    <string name="prefs_voip_reject_incoming_calls_title">يانفون چاقىرىقلىرىنى رەت قىلىش</string>
+    <string name="prefs_voip_reject_incoming_calls_summary">Threema چاقىرىقى ئاكتىپ ھالەتتە كىرىۋاتقان يانفون چاقىرىقلىرىنى رەت قىلىش.</string>
+    <string name="voip_contact_not_found">بۇ نومۇرغا ماس كېلىدىغان Threema ئالاقەداشى تېپىلمىدى.</string>
+    <string name="voip_another_pstn_call">چاقىرىق باشلىغىلى بولمىدى. ئادەتتىكى تېلېفون چاقىرىقى تېخى ئاكتىپ ھالەتتە.</string>
+    <string name="voip_call_status_off_hours">خىزمەت ۋاقتى سىرتىدىكى چاقىرىق</string>
+    <string name="voip_peer_video_disabled">سىنلىق چاقىرىق قارشى تەرەپ تەرىپىدىن چەكلەنگەن.</string>
+
+    <string name="voip_error_processing_call_anser">چاقىرىق جاۋابىنى بىر تەرەپ قىلىشتا خاتالىق كۆرۈلدى</string>
+    <string name="voip_error_peer_connection">قارشى تەرەپ ئۇلىنىش خاتالىقى</string>
+    <string name="voip_error_determine_common_video_quality_profile">ئورتاق سىن سۈپىتى سەپلىمىسىنى ئېنىقلىغىلى بولمىدى</string>
+
+    <string name="voip_audio_focus_lost">ئاۋاز فوكۇسى يوقالدى</string>
+
+    <string name="voip_could_not_initialize">چاقىرىقنى دەسلەپلەشتۈرگىلى بولمىدى</string>
+
+    <!-- WebRTC debugger -->
+    <string name="voip_prefs_webrtc_debug">WebRTC دىئاگنوزى</string>
+    <string name="voip_prefs_webrtc_debug_summary">ئاۋازلىق چاقىرىق ئۇلىنىشى ئورنىتىشتىكى مەسىلىلەرنى ساڭگىشلاش ئۈچۈن بۇ قورالنى قوزغىتىڭ</string>
+    <string name="voip_webrtc_debug">WebRTC دىئاگنوزى</string>
+    <string name="voip_webrtc_debug_intro">سىناقنى باشلاش ئۈچۈن “باشلاش” كۇنۇپكىسىنى بېسىڭ.</string>
+    <string name="voip_webrtc_debug_start">باشلاش</string>
+    <string name="voip_webrtc_debug_done">تامام. چاقىرىق ئۇلىنىشى ئورنىتىشتا مەسىلىگە يولۇقسىڭىز، بۇ نەتىجىنى Threema قوللاش مەركىزىگە ئەۋەتىڭ.</string>
+    <string name="voip_webrtc_debug_copied">چاپلاش تاختىسىغا كۆچۈرۈلدى.</string>
+    <string name="voip_webrtc_debug_copy_clipboard">چاپلاش تاختىسىغا كۆچۈرۈش</string>
+
+    <!-- Group Calls -->
+    <string name="voip_gc_notification_call_started">%1$s، %2$s دە گۇرۇپپا چاقىرىقى باشلىدى</string>
+    <string name="voip_gc_notification_call_started_generic">%1$s گۇرۇپپا چاقىرىقى باشلىدى</string>
+    <string name="voip_gc_notification_call_started_generic_outbox">سىز گۇرۇپپا چاقىرىقى باشلىدىڭىز</string>
+    <string name="voip_gc_join_call">قاتنىشىش</string>
+    <string name="voip_gc_ongoing_call">داۋاملىشىۋاتقان گۇرۇپپا چاقىرىقى</string>
+    <string name="voip_gc_waiting_for_participants">قاتناشقۇچىلار كۈتۈلۈۋاتىدۇ</string>
+    <string name="voip_gc_participant_avatar_description">قاتناشقۇچىنىڭ سەپلىمە رەسىمى</string>
+    <string name="voip_gc_participant_mute_status_description">قاتناشقۇچىنىڭ ئاۋاز ئۆچۈرۈش ھالىتى</string>
+    <string name="voip_gc_participant_screen_share_status_description">قاتناشقۇچى ئېكران ھەمبەھىرلەۋاتىدۇ</string>
+    <string name="voip_gc_notification_new_call_public">يېڭى گۇرۇپپا چاقىرىقى باشلاندى</string>
+    <string name="voip_gc_open_call">ئېچىش</string>
+    <string name="voip_gc_call_started">گۇرۇپپا چاقىرىقى باشلاندى</string>
+    <string name="voip_gc_call_ended">گۇرۇپپا چاقىرىقى ئاخىرلاشتى</string>
+    <string name="voip_gc_in_call">گۇرۇپپا چاقىرىقىدا</string>
+    <string name="voip_gc_sfu_not_available">مۇلازىمېتىر مەۋجۇت ئەمەس، كېيىن قايتا سىناڭ</string>
+    <string name="voip_gc_call_error">خاتالىق سەۋەبىدىن چاقىرىق توختىدى</string>
+    <string name="voip_gc_call_start_error">گۇرۇپپا چاقىرىقىنى باشلىغىلى بولمىدى</string>
+    <string name="voip_gc_call_already_ended">گۇرۇپپا چاقىرىقى ئاللىبۇرۇن ئاخىرلاشقان</string>
+    <string name="voip_gc_screen_sharing_not_supported">ئېكران ھەمبەھىرلەش ھازىرچە پەقەت كومپيۇتېر ئۈسكۈنىلىرى بىلەنلا چەكلەنگەن.</string>
+    <string name="voip_gc_call_full_generic">ئەڭ يۇقىرى چەككە يەتتى: بۇ گۇرۇپپا چاقىرىقىغا باشقا قاتناشقۇچى قوشۇلالمايدۇ.</string>
+    <string name="voip_gc_call_full_n">ئەڭ كۆپ %1$d قاتناشقۇچى چەكلىمىسىگە يەتتى، بۇ گۇرۇپپا چاقىرىقىغا قاتنىشالمايسىز.</string>
+    <plurals name="n_participants_in_call">
+        <item quantity="one">%d قاتناشقۇچى</item>
+        <item quantity="other">%d قاتناشقۇچى</item>
+    </plurals>
+    <plurals name="n_members_dont_support_group_calls">
+        <item quantity="one">دىققەت: بىر ئەزا گۇرۇپپا چاقىرىقىغا قاتنىشالمايدۇ.</item>
+        <item quantity="other">دىققەت: %d ئەزا گۇرۇپپا چاقىرىقىغا قاتنىشالمايدۇ.</item>
+    </plurals>
+</resources>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="webclient" translatable="false">Desktop/Web</string>
+    <string name="webclient_init_session">नया सत्र शुरू करें</string>
+    <string name="webclient_sessions_really_delete">क्या आप वाकई इस डेस्कटॉप/वेब सत्र को हटाना चाहते हैं?</string>
+    <string name="webclient_last_usage">पिछला उपयोग: %s</string>
+    <string name="webclient_created_at">बनाया गया: %1$s (%2$s)</string>
+    <string name="webclient_active_since">सक्रिय: %s से</string>
+    <string name="webclient_enable">डेस्कटॉप ऐप / वेब क्लाइंट सक्षम करें</string>
+    <string name="webclient_no_sessions_found">कनेक्ट करने के लिए, अपने कंप्यूटर पर डेस्कटॉप ऐप (<b>https://threema.com/download</b>) डाउनलोड करें या वेब क्लाइंट (<b>%s</b>) खोलें, और अपने कंप्यूटर स्क्रीन पर दिखाए गए QR कोड को स्कैन करने के लिए नीचे दिए गए बटन पर टैप करें।</string>
+    <string name="webclient_session_rename">सत्र का नाम बदलें</string>
+    <string name="webclient_session_label">नया नाम</string>
+    <string name="webclient_session_start">सत्र शुरू करें</string>
+    <string name="webclient_session_stop">सत्र रोकें</string>
+    <string name="webclient_persistent">स्थायी</string>
+    <string name="webclient_disposable">अस्थायी</string>
+    <string name="webclient_unnamed_session">अनाम सत्र</string>
+    <string name="webclient_session_remove">सत्र हटाएँ</string>
+    <string name="webclient_welcome_title">अपने PC से चैट करें!</string>
+    <string name="webclient_welcome_explain">डेस्कटॉप ऐप और वेब क्लाइंट आपको अपने PC या नोटबुक से चैट करने की सुविधा देते हैं, साथ ही आपके सभी संपर्कों, मीडिया और चैट तक पूरी पहुँच प्रदान करते हैं, यहाँ तक कि पुरानी बातचीत तक भी।\n\n<b>फ़ोन और PC के बीच का सारा संचार पूरी तरह एंड-टू-एंड एन्क्रिप्टेड है</b> और यदि फ़ोन और PC दोनों एक ही नेटवर्क पर हों तो यह सीधा कनेक्शन उपयोग करता है।\n\nकृपया ध्यान दें: डेस्कटॉप ऐप / वेब क्लाइंट सक्रिय रहते समय कुछ अतिरिक्त बैटरी खपत कर सकता है। आप इसे किसी भी समय सक्षम या अक्षम कर सकते हैं।</string>
+    <string name="webclient_launch">डेस्कटॉप ऐप / वेब क्लाइंट अभी शुरू करें</string>
+    <string name="webclient_qr_scan_message">कृपया PC पर दिखाए गए QR कोड को स्कैन करें।</string>
+    <string name="webclient_invalid_qr_code">अमान्य QR कोड</string>
+    <string name="webclient_new_connection_toast">डेस्कटॉप/वेब सत्र शुरू हुआ</string>
+    <string name="webclient_protocol_error">प्रोटोकॉल त्रुटि</string>
+    <string name="webclient_protocol_version_to_old">आपका ऐप डेस्कटॉप ऐप / वेब क्लाइंट के इस संस्करण का समर्थन नहीं करता। कृपया Threema for Android को नवीनतम संस्करण में अपडेट करें।</string>
+    <string name="webclient_protocol_version_too_new_selfhosted">आपका ऐप डेस्कटॉप ऐप / वेब क्लाइंट के इस संस्करण का समर्थन नहीं करता। कृपया डेस्कटॉप ऐप का नवीनतम संस्करण डाउनलोड करें, या अपने वेब क्लाइंट के व्यवस्थापक से नवीनतम संस्करण में अपग्रेड करने के लिए कहें।</string>
+    <string name="webclient_protocol_version_too_new_threema">आपका ऐप डेस्कटॉप ऐप / वेब क्लाइंट के इस संस्करण का समर्थन नहीं करता। कृपया डेस्कटॉप ऐप / वेब क्लाइंट के वर्तमान संस्करण का उपयोग करें।</string>
+    <string name="webclient_session_already_exists">आपने जो QR कोड स्कैन किया उसका सत्र पहले से मौजूद है। कृपया डेस्कटॉप ऐप को फिर से शुरू करें / वेब क्लाइंट को फिर से लोड करें, और दोबारा प्रयास करें।</string>
+    <string name="webclient_really_start_webclient_by_payload_body">क्या आप यह सत्र अभी शुरू करना चाहेंगे?</string>
+    <string name="webclient_cannot_restore">सत्र पुनर्स्थापित नहीं हो सका</string>
+    <string name="webclient_disabled">डेस्कटॉप/वेब सक्षम नहीं है</string>
+    <string name="webclient_cannot_start">सत्र शुरू नहीं हो सका</string>
+    <string name="webclient_constrained_by_mdm">सर्वर को व्यवस्थापक द्वारा स्वीकृत नहीं किया गया है।</string>
+    <string name="webclient_clear_all_sessions">सभी सत्र साफ़ करें</string>
+    <string name="webclient_clear_all_sessions_confirm">क्या आप वाकई सभी सत्र रोककर हटाना चाहते हैं?</string>
+    <string name="webclient_prefs_debug_tool_summary">डेस्कटॉप ऐप या वेब क्लाइंट से कनेक्शन सेट करने की समस्याओं को डीबग करने के लिए यह टूल शुरू करें</string>
+    <string name="webclient_diagnostics">डेस्कटॉप/वेब डायग्नोस्टिक्स</string>
+    <string name="webclient_diagnostics_start">शुरू करें</string>
+    <string name="webclient_diagnostics_intro">परीक्षण शुरू करने के लिए «शुरू करें» पर टैप करें।</string>
+    <string name="webclient_diagnostics_done">पूर्ण हुआ। यदि आपको डेस्कटॉप ऐप या वेब क्लाइंट से कनेक्शन बनाने में समस्या आती है, तो कृपया यह लॉग Threema सपोर्ट को भेजें।</string>
+    <string name="webclient_scanned_md_linking_qr_code_title">गलत QR कोड</string>
+    <!-- ${app_name_desktop} is a placeholder for the Desktop app's name, e.g. "Threema". ${md_link_device} is a placeholder for the name of a UI element. They must be left as they are and not translated. -->
+    <string name="webclient_scanned_md_linking_qr_code_message">आपने जो QR कोड स्कैन किया वह नए डेस्कटॉप बीटा ऐप का है।\n\n“मुख्य मेनू > ${app_name_desktop} 2.0 for Desktop (Beta)” पर वापस जाएँ और इस डेस्कटॉप ऐप से लिंक करने के लिए “${md_link_device}” चुनें।</string>
+</resources>

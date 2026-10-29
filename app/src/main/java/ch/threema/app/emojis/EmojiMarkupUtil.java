@@ -102,6 +102,18 @@ public class EmojiMarkupUtil {
     }
 
     /**
+     * Variant used by chat bubbles which carries per-message spoiler reveal state so spoiler markup
+     * ({@code ||...||}) can be obscured (or revealed) at render time.
+     *
+     * @param spoilerColor    Color used to obscure unrevealed spoiler content
+     * @param spoilerRevealed Whether the spoiler(s) of this message have already been revealed
+     */
+    @NonNull
+    public CharSequence addTextSpans(Context context, CharSequence text, TextView textView, boolean ignoreMarkup, boolean singleScale, @ColorInt int spoilerColor, boolean spoilerRevealed) {
+        return addTextSpans(context, text, textView, ignoreMarkup, false, singleScale, false, true, spoilerColor, spoilerRevealed);
+    }
+
+    /**
      * Add text spans to given CharSequence such as markup, mentions and emojis
      *
      * @param context                   A context
@@ -125,6 +137,33 @@ public class EmojiMarkupUtil {
         boolean ignoreMentions,
         boolean singleScale,
         boolean overrideEmojiStyleSetting
+    ) {
+        return addTextSpans(context, text, textView, ignoreMarkup, ignoreMentions, singleScale, overrideEmojiStyleSetting, false, 0, false);
+    }
+
+    /**
+     * Add text spans to given CharSequence such as markup, mentions and emojis.
+     *
+     * @param spoilerContext  Whether per-message spoiler reveal state is available; when false,
+     *                        spoiler markup is left literal (e.g. in notifications/snippets)
+     * @param spoilerColor    Color used to obscure unrevealed spoiler content
+     * @param spoilerRevealed Whether the spoiler(s) of this message have already been revealed
+     */
+    @NonNull
+    public CharSequence addTextSpans(
+        @Nullable
+        Context context,
+        @Nullable
+        CharSequence text,
+        @Nullable
+        TextView textView,
+        boolean ignoreMarkup,
+        boolean ignoreMentions,
+        boolean singleScale,
+        boolean overrideEmojiStyleSetting,
+        boolean spoilerContext,
+        @ColorInt int spoilerColor,
+        boolean spoilerRevealed
     ) {
         if (text == null) {
             return "";
@@ -183,7 +222,11 @@ public class EmojiMarkupUtil {
         }
 
         if (!ignoreMarkup) {
-            MarkupParser.getInstance().markify(builder);
+            if (spoilerContext) {
+                MarkupParser.getInstance().markify(builder, spoilerColor, spoilerRevealed);
+            } else {
+                MarkupParser.getInstance().markify(builder);
+            }
         }
 
         if (!ignoreMentions) {

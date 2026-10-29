@@ -1,296 +1,128 @@
-<div align="center">
-  <!-- Centered README header hack -->
-  <!-- Note: Do not replace the obsolete align attribute with inline style, as GitHub may strip it. -->
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="logo_dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="logo_light.svg">
-    <img width="500" src="logo_light.svg" alt="Threema Logo">
-  </picture>
-  <br><br>
-</div>
+# F1Whisper
 
----
+**Secure messaging for Android, built on Threema's cryptographic core and run against a
+self-hosted server.**
 
-# Threema for Android
+F1Whisper is an independent fork of
+[Threema for Android](https://github.com/threema-ch/threema-android). It keeps Threema's
+end-to-end encryption exactly as it is and connects only to a self-hosted OnPrem backend.
 
-This repository contains the complete source code of
-[Threema](https://threema.com/) for Android.
+It is not a cosmetic rebrand. F1Whisper is a separate application with its own package name, its
+own release signing key, its own language set, several features upstream does not have, and a small
+number of additions to the wire protocol. This document describes those differences in full.
 
-## Table of Contents
+## What is different from upstream Threema
 
-- [Bug Reports / Feature Requests / Security Issues](#issues)
-- [Source Code Release Policy](#release-policy)
-- [License Checks](#license-checks)
-- [Build Variants](#build-variants)
-- [Building](#building)
-- [Testing](#testing)
-- [Reproducible Builds](#reproducible-builds)
-- [Code Organization / Architecture](#architecture)
-- [Contributions](#contributions)
-- [Translating](#translating)
-- [License](#license)
+### Identity and packaging
 
-## <a name="issues"></a>Bug Reports / Feature Requests / Security Issues
+- **Application ID `info.f1tech.threema`** (upstream uses `ch.threema.app`). F1Whisper installs
+  alongside Threema; it is a separate app with separate data, not an update to it.
+- **Name and artwork**: product name F1Whisper, own logo wordmark.
+- **Version scheme**: `6.4.3o-<N>`, versionCode `1148 + <N>`, tracking upstream 6.4.3 (build 1148).
+- **One build flavour** (`onprem`) is maintained. Released builds carry `arm64-v8a` and
+  `armeabi-v7a`.
+- **No Google Play Services and no Firebase Cloud Messaging.** The app has no Google push channel
+  and keeps its own connection to the server instead, which is why it asks to be exempted from
+  aggressive battery management on some devices.
+- **No analytics and no telemetry**, as upstream.
 
-To report bugs and request new features, please contact the Threema support
-team through [threema.com/support](https://threema.com/support).
+### Languages
 
-If you discover a security issue in Threema, please adhere to the coordinated
-vulnerability disclosure model. To be eligible for a bug bounty, please [file a
-report on GObugfree](https://app.gobugfree.com/programs/threema) (where all the
-details, including the bounty levels, are listed). If you’re not interested in
-the bug bounty program, you can contact us via Threema or by email; for contact
-details, see [threema.com/contact](https://threema.com/en/contact) (section
-“Security”).
+29 languages ship in the app. Seven were added by this fork (Arabic, Bengali, Persian, Hindi,
+Uyghur, Urdu, Uzbek), including full right-to-left layout support and a language picker on the very
+first screen, before any account exists. The 21 languages inherited from upstream were extended to
+cover the strings this fork added.
 
-## <a name="release-policy"></a>Source Code Release Policy
+### Backend
 
-This source code repository will be updated for every public non-beta release.
-There will be one commit per released version.
+- Points at a self-hosted OnPrem server instead of Threema's infrastructure.
+- **The provisioning-file trust anchor is this project's own Ed25519 key.** A build of this
+  repository will not accept a configuration signed by Threema, so it cannot connect to Threema's
+  servers or to Threema-operated OnPrem deployments.
+- Onboarding asks for a single activation key rather than a username and password.
 
-Commits are signed using PGP. See [SECURITY.md](SECURITY.md) for more
-information.
+### Features added
 
-## <a name="license-checks"></a>License Checks
+Disappearing messages (a shared per-conversation timer, distinct from upstream's keep-messages-for-
+N-days purge), spoilers for text and media, listen-once voice messages, chat
+folders, pinned messages, quote-reply for every message type, link previews, chat backgrounds,
+checklists, group typing indicators, voice-message trimming, a connectivity diagnostics report, an
+in-app update check, and guidance for the background-app restrictions some manufacturers apply.
 
-While the source code for Threema for Android is published under an open source
-license, Threema is still a paid app. To run the app in combination with our
-official server infrastructure, you must have bought a license either on Google
-Play or in the Threema shop.
+### Protocol and message-format additions
 
-The app uses four different license check types, depending on the build variant:
+F1Whisper adds, all of it inside upstream's existing end-to-end encryption:
 
-### Google Play Licensing
+- **Three Chat Server Protocol message types** that upstream does not define:
+  `0x84` group typing indicator, `0x85` disappearing-messages timer, and `0x95` its group variant
+  (`domain/src/main/java/ch/threema/domain/protocol/csp/ProtocolDefines.java`).
+- **One field in the end-to-end-encrypted `MessageMetadata` box**: `f1_disappearing_timer`, field
+  number 100 (`domain/protocol/src/csp-e2e.proto`). It carries the sender's timer for that single
+  message, so a recipient honours the timer the sender actually set. Its encoded size is compensated
+  in the message padding, so the encrypted length is identical whether or not a timer is set.
+- **Extra keys in the file-data metadata map** carried inside encrypted file messages: listen-once
+  state, the spoiler flag, and the quoted-message id.
 
-When creating a new Threema ID using the Threema app bought on Google Play, the
-app sends a [LVL license verification token](https://developer.android.com/google/play/licensing/)
-to the directory server. This allows the server to verify that you have indeed
-bought the app, without being able to identify you.
+## What is not different
 
-This means that a self-compiled app using the `google` build variant cannot be
-used to create a new Threema ID. You can, however, use an app that was
-purchased over Google Play to create an ID and then export a backup. This
-backup can then be imported into the self-compiled app.
+**The cryptographic core is untouched.** F1Whisper uses upstream's `libthreema` and upstream's
+crypto and key-handling code without modification: the paths `domain/.../base/crypto`,
+`app/.../localcrypto` and every `libthreema` path have a zero-byte difference against the upstream
+6.4.3 tag this fork is based on. Anyone can check that with a single `git diff` against upstream.
 
-Note that the ID creation endpoint is monitored for abuse.
+Messages remain end-to-end encrypted, and the server remains an encrypted relay that never sees
+plaintext. For the cryptography design, see Threema's
+[Cryptography Whitepaper](https://threema.com/press-files/2_documentation/cryptography_whitepaper.pdf).
 
-### Huawei HMS Licensing
+The additions listed above are built on that core rather than around it, and they are described in
+[`SECURITY.md`](SECURITY.md).
 
-When creating a new Threema ID using the Threema app bought on Huawei AppGallery, the
-app sends a [Huawei DRM Signature](https://developer.huawei.com/consumer/en/doc/development/AppGallery-connect-Guides/appgallerykit-paidapps-devguide-0000001073913394)
-to the directory server. This allows the server to verify that you have indeed
-bought the app, without being able to identify you.
+## Compatibility and limits
 
-This means that a self-compiled app using the `hms` build variant cannot be
-used to create a new Threema ID. You can, however, use an app that was
-purchased over Huawei AppGallery to create an ID and then export a backup. This
-backup can then be imported into the self-compiled app.
+- **Not interoperable with Threema.** F1Whisper accounts live on the self-hosted server they were
+  created on. There is no path between this app and Threema's network, in either direction.
+- **Against an unmodified Threema client on the same self-hosted server**, ordinary messaging works,
+  because the message types shared with upstream are unchanged. F1Whisper's own features need
+  F1Whisper on both sides: a client that does not implement them ignores the added message types and
+  the added metadata field.
+- **Android 7.0 (API 24) or newer**; built against API 35.
+- **Distribution is GitHub releases only.** F1Whisper is not on Google Play and not on F-Droid.
 
-Note that the ID creation endpoint is monitored for abuse.
+## Security
 
-### Threema Shop Licensing
+Vulnerability reporting, the release signing key, artifact verification and how this fork's own
+additions are protected are documented in [`SECURITY.md`](SECURITY.md).
 
-If you bought a Threema for Android license in the [Threema Shop](https://shop.threema.ch/),
-you have received a license key. This license key can be used for license
-verification in the `store_threema` build variant.
+Report security issues in this fork to this project, not to Threema.
 
-### Threema Work
+## Build
 
-If you build the `work` build variant, credentials from the [Threema
-Work](https://work.threema.ch/) subscription must be provided in order to use
-the app.
+Requires the standard Threema for Android toolchain: Android SDK and NDK, the protobuf compiler,
+and a Rust toolchain with the Android targets, for the `libthreema` native build.
 
-### Allowlist
+    # installable debug build, all four ABIs
+    ./gradlew assembleOnpremDebug -PnoAbiSplits
 
-The `none` build variant is used for development. It can only be used to create
-new Threema IDs if the random Device ID has been put on an “allow list” by a
-Threema employee.
+    # same, arm64 only (roughly half the size; both flags are required together)
+    ./gradlew assembleOnpremDebug -PnoAbiSplits -Parm64Only
 
-## <a name="build-variants"></a>Build Variants
+Debug builds skip the release-only lint gate, so verify changes with
+`./gradlew lintVitalOnpremRelease` before proposing them.
 
-**Private**
+Signed releases are produced only by the tag-triggered GitHub Actions workflow in
+[`.github/workflows/release.yml`](.github/workflows/release.yml); the procedure and the gates it
+enforces are documented in [`RELEASING.md`](RELEASING.md).
 
-There are currently the following product flavors relevant for the private
-version of Threema:
+## Contributing
 
-| Flavor           | Description                                   | License Checks |
-|------------------|-----------------------------------------------|----------------|
-| `store_google`   | Google Play Store version (regular, paid app) | Google Play    |
-| `hms`            | Huawei AppGallery version (regular, paid app) | Huawei HMS     |
-| `store_threema`¹ | Threema Shop version (with play services)     | Threema Shop   |
-| `libre`¹         | Libre (F-Droid) version (no proprietary code) | Threema Shop   |
+See [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-For local testing, we recommend building the `store_google` or `store_threema`
-build variants.
+## License
 
-¹ The main difference between `store_threema` and `libre` is that the former
-contains proprietary push services and a self-updater while the latter does
-not. Additionally, the `libre` version will use your system emoji, instead
-of bundling emoji graphics.
+F1Whisper inherits Threema for Android's license: the GNU Affero General Public License v3
+(AGPL-3.0). Original work Copyright (c) Threema AG. See [`LICENSE.txt`](LICENSE.txt).
 
-**Threema Work / OnPrem**
-
-Additionally, these build variants are only relevant for Threema Work or
-Threema OnPrem customers:
-
-| Flavor              | Description                                | License Checks |
-|---------------------|--------------------------------------------|----------------|
-| `store_google_work` | Google Play Store version (work, free app) | Threema Work   |
-| `hms_work`          | Huawei AppGallery version (work, free app) | Threema Work   |
-| `onprem`            | Threema OnPremises version                 | Threema Work   |
-
-**Internal Development**
-
-The following variants are only used for development and testing within Threema:
-
-| Flavor         | Description                    | License Checks |
-|----------------|--------------------------------|----------------|
-| `none`         | Used for development           | Allowlist      |
-| `green`        | Uses sandbox test environment¹ | Allowlist      |
-| `sandbox_work` | Uses sandbox test environment¹ | Threema Work   |
-| `blue`         | Uses sandbox test environment¹ | Threema Work   |
-
-¹ *The “sandbox” is a backend test environment that is used for internal testing
-at Threema. The sandbox backend can currently not be accessed from the public
-Internet.*
-
-## <a name="building"></a>Building
-
-Before building the app, please read the “Build Variants” section above. For
-local testing, we recommend building and running the `store_google` or
-`store_threema` build variant.
-
-### Via Command Line
-
-Prerequisites:
-
-- Android SDK
-- Android NDK
-- bash shell
-- protobuf compiler
-- Rust compiler and cargo (including the target architectures)
-
-The best way to install all required target architectures for Rust is
-through [rustup](https://rustup.rs/):
-
-    TOOLCHAIN=$(grep channel domain/libthreema/rust-toolchain.toml | cut -d'"' -f2)
-    rustup target add --toolchain $TOOLCHAIN armv7-linux-androideabi aarch64-linux-android i686-linux-android x86_64-linux-android
-
-The application APK can be built using Gradle Wrapper:
-
-    # Play Store variant
-    ./gradlew assembleStore_googleDebug
-
-    # Threema Store variant
-    ./gradlew assembleStore_threemaDebug
-
-By default no universal apk will be built. Use `-PbuildUniversalApk` if a universal apk should be
-built as well. The flag `-PnoAbiSplits` can be used to skip building abi specific apk and only
-build a universal apk.
-
-*NOTE:* Threema for Android is developed on Linux machines, we cannot offer any
-assistance for building on macOS, Windows, or other operating systems.
-
-### Via Android Studio
-
-The project can be imported into [Android Studio](https://developer.android.com/studio/).
-To build and deploy it to a device, click the green “Play” icon.
-
-### Troubleshooting
-
-**NDK is not installed**
-
-If you get the following error when building Threema:
-
-> Cause 1: org.gradle.api.InvalidUserDataException: NDK is not installed
-
-...then ensure that you have installed the correct version of NDK (as defined
-by `ndkVersion` in `app/build.gradle.kts`). In Android Studio: *Settings >
-Languages & Frameworks > Android SDK > SDK Tools*.
-
-## <a name="testing"></a>Testing
-
-### Via Command Line
-
-To run unit tests:
-
-    ./gradlew testNoneDebug
-
-To run integration tests (with a device or emulator attached):
-
-    ./gradlew connectedNoneDebugAndroidTest
-
-Note that integration tests run in the same app environment as your “real” app,
-so data loss is possible. For example, if an integration test deletes your
-Threema ID in order to test the backup restoration process, the Threema ID in
-your “real” app may also be gone (if it was signed with the same signing key).
-It is best to only run integration tests on a non-productive device or in an
-emulator.
-
-### Via Android Studio
-
-You can also run tests through Android Studio.
-
-## <a name="reproducible-builds"></a>Reproducible Builds
-
-Instructions on how to reproduce the build process used to publish the official
-Threema app can be found at
-[threema.com/open-source/reproducible-builds/](https://threema.com/open-source/reproducible-builds/).
-
-## <a name="architecture"></a>Code Organization / Architecture
-
-Before digging into the codebase, you should read the [Cryptography
-Whitepaper](https://threema.com/press-files/2_documentation/cryptography_whitepaper.pdf)
-to understand the design concepts.
-
-Code related to the core functionality (e.g., connecting to the chat server,
-encrypting messages, etc.) can be found in the
-`domain/src/main/java/ch/threema/` directory.
-
-The code of the actual Android app is located in the
-`app/src/main/java/ch/threema/` directory.
-
-Common code not specific to Threema is located in the
-`common/src/main/java/ch/threema/` directory.
-
-## <a name="contributions"></a>Contributions
-
-We accept GitHub pull requests. Please refer to
-<https://threema.com/open-source/contributions>
-for more information on how to contribute.
-
-Note that translation fixes should not be contributed through GitHub but
-on Crowdin, see next section.
-
-## <a name="translating"></a>Translating
-
-We manage our app translations on Crowdin. If you’re interested in
-improving translations, or if you would like to translate Threema to a new
-language, please contact us at `support at threema dot ch`.
-
-## <a name="license"></a>License
-
-Threema for Android is licensed under the GNU Affero General Public License v3.
-
-    Copyright (c) Threema AG
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License, version 3,
-    as published by the Free Software Foundation.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-The full license text can be found in [`LICENSE.txt`](LICENSE.txt).
-
-If you have questions about the use of self-compiled apps or the license in
-general, feel free to [contact us](mailto:opensource@threema.ch). We are
-publishing the source code in good faith, with transparency being the main
-goal. By having users pay for the development of the app, we can ensure that
-our goals sustainably align with the goals of our users: Great privacy and
-security, no ads, no collection of user data!
+F1Whisper is an independent fork and is **not** affiliated with, endorsed by, or supported by
+Threema AG. "Threema" is a trademark of Threema AG and is used here only to describe the origin
+of this code. Bugs in F1Whisper are not Threema's, and Threema's support channels cannot help with
+this app.

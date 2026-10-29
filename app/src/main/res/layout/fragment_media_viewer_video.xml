@@ -16,11 +16,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!-- F1Whisper: surface_type=texture_view so the decoded video keeps rendering smoothly
+             across the picture-in-picture window transition (a SurfaceView detaches its surface
+             during the relayout and freezes on the last frame). resize_mode=fit keeps the real
+             aspect ratio (no cropping) in both fullscreen and the PiP window. -->
         <androidx.media3.ui.PlayerView
             android:id="@+id/video_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:controller_layout_id="@layout/exo_player_control_view_standard"
+            app:surface_type="texture_view"
+            app:resize_mode="fit"
             android:visibility="gone" />
 
     </com.alexvasilkov.gestures.views.GestureFrameLayout>
@@ -40,8 +46,8 @@
         android:layout_gravity="center"
         android:gravity="center_horizontal"
         android:background="#55000000"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
         android:fontFamily="sans-serif-light"
         android:textColor="@android:color/white"
         android:textSize="18sp"

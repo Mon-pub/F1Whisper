@@ -57,6 +57,7 @@ class MasterKeyLockStateChangeHandler(
 
     @Volatile
     private var observeConnectionStateJob: Job? = null
+    private var observeLoginsJob: Job? = null
 
     fun onMasterKeyUnlocked(
         sessionScopeContainer: SessionScopeContainer,
@@ -89,12 +90,31 @@ class MasterKeyLockStateChangeHandler(
                 }
             }
         }
+
+        // F1Whisper auto-resend: connectivity is back, so silently re-send any unsent outgoing messages (media/file/poll
+        // that failed on a transient network error, or anything left in flight by a process death). Keyed on the login
+        // count rather than on the LOGGED_IN state: a state collector can miss a quick disconnect and re-login entirely
+        // (LOGGED_IN followed by LOGGED_IN is no change), the count changes on every login. Debounced and
+        // single-in-flight inside the service, so one scan per login is cheap.
+        observeLoginsJob = coroutineScope.launch {
+            sessionScopeContainer.serviceManager.connection.watchLoginCount().collect { loginCount ->
+                if (loginCount > 0) {
+                    try {
+                        sessionScopeContainer.serviceManager.autoResendService.scheduleScan("reconnect")
+                    } catch (e: Exception) {
+                        logger.debug("Could not schedule auto-resend on reconnect", e)
+                    }
+                }
+            }
+        }
     }
 
     suspend fun onMasterKeyLocked() = coroutineScope {
         logger.info("Master key locked")
         observeConnectionStateJob?.cancel()
         observeConnectionStateJob = null
+        observeLoginsJob?.cancel()
+        observeLoginsJob = null
 
         appStartupMonitor.onMasterKeyLocked()
 

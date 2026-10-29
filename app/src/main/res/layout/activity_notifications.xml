@@ -335,7 +335,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
-                        android:layout_toLeftOf="@+id/individual_settings_switch"
+                        android:layout_toStartOf="@+id/individual_settings_switch"
                         android:clickable="true"
                         android:drawablePadding="@dimen/grid_unit_x1_5"
                         android:focusable="true"

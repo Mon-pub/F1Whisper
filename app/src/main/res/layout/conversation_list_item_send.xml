@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:minHeight="@dimen/chat_bubble_minheight"
-    android:paddingRight="@dimen/chat_bubble_container_padding_left_right"
+    android:paddingEnd="@dimen/chat_bubble_container_padding_left_right"
     android:paddingBottom="@dimen/chat_bubble_container_padding_bottom">
 
     <com.google.android.material.card.MaterialCardView
@@ -23,8 +23,8 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/chat_bubble_margin_end"
-                android:paddingRight="@dimen/chat_bubble_margin_start">
+                android:paddingStart="@dimen/chat_bubble_margin_end"
+                android:paddingEnd="@dimen/chat_bubble_margin_start">
 
                 <ch.threema.app.emojis.EmojiConversationTextView
                     android:id="@+id/text_view"

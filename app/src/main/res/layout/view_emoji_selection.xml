@@ -16,10 +16,10 @@
             android:id="@+id/emoji1"
             android:layout_width="@dimen/verification_emoji_size"
             android:layout_height="@dimen/verification_emoji_size"
-            android:layout_marginRight="8dp"
+            android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/emoji2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/emoji2"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_emoji_1f3c0" />
 
@@ -29,8 +29,8 @@
             android:layout_height="@dimen/verification_emoji_size"
             android:layout_marginHorizontal="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/emoji1"
-            app:layout_constraintRight_toLeftOf="@+id/emoji3"
+            app:layout_constraintStart_toEndOf="@id/emoji1"
+            app:layout_constraintEnd_toStartOf="@+id/emoji3"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_emoji_1f3c0" />
 
@@ -38,10 +38,10 @@
             android:id="@+id/emoji3"
             android:layout_width="@dimen/verification_emoji_size"
             android:layout_height="@dimen/verification_emoji_size"
-            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/emoji2"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toEndOf="@id/emoji2"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@drawable/ic_emoji_1f3c0" />
 

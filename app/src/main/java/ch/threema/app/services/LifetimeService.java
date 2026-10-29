@@ -90,6 +90,25 @@ public interface LifetimeService {
     boolean isActive();
 
     /**
+     * F1Whisper: how many connection slots are currently held. Reporting only, for the connection
+     * diagnostics.
+     * <p>
+     * This is the quantity that makes {@link #isActive()} meaningful: a held slot means a connection
+     * is <em>wanted</em>. A report showing slots held, {@code isActive() == true} and a connection
+     * that is nonetheless DISCONNECTED with no restart in flight is the signature of the wedge this
+     * accessor exists to make visible.
+     * <p>
+     * Deliberately a {@code default} rather than abstract. {@code MessageProcessorProvider} declares
+     * an anonymous {@code LifetimeService} for instrumented tests, and {@code androidTest} is compiled
+     * by neither the unit-test gate nor {@code assembleOnpremDebug}, so making this abstract would
+     * break that source set <em>silently</em>. The only production implementor overrides it; a
+     * non-overriding one reports 0, which understates rather than fabricates.
+     */
+    default int getConnectionSlotCount() {
+        return 0;
+    }
+
+    /**
      * Pause (close) the connection, even if the slotCount is >0.
      */
     void pause();

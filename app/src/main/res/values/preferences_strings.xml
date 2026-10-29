@@ -26,8 +26,10 @@
     <string name="preferences__debug_log_enable_time" translatable="false">pref_key_debug_log_enable_time</string>
     <string name="preferences__reset_push" translatable="false">pref_key_resetpush</string>
     <string name="preferences__recent_emojis" translatable="false">pref_key_recent_emojis2</string>
+    <string name="preferences__recent_emoji_reactions" translatable="false">pref_key_recent_emoji_reactions</string>
     <string name="preferences__emoji_search_index_version" translatable="false">pref_key_emoji_search_index_version</string>
     <string name="preferences__notification_preview" translatable="false">pref_key_notification_preview</string>
+    <string name="preferences__reaction_notifications" translatable="false">pref_reaction_notifications</string>
     <string name="preferences__pin_lock_code" translatable="false">pref_key_pin_lock_code</string>
     <string name="preferences__pin_lock_grace_time" translatable="false">pref_key_pin_lock_grace_time</string>
     <string name="preferences__id_backup_count" translatable="false">pref_key_id_backup_count</string>
@@ -40,6 +42,8 @@
     <string name="preferences__transmitted_feature_level" translatable="false">pref_key_transmitted_feature_level</string>
     <string name="preferences__transmitted_feature_mask" translatable="false">pref_key_transmitted_feature_mask</string>
     <string name="preferences__last_feature_mask_transmission" translatable="false">pref_key_last_feature_mask_transmission</string>
+    <string name="preferences__trusted_clock_offset_ms" translatable="false">f1w_trusted_clock_offset_ms</string>
+    <string name="preferences__trusted_clock_synced" translatable="false">f1w_trusted_clock_synced</string>
     <string name="preferences__show_inactive_contacts" translatable="false">pref_key_show_inactive_contacts</string>
     <string name="preferences__last_online_status" translatable="false">last_online</string>
     <string name="preferences__video_size" translatable="false">pref_key_video_size</string>
@@ -55,6 +59,7 @@
     <string name="preferences__voip" translatable="false">pref_key_voip</string>
     <string name="preferences__sendlog" translatable="false">pref_key_sendlog</string>
     <string name="preferences__exportlog" translatable="false">pref_key_exportlog</string>
+    <string name="preferences__connection_diagnostics" translatable="false">pref_key_connection_diagnostics</string>
     <string name="preferences__error_reporting_category" translatable="false">pref_key_error_reporting_category</string>
     <string name="preferences__error_reporting" translatable="false">pref_key_error_reporting</string>
     <string name="preferences__sentry_id" translatable="false">pref_key_sentry_id</string>
@@ -76,6 +81,7 @@
     <string name="preferences__lock_mechanism" translatable="false">pref_lock_options</string>
     <string name="preferences__lock_ui_switch" translatable="false">pref_lock_ui</string>
     <string name="preferences__image_attach_previews" translatable="false">pref_image_attach_previews</string>
+    <string name="preferences__link_previews" translatable="false">pref_link_previews</string>
     <string name="preferences__direct_share" translatable="false">pref_direct_share</string>
     <string name="preferences__message_drafts" translatable="false">pref_message_drafts</string>
     <string name="preferences__bigger_single_emojis" translatable="false">pref_bigger_single_emojis</string>

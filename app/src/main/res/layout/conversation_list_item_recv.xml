@@ -6,7 +6,7 @@
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:minHeight="@dimen/chat_bubble_minheight"
-    android:paddingLeft="@dimen/chat_bubble_container_padding_left_right"
+    android:paddingStart="@dimen/chat_bubble_container_padding_left_right"
     android:paddingBottom="@dimen/chat_bubble_container_padding_bottom">
 
     <include layout="@layout/conversation_bubble_start_recv" />
@@ -25,8 +25,8 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/chat_bubble_margin_start"
-                android:paddingRight="@dimen/chat_bubble_margin_end">
+                android:paddingStart="@dimen/chat_bubble_margin_start"
+                android:paddingEnd="@dimen/chat_bubble_margin_end">
 
                 <ch.threema.app.emojis.EmojiConversationTextView
                     android:id="@+id/text_view"

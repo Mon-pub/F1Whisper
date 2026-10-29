@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:background="@color/mime_type_marker_background"
-            android:gravity="left"
+            android:gravity="start"
             android:orientation="horizontal"
             android:visibility="gone">
 
@@ -59,8 +59,8 @@
             android:layout_gravity="bottom"
             android:background="@color/mime_type_marker_background"
             android:gravity="center"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
             android:orientation="horizontal"
             android:visibility="gone">
 
@@ -68,7 +68,7 @@
                 android:id="@+id/video_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
+                android:layout_marginEnd="4dp"
                 android:contentDescription="@string/attach_video"
                 app:srcCompat="@drawable/ic_videocam_black_24dp"
                 app:tint="@android:color/white" />
@@ -88,7 +88,7 @@
         android:id="@+id/check_box"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        android:layout_gravity="top|left"
+        android:layout_gravity="top|start"
         android:layout_margin="6dp"
         android:background="@drawable/selector_grid_checkbox_invisible"
         android:duplicateParentState="true" />

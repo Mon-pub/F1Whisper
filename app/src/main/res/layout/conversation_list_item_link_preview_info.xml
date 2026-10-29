@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    F1Whisper: Signal-style link-preview text block, shown under the og:image of a previewed
+    message (the image is the bubble's attachment_image_view, the user's text is the caption
+    text_view below this). Hidden by default; FileChatAdapterDecorator shows it and fills in the
+    title / description / domain when the file message carries link-preview metadata.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/link_preview_info"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginTop="4dp"
+    android:paddingStart="@dimen/chat_bubble_margin_start"
+    android:paddingEnd="@dimen/chat_bubble_margin_end"
+    android:visibility="gone">
+
+    <TextView
+        android:id="@+id/link_preview_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/textAppearanceTitleSmall"
+        android:textColor="?attr/colorOnSurface"
+        android:textStyle="bold"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/link_preview_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/link_preview_domain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textAppearance="?attr/textAppearanceLabelSmall"
+        android:textColor="?attr/colorPrimary"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+</LinearLayout>

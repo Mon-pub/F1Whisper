@@ -3,13 +3,11 @@ package ch.threema.app.activities.wizard;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.koin.java.KoinJavaComponent;
@@ -28,7 +26,6 @@ import ch.threema.app.dialogs.GenericProgressDialog;
 import ch.threema.app.dialogs.PasswordEntryDialog;
 import ch.threema.app.dialogs.SimpleStringAlertDialog;
 import ch.threema.app.dialogs.WizardDialog;
-import ch.threema.app.dialogs.WizardSafeSearchPhoneDialog;
 import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.services.ActivityService;
 import ch.threema.app.threemasafe.ThreemaSafeAdvancedDialog;
@@ -60,7 +57,6 @@ import static ch.threema.common.JavaCompat.isNullOrEmpty;
 
 public class WizardSafeRestoreActivity extends ThreemaAppCompatActivity implements
     PasswordEntryDialog.PasswordEntryDialogClickListener,
-    WizardSafeSearchPhoneDialog.WizardSafeSearchPhoneDialogCallback,
     WizardDialog.WizardDialogCallback,
     ThreemaSafeAdvancedDialog.WizardDialogCallback {
 
@@ -68,7 +64,6 @@ public class WizardSafeRestoreActivity extends ThreemaAppCompatActivity implemen
 
     private static final String DIALOG_TAG_PASSWORD = "tpw";
     private static final String DIALOG_TAG_PROGRESS = "tpr";
-    private static final String DIALOG_TAG_FORGOT_ID = "li";
     private static final String DIALOG_TAG_ADVANCED = "adv";
     private static final String DIALOG_TAG_WORK_SYNC = "workSync";
     private static final String DIALOG_TAG_PASSWORD_PRESET_CONFIRM = "safe_pw_preset";
@@ -114,7 +109,6 @@ public class WizardSafeRestoreActivity extends ThreemaAppCompatActivity implemen
                 this.identityEditText.setEnabled(false);
 
                 findViewById(R.id.safe_restore_subtitle).setVisibility(View.INVISIBLE);
-                findViewById(R.id.forgot_id).setVisibility(View.GONE);
 
                 if (safeMDMConfig.isSkipRestorePasswordEntryDialog()) {
                     restoreSafeBackup(safeMDMConfig.getPassword());
@@ -124,12 +118,6 @@ public class WizardSafeRestoreActivity extends ThreemaAppCompatActivity implemen
 
         this.identityEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         this.identityEditText.setFilters(new InputFilter[]{new InputFilter.AllCaps(), new InputFilter.LengthFilter(ProtocolDefines.IDENTITY_LEN)});
-
-        final @NonNull TextView forgotId = findViewById(R.id.forgot_id);
-        forgotId.setPaintFlags(forgotId.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        forgotId.setOnClickListener(v ->
-            WizardSafeSearchPhoneDialog.newInstance().show(getSupportFragmentManager(), DIALOG_TAG_FORGOT_ID)
-        );
 
         final @NonNull TextButtonPrimaryXml advancedOptionsButtonCompose = findViewById(R.id.advanced_options_compose);
         if (ConfigUtils.isWorkRestricted() && safeMDMConfig.isRestoreExpertSettingsDisabled()) {
@@ -384,15 +372,6 @@ public class WizardSafeRestoreActivity extends ThreemaAppCompatActivity implemen
         // safe backup restore
         if (!text.isEmpty()) {
             restoreSafeBackup(text);
-        }
-    }
-
-    @Override
-    public void onYes(String tag, String id) {
-        // return from id search
-        if (id != null && id.length() == ProtocolDefines.IDENTITY_LEN) {
-            this.identityEditText.setText("");
-            this.identityEditText.append(id);
         }
     }
 

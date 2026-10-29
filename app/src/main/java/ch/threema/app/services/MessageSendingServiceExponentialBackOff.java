@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import java.util.HashMap;
 import java.util.concurrent.Future;
 
+import androidx.annotation.Nullable;
 import ch.threema.app.ThreemaApplication;
 import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.utils.ConfigUtils;
@@ -53,13 +54,16 @@ public class MessageSendingServiceExponentialBackOff implements MessageSendingSe
             }
 
             @Override
-            public void failed() {
+            public void failed(@Nullable Exception cause) {
                 synchronized (backoffFutures) {
                     backoffFutures.remove(process.getMessageModel().getUid());
                 }
                 logger.debug("{} Exponential backoff failed", process.getMessageModel().getUid());
 
-                messageSendingServiceState.processingFailed(process.getMessageModel(), process.getReceiver());
+                // F1Whisper auto-resend: forward the final exception so the state handler can
+                // distinguish a transient connectivity failure (leave pending for the reconnect
+                // scan) from a terminal one (mark SENDFAILED immediately, as upstream).
+                messageSendingServiceState.processingFailed(process.getMessageModel(), process.getReceiver(), cause);
             }
         }, 5, process.getMessageModel().getUid());
 

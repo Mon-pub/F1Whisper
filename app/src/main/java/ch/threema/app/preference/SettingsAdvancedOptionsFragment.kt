@@ -40,6 +40,7 @@ import ch.threema.app.R
 import ch.threema.app.activities.DisableBatteryOptimizationsActivity
 import ch.threema.app.asynctasks.SendToSupportBackgroundTask
 import ch.threema.app.asynctasks.SendToSupportResult
+import ch.threema.app.diagnostics.ConnectivityDiagnosticsDialog
 import ch.threema.app.dialogs.CancelableHorizontalProgressDialog
 import ch.threema.app.dialogs.GenericAlertDialog
 import ch.threema.app.dialogs.GenericAlertDialog.DialogClickListener
@@ -51,6 +52,7 @@ import ch.threema.app.errorreporting.SentryIdProvider
 import ch.threema.app.eventbus.GlobalEventBuses
 import ch.threema.app.eventbus.events.ConversationEvent
 import ch.threema.app.logging.DebugLogHelper
+import ch.threema.app.onprem.OnPremConfigFetcherProvider
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.preference.service.PreferenceService.ErrorReportingState
 import ch.threema.app.preference.usecases.WatchDebugLogSummaryUseCase
@@ -68,6 +70,7 @@ import ch.threema.app.services.WallpaperService
 import ch.threema.app.services.notification.NotificationService
 import ch.threema.app.troubleshooting.contacts.ContactsDiagnosticsActivity
 import ch.threema.app.ui.MediaItem
+import ch.threema.app.usecases.ExportConnectionDiagnosticsUseCase
 import ch.threema.app.usecases.ExportDebugLogUseCase
 import ch.threema.app.usecases.ShareDebugLogUseCase
 import ch.threema.app.utils.ConfigUtils
@@ -76,6 +79,7 @@ import ch.threema.app.utils.HibernationUtil
 import ch.threema.app.utils.MimeUtil
 import ch.threema.app.utils.PowermanagerUtil
 import ch.threema.app.utils.PushUtil
+import ch.threema.app.utils.ShareUtil
 import ch.threema.app.utils.executor.BackgroundExecutor
 import ch.threema.app.utils.logScreenVisibility
 import ch.threema.app.voip.activities.WebRTCDebugActivity
@@ -132,6 +136,7 @@ class SettingsAdvancedOptionsFragment :
     private val debugLogHelper: DebugLogHelper by inject()
     private val sentryIdProvider: SentryIdProvider by inject()
     private val appRestrictions: AppRestrictions by inject()
+    private val onPremConfigFetcherProvider: OnPremConfigFetcherProvider by inject()
     private val timeProvider: TimeProvider by inject()
     private val globalEventBuses: GlobalEventBuses by inject()
     private val watchDebugLogSummaryUseCase: WatchDebugLogSummaryUseCase by inject()
@@ -143,6 +148,7 @@ class SettingsAdvancedOptionsFragment :
     private lateinit var debugLogPreference: TwoStatePreference
     private lateinit var sendLogPreference: Preference
     private lateinit var exportLogPreference: Preference
+    private lateinit var connectionDiagnosticsPreference: Preference
     private lateinit var contactsDiagnosticsPreference: Preference
     private lateinit var ipv6Preferences: TwoStatePreference
     private lateinit var sentryIdPreference: Preference
@@ -198,6 +204,7 @@ class SettingsAdvancedOptionsFragment :
         initIpV6Prefs()
         initPowerRestrictionPrefs()
         initWebClientDebugPrefs()
+        initOnPremConfigRefreshPrefs()
         initEchoCancelPrefs()
         initWebRtcDebugPrefs()
         initVideoCodecPrefs()
@@ -214,6 +221,7 @@ class SettingsAdvancedOptionsFragment :
         debugLogPreference = getPref(R.string.preferences__debug_log_switch)
         sendLogPreference = getPref(R.string.preferences__sendlog)
         exportLogPreference = getPref(R.string.preferences__exportlog)
+        connectionDiagnosticsPreference = getPref(R.string.preferences__connection_diagnostics)
         contactsDiagnosticsPreference = getPref(R.string.preferences__contacts_diagnostics)
         updateDebugLogPreferences()
         debugLogPreference.onChange<Boolean> { isEnabled ->
@@ -256,8 +264,80 @@ class SettingsAdvancedOptionsFragment :
             }
         }
 
+        // F1Whisper: connection & notification diagnostics entry. On OnPrem builds this becomes the
+        // active connectivity troubleshooter — it runs a battery of network probes (multi-resolver
+        // DNS, TCP, TLS+SNI, HTTPS, chat 5222) against the cached OPPF hosts, shows a heuristic
+        // verdict, and lets the user share the report. This is DIAGNOSIS ONLY (no circumvention). On
+        // non-OnPrem builds (no OPPF host) it falls back to the passive one-tap snapshot export.
+        connectionDiagnosticsPreference.onClick {
+            if (BuildFlavor.current.isOnPrem) {
+                showConnectivityTroubleshooter()
+            } else {
+                exportPassiveConnectionDiagnostics()
+            }
+        }
+
         contactsDiagnosticsPreference.onClick {
             startActivity(ContactsDiagnosticsActivity.createIntent(requireContext()))
+        }
+    }
+
+    /**
+     * F1Whisper: launch the active connectivity troubleshooter dialog against the cached OPPF host.
+     * The dialog resolves the cached & verified OnPrem config at runtime for the real chat/dir/blob
+     * hosts (falling back to hosts derived from the OPPF host when no cached config is available).
+     */
+    private fun showConnectivityTroubleshooter() {
+        logger.info("Launching connectivity troubleshooter")
+        val oppfHost = extractOppfHost()
+        if (oppfHost == null) {
+            // No OPPF URL configured yet — nothing to probe; fall back to the passive snapshot.
+            exportPassiveConnectionDiagnostics()
+            return
+        }
+        ConnectivityDiagnosticsDialog.newInstance(host = oppfHost, useCachedConfig = true)
+            .show(parentFragmentManager, ConnectivityDiagnosticsDialog.DIALOG_TAG)
+    }
+
+    /**
+     * Derive the bare OPPF host from the stored OPPF URL (e.g.
+     * `https://example.com/prov/config.oppf` -> `example.com`). Returns null when no URL is
+     * stored or it cannot be parsed.
+     */
+    private fun extractOppfHost(): String? = try {
+        preferenceService.getOppfUrl()
+            ?.let { java.net.URL(it).host }
+            ?.takeIf { it.isNotBlank() }
+    } catch (e: Exception) {
+        logger.warn("Could not derive OPPF host for connectivity troubleshooter", e)
+        null
+    }
+
+    /**
+     * F1Whisper: one-tap connection & notification diagnostics export. Independent of the debug log
+     * toggle (it snapshots live runtime state), so it stays enabled at all times. The report is
+     * zipped exactly like the debug-log export and shared via the same flow.
+     */
+    private fun exportPassiveConnectionDiagnostics() {
+        logger.info("Preparing connection diagnostics")
+        lifecycleScope.launch {
+            GenericProgressDialog.newInstance(R.string.preparing_messages, R.string.please_wait)
+                .show(parentFragmentManager, DIALOG_TAG_SHARE_LOG)
+            try {
+                val zipFile = ExportConnectionDiagnosticsUseCase(
+                    requireContext().applicationContext,
+                    dispatcherProvider,
+                    sharedPreferences,
+                    preferenceService,
+                    timeProvider,
+                ).call()
+                ShareUtil.shareFile(requireContext(), zipFile, "connection_diagnostics.zip", "application/zip")
+            } catch (e: Exception) {
+                showToast(R.string.an_error_occurred)
+                logger.error("Failed to export connection diagnostics", e)
+            } finally {
+                DialogUtil.dismissDialog(parentFragmentManager, DIALOG_TAG_SHARE_LOG, true)
+            }
         }
     }
 
@@ -485,8 +565,51 @@ class SettingsAdvancedOptionsFragment :
     }
 
     private fun initWebClientDebugPrefs() {
-        getPref<Preference>(R.string.preferences__webclient_debug).onClick {
+        val webClientDebugPref = getPref<Preference>(R.string.preferences__webclient_debug)
+        // F1Whisper (second follow-up S2-04): Threema Web is disabled in the onprem build.
+        if (ConfigUtils.isOnPremBuild()) {
+            webClientDebugPref.isVisible = false
+            return
+        }
+        webClientDebugPref.onClick {
             startActivity(WebDiagnosticsActivity.createIntent(requireContext()))
+        }
+    }
+
+    /**
+     * F1Whisper: force a re-fetch of the signed OnPrem config (OPPF). Only meaningful on OnPrem
+     * builds. Lets existing users pick up server features added after they set up (e.g. desktop
+     * linking, which needs the new `mediator` block in the OPPF) without reinstalling or re-running
+     * setup. Security: the OPPF is Ed25519-signature-verified against the trusted key on every
+     * fetch, so a forced re-fetch cannot inject a malicious config — it is the same verified fetch
+     * the refresh interval would eventually trigger, just on demand.
+     */
+    private fun initOnPremConfigRefreshPrefs() {
+        val refreshPref = getPref<Preference>(R.string.preferences__refresh_onprem_config)
+        if (!BuildFlavor.current.isOnPrem) {
+            refreshPref.isVisible = false
+            return
+        }
+        refreshPref.onClick {
+            logger.info("Forcing OnPrem config (OPPF) refresh")
+            lifecycleScope.launch {
+                GenericProgressDialog.newInstance(R.string.prefs_refresh_onprem_config, R.string.please_wait)
+                    .show(parentFragmentManager, DIALOG_TAG_REFRESH_ONPREM)
+                val success = withContext(dispatcherProvider.io) {
+                    try {
+                        // Discard the cached fetcher so it rebuilds with an empty in-memory cache,
+                        // then fetch — this re-downloads + re-verifies the signed OPPF immediately.
+                        onPremConfigFetcherProvider.reset()
+                        onPremConfigFetcherProvider.getOnPremConfigFetcher().getOrFetch()
+                        true
+                    } catch (e: Exception) {
+                        logger.error("Failed to refresh OnPrem config", e)
+                        false
+                    }
+                }
+                DialogUtil.dismissDialog(parentFragmentManager, DIALOG_TAG_REFRESH_ONPREM, true)
+                showToast(if (success) R.string.onprem_config_refreshed else R.string.an_error_occurred)
+            }
         }
     }
 
@@ -861,5 +984,6 @@ class SettingsAdvancedOptionsFragment :
         private const val DIALOG_TAG_REALLY_ENABLE_THREEMA_PUSH = "enp"
         private const val DIALOG_TAG_SHARE_LOG = "shl"
         private const val DIALOG_TAG_SEND_LOG = "sl"
+        private const val DIALOG_TAG_REFRESH_ONPREM = "refOnPrem"
     }
 }

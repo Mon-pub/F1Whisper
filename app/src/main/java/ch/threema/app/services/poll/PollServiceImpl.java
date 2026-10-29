@@ -51,6 +51,7 @@ import ch.threema.domain.taskmanager.TriggerSource;
 import ch.threema.storage.DatabaseService;
 import ch.threema.storage.factories.GroupPollModelFactory;
 import ch.threema.storage.factories.IdentityPollModelFactory;
+import ch.threema.storage.factories.PollChoiceModelFactory;
 import ch.threema.storage.models.AbstractMessageModel;
 import ch.threema.storage.models.ContactModel;
 import ch.threema.storage.models.group.GroupModelOld;
@@ -127,6 +128,13 @@ public class PollServiceImpl implements PollService {
         @NonNull MessageId messageId,
         @NonNull TriggerSource triggerSource
     ) throws MessageTooLongException {
+        // Defense in depth: an F1Whisper CHECKLIST is ALWAYS multiple-choice. Each participant's
+        // checks are an independent, re-votable selection set, and multiple participants may check
+        // the same item -- impossible with single-choice. Auto-correct here so a malformed
+        // CHECKLIST + SINGLE_CHOICE (e.g. from a future caller that forgot to set the assessment)
+        // can never be persisted nor sent over the Poll wire. This is the last service-layer gate
+        // before the poll is finalized + published.
+        enforceChecklistAssessment(pollModel);
         if (pollModel.getState() == PollModel.State.TEMPORARY) {
             pollModel.setState(PollModel.State.OPEN);
             try {
@@ -152,6 +160,132 @@ public class PollServiceImpl implements PollService {
         } else {
             globalEventBuses.getPolls().emit(new PollEvent.PollUpdated(pollModel));
         }
+    }
+
+    @Override
+    public void modifyChecklistChoices(
+        @NonNull final PollModel pollModel,
+        @NonNull final List<PollChoiceModel> targetChoices,
+        @NonNull TriggerSource triggerSource
+    ) throws NotAllowedException, MessageTooLongException {
+        // Guards: only the creator may edit, only a CHECKLIST is editable, and only while OPEN.
+        if (!PollUtil.isChecklist(pollModel)) {
+            throw new NotAllowedException("Only checklists support item modification");
+        }
+        if (!PollUtil.isMine(pollModel, this.userService.getIdentity())) {
+            throw new NotAllowedException("Only the creator can edit this checklist");
+        }
+        if (pollModel.getState() != PollModel.State.OPEN) {
+            throw new NotAllowedException("Checklist is not open");
+        }
+        // Service-layer floor (not only UI-enforced): a checklist/poll needs at least two choices,
+        // otherwise the re-broadcast PollSetup would be rejected on the wire (see publish() ->
+        // REQUIRED_CHOICE_COUNT). Reject cleanly so a caller cannot drive the checklist below the
+        // floor regardless of UI gating.
+        if (targetChoices.size() < REQUIRED_CHOICE_COUNT) {
+            throw new NotAllowedException("A checklist needs at least " + REQUIRED_CHOICE_COUNT + " items");
+        }
+        this.checkAccess();
+
+        final PollChoiceModelFactory choiceFactory = this.databaseService.getPollChoiceModelFactory();
+        final List<PollChoiceModel> existing = choiceFactory.getByPollId(pollModel.getId());
+
+        // Index existing choices by their stored primary-key id for an O(1) survival check.
+        final Map<Integer, PollChoiceModel> existingById = new HashMap<>();
+        for (PollChoiceModel c : existing) {
+            existingById.put(c.getId(), c);
+        }
+
+        // Track which existing ids survive so the rest can be deleted (+ their votes).
+        final java.util.Set<Integer> survivingIds = new java.util.HashSet<>();
+        // Compute the next free apiPollChoiceId so inserts stay unique within this poll.
+        int maxApiId = 0;
+        for (PollChoiceModel c : existing) {
+            maxApiId = Math.max(maxApiId, c.getApiPollChoiceId());
+        }
+
+        final Instant now = Instant.now();
+        for (PollChoiceModel target : targetChoices) {
+            target.setPollId(pollModel.getId());
+            target.setType(PollChoiceModel.Type.Text);
+            if (target.getModifiedAt() == null) {
+                target.setModifiedAt(now);
+            }
+
+            if (target.getId() > 0 && existingById.containsKey(target.getId())) {
+                // Update an existing item in place (name + order may have changed).
+                PollChoiceModel stored = existingById.get(target.getId());
+                stored.setName(target.getName());
+                stored.setOrder(target.getOrder());
+                stored.setModifiedAt(now);
+                choiceFactory.createOrUpdate(stored);
+                survivingIds.add(stored.getId());
+            } else {
+                // Insert a new item. Assign a fresh unique apiPollChoiceId if it has none.
+                if (target.getApiPollChoiceId() <= 0) {
+                    target.setApiPollChoiceId(++maxApiId);
+                } else {
+                    maxApiId = Math.max(maxApiId, target.getApiPollChoiceId());
+                }
+                if (target.getCreatedAt() == null) {
+                    target.setCreatedAt(now);
+                }
+                target.setId(0);
+                choiceFactory.create(target);
+                survivingIds.add(target.getId());
+            }
+        }
+
+        // Delete the items that are no longer present, and drop any votes that referenced them so no
+        // orphan votes linger (the UI only offers deletion of unvoted items, but be defensive).
+        for (PollChoiceModel c : existing) {
+            if (!survivingIds.contains(c.getId())) {
+                this.databaseService.getPollVoteModelFactory().deleteByPollChoiceId(c.getId());
+                choiceFactory.delete(c);
+            }
+        }
+
+        pollModel.setModifiedAt(now);
+        this.databaseService.getPollModelFactory().update(pollModel);
+        this.cache(pollModel);
+
+        // Re-broadcast the updated checklist over the existing Poll wire as a fresh PollSetup
+        // (same poll id, new choiceList). Recipients merge it (see mergeChecklistUpdate via the
+        // checklist branch in update(PollSetupInterface, ...)). Re-publish on the EXISTING poll
+        // message model so the creator does NOT get a duplicate bubble per edit -- the inline
+        // checklist bubble simply re-renders in place.
+        MessageReceiver receiver = this.getReceiver(pollModel);
+        AbstractMessageModel carrier = null;
+        List<AbstractMessageModel> pollMessages = this.serviceManager.getMessageService().getMessageForPoll(pollModel);
+        if (pollMessages != null && !pollMessages.isEmpty()) {
+            // The most recent poll message acts as the carrier for the re-broadcast.
+            carrier = pollMessages.get(pollMessages.size() - 1);
+        }
+
+        if (receiver != null && carrier != null) {
+            // CRITICAL: re-publish on the EXISTING carrier message id so the re-broadcast UPDATES the
+            // same poll message in place rather than spawning a brand-new bubble per edit. Reusing
+            // MessageId.random() here reassigns a fresh wire id onto the carrier row, which the
+            // outgoing/reflection path treats as a new message (duplicate bubble). The carrier was
+            // already sent, so it always has a wire id; fall back to a fresh id only in the
+            // (defensive) case it somehow has none yet.
+            final MessageId carrierMessageId = carrier.getMessageId();
+            this.publish(
+                receiver,
+                pollModel,
+                carrier,
+                carrierMessageId != null ? carrierMessageId : MessageId.random(),
+                triggerSource
+            );
+        } else {
+            // Fallback: no existing carrier found, fall back to the standard creator-only send path
+            // (this will create a fresh poll bubble).
+            this.send(pollModel, MessageId.random(), triggerSource);
+        }
+
+        // Refresh the creator's own inline checklist bubble in place.
+        globalEventBuses.getPolls().emit(new PollEvent.PollUpdated(pollModel));
+        globalEventBuses.getPolls().emit(new PollEvent.PollSelfVoted(pollModel));
     }
 
     @Override
@@ -226,6 +360,34 @@ public class PollServiceImpl implements PollService {
         } catch (NotAllowedException notAllowedException) {
             logger.error("Not allowed", notAllowedException);
             throw notAllowedException;
+        }
+    }
+
+    /**
+     * Whether per-participant votes must be stored/displayed for this display type. Both LIST_MODE
+     * polls and F1Whisper CHECKLISTs keep each participant's individual choices (so a checklist can
+     * show who checked each item); SUMMARY_MODE keeps only aggregate counts.
+     */
+    private static boolean isPerParticipantVoteMode(@Nullable PollModel.DisplayType displayType) {
+        return displayType == PollModel.DisplayType.LIST_MODE
+            || displayType == PollModel.DisplayType.CHECKLIST;
+    }
+
+    /**
+     * Enforce the F1Whisper CHECKLIST invariant: a CHECKLIST is ALWAYS multiple-choice. A checklist
+     * stores each participant's completed items as an independent, re-votable selection set, and
+     * multiple participants may check the same item -- both of which are impossible with
+     * single-choice (where one vote replaces another and only one choice can be selected). A
+     * CHECKLIST persisted or sent with SINGLE_CHOICE would silently degrade into a broken one-shot
+     * single pick, so we auto-correct it to MULTIPLE_CHOICE here rather than letting the malformed
+     * state reach storage or the wire. No-op for non-checklist polls and already-correct ones.
+     */
+    private static void enforceChecklistAssessment(@Nullable PollModel pollModel) {
+        if (pollModel != null
+            && pollModel.getDisplayType() == PollModel.DisplayType.CHECKLIST
+            && pollModel.getAssessment() != PollModel.Assessment.MULTIPLE_CHOICE) {
+            logger.warn("CHECKLIST poll had assessment {}, forcing MULTIPLE_CHOICE", pollModel.getAssessment());
+            pollModel.setAssessment(PollModel.Assessment.MULTIPLE_CHOICE);
         }
     }
 
@@ -331,6 +493,11 @@ public class PollServiceImpl implements PollService {
             if (pollData.getState() == PollData.State.CLOSED) {
                 pollModel = existingModel;
                 toState = PollModel.State.CLOSED;
+            } else if (PollUtil.isChecklist(existingModel)) {
+                // F1Whisper CHECKLIST: a re-broadcast of an open checklist is an ITEM EDIT
+                // (add/remove/reorder), not a duplicate. Merge the new choice set into the existing
+                // poll (preserving votes for surviving items) instead of discarding the message.
+                return mergeChecklistUpdate(existingModel, pollData, date);
             } else {
                 throw new BadMessageException("Poll with same ID already exists. Discarding message.");
             }
@@ -378,11 +545,23 @@ public class PollServiceImpl implements PollService {
             case SUMMARY_MODE:
                 pollModel.setDisplayType(PollModel.DisplayType.SUMMARY_MODE);
                 break;
+            case CHECKLIST:
+                // F1Whisper checklist: preserve the discriminator end-to-end on receive so the
+                // rendered bubble stays interactive (does not collapse into a plain list poll).
+                pollModel.setDisplayType(PollModel.DisplayType.CHECKLIST);
+                break;
             case LIST_MODE:
             default:
                 pollModel.setDisplayType(PollModel.DisplayType.LIST_MODE);
                 break;
 
+        }
+
+        // F1Whisper: a received CHECKLIST is always stored as INTERMEDIATE (see publish()). Never let
+        // a stale RESULT_ON_CLOSE on the wire make this (non-creator) device drop the creator's
+        // incoming checks in vote() -- that is what made checked items sink only on the creator.
+        if (pollModel.getDisplayType() == PollModel.DisplayType.CHECKLIST) {
+            pollModel.setType(PollModel.Type.INTERMEDIATE);
         }
 
         pollModel.setState(toState);
@@ -416,7 +595,7 @@ public class PollServiceImpl implements PollService {
             throw new ThreemaException("invalid");
         }
 
-        if (toState == PollModel.State.CLOSED && pollModel.getDisplayType() == PollModel.DisplayType.LIST_MODE) {
+        if (toState == PollModel.State.CLOSED && isPerParticipantVoteMode(pollModel.getDisplayType())) {
             //first remove all previously known votes if result should be shown in list mode to ensure a common result for all participants
             this.databaseService.getPollVoteModelFactory().deleteByPollId(
                 pollModel.getId()
@@ -452,7 +631,7 @@ public class PollServiceImpl implements PollService {
             );
 
             //save individual votes received in case result should be shown in list mode for each participant (case mobile client user poll)
-            if (pollModel.getDisplayType() == PollModel.DisplayType.LIST_MODE && !pollData.getParticipants().isEmpty()) {
+            if (isPerParticipantVoteMode(pollModel.getDisplayType()) && !pollData.getParticipants().isEmpty()) {
                 int participantPos = 0;
                 for (String p : pollData.getParticipants()) {
                     PollVoteModel voteModel = new PollVoteModel();
@@ -488,6 +667,70 @@ public class PollServiceImpl implements PollService {
             }
             return new PollUpdateResult(pollModel, PollUpdateResult.Operation.CLOSE);
         }
+    }
+
+    /**
+     * Merge a re-broadcast CHECKLIST definition into an existing open checklist (F1Whisper item
+     * edit: add / remove / reorder). Choices are matched by their stable {@code apiPollChoiceId}:
+     * a choice present in the incoming set is created-or-updated (name + order), a choice no longer
+     * present is deleted along with its votes. Votes for surviving choices are preserved. The
+     * poll name may also change. Does NOT re-create the poll row and does NOT touch votes for
+     * surviving items -- so a participant's checks survive an edit. Emits a poll update event so the
+     * open chat refreshes.
+     */
+    @NonNull
+    private PollUpdateResult mergeChecklistUpdate(
+        @NonNull final PollModel pollModel,
+        @NonNull final PollData pollData,
+        @NonNull final Instant date
+    ) {
+        // Name may have changed.
+        if (pollData.getDescription() != null) {
+            pollModel.setName(pollData.getDescription());
+        }
+        pollModel.setModifiedAt(Instant.now());
+        this.databaseService.getPollModelFactory().update(pollModel);
+
+        final PollChoiceModelFactory choiceFactory = this.databaseService.getPollChoiceModelFactory();
+
+        // Set of apiPollChoiceIds present in the incoming definition (these survive).
+        final java.util.Set<Integer> incomingApiIds = new java.util.HashSet<>();
+        for (PollDataChoice apiChoice : pollData.getChoiceList()) {
+            incomingApiIds.add(apiChoice.getId());
+
+            PollChoiceModel choiceModel = this.getChoiceByApiId(pollModel, apiChoice.getId());
+            if (choiceModel == null) {
+                choiceModel = new PollChoiceModel();
+                choiceModel.setPollId(pollModel.getId());
+                choiceModel.setApiPollChoiceId(apiChoice.getId());
+                choiceModel.setCreatedAt(date);
+            }
+            choiceModel.setName(apiChoice.getName());
+            choiceModel.setOrder(apiChoice.getOrder());
+            choiceModel.setType(PollChoiceModel.Type.Text);
+            choiceModel.setModifiedAt(Instant.now());
+            choiceFactory.createOrUpdate(choiceModel);
+        }
+
+        // Delete any local choices that are no longer in the incoming set (+ their votes).
+        for (PollChoiceModel local : choiceFactory.getByPollId(pollModel.getId())) {
+            if (!incomingApiIds.contains(local.getApiPollChoiceId())) {
+                this.databaseService.getPollVoteModelFactory().deleteByPollChoiceId(local.getId());
+                choiceFactory.delete(local);
+            }
+        }
+
+        this.cache(pollModel);
+
+        globalEventBuses.getPolls().emit(new PollEvent.PollUpdated(pollModel));
+        // Also nudge vote subscribers so the inline checklist bubble (which renders off
+        // votes/choices) re-binds immediately on the receiver.
+        globalEventBuses.getPolls().emit(PollEvent.PollVoted.javaCreate(pollModel, pollModel.getCreatorIdentity(), false));
+
+        // UPDATE (not CREATE) so the receiver's incoming-message handler does NOT spawn a brand-new
+        // poll bubble on every edit; the existing inline checklist bubble refreshes in place via
+        // the events emitted above.
+        return new PollUpdateResult(pollModel, PollUpdateResult.Operation.UPDATE);
     }
 
     @Override
@@ -736,6 +979,26 @@ public class PollServiceImpl implements PollService {
                 break;
         }
 
+        // Defense in depth (wire gate): a CHECKLIST must be multiple-choice before its assessment
+        // is serialized below. Auto-correct so a malformed CHECKLIST + SINGLE_CHOICE can never go
+        // out on the Poll wire, regardless of how it reached publish().
+        enforceChecklistAssessment(pollModel);
+
+        // F1Whisper CHECKLIST: a checklist is ALWAYS intermediate-results (every member's checks are
+        // always visible -- a checklist never "closes"). The poll wizard's "intermediate results"
+        // checkbox can otherwise leave a checklist as RESULT_ON_CLOSE, which silently breaks live
+        // sync: (a) ContactMessageReceiver / OutgoingPollVoteGroupMessageTask then STOP the creator
+        // from broadcasting its own checks to participants, and (b) non-creator devices DROP incoming
+        // votes (PollServiceImpl.vote guard), so checked items would sink only on the creator's
+        // device. Force + persist INTERMEDIATE on the local model here so the wire, the stored model
+        // and every vote-send path agree. No-op for real polls and already-correct checklists.
+        if (PollUtil.isChecklist(pollModel) && pollModel.getType() != PollModel.Type.INTERMEDIATE) {
+            logger.info("CHECKLIST poll had type {}, forcing INTERMEDIATE", pollModel.getType());
+            pollModel.setType(PollModel.Type.INTERMEDIATE);
+            this.databaseService.getPollModelFactory().update(pollModel);
+            this.cache(pollModel);
+        }
+
         final boolean isClosing = pollModel.getState() == PollModel.State.CLOSED;
 
         PollData pollData = new PollData();
@@ -777,6 +1040,12 @@ public class PollServiceImpl implements PollService {
         switch (pollModel.getDisplayType()) {
             case SUMMARY_MODE:
                 pollData.setDisplayType(PollData.DisplayType.SUMMARY_MODE);
+                break;
+            case CHECKLIST:
+                // Emit displayType=2 verbatim on the existing Poll wire so the receiving F1Whisper
+                // client renders an interactive checklist. (Upstream clients reject it wholesale --
+                // checklist is F1Whisper <-> F1Whisper only; see PollData.DisplayType.)
+                pollData.setDisplayType(PollData.DisplayType.CHECKLIST);
                 break;
             case LIST_MODE:
             default:
@@ -1104,6 +1373,12 @@ public class PollServiceImpl implements PollService {
         }
 
         final String fromIdentity = ((AbstractMessage) pollVoteMessage).getFromIdentity();
+        // Wire send-time of this vote message, used as the Last-Writer-Wins clock when overwriting an
+        // existing vote cell (guards the same-user cross-device race where a reflected vote from
+        // another of my devices can arrive out of order). Falls back to receive-time when absent.
+        final Instant incomingVoteDate = ((AbstractMessage) pollVoteMessage).getTimestamp() != null
+            ? ((AbstractMessage) pollVoteMessage).getTimestamp()
+            : Instant.now();
 
         if (pollModel.getType() == PollModel.Type.RESULT_ON_CLOSE) {
             final String pollCreatorIdentity = pollModel.getCreatorIdentity();
@@ -1112,8 +1387,13 @@ public class PollServiceImpl implements PollService {
             // the creator, this should not happen and the message must be ignored.
             // If a vote is received from ourselves in such a case this is a reflected vote that must
             // be processed.
+            // F1Whisper CHECKLIST exception: a checklist shows every member's checks live to all
+            // members, so a non-creator MUST persist incoming checks from anyone. New checklists are
+            // forced INTERMEDIATE (see publish()/update()) so this never trips; this guard keeps any
+            // checklist that was created RESULT_ON_CLOSE before the fix working too.
             if (!areEqual(pollCreatorIdentity, myIdentity)
-                && !areEqual(fromIdentity, myIdentity)) {
+                && !areEqual(fromIdentity, myIdentity)
+                && !PollUtil.isChecklist(pollModel)) {
                 logger.warn("Intermediate results are not shown for this poll. Ignore message.");
                 // Return true to ack the message
                 return new PollVoteResult(true);
@@ -1159,14 +1439,29 @@ public class PollServiceImpl implements PollService {
                     existingVotes.remove(pollVoteModel);
                 }
 
-                if (
-                    // Is a new vote...
-                    pollVoteModel.getId() <= 0
-                        // ... or a modified
-                        || pollVoteModel.getChoice() != apiVoteModel.getValue()) {
+                final boolean isNewVote = pollVoteModel.getId() <= 0;
+                final boolean isModified = pollVoteModel.getChoice() != apiVoteModel.getValue();
+
+                if (isNewVote || isModified) {
+                    // LWW order-guard: when OVERWRITING an existing cell, drop a stale/out-of-order
+                    // write. Apply only if the incoming wire date is newer than the stored
+                    // modifiedAt; otherwise keep the newer local value. This protects the same-user
+                    // cross-device (MD) race where a reflected vote from another of my devices can be
+                    // redelivered after a newer write. New cells (no stored timestamp) always apply.
+                    if (!isNewVote) {
+                        final Instant storedModifiedAt = pollVoteModel.getModifiedAt();
+                        if (storedModifiedAt != null && incomingVoteDate.isBefore(storedModifiedAt)) {
+                            logger.debug(
+                                "Dropping stale poll vote (incoming {} older than stored {}) for choice {}",
+                                incomingVoteDate, storedModifiedAt, pollChoiceModel.getId());
+                            continue;
+                        }
+                    }
 
                     pollVoteModel.setChoice(apiVoteModel.getValue());
-                    pollVoteModel.setModifiedAt(Instant.now());
+                    // Anchor modifiedAt to the wire send-time so subsequent LWW comparisons use the
+                    // sender's clock, not our receive-time.
+                    pollVoteModel.setModifiedAt(incomingVoteDate);
                     savingVotes.add(pollVoteModel);
                 }
             }

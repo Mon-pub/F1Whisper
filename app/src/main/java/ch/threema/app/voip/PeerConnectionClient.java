@@ -113,6 +113,12 @@ public class PeerConnectionClient {
     private static final String AUDIO_TRACK_ID = "3MACALLa0";
     private static final String AUDIO_CODEC_OPUS = "opus";
 
+    // Cap the outgoing audio (Opus) bitrate at 16 kbps. This is a belt-and-suspenders
+    // measure alongside the SDP `maxaveragebitrate` fmtp parameter (see SdpPatcher), which only
+    // hints the encoder on the peer's side. Enforcing the cap locally via RtpParameters ensures
+    // our own uplink never exceeds this bitrate regardless of what the remote peer honors.
+    private static final int AUDIO_MAX_BITRATE_BPS = 16000;
+
     private static final String VIDEO_TRACK_ID = "3MACALLv0";
 
     // Capturing settings. What's being sent may be lower.
@@ -172,6 +178,7 @@ public class PeerConnectionClient {
     // Audio
     private @Nullable AudioTrack localAudioTrack;
     private @Nullable AudioSource audioSource;
+    private @Nullable RtpSender localAudioSender;
 
     // Outgoing audio
     private boolean enableLocalAudioTrack = true;
@@ -638,7 +645,10 @@ public class PeerConnectionClient {
 
         // Add an audio track
         final AudioTrack audioTrack = this.createAudioTrack();
-        this.peerConnection.addTrack(audioTrack, mediaStreamLabels);
+        this.localAudioSender = this.peerConnection.addTrack(audioTrack, mediaStreamLabels);
+
+        // Cap the outgoing audio bitrate (applies to all calls, audio-only or with video)
+        this.setOutgoingAudioEncoderLimits();
 
         // Add a video track
         if (this.isVideoCallEnabled()) {
@@ -753,6 +763,47 @@ public class PeerConnectionClient {
             this.logRtpEncoding("before", encoding);
             encoding.maxBitrateBps = maxBitrate;
             encoding.maxFramerate = maxFps;
+            this.logRtpEncoding("after", encoding);
+        }
+        boolean success = sender.setParameters(parameters);
+        if (success) {
+            logger.debug("Updated RtpParameters");
+        } else {
+            logger.error("Failed to update RtpParameters");
+        }
+    }
+
+    /**
+     * Set the outgoing audio encoder limits.
+     * <p>
+     * Caps the outgoing Opus bitrate at {@link #AUDIO_MAX_BITRATE_BPS}. This is enforced locally
+     * (in addition to the SDP `maxaveragebitrate` fmtp parameter set by {@link SdpPatcher}) so
+     * that our uplink bitrate is capped regardless of whether the remote peer honors the SDP hint.
+     */
+    @WorkerThread
+    private void setOutgoingAudioEncoderLimits() {
+        logger.info("setOutgoingAudioBandwidthLimit: {}", AUDIO_MAX_BITRATE_BPS);
+        final RtpSender sender = this.localAudioSender;
+        if (sender == null) {
+            logger.error("setOutgoingAudioBandwidthLimit: Could not find local audio sender");
+            return;
+        }
+
+        // Get current parameters
+        final RtpParameters parameters = sender.getParameters();
+        if (parameters == null) {
+            logger.error("setOutgoingAudioBandwidthLimit: Audio sender has no parameters");
+            return;
+        }
+        if (parameters.encodings.isEmpty()) {
+            logger.error("setOutgoingAudioBandwidthLimit: Audio sender has no encodings");
+            return;
+        }
+
+        // Configure parameters
+        for (RtpParameters.Encoding encoding : parameters.encodings) {
+            this.logRtpEncoding("before", encoding);
+            encoding.maxBitrateBps = AUDIO_MAX_BITRATE_BPS;
             this.logRtpEncoding("after", encoding);
         }
         boolean success = sender.setParameters(parameters);

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recording">বার্তা রেকর্ড করা হচ্ছে</string>
+    <string name="recording_stopped_title">রেকর্ডিং বন্ধ হয়েছে</string>
+    <string name="recording_stopped_message">আপনি কি রেকর্ড করা ভয়েস বার্তাটি এখন পাঠাতে চান?</string>
+    <string name="recording_canceled">অজানা একটি ত্রুটির কারণে রেকর্ডিং বাতিল হয়েছে।</string>
+    <string name="cancel_recording">রেকর্ডিং বাতিল করুন</string>
+    <string name="cancel_recording_message">আপনি কি সত্যিই রেকর্ডিং বাতিল করে বাদ দিতে চান?</string>
+    <string name="stop">থামান</string>
+</resources>

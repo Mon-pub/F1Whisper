@@ -113,7 +113,7 @@
                 android:id="@+id/wizard_cancel_compose"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/grid_unit_x1"
+                android:layout_marginEnd="@dimen/grid_unit_x1"
                 android:layout_weight="1"
                 app:textButtonPrimary_text="@string/cancel" />
 

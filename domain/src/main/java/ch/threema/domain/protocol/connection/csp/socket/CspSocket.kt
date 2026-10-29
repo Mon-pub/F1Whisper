@@ -48,6 +48,19 @@ internal class CspSocket(
         logger.info("Connecting to {} ...", address)
         socket = socketFactory.makeSocket(address)
         socket.tcpNoDelay = true
+        // Enable OS-level TCP keep-alive so the kernel can eventually detect a dead peer on a
+        // half-open socket. Android does not expose TCP_KEEPIDLE, so the kernel default (~2h) makes
+        // this only a slow safety net.
+        //
+        // This comment used to call the post-auth SO_TIMEOUT set in
+        // CspConnectionImpl.onCspAuthenticated() "the fast half-open detector". That claim is
+        // refuted by measurement and has been removed: across 62 windows on the reporting device
+        // that each exceeded the 90s POST_AUTH_READ_TIMEOUT in wall-clock terms, zero
+        // SocketTimeoutException were raised. SO_TIMEOUT rides CLOCK_MONOTONIC, which halts while
+        // the device is suspended to RAM, so it is bounded WHILE AWAKE and unbounded across suspend.
+        // A Doze window can therefore pass arbitrary wall-clock time without consuming any of it.
+        // There is no fast half-open detector here; do not reintroduce the claim that there is.
+        socket.keepAlive = true
 
         val timeout = when (address.address) {
             is Inet6Address -> ProtocolDefines.CONNECT_TIMEOUT_IPV6 * 1000

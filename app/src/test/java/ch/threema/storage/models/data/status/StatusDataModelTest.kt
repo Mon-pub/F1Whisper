@@ -12,8 +12,8 @@ class StatusDataModelTest {
         assertIsInvalidStatusDataModel("{}")
         // missing params object
         assertIsInvalidStatusDataModel("""[1]""")
-        // unknown type
-        assertIsInvalidStatusDataModel("""[5,{}]""")
+        // unknown type (5 is the fork's disappearing-timer status and is a valid type)
+        assertIsInvalidStatusDataModel("""[99,{}]""")
     }
 
     private fun assertIsInvalidStatusDataModel(input: String) {

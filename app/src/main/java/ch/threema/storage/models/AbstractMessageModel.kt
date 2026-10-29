@@ -16,6 +16,7 @@ import ch.threema.storage.models.data.MessageContentsType
 import ch.threema.storage.models.data.MessageDataInterface
 import ch.threema.storage.models.data.media.FileDataModel
 import ch.threema.storage.models.data.media.PollDataModel
+import ch.threema.storage.models.data.status.DisappearingStatusDataModel
 import ch.threema.storage.models.data.status.ForwardSecurityStatusDataModel
 import ch.threema.storage.models.data.status.GroupCallStatusDataModel
 import ch.threema.storage.models.data.status.GroupStatusDataModel
@@ -107,6 +108,33 @@ internal constructor(
     open var editedAt: Instant? = null
 
     open var deletedAt: Instant? = null
+
+    /**
+     * F1Whisper disappearing messages: epoch-millis at which this message is due for hard-deletion,
+     * or null while no countdown has started. Stored as a raw timestamp (not [Date]) so the
+     * enforcement engine can do cheap arithmetic compares without per-row [Date] allocation.
+     */
+    open var expiresAt: Long? = null
+
+    /**
+     * F1Whisper disappearing messages: epoch-millis at which the countdown started (on-send for
+     * outgoing, first-read for incoming), or null if it has not started. First-write-wins.
+     */
+    open var expireStartedAt: Long? = null
+
+    /**
+     * F1Whisper disappearing messages: the per-conversation timer (in seconds) FROZEN onto this
+     * message when it was created (Signal `EXPIRES_IN` parity), or null if disappearing was off.
+     * Frozen per-message so every enforcement check is a pure timestamp compare with no join.
+     */
+    open var disappearingTimerSeconds: Int? = null
+
+    /**
+     * True if this message participates in disappearing messages (i.e. a non-null, positive
+     * per-message timer was frozen onto it).
+     */
+    val isDisappearing: Boolean
+        get() = (disappearingTimerSeconds ?: 0) > 0
 
     var caption: String? = null
         get() = when (type) {
@@ -203,6 +231,18 @@ internal constructor(
             setDataModel(MessageType.GROUP_STATUS, value, StatusDataModel::serialize)
         }
 
+    // F1Whisper: data for DISAPPEARING_STATUS inline status messages (per-conversation timer change).
+    var disappearingStatusData: DisappearingStatusDataModel?
+        get() = getOrSetDataModel(
+            expectedType = MessageType.DISAPPEARING_STATUS,
+            convert = { body ->
+                StatusDataModel.deserialize(body) as DisappearingStatusDataModel?
+            },
+        )
+        set(value) {
+            setDataModel(MessageType.DISAPPEARING_STATUS, value, StatusDataModel::serialize)
+        }
+
     var pollData: PollDataModel
         get() = getOrSetDataModel(MessageType.POLL, PollDataModel::deserialize)
             ?: emptyPollDataModel
@@ -258,6 +298,73 @@ internal constructor(
     }
 
     /**
+     * F1Whisper (fifth fork review, F5-04): adopt the body a conditional row update actually wrote, discarding the parsed
+     * data-model cache so the next read of [fileData] / [pollData] / … reparses it.
+     *
+     * The media and listen-once flags live inside the serialised body, and [dataObject] caches the parse. Assigning
+     * [body] alone would leave a stale parse in place, so the instance would go on reporting the flags it had before the
+     * write - which is exactly the class of "the model disagrees with the row" bug the conditional writes exist to end.
+     */
+    fun adoptPersistedBody(persistedBody: String?) {
+        this.body = persistedBody
+        this.dataObject = null
+    }
+
+    /**
+     * F1Whisper (sixth fork review, F6-01): make this instance agree, column for column, with a row just read from disk.
+     *
+     * The service keeps message models in per-type caches, and the UI keeps its own timeline instances, so one row can be
+     * represented by several live objects. A conditional lifecycle write updates the row; every other instance of it is
+     * instantly a pre-transition snapshot, and the next ordinary full-row save from one of them writes that snapshot back
+     * - cancelling a countdown that had just started, restoring a superseded state, un-reading a read message. Refreshing
+     * every matching instance from the winner, inside the same lock as the write, is what stops that.
+     *
+     * Deliberately copies EVERY mutable column the row carries rather than the subset [ch.threema.storage.models.group.GroupMessageModel.copyFrom]
+     * historically copied: the columns most likely to be forgotten are the ones added last, and here those are exactly the
+     * disappearing-message and display-tag columns whose loss is the defect.
+     */
+    open fun adoptPersistedRow(persisted: AbstractMessageModel) {
+        if (persisted === this) {
+            return
+        }
+        uid = persisted.uid
+        apiMessageId = persisted.apiMessageId
+        identity = persisted.identity
+        isOutbox = persisted.isOutbox
+        isStatusMessage = persisted.isStatusMessage
+        type = persisted.type
+        correlationId = persisted.correlationId
+        isRead = persisted.isRead
+        isSaved = persisted.isSaved
+        state = persisted.state
+        // Through the setter, which writes rawPostedAt, so a row with no posted-at keeps none instead of adopting the
+        // coalesced created-at the getter would have returned.
+        postedAt = persisted.rawPostedAt
+        createdAt = persisted.createdAt
+        deliveredAt = persisted.deliveredAt
+        readAt = persisted.readAt
+        modifiedAt = persisted.modifiedAt
+        editedAt = persisted.editedAt
+        deletedAt = persisted.deletedAt
+        expiresAt = persisted.expiresAt
+        expireStartedAt = persisted.expireStartedAt
+        disappearingTimerSeconds = persisted.disappearingTimerSeconds
+        quotedMessageId = persisted.quotedMessageId
+        messageContentsType = persisted.messageContentsType
+        messageFlags = persisted.messageFlags
+        forwardSecurityMode = persisted.forwardSecurityMode
+        displayTags = persisted.displayTags
+        // The body carries the serialised media / listen-once flags, so it goes last and through the accessor that drops
+        // the cached parse.
+        adoptPersistedBody(persisted.body)
+        if (persisted.type != MessageType.FILE && persisted.type != MessageType.LOCATION) {
+            // For those two types the caption LIVES in the body that was just adopted, and both accessors would parse it;
+            // for every other type it is a plain column and has to be copied.
+            caption = persisted.caption
+        }
+    }
+
+    /**
      * Call this to update the body field with the data model stuff
      */
     fun writeDataModelToBody() {
@@ -274,6 +381,45 @@ internal constructor(
 
     val isStarred: Boolean
         get() = (displayTags and DisplayTag.DISPLAY_TAG_STARRED) == DisplayTag.DISPLAY_TAG_STARRED
+
+    /** F1Whisper: true if this message has been locally pinned (DISPLAY_TAG_PINNED bit is set). */
+    val isPinned: Boolean
+        get() = (displayTags and DisplayTag.DISPLAY_TAG_PINNED) == DisplayTag.DISPLAY_TAG_PINNED
+
+    /**
+     * F1Whisper: set or clear the DISPLAY_TAG_PINNED bit on this message without touching other
+     * display-tag bits.  Mirrors the XOR approach used for starring (see [toggleStar] in
+     * ComposeMessageFragment).
+     */
+    fun setPinned(pinned: Boolean) {
+        displayTags = if (pinned) {
+            displayTags or DisplayTag.DISPLAY_TAG_PINNED
+        } else {
+            displayTags and DisplayTag.DISPLAY_TAG_PINNED.inv()
+        }
+    }
+
+    /**
+     * F1Whisper auto-resend: true if this message's last send failed for a TERMINAL reason (the
+     * DISPLAY_TAG_SEND_FAILED_TERMINAL bit is set). Such a SENDFAILED message is never
+     * auto-resent by the reconnect scan; a SENDFAILED message WITHOUT the bit is treated as a
+     * connectivity failure and is eligible for silent auto-resend.
+     */
+    val isSendFailedTerminal: Boolean
+        get() = (displayTags and DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL) == DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL
+
+    /**
+     * F1Whisper auto-resend: set or clear the DISPLAY_TAG_SEND_FAILED_TERMINAL bit without touching
+     * other display-tag bits. Set it alongside marking SENDFAILED for a terminal cause; clear it
+     * whenever the message re-enters a send flow so a later transient failure stays auto-eligible.
+     */
+    fun setSendFailedTerminal(terminal: Boolean) {
+        displayTags = if (terminal) {
+            displayTags or DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL
+        } else {
+            displayTags and DisplayTag.DISPLAY_TAG_SEND_FAILED_TERMINAL.inv()
+        }
+    }
 
     /**
      * This only makes sense (finds its use) when multi device is active.
@@ -378,6 +524,16 @@ internal constructor(
         const val COLUMN_POSTED_AT = "postedAtUtc"
 
         /**
+         * F1Whisper: immutable per-row chat-timeline sort key.
+         *
+         * Value = outgoing -> [COLUMN_CREATED_AT] (local compose time, immutable, monotonic);
+         * incoming -> COALESCE([COLUMN_POSTED_AT], [COLUMN_CREATED_AT]) (sender time; keeps the
+         * reconnect-backlog fix). Unlike [COLUMN_POSTED_AT], it is never overwritten by the
+         * send-completion time, so same-minute outgoing messages no longer reorder.
+         */
+        const val COLUMN_SORT_AT = "sortAtUtc"
+
+        /**
          * When the message was last modified.
          */
         const val COLUMN_MODIFIED_AT = "modifiedAtUtc"
@@ -438,6 +594,21 @@ internal constructor(
          * When the message was deleted
          */
         const val COLUMN_DELETED_AT = "deletedAtUtc"
+
+        /**
+         * F1Whisper disappearing messages: epoch-millis when the message is due for hard-deletion.
+         */
+        const val COLUMN_EXPIRES_AT = "expiresAtUtc"
+
+        /**
+         * F1Whisper disappearing messages: epoch-millis when the countdown started.
+         */
+        const val COLUMN_EXPIRE_STARTED_AT = "expireStartedAtUtc"
+
+        /**
+         * F1Whisper disappearing messages: per-message frozen timer in seconds (Signal EXPIRES_IN).
+         */
+        const val COLUMN_DISAPPEARING_TIMER_SECONDS = "disappearingTimerSeconds"
 
         // These models are used as workaround for the case where the data model is accessed
         // through a getter, but the stored body is missing or of the wrong type. We can't return null

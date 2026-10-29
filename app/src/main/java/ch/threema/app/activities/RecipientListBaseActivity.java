@@ -950,6 +950,23 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
 
     void forwardSingleMessage(final MessageReceiver[] messageReceivers, final int i, final Intent intent, final boolean keepOriginalCaptions) {
         final AbstractMessageModel messageModel = originalMessageModels.get(i);
+
+        // F1Whisper: defense-in-depth. A listen-once voice message must never be forwarded (the
+        // action-mode menu already hides Forward for these). Skip it, toast once, and continue with
+        // the rest of the batch so a mixed selection still forwards the non-listen-once messages.
+        if (messageModel.getFileData() != null && messageModel.getFileData().isListenOnce()) {
+            logger.warn("Refusing to forward listen-once message {}", messageModel.getId());
+            RuntimeUtil.runOnUiThread(() ->
+                SingleToast.getInstance().showLongText(getString(R.string.listen_once_cannot_forward)));
+            if (i < originalMessageModels.size() - 1) {
+                forwardSingleMessage(messageReceivers, i + 1, intent, keepOriginalCaptions);
+            } else {
+                RuntimeUtil.runOnUiThread(() -> DialogUtil.dismissDialog(getSupportFragmentManager(), DIALOG_TAG_MULTISEND, true));
+                startComposeActivity(intent);
+            }
+            return;
+        }
+
         new LoadDecryptedMessageFileAsyncTask(dependencies.getFileService()) {
             @Override
             public void onSuccess(@Nullable File decryptedFile) {
@@ -1108,17 +1125,20 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
             @Override
             protected Void doInBackground(Void params) {
                 try {
-                    var files = dependencies.getFileService().decryptMessageFiles(originalMessageModels);
+                    // F1-PATCH: one slot per message, so a file is never paired with the wrong message's caption, name or
+                    // type when another message in the selection fails to decrypt (or expired meanwhile).
+                    var files = dependencies.getFileService().decryptMessageFilesPositional(originalMessageModels);
 
                     ArrayList<MediaItem> mappedMediaItems = new ArrayList<>();
 
                     for (int i = 0; i < files.size(); i++) {
                         final AbstractMessageModel originalMessageModel = originalMessageModels.get(i);
-                        final Uri fileUri = Uri.fromFile(files.get(i));
+                        final File decryptedFile = files.get(i);
 
-                        if (originalMessageModel == null || !originalMessageModel.isAvailable()) {
+                        if (decryptedFile == null || originalMessageModel == null || !originalMessageModel.isAvailable()) {
                             continue;
                         }
+                        final Uri fileUri = Uri.fromFile(decryptedFile);
 
                         final String mimeType = MimeUtil.getMimeTypeFromMessageModel(originalMessageModel);
                         final int mediaType = determineMediaType(mimeType, fileUri, originalMessageModel);
@@ -1129,6 +1149,12 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
                             mimeType,
                             originalMessageModel.getCaption()
                         );
+                        // F1Whisper: this image/video is being forwarded (via the SendMedia
+                        // preview). Tag the MediaItem so the sent copy carries the "fwd" flag
+                        // and renders the "Forwarded" header. The flag survives parceling into
+                        // SendMediaActivity and the adapter, which reuses these MediaItem
+                        // objects when sending.
+                        mediaItem.setForwarded(true);
 
                         final @Nullable String existingFilename = originalMessageModel.getFileData().getFileName();
                         if (!isNullOrBlank(existingFilename)) {
@@ -1554,6 +1580,9 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
     @AnyThread
     private void sendForwardedMedia(final MessageReceiver[] messageReceivers, final Uri uri, final String caption, final int type, @Nullable final String mimeType, @FileData.RenderingType final int renderingType, final String filename, long durationMs) {
         final MediaItem mediaItem = new MediaItem(uri, type);
+        // F1Whisper: this media is a forward of an existing message; tag it so the sent copy carries
+        // the "forwarded" metadata flag and renders a "Forwarded" header on both ends.
+        mediaItem.setForwarded(true);
         if (mimeType != null) {
             mediaItem.setMimeType(mimeType);
         }

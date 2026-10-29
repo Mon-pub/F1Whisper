@@ -17,6 +17,7 @@ sealed interface StatusDataModel : MessageDataInterface {
         GroupCallStatusDataModel.TYPE,
         ForwardSecurityStatusDataModel.TYPE,
         GroupStatusDataModel.TYPE,
+        DisappearingStatusDataModel.TYPE,
     )
     annotation class StatusType
 
@@ -47,6 +48,9 @@ sealed interface StatusDataModel : MessageDataInterface {
                     }
                     GroupStatusDataModel.TYPE -> {
                         GroupStatusDataModel.createFromParams(iterator.nextPrimitiveValueMap()!!)
+                    }
+                    DisappearingStatusDataModel.TYPE -> {
+                        DisappearingStatusDataModel.createFromParams(iterator.nextPrimitiveValueMap()!!)
                     }
                     else -> error("Unexpected type $type")
                 }

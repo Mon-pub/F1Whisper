@@ -597,6 +597,8 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="prefs_sendlog_summary">問題を分析するためにログファイルを${company_name}に送信します</string>
     <string name="prefs_exportlog">ログを出力する</string>
     <string name="prefs_exportlog_summary">ログファイルを他のアプリで共有</string>
+    <string name="prefs_connection_diagnostics">接続 &amp; 通知の診断</string>
+    <string name="prefs_connection_diagnostics_summary">通知が届かない問題の診断に役立つ、接続・プッシュ・通知・バッテリーの状態レポートをエクスポートします</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">メディアを保存したり送信したりするには、${app_name}にストレージへのアクセス許可をしてください。</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -785,6 +787,7 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="play">再生</string>
     <string name="pause">中断</string>
     <string name="retry">もう一度</string>
+    <string name="voice_message">音声メッセージ</string>
     <string name="voice_message_record">音声メッセージを録音</string>
     <string name="open_navdrawer">ナビゲーション・ドロワーを開く</string>
     <string name="profile_picture">プロフィール画像</string>
@@ -917,12 +920,9 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">復元をする${app_name_short} IDを入力してください</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} IDを見る</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} IDが見つかりませんでした</string>
     <string name="safe_no_backup_found">サーバー上にバックアップが見つかりませんでした。IDとパスワードを確認してください。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">複数の${app_name_short} IDが見つかりました。使用したいIDを選択してください。</string>
     <string name="safe_backup_now">バックアップする</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">${app_name_short} Safeを有効にすると、すべての重要なデータを自動的に安全かつ匿名でバックアップすることができます。</string>
@@ -959,7 +959,6 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="safe_restore">${app_name_short} Safeから復元</string>
     <string name="backup_restore_in_progress">バックアップまたは復元が進行中です。ステータス情報は通知を確認してください。</string>
     <string name="restore_error_body">復元が正常に完了しませんでした</string>
-    <string name="forgot_your_id">ID をお忘れですか？</string>
     <string name="restore_success_body">復元が完了しました</string>
     <string name="work_data_sync">データを同期</string>
     <string name="private_contact">プライベートな連絡先</string>
@@ -993,6 +992,7 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="password_bad_explain">選択した${app_name_short} Safeのパスワードは安全ではなく、攻撃者に簡単に推測されてしまいます。別のパスワードを選択してください。ヒント：複数の単語を組み合わせたパスワードを使用してください。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">${app_name_short} Safeのパスワードは更新されました</string>
+    <string name="safe_password_complexity_unmet">パスワードは10文字を超え、英小文字、英大文字、数字、記号を含める必要があります</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safeが有効化されました</string>
     <string name="push_token_cleared">プッシュ・トークンがクリアされました</string>
@@ -1325,6 +1325,10 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <string name="forward_security_notification_rejected_text_group">「%1$s」に対する１つ以上のメッセージが送信できませんでした。</string>
     <string name="forward_security_notification_rejected_text_generic">１つ以上のメッセージの送信に失敗しました。</string>
     <string name="self_updater_installation_failed">アップデートのダウンロードに失敗しました。<a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> からアップデートをダウンロードしてインストールしてください。</string>
+    <string name="self_updater_downloading_background">バックグラウンドでアップデートをダウンロードしています…</string>
+    <string name="self_updater_update_ready_title">アップデートをダウンロードしました</string>
+    <string name="self_updater_update_ready_text">タップしてアップデートをインストール</string>
+    <string name="self_updater_download_failed">アップデートのダウンロードに失敗しました。タップして手動でダウンロードしてください。</string>
     <string name="spam_first_contact">このトークは不明な連絡先からのものです</string>
     <string name="spam_report">スパム報告</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1484,6 +1488,10 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">このアプリは、${app_name_short} Pushが機能するために必要なサーバーへの恒常的な接続を維持することが許可されていません。アプリがバックグラウンドにあるときに新しいメッセージの通知が届かない可能性があります。これを修正するには、\"アプリのバッテリー使用量\"をタップし、\"制限なし\"を選択してください。</string>
     <string name="problemsolver_to_settings">設定へ</string>
+    <string name="problemsolver_title_oem_autostart">バックグラウンド実行を許可</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s のデバイスでは F1Whisper のバックグラウンド実行が停止されることがあり、電池の最適化を既にオフにしていてもメッセージ通知が届かなくなります。ガイドを開き、F1Whisper の自動起動とバックグラウンド実行を許可してください。</string>
+    <string name="problemsolver_oem_autostart_action">セットアップガイドを開く</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="prefs_advanced_options">高度なオプション</string>
     <string name="push_service">プッシュサービス</string>
@@ -1604,4 +1612,163 @@ https://myid.threema.ch/revoke に入力することで ID を削除すること
     <plurals name="number_of_group_members">
         <item quantity="other">%d名のグループメンバー</item>
     </plurals>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">サーバーを変更</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">サーバードメイン</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">サーバーを変更しますか？</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. -->
+    <string name="change_server_warning_message">サーバーを変更すると、現在の識別子との接続が切断される可能性があります。プロバイダーが新しいドメインを確認した場合にのみ実行してください。ドメインが間違っていると、アプリが動作しなくなります。</string>
+    <!-- Action label (e.g. activation-key action) -->
+    <string name="use_different_key">別のキーを使用</string>
+    <string name="activation_key_already_redeemed">このアクティベーションキーはすでに使用されています。別のキーを入力してください。</string>
+    <string name="notification_channel_emoji_reactions">リアクション</string>
+    <string name="reaction_notification_text">%1$s さんがあなたのメッセージに %2$s でリアクションしました</string>
+    <string name="prefs_title_reaction_notifications">リアクション通知</string>
+    <string name="prefs_sum_reaction_notifications">自分のメッセージに誰かがリアクションしたときに通知する</string>
+    <string name="chat_background_choose">背景</string>
+    <string name="chat_background_random">ランダム（トークごとに変化）</string>
+    <string name="chat_background_numbered">背景 %1$d</string>
+    <string name="listen_once_enabled">1回のみ再生：オン</string>
+    <string name="listen_once_disabled">1回のみ再生：オフ</string>
+    <string name="listen_once_badge_content_description">1回のみ再生のボイスメッセージ</string>
+    <string name="forwarded_message_label">転送</string>
+    <string name="listen_once_already_listened">再生済み</string>
+    <string name="listen_once_sent">1回のみ再生のボイスメッセージ</string>
+    <string name="listen_once_cannot_forward">一度だけ再生できるメッセージは転送できません</string>
+    <string name="listen_once_expired">ボイスメッセージの有効期限が切れました</string>
+    <string name="group_one_typing">%sが入力中…</string>
+    <string name="group_two_typing">%1$sと%2$sが入力中…</string>
+    <string name="group_many_typing">%1$sと他%2$d人が入力中…</string>
+    <string name="message_details_read_by">既読</string>
+    <string name="message_details_delivered_to">配信済み</string>
+    <string name="message_details_sent_to">送信済み</string>
+    <string name="markup_monospace">等幅</string>
+    <string name="markup_spoiler">伏せ字</string>
+    <string name="spoiler_hidden_content_description">非表示の伏せ字テキスト、ダブルタップで表示</string>
+    <string name="media_spoiler">伏せ字</string>
+    <string name="media_spoiler_reveal">タップして表示</string>
+    <string name="media_spoiler_badge_content_description">非表示のメディア。ダブルタップで表示します。</string>
+    <string name="chat_folders">トークフォルダ</string>
+    <string name="manage_folders">フォルダを管理</string>
+    <string name="add_to_folder">フォルダに追加</string>
+    <string name="folder_all">すべて</string>
+    <string name="new_folder">新しいフォルダ</string>
+    <string name="create_folder">フォルダを作成</string>
+    <string name="rename_folder">フォルダ名を変更</string>
+    <string name="delete_folder">フォルダを削除</string>
+    <string name="delete_folder_confirm">このフォルダを削除しますか？トークは削除されません。</string>
+    <string name="folder_name_hint">フォルダ名</string>
+    <string name="folder_name_empty">フォルダ名を入力してください</string>
+    <string name="no_chat_folders">まだフォルダを作成していません</string>
+    <string name="folder_created">フォルダを作成しました</string>
+    <string name="folder_deleted">フォルダを削除しました</string>
+    <string name="add_to_folder_title">トークをフォルダに追加</string>
+    <string name="folder_empty">このフォルダにトークはありません</string>
+    <string name="prefs_refresh_onprem_config">サーバー設定を更新</string>
+    <string name="prefs_refresh_onprem_config_summary">サーバー設定を今すぐ再ダウンロードします。サーバーがデスクトップ連携などの新機能を追加した後に便利です。</string>
+    <string name="onprem_config_refreshed">サーバー設定を更新しました</string>
+    <string name="prefs_title_link_previews">リンクプレビューを生成</string>
+    <string name="prefs_sum_link_previews">送信するメッセージ内のリンクのプレビューを取得します。プレビューはエンドツーエンドで暗号化されて送信され、受信者の端末がウェブサイトに接続することはありません。</string>
+    <string name="link_preview_remove">リンクプレビューを削除</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">ハンドルをドラッグしてトリミング</string>
+    <string name="audio_trim_action">トリミング</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">最小化</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">チェックリスト</string>
+    <string name="checklist_create_as">チェックリストとして作成</string>
+    <string name="checklist_fork_only">チェックリストはF1Whisperユーザー間でのみ機能します。</string>
+    <string name="checklist_toggle_item">チェックリスト項目を切り替え</string>
+    <string name="checklist_checked_by">%1$sがチェック済み</string>
+    <string name="checklist_created_successfully">チェックリストを作成しました</string>
+    <string name="checklist_placeholder">チェックリスト</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">メッセージをピン留め</string>
+    <string name="unpin_message">ピン留めを外す</string>
+    <string name="pinned_message_banner_label">ピン留めされたメッセージ</string>
+    <string name="pinned_message_banner_dismiss">ピン留めメッセージのバナーを非表示</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">チェックリストのタイトルを入力</string>
+    <string name="checklist_wizard0_explain">共有のTo-Doリストを作成します。チャットの全員がいつでも項目をチェック・チェック解除でき、チェックした項目は下に移動します。</string>
+    <string name="checklist_add_items">項目を追加</string>
+    <string name="checklist_item_add">項目を追加</string>
+    <string name="checklist_item_count_error">項目を1つ以上追加してください</string>
+    <string name="checklist_add_item_title">項目を追加</string>
+    <string name="checklist_add_item_hint">新しい項目の名前</string>
+    <string name="checklist_add_item_button">追加</string>
+    <string name="checklist_delete_item_title">項目を削除しますか？</string>
+    <string name="checklist_delete_item_message">\"%1$s\" を削除してもよろしいですか？</string>
+    <string name="checklist_delete_button">削除</string>
+    <string name="checklist_reorder_item">チェックリスト項目を移動</string>
+    <string name="checklist_cannot_reorder">この項目は移動できません</string>
+    <string name="checklist_edit_title">チェックリストを編集</string>
+    <string name="checklist_edit_apply">適用</string>
+    <string name="checklist_rename_item_title">項目の名前を変更</string>
+    <string name="audio_trim_not_supported">この音声形式ではトリミングがサポートされていません。ファイル全体を送信するにはトリミングを解除してください。</string>
+    <string name="audio_trim_failed">この音声をトリミングできませんでした。何も送信されていません。もう一度試すか、トリミングを解除してください。</string>
+    <string name="pinned_message_banner_label_counter">ピン留めされたメッセージ %1$d/%2$d</string>
+    <string name="disappearing_messages_title">消えるメッセージ</string>
+    <string name="disappearing_messages_summary">このチャットの新しいメッセージは、既読後に設定した時間が経過すると消えます。</string>
+    <string name="disappearing_off">オフ</string>
+    <string name="disappearing_duration_picker_title">消去タイマー</string>
+    <string name="status_disappearing_set">%1$s が消えるメッセージを %2$s に設定しました</string>
+    <string name="status_disappearing_set_you">消えるメッセージを %1$s に設定しました</string>
+    <string name="status_disappearing_off">%1$s が消えるメッセージをオフにしました</string>
+    <string name="status_disappearing_off_you">消えるメッセージをオフにしました</string>
+    <string name="disappearing_messages_unsupported">消えるメッセージはF1Whisperユーザー間でのみ機能し、セキュリティの保証ではありません。</string>
+    <string name="disappearing_duration_30s">30秒</string>
+    <string name="disappearing_duration_5m">5分</string>
+    <string name="disappearing_duration_1h">1時間</string>
+    <string name="disappearing_duration_8h">8時間</string>
+    <string name="disappearing_duration_1d">1日</string>
+    <string name="disappearing_duration_1w">1週間</string>
+    <string name="disappearing_duration_4w">4週間</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">消える</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">既読から%1$s後</string>
+    <string name="connectivity_probe_dialog_title">接続診断</string>
+    <string name="connectivity_probe_running">チェックを実行中…</string>
+    <string name="connectivity_probe_done">チェックが完了しました</string>
+    <string name="connectivity_probe_send_btn">診断を送信</string>
+    <string name="connectivity_probe_close_btn">閉じる</string>
+    <string name="connectivity_probe_verdict_all_ok">サーバーに到達できます。アカウントまたはデバイスの設定を確認してください。</string>
+    <string name="connectivity_probe_verdict_no_internet">このネットワークでは有効なインターネット接続がありません。</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS ポイズニングの疑い: システム DNS が異なる IP を返しています。</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI ベースの TLS ブロックの疑い: 当社のホスト名がブロックされています。</string>
+    <string name="connectivity_probe_verdict_ip_blocked">このネットワークではサーバーの IP がブロックされています。</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">チャットポート (5222) がブロックされています。HTTPS はまだ利用できます。</string>
+    <string name="connectivity_probe_verdict_slow_throttled">サーバーには到達できますが、ネットワーク接続が著しく低速か制限されているため、接続がタイムアウトする可能性があります。もう一度試すか、Wi-Fi とモバイルデータを切り替えてください。</string>
+    <string name="connectivity_probe_verdict_partial_failure">一部のチェックに失敗しました。分析のためにレポートを共有してください。</string>
+    <string name="connectivity_probe_label_dns">DNS リゾルバー</string>
+    <string name="connectivity_probe_label_tcp443">TCP ポート 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">設定エンドポイント</string>
+    <string name="connectivity_probe_label_chat">チャットポート (5222)</string>
+    <string name="connectivity_probe_label_control">インターネット (対照)</string>
+    <string name="connectivity_probe_label_hints">その他の兆候</string>
+    <string name="connectivity_probe_hint_middlebox">接続自体は高速ですが、暗号化ハンドシェイクが遅くなっています。透過型プロキシやトラフィックシェーピング装置がこの接続に介入している可能性があります。</string>
+    <string name="connectivity_probe_hint_port53">他のすべてが低速な中、デバイスの DNS 応答だけが不自然に速く返ってきました。このネットワークが DNS 通信を横取りしている可能性があります。</string>
+    <string name="ballot_removed">投票が削除されました</string>
+    <string name="cd_menu_more">その他のオプション</string>
+    <string name="error_reporting_details_button">技術的な詳細</string>
+    <string name="error_reporting_learn_more_button">詳細を見る</string>
+    <string name="hint_search_list">検索する文字を入力</string>
+    <string name="notifications_for_one_week">1週間</string>
+    <string name="prefs_about">このアプリについて</string>
+    <string name="prefs_advanced">詳細設定</string>
+    <string name="prefs_community_and_sharing">コミュニティと共有</string>
+    <string name="prefs_linked_devices">リンク済みデバイス</string>
+    <string name="prefs_title_sum_message_log_forced_on">システムアクティビティをログに記録しています。ログ記録を無効にするには、ファイル «%1$s» を削除してください。(%2$s)</string>
+    <string name="prefs_title_sum_message_log_on_since">%1$s からシステムアクティビティをログに記録中 (%2$s)</string>
+    <string name="reply_to_message">返信</string>
+    <string name="restore_id_string_label">IDエクスポートの文字列</string>
+    <string name="search_list">リスト内を検索</string>
+    <string name="startup_error_details">予期しないエラーにより ${app_name_short} を開けませんでした。下のログファイルをエクスポートして、サポートチームまでご連絡ください。問題を調査いたします。ご不便をおかけして申し訳ありません。</string>
+    <string name="status_group_you_left">グループから退会しました。</string>
+    <string name="status_group_you_were_added">グループに追加されました。</string>
+    <string name="status_group_you_were_removed">グループから削除されました。</string>
 </resources>

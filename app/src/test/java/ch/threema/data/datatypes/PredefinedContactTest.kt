@@ -4,6 +4,7 @@ import ch.threema.app.BuildFlavor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PredefinedContactTest {
@@ -39,6 +40,12 @@ class PredefinedContactTest {
 
     @Test
     fun testSpecialContact() {
+        if (BuildFlavor.current.buildEnvironment == BuildFlavor.BuildEnvironment.ONPREM) {
+            // Onprem ships no predefined contacts at all
+            assertNull(PredefinedContact.getPredefinedContact("*MY3DATA"))
+            assertNull(PredefinedContact.getPredefinedContact("*3MAPUSH"))
+            return
+        }
         val my3data = PredefinedContact.getPredefinedContact("*MY3DATA")!!
         val threemapush = PredefinedContact.getPredefinedContact("*3MAPUSH")!!
 
@@ -48,6 +55,12 @@ class PredefinedContactTest {
 
     @Test
     fun testNickname() {
+        if (BuildFlavor.current.buildEnvironment == BuildFlavor.BuildEnvironment.ONPREM) {
+            // Onprem ships no predefined contacts at all
+            assertNull(PredefinedContact.getPredefinedContact("*MY3DATA"))
+            assertNull(PredefinedContact.getPredefinedContact("*3MAPUSH"))
+            return
+        }
         val my3data = PredefinedContact.getPredefinedContact("*MY3DATA")!!
         val threemapush = PredefinedContact.getPredefinedContact("*3MAPUSH")!!
 

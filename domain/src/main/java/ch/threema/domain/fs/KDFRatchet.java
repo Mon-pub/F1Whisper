@@ -65,9 +65,15 @@ public class KDFRatchet {
         if (counter == targetCounterValue) {
             return 0;
         } else if (counter > targetCounterValue) {
-            throw new RatchetRotationException("Target counter value is lower than current counter value");
+            throw new RatchetRotationException(
+                RatchetRotationException.Cause.COUNTER_BEHIND,
+                "Target counter value is lower than current counter value"
+            );
         } else if ((targetCounterValue - counter) > MAX_COUNTER_INCREMENT) {
-            throw new RatchetRotationException("Target counter value is too far ahead");
+            throw new RatchetRotationException(
+                RatchetRotationException.Cause.TARGET_TOO_FAR_AHEAD,
+                "Target counter value is too far ahead"
+            );
         }
 
         int numTurns = 0;
@@ -120,8 +126,39 @@ public class KDFRatchet {
     }
 
     public static class RatchetRotationException extends ThreemaException {
-        public RatchetRotationException(String msg) {
+        /**
+         * Which of the two refusals in {@link #turnUntil(long)} fired. They read alike in a log line
+         * and are opposite failures, so callers that report or act on a rotation failure must be
+         * able to tell them apart rather than assume the first.
+         */
+        public enum Cause {
+            /**
+             * The target counter is BEHIND the ratchet. Ratchets only turn forward, so the key that
+             * message was encrypted with is already gone and cannot be re-derived.
+             */
+            COUNTER_BEHIND,
+            /**
+             * The target counter is further ahead than {@link #MAX_COUNTER_INCREMENT}. The key is
+             * still reachable in principle, but only by turning the ratchet more times than we are
+             * willing to, so we refuse rather than let a peer dictate the work.
+             */
+            TARGET_TOO_FAR_AHEAD,
+        }
+
+        @NonNull
+        private final Cause rotationCause;
+
+        public RatchetRotationException(@NonNull Cause rotationCause, String msg) {
             super(msg);
+            this.rotationCause = rotationCause;
+        }
+
+        /**
+         * Named to avoid colliding with {@link Throwable#getCause()}, which means something else.
+         */
+        @NonNull
+        public Cause getRotationCause() {
+            return rotationCause;
         }
     }
 }

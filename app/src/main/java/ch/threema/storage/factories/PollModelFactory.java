@@ -117,7 +117,13 @@ public class PollModelFactory extends ModelFactory {
 
                     String displayType = cursorHelper.getString(PollModel.COLUMN_DISPLAY_TYPE);
                     if (!isNullOrEmpty(displayType)) {
-                        c.setDisplayType(PollModel.DisplayType.valueOf(displayType));
+                        try {
+                            c.setDisplayType(PollModel.DisplayType.valueOf(displayType));
+                        } catch (IllegalArgumentException e) {
+                            // Tolerate an unknown persisted display type name (forward-compat) instead
+                            // of failing the whole poll load; fall back to the list-mode default.
+                            c.setDisplayType(PollModel.DisplayType.LIST_MODE);
+                        }
                     }
 
                     return false;

@@ -274,10 +274,15 @@ public class ThreemaSafeConfigureActivity extends ThreemaToolbarActivity impleme
     private boolean getPasswordOK(String password1Text, String password2Text) {
         var hasSafePasswordPattern = dependencies.getAppRestrictions().getSafePasswordPattern() != null;
         boolean lengthOk = WizardFragment1.getPasswordLengthOK(password1Text, hasSafePasswordPattern ? 1 : MIN_PW_LENGTH);
+        boolean enforceComplexity = ConfigUtils.isOnPremBuild() && !hasSafePasswordPattern;
+        boolean complexityOk = !enforceComplexity || WizardFragment1.meetsComplexity(password1Text);
         boolean passwordsMatch = password1Text.equals(password2Text);
 
         if (!lengthOk && !password1Text.isEmpty()) {
             this.password1layout.setError(getString(R.string.password_too_short_generic));
+            this.password2layout.setError(null);
+        } else if (lengthOk && !complexityOk && !password1Text.isEmpty()) {
+            this.password1layout.setError(getString(R.string.safe_password_complexity_unmet));
             this.password2layout.setError(null);
         } else {
             this.password1layout.setError(null);
@@ -288,7 +293,7 @@ public class ThreemaSafeConfigureActivity extends ThreemaToolbarActivity impleme
             }
         }
 
-        return (lengthOk && passwordsMatch);
+        return (lengthOk && complexityOk && passwordsMatch);
     }
 
     @Override

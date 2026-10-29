@@ -37,6 +37,8 @@ public class GroupModelOld implements ReceiverModel {
     public static final String COLUMN_USER_STATE = "userState";
     public static final String COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE_POLICY = "notificationTriggerPolicyOverridePolicy";
     public static final String COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE_EXPIRES_AT = "notificationTriggerPolicyOverrideExpiresAt";
+    public static final String COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS = "disappearingMessagesTimerSeconds"; /* F1Whisper: my own per-conversation disappearing-messages timer in seconds; null/0 = off */
+    public static final String COLUMN_PEER_DISAPPEARING_TIMER_SECONDS = "peerDisappearingTimerSeconds"; /* F1Whisper: LEGACY, DEAD. Was the per-direction inbound timer; the shared-field LWW model made it redundant and no code reads it beyond the row round-trip. Kept only so the schema needs no migration. */
 
     private String groupDesc;
     private Instant changedGroupDescTimestamp;
@@ -57,6 +59,12 @@ public class GroupModelOld implements ReceiverModel {
     private UserState userState;
     @Nullable
     private GroupNotificationTriggerPolicyOverride notificationTriggerPolicyOverride;
+    // F1Whisper: my own per-conversation disappearing-messages timer (seconds); null/0 = off.
+    @Nullable
+    private Integer disappearingMessagesTimerSeconds;
+    // F1Whisper: legacy per-direction peer timer (seconds); no longer read, see COLUMN_PEER_DISAPPEARING_TIMER_SECONDS.
+    @Nullable
+    private Integer peerDisappearingTimerSeconds;
 
     @Nullable
     public String getName() {
@@ -200,6 +208,36 @@ public class GroupModelOld implements ReceiverModel {
     @Nullable
     public GroupNotificationTriggerPolicyOverride getNotificationTriggerPolicyOverride() {
         return notificationTriggerPolicyOverride;
+    }
+
+    /**
+     * F1Whisper: the per-conversation default disappearing-messages timer in seconds.
+     * {@code null} or {@code 0} means disappearing messages are off for this group.
+     */
+    @Nullable
+    public Integer getDisappearingMessagesTimerSeconds() {
+        return disappearingMessagesTimerSeconds;
+    }
+
+    @NonNull
+    public GroupModelOld setDisappearingMessagesTimerSeconds(@Nullable Integer disappearingMessagesTimerSeconds) {
+        this.disappearingMessagesTimerSeconds = disappearingMessagesTimerSeconds;
+        return this;
+    }
+
+    /**
+     * F1Whisper: legacy per-direction peer timer. Groups use {@link #getDisappearingMessagesTimerSeconds()} for both
+     * directions; this column is still persisted (no migration) but no code reads it beyond the row round-trip.
+     */
+    @Nullable
+    public Integer getPeerDisappearingTimerSeconds() {
+        return peerDisappearingTimerSeconds;
+    }
+
+    @NonNull
+    public GroupModelOld setPeerDisappearingTimerSeconds(@Nullable Integer peerDisappearingTimerSeconds) {
+        this.peerDisappearingTimerSeconds = peerDisappearingTimerSeconds;
+        return this;
     }
 
     public GroupIdentity getGroupIdentity() {

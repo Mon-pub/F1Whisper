@@ -574,6 +574,8 @@
     <string name="prefs_sendlog">Naplófájl küldése</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="prefs_sendlog_summary">Naplófájl elküldése a ${company_name} számára a problémaelemzéshez.</string>
+    <string name="prefs_connection_diagnostics">Kapcsolati &amp; értesítési diagnosztika</string>
+    <string name="prefs_connection_diagnostics_summary">Jelentés exportálása a kapcsolat, push, értesítések és akkumulátor állapotáról a hiányzó értesítések diagnosztizálásához</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -748,6 +750,7 @@
     <string name="play">Lejátszás</string>
     <string name="pause">Szünet</string>
     <string name="retry">Ismét</string>
+    <string name="voice_message">Hangüzenet</string>
     <string name="voice_message_record">Hangüzenet felvétele</string>
     <string name="open_navdrawer">Oldalmenü megnyitása</string>
     <string name="profile_picture">Profilkép</string>
@@ -861,7 +864,7 @@
     <string name="unchanged">változatlan</string>
     <string name="safe_learn_more_button">További információ</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">A ${app_name_short} Safe aktiválása nélkül szeretne folytatni? A ${app_name_short} Safe lehetővé teszi a ${app_name_short} ID, a névjegyek és a csoportok visszaállítását, ha elveszíti a készülékét.</string>
+    <string name="safe_disable_confirm">A ${app_name_short} Safe aktiválása nélkül szeretne folytatni? A ${app_name_short} Safe lehetővé teszi a ${app_name_short} ID és a csoportok visszaállítását, ha elveszíti a készülékét.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Válasszon egy biztonságos jelszót. Erre a jelszóra szüksége lesz a ${app_name_short} Safe biztonsági mentés visszaállításához.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -875,14 +878,10 @@
     <string name="safe_threema_id">Az ön ${app_name_short} ID-ja</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Kérjük, adja meg a helyreállítani kívánt ${app_name_short} ID-t</string>
-    <string name="safe_search_id_title">Kérjük, adja meg a ${app_name_short} ID-hoz csatolt mobilszámot vagy e-mail címet.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short}-ID keresése</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Nem találtunk ${app_name_short}-ID-t</string>
     <string name="safe_no_backup_found">Nincs biztonsági mentés a kiszolgálón. Ellenőrizze az ID-t és a jelszót.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Több ${app_name_short} ID-t találtunk. Válassza ki a kívánt ID-t:</string>
     <string name="safe_backup_now">Biztonsági mentés most</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Aktiválja a ${app_name_short} Safe szolgáltatást a legfontosabb adatok automatikus, biztonságos és anonim mentéséhez</string>
@@ -919,7 +918,6 @@
     <string name="safe_restore">${app_name_short} Safe visszaállítása</string>
     <string name="backup_restore_in_progress">Biztonsági mentés vagy visszaállítás folyamatban. További információkért nézze meg az értesítést.</string>
     <string name="restore_error_body">A visszaállítás sikertelen</string>
-    <string name="forgot_your_id">Elfelejtette az ID-ját?</string>
     <string name="restore_success_body">A visszaállítás sikeresen befejeződött.</string>
     <string name="work_data_sync">Adatok szinkronizálása</string>
     <string name="private_contact">Privát névjegy</string>
@@ -950,6 +948,7 @@
     <string name="password_bad_explain">Az Ön által választott ${app_name_short} Safe jelszó nagyon gyenge, ezért a támadók könnyen kitalálhatják. Kérjük, válasszon biztonságos jelszót. Tipp: Használjon több kifejezésből álló összetett szót.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">A ${app_name_short} Safe jelszó frissítve lett.</string>
+    <string name="safe_password_complexity_unmet">A jelszónak 10 karakternél hosszabbnak kell lennie, és tartalmaznia kell kisbetűt, nagybetűt, számjegyet és szimbólumot.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">A ${app_name_short} Safe aktiválódott.</string>
     <string name="push_token_cleared">A push token eltávolításra került</string>
@@ -1319,4 +1318,167 @@ Ha új eszközre vált, kérjük, távolítsa el vagy deaktiválja a %s-t a rég
         <item quantity="other">%d kép kiválasztva</item>
     </plurals>
     <!-- Used for indicating for how long the notifications of a chat are muted -->
+    <string name="change_server_dialog_title">Szerver módosítása</string>
+    <string name="change_server_dialog_hint">Szerver domain</string>
+    <string name="change_server_warning_title">Módosítja a szervert?</string>
+    <string name="change_server_warning_message">A szerver módosítása valószínűleg le fogja választani a jelenlegi identitását. Csak akkor tegye ezt meg, ha a szolgáltatója megerősítette az új domaint. Ha a domain hibás, az alkalmazás működésképtelenné válik.</string>
+    <string name="use_different_key">Másik kulcs használata</string>
+    <string name="activation_key_already_redeemed">Ez az aktiválási kulcs már fel lett használva. Kérjük, adjon meg egy másik kulcsot.</string>
+    <string name="notification_channel_emoji_reactions">Reakciók</string>
+    <string name="reaction_notification_text">%1$s a következővel reagált az üzenetére: %2$s</string>
+    <string name="prefs_title_reaction_notifications">Reakcióértesítések</string>
+    <string name="prefs_sum_reaction_notifications">Értesítsen, ha valaki reagál az egyik üzenetemre</string>
+    <string name="chat_background_choose">Hátterek</string>
+    <string name="chat_background_random">Véletlenszerű (csevegésenként eltérő)</string>
+    <string name="chat_background_numbered">%1$d. háttér</string>
+    <string name="listen_once_enabled">Egyszeri meghallgatás: be</string>
+    <string name="listen_once_disabled">Egyszeri meghallgatás: ki</string>
+    <string name="listen_once_badge_content_description">Egyszer meghallgatható hangüzenet</string>
+    <string name="forwarded_message_label">Továbbítva</string>
+    <string name="listen_once_already_listened">Meghallgatva</string>
+    <string name="listen_once_sent">Egyszer meghallgatható hangüzenet</string>
+    <string name="listen_once_cannot_forward">Az egyszer meghallgatható üzenetek nem továbbíthatók</string>
+    <string name="listen_once_expired">A hangüzenet lejárt</string>
+    <string name="group_one_typing">%s ír…</string>
+    <string name="group_two_typing">%1$s és %2$s ír…</string>
+    <string name="group_many_typing">%1$s és további %2$d személy ír…</string>
+    <string name="message_details_read_by">Olvasta</string>
+    <string name="message_details_delivered_to">Kézbesítve neki</string>
+    <string name="message_details_sent_to">Elküldve neki</string>
+    <string name="markup_monospace">Állandó szélességű</string>
+    <string name="markup_spoiler">Rejtett szöveg</string>
+    <string name="spoiler_hidden_content_description">Rejtett szöveg, koppintson duplán a felfedéshez</string>
+    <string name="media_spoiler">Eltakarás</string>
+    <string name="media_spoiler_reveal">Koppintson a felfedéshez</string>
+    <string name="media_spoiler_badge_content_description">Rejtett média. Koppintson duplán a felfedéshez.</string>
+    <string name="chat_folders">Csevegési mappák</string>
+    <string name="manage_folders">Mappák kezelése</string>
+    <string name="add_to_folder">Hozzáadás mappához</string>
+    <string name="folder_all">Összes</string>
+    <string name="new_folder">Új mappa</string>
+    <string name="create_folder">Mappa létrehozása</string>
+    <string name="rename_folder">Mappa átnevezése</string>
+    <string name="delete_folder">Mappa törlése</string>
+    <string name="delete_folder_confirm">Eltávolítja ezt a mappát? A csevegései nem törlődnek.</string>
+    <string name="folder_name_hint">Mappa neve</string>
+    <string name="folder_name_empty">Adjon meg egy mappanevet</string>
+    <string name="no_chat_folders">Még nem hozott létre egyetlen mappát sem</string>
+    <string name="folder_created">Mappa létrehozva</string>
+    <string name="folder_deleted">Mappa törölve</string>
+    <string name="add_to_folder_title">Csevegés hozzáadása mappákhoz</string>
+    <string name="folder_empty">Nincsenek csevegések ebben a mappában</string>
+    <string name="self_updater_downloading_background">Frissítés letöltése a háttérben…</string>
+    <string name="self_updater_update_ready_title">Frissítés letöltve</string>
+    <string name="self_updater_update_ready_text">Koppintson a frissítés telepítéséhez</string>
+    <string name="self_updater_download_failed">A frissítés letöltése sikertelen. Koppintson a kézi letöltéshez.</string>
+    <string name="prefs_refresh_onprem_config">Kiszolgálókonfiguráció frissítése</string>
+    <string name="prefs_refresh_onprem_config_summary">Töltse le újra a kiszolgáló konfigurációját. Hasznos, miután a kiszolgáló új funkciókat adott hozzá, például az asztali eszköz összekapcsolását.</string>
+    <string name="onprem_config_refreshed">A kiszolgáló konfigurációja frissítve</string>
+    <string name="prefs_title_link_previews">Hivatkozás-előnézetek létrehozása</string>
+    <string name="prefs_sum_link_previews">Előnézetek lekérése az elküldött üzenetekben lévő hivatkozásokhoz. Az előnézetek végpontok közötti titkosítással kerülnek elküldésre; a címzett eszköze soha nem lép kapcsolatba a weboldallal.</string>
+    <string name="link_preview_remove">Hivatkozás előnézetének eltávolítása</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Húzza a fogókat a vágáshoz</string>
+    <string name="audio_trim_action">Vágás</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimalizálás</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Teendőlista</string>
+    <string name="checklist_create_as">Létrehozás teendőlistaként</string>
+    <string name="checklist_fork_only">A teendőlisták csak F1Whisper felhasználók között működnek.</string>
+    <string name="checklist_toggle_item">Elem be-/kikapcsolása</string>
+    <string name="checklist_checked_by">%1$s jelölte be</string>
+    <string name="checklist_created_successfully">Teendőlista létrehozva</string>
+    <string name="checklist_placeholder">Teendőlista</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Üzenet kitűzése</string>
+    <string name="unpin_message">Kitűzés megszüntetése</string>
+    <string name="pinned_message_banner_label">Kitűzött üzenet</string>
+    <string name="pinned_message_banner_dismiss">Kitűzött üzenet szalaghirdetésének elrejtése</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Adja meg a teendőlista címét</string>
+    <string name="checklist_wizard0_explain">Hozzon létre egy megosztott teendőlistát. A csevegésben bárki bármikor be- és kipipálhatja a tételeket, a bepipált tételek pedig a lista aljára kerülnek.</string>
+    <string name="checklist_add_items">Tételek hozzáadása</string>
+    <string name="checklist_item_add">Tétel hozzáadása</string>
+    <string name="checklist_item_count_error">Adjon hozzá legalább egy tételt</string>
+    <string name="checklist_add_item_title">Elem hozzáadása</string>
+    <string name="checklist_add_item_hint">Új elem neve</string>
+    <string name="checklist_add_item_button">Hozzáadás</string>
+    <string name="checklist_delete_item_title">Törli az elemet?</string>
+    <string name="checklist_delete_item_message">Biztosan törli a következőt: \"%1$s\"?</string>
+    <string name="checklist_delete_button">Törlés</string>
+    <string name="checklist_reorder_item">Listaelem áthelyezése</string>
+    <string name="checklist_cannot_reorder">Ezt az elemet nem lehet áthelyezni</string>
+    <string name="checklist_edit_title">Lista szerkesztése</string>
+    <string name="checklist_edit_apply">Alkalmaz</string>
+    <string name="checklist_rename_item_title">Elem átnevezése</string>
+    <string name="audio_trim_not_supported">A vágás nem támogatott ennél a hangformátumnál. Távolítsa el a vágást a teljes fájl elküldéséhez.</string>
+    <string name="audio_trim_failed">Nem sikerült levágni ezt a hangot. Semmi sem lett elküldve. Próbálja újra, vagy távolítsa el a vágást.</string>
+    <string name="pinned_message_banner_label_counter">Rögzített üzenet %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Eltűnő üzenetek</string>
+    <string name="disappearing_messages_summary">Ebben a csevegésben az új üzenetek elolvasásuk után a kiválasztott idő elteltével eltűnnek.</string>
+    <string name="disappearing_off">Ki</string>
+    <string name="disappearing_duration_picker_title">Eltűnési időzítő</string>
+    <string name="status_disappearing_set">%1$s beállította az eltűnő üzenetek időzítőjét: %2$s</string>
+    <string name="status_disappearing_set_you">Beállítottad az eltűnő üzenetek időzítőjét: %1$s</string>
+    <string name="status_disappearing_off">%1$s kikapcsolta az eltűnő üzeneteket</string>
+    <string name="status_disappearing_off_you">Kikapcsoltad az eltűnő üzeneteket</string>
+    <string name="disappearing_messages_unsupported">Az eltűnő üzenetek csak F1Whisper felhasználók között működnek, és nem jelentenek biztonsági garanciát.</string>
+    <string name="disappearing_duration_30s">30 másodperc</string>
+    <string name="disappearing_duration_5m">5 perc</string>
+    <string name="disappearing_duration_1h">1 óra</string>
+    <string name="disappearing_duration_8h">8 óra</string>
+    <string name="disappearing_duration_1d">1 nap</string>
+    <string name="disappearing_duration_1w">1 hét</string>
+    <string name="disappearing_duration_4w">4 hét</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Eltűnik</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">olvasás után %1$s</string>
+    <string name="problemsolver_title_oem_autostart">Háttérben futás engedélyezése</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">A(z) %1$s eszközök megakadályozhatják, hogy a F1Whisper a háttérben fusson, ami az üzenetértesítéseket akkor is letiltja, ha az akkumulátoroptimalizálás már ki van kapcsolva. Nyisd meg az útmutatót, és engedélyezd a F1Whisper számára az automatikus indítást és a háttérben futást.</string>
+    <string name="problemsolver_oem_autostart_action">Beállítási útmutató megnyitása</string>
+    <string name="connectivity_probe_dialog_title">Kapcsolatdiagnosztika</string>
+    <string name="connectivity_probe_running">Ellenőrzések futtatása…</string>
+    <string name="connectivity_probe_done">Ellenőrzések befejezve</string>
+    <string name="connectivity_probe_send_btn">Diagnosztika küldése</string>
+    <string name="connectivity_probe_close_btn">Bezárás</string>
+    <string name="connectivity_probe_verdict_all_ok">A kiszolgáló elérhető. Ellenőrizd a fiók vagy az eszköz beállításait.</string>
+    <string name="connectivity_probe_verdict_no_internet">Ezen a hálózaton nincs működő internet.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS-mérgezés gyanúja: a rendszer DNS-e eltérő IP-ket ad vissza.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-alapú TLS-blokkolás gyanúja: a gazdanevünk blokkolva van.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">A kiszolgáló IP-címe blokkolva van ezen a hálózaton.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">A csevegési port (5222) blokkolva van. A HTTPS továbbra is működik.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">A kiszolgáló elérhető, de a hálózati kapcsolat rendkívül lassú vagy korlátozva van — a kapcsolatok emiatt túllépheti az időkorlátot. Próbáld újra, vagy válts a Wi-Fi és a mobiladatok között.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Néhány ellenőrzés sikertelen. Oszd meg a jelentést elemzéshez.</string>
+    <string name="connectivity_probe_label_dns">DNS-feloldók</string>
+    <string name="connectivity_probe_label_tcp443">TCP-port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Konfigurációs végpont</string>
+    <string name="connectivity_probe_label_chat">Csevegési port (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (kontroll)</string>
+    <string name="connectivity_probe_label_hints">További jelzések</string>
+    <string name="connectivity_probe_hint_middlebox">Gyors kapcsolat, de lassú titkosított kézfogás — ez arra utal, hogy egy átlátszó proxy vagy forgalomalakító eszköz avatkozik be a kapcsolatba.</string>
+    <string name="connectivity_probe_hint_port53">Az eszköz DNS-lekérdezése gyanúsan gyorsan válaszolt, miközben minden más lassú volt — ez arra utal, hogy ez a hálózat elfogja a DNS-lekérdezéseket.</string>
+    <string name="rogue_device_warning"><![CDATA[Kapcsolódást észleltünk egy másik eszközről ugyanazzal a(z) ${app_name_short}-azonosítóval. Használta mostanában a(z) ${app_name_short}-azonosítóját egy másik eszközön? <br><br> Ha igen, figyelmen kívül hagyhatja ezt az üzenetet. <br><br> Ha nem, akkor a titkos kulcsa illetéktelen kezekbe kerülhetett. Kérjük, <a href="https://threema.com/faq/another_connection">kövesse a javaslatainkat</a> az eszköze és az adatai védelme érdekében, mielőtt új azonosítót hozna létre.]]></string>
+    <string name="ballot_removed">Szavazás eltávolítva</string>
+    <string name="cd_menu_more">További lehetőségek</string>
+    <string name="error_reporting_details_button">Technikai részletek</string>
+    <string name="error_reporting_learn_more_button">További információ</string>
+    <string name="hint_search_list">Adja meg a keresett szöveget</string>
+    <string name="notifications_for_one_week">1 hétig</string>
+    <string name="prefs_about">Névjegy</string>
+    <string name="prefs_advanced">Speciális</string>
+    <string name="prefs_community_and_sharing">Közösség és megosztás</string>
+    <string name="prefs_linked_devices">Társított eszközök</string>
+    <string name="prefs_title_sum_message_log_forced_on">A rendszertevékenység naplózása folyamatban van. A naplózás kikapcsolásához törölje a(z) «%1$s» fájlt. (%2$s)</string>
+    <string name="prefs_title_sum_message_log_on_since">Rendszertevékenység naplózása %1$s óta (%2$s)</string>
+    <string name="reply_to_message">Válasz</string>
+    <string name="restore_id_string_label">ID export karakterlánca</string>
+    <string name="search_list">Keresés a listában</string>
+    <string name="startup_error_details">A(z) ${app_name_short} váratlan hiba miatt nem nyitható meg. Kérjük, exportálja az alábbi naplófájlt, és forduljon ügyfélszolgálatunkhoz, hogy kivizsgálhassuk a problémát. Elnézést kérünk a kellemetlenségért.</string>
+    <string name="status_group_you_left">Elhagyta a csoportot.</string>
+    <string name="status_group_you_were_added">Hozzá lett adva a csoporthoz.</string>
+    <string name="status_group_you_were_removed">El lett távolítva a csoportból.</string>
 </resources>

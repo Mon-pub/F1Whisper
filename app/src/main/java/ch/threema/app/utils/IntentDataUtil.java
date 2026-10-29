@@ -48,6 +48,11 @@ public class IntentDataUtil {
     public static final String ACTION_LICENSE_NOT_ALLOWED = BuildConfig.APPLICATION_ID + "license_not_allowed";
     public static final String ACTION_CONTACTS_CHANGED = BuildConfig.APPLICATION_ID + "contacts_changed";
     public static final String ACTION_UPDATE_AVAILABLE = BuildConfig.APPLICATION_ID + "update_available";
+    // F1Whisper: fired when the server signals that this client's version is below the mandatory
+    // floor. Carries updateUrl (for the download) and an optional deadline (unix epoch seconds).
+    // NOTE: this is a SOFT gate (see plan honesty-ceiling); it is not a security boundary.
+    public static final String ACTION_MANDATORY_UPDATE = BuildConfig.APPLICATION_ID + "mandatory_update";
+    private static final String INTENT_DATA_MANDATORY_DEADLINE_SECS = "mandatory_deadline_secs";
 
     public static final String INTENT_DATA_LOCATION_LAT = "latitude";
     public static final String INTENT_DATA_LOCATION_LNG = "longitude";
@@ -72,6 +77,10 @@ public class IntentDataUtil {
 
     private static final String INTENT_HIDE_AFTER_UNLOCK = "hide_after_unlock";
     private static final String INTENT_DATA_POLL_ID = "ballot_id";
+    // F1Whisper: the 16-hex apiMessageId of the message being replied-to (quoted) when a media/file/
+    // voice send is launched while a quote is active. Threaded into the sub-activity so the quote can
+    // ride along the media send (Signal-style "reply with any type").
+    private static final String INTENT_DATA_QUOTED_API_MESSAGE_ID = "quoted_api_message_id";
 
     public static final int PENDING_INTENT_FLAG_MUTABLE = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? FLAG_MUTABLE : 0;
 
@@ -177,6 +186,27 @@ public class IntentDataUtil {
         intent.putExtra(INTENT_DATA_URL, updateUrl);
         intent.setAction(ACTION_UPDATE_AVAILABLE);
         return intent;
+    }
+
+    /**
+     * F1Whisper: broadcast to HomeActivity that the server requires a mandatory update.
+     *
+     * @param updateUrl      download URL for the new APK (same as the updateUrl channel)
+     * @param deadlineSecs   unix epoch seconds of the grace-period end, or null for immediate forced update
+     */
+    public static Intent createActionIntentMandatoryUpdate(@Nullable String updateUrl, @Nullable Long deadlineSecs) {
+        Intent intent = new Intent();
+        intent.putExtra(INTENT_DATA_URL, updateUrl);
+        if (deadlineSecs != null) {
+            intent.putExtra(INTENT_DATA_MANDATORY_DEADLINE_SECS, deadlineSecs.longValue());
+        }
+        intent.setAction(ACTION_MANDATORY_UPDATE);
+        return intent;
+    }
+
+    /** F1Whisper: deadline unix epoch seconds from the mandatory-update broadcast, or -1 if absent. */
+    public static long getMandatoryDeadlineSecs(Intent intent) {
+        return intent.getLongExtra(INTENT_DATA_MANDATORY_DEADLINE_SECS, -1L);
     }
 
     public static Intent createActionIntentHideAfterUnlock(Intent intent) {
@@ -517,6 +547,30 @@ public class IntentDataUtil {
         intent.putExtra(ComposeMessageFragment.EXTRA_LAST_MEDIA_SEARCH_QUERY, query);
         intent.putExtra(ComposeMessageFragment.EXTRA_LAST_MEDIA_TYPE_QUERY, type);
         return intent;
+    }
+
+    /**
+     * F1Whisper: attach the quoted message's apiMessageId (16-hex) to an intent launching a media/
+     * voice sub-activity, so a reply-quote can ride along a non-text answer. A {@code null} id writes
+     * no extra (harmless no-op).
+     */
+    public static Intent addQuotedApiMessageIdToIntent(@NonNull Intent intent, @Nullable String quotedApiMessageId) {
+        if (quotedApiMessageId != null) {
+            intent.putExtra(INTENT_DATA_QUOTED_API_MESSAGE_ID, quotedApiMessageId);
+        }
+        return intent;
+    }
+
+    /**
+     * F1Whisper: read the quoted message's apiMessageId (16-hex) from an intent, or {@code null} when
+     * the send was not launched from an active quote.
+     */
+    @Nullable
+    public static String getQuotedApiMessageIdFromIntent(@Nullable Intent intent) {
+        if (intent != null && intent.hasExtra(INTENT_DATA_QUOTED_API_MESSAGE_ID)) {
+            return intent.getStringExtra(INTENT_DATA_QUOTED_API_MESSAGE_ID);
+        }
+        return null;
     }
 
 }

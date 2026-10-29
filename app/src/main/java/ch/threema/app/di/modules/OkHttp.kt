@@ -1,12 +1,17 @@
 package ch.threema.app.di.modules
 
+import ch.threema.app.connection.CachingDnsResolver
 import ch.threema.app.di.Qualifiers
 import ch.threema.app.onprem.OnPremCertPinning
+import ch.threema.app.utils.AppVersionProvider
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.base.HAS_DEV_FEATURES
 import ch.threema.base.utils.getThreemaLogger
+import ch.threema.common.Http
 import ch.threema.domain.protocol.csp.ProtocolDefines
+import ch.threema.domain.protocol.getUserAgent
 import kotlin.time.Duration.Companion.seconds
+import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.dsl.module
@@ -33,6 +38,37 @@ private fun buildBaseOkHttpClient(): OkHttpClient =
             connectTimeout(ProtocolDefines.CONNECT_TIMEOUT.seconds)
             writeTimeout(ProtocolDefines.WRITE_TIMEOUT.seconds)
             readTimeout(ProtocolDefines.READ_TIMEOUT.seconds)
+            // Resolve names system-first with a DoT FALLBACK on failure only (fork review M-03:
+            // fallback-only — no hostname is disclosed to the DoT provider while the system
+            // resolver works; hijacked/frozen plain DNS on the target networks manifests as
+            // resolution failure, which triggers the fallback), then the LAST-GOOD-IP cache when
+            // both fail. The OPPF/directory/blob clients all derive from this base client, so they
+            // inherit it; installing the cache tier inside OnPremCertPinning instead would miss the
+            // base client that fetches the OPPF in the first place. Only the address is taken from
+            // the cache: TLS, hostname verification and OnPrem pinning still run against the
+            // original url host, and no url is ever rewritten to a literal IP.
+            dns(Dns { hostname -> CachingDnsResolver.resolveForHttp(hostname) })
+            // F1Whisper: ensure every request through the shared base client carries our schema
+            // User-Agent, including blob upload/download which otherwise falls back to OkHttp's own
+            // "okhttp/x.y.z" default (blob has no server-side anti-lockout exemption). Applied as an
+            // application interceptor so it runs before OkHttp's BridgeInterceptor: setting the
+            // header here suppresses OkHttp's default (BridgeInterceptor only adds one when none is
+            // present) and never duplicates it. Requests that already set User-Agent explicitly
+            // (the per-request getUserAgent(version) in HttpRequester/BlobLoader/BlobUploader, and
+            // the no-argument getUserAgent() in ThreemaSafeApiClient/OnPremConfigFetcher) keep
+            // their value. The link-preview fetcher uses a SEPARATE OkHttpClient and is deliberately
+            // NOT covered here (advertising product/version to third-party sites is a privacy leak).
+            addInterceptor { chain ->
+                val request = chain.request()
+                val requestWithUserAgent = if (request.header(Http.Header.USER_AGENT) == null) {
+                    request.newBuilder()
+                        .header(Http.Header.USER_AGENT, getUserAgent(AppVersionProvider.appVersion))
+                        .build()
+                } else {
+                    request
+                }
+                chain.proceed(requestWithUserAgent)
+            }
             if (HAS_DEV_FEATURES) {
                 val interceptor = HttpLoggingInterceptor(logger::debug)
                 interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC)

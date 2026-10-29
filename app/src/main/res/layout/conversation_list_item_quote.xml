@@ -17,8 +17,8 @@
         app:cardPreventCornerOverlap="true"
         app:cardUseCompatPadding="false"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:strokeWidth="0dp">
 
@@ -34,7 +34,7 @@
                 android:background="?attr/colorPrimary"
                 android:contentDescription="@string/quote_subj"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
@@ -44,11 +44,11 @@
                 android:alpha="0.7"
                 android:orientation="vertical"
                 android:paddingTop="2dp"
-                android:paddingRight="8dp"
+                android:paddingEnd="8dp"
                 android:paddingBottom="2dp"
                 app:layout_constrainedWidth="true"
-                app:layout_constraintLeft_toRightOf="@id/quote_bar"
-                app:layout_constraintRight_toLeftOf="@+id/quote_thumbnail"
+                app:layout_constraintStart_toEndOf="@id/quote_bar"
+                app:layout_constraintEnd_toStartOf="@+id/quote_thumbnail"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ch.threema.app.emojis.EmojiConversationTextView
@@ -56,7 +56,7 @@
                     style="@style/Threema.Bubble.Text.Body.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
                     android:textColor="@color/bubble_text_quote_colorstatelist"
                     android:textStyle="bold"
                     tools:text="Sender Name" />
@@ -70,9 +70,9 @@
                         android:id="@+id/quote_type_image"
                         android:layout_width="14dp"
                         android:layout_height="14dp"
-                        android:layout_marginLeft="7dp"
+                        android:layout_marginStart="7dp"
                         android:layout_marginTop="3dp"
-                        android:layout_marginRight="-2.5dp"
+                        android:layout_marginEnd="-2.5dp"
                         android:layout_marginBottom="3dp"
                         app:tint="@color/bubble_send_text_colorstatelist"
                         tools:background="@drawable/ic_file_outline" />
@@ -82,7 +82,7 @@
                         style="@style/Threema.Bubble.Text.Body.Small"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
                         android:ellipsize="end"
                         android:linksClickable="true"
                         android:maxLength="@integer/max_quote_text_length"
@@ -99,8 +99,8 @@
                 android:scaleType="centerCrop"
                 app:layout_constrainedWidth="true"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/quote_text_wrapper"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toEndOf="@id/quote_text_wrapper"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -117,7 +117,7 @@
         android:linksClickable="true"
         android:maxLength="@integer/max_bubble_text_length"
         android:paddingHorizontal="@dimen/chat_bubble_margin_end"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/quote_layout_container"
         tools:text="Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua." />
 
@@ -128,8 +128,8 @@
         android:paddingTop="36dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/text_view"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
         tools:visibility="visible">
 
         <com.google.android.material.chip.Chip

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ F1Whisper: a single interactive checklist row inside a chat bubble. A MaterialCheckBox with the
+ item label, and a small-font line below showing which members have checked it. Toggling the
+ checkbox sends a PollVote/GroupPollVote over the existing Poll wire (no new message type).
+
+ The creator additionally gets a drag/reorder handle (left) and a delete button (right), both shown
+ only for items nobody has checked. Tapping the handle nudges the item one slot up among the
+ unchecked block; the new order is persisted and re-broadcast as an updated BallotSetup.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp">
+
+    <ImageView
+        android:id="@+id/checklist_item_drag_handle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="2dp"
+        android:src="@drawable/ic_outline_reorder_24"
+        android:alpha="0.6"
+        android:contentDescription="@string/checklist_reorder_item"
+        app:tint="?attr/colorOnSurface"
+        android:visibility="gone"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/checklist_item_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:contentDescription="@string/checklist_toggle_item" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="0dp">
+
+        <TextView
+            android:id="@+id/checklist_item_name"
+            style="@style/Threema.Bubble.Text.Body"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/checklist_item_voters"
+            style="@style/Threema.Bubble.Text.Body.Small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/checklist_item_delete"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="4dp"
+        android:src="@drawable/ic_delete_outline"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/checklist_delete_button"
+        app:tint="?attr/colorError"
+        android:visibility="gone"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+</LinearLayout>

@@ -25,9 +25,11 @@ import androidx.media3.datasource.DefaultDataSourceFactory;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.ProgressiveMediaSource;
+import androidx.media3.ui.AspectRatioFrameLayout;
 import androidx.media3.ui.PlayerView;
 
 import com.alexvasilkov.gestures.GestureController;
+import com.alexvasilkov.gestures.Settings;
 import com.alexvasilkov.gestures.State;
 import com.alexvasilkov.gestures.views.GestureFrameLayout;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
@@ -58,6 +60,19 @@ public class VideoViewFragment extends MediaViewFragment implements Player.Liste
     private WeakReference<GestureFrameLayout> gestureFrameLayoutRef;
     private ExoPlayer videoPlayer;
     private boolean isImmediatePlay, isPreparing;
+
+    // F1Whisper: picture-in-picture surface-scaling state.
+    // While in PiP we neutralize the wrapping GestureFrameLayout's draw transform so the PlayerView
+    // (match_parent + RESIZE_MODE_FIT) renders the full frame at the small window bounds. The OS does
+    // not deliver the final PiP window size synchronously, so we re-apply the neutral transform on
+    // EVERY layout pass (via this listener) until the window settles — defeating the race where a
+    // single post() reads stale fullscreen dimensions and leaves a corner-only crop.
+    private @Nullable View.OnLayoutChangeListener pipLayoutListener;
+    private boolean isInPipScaling = false;
+    // Saved fullscreen gesture settings, restored on PiP exit.
+    private @Nullable Settings.Fit savedFitMethod;
+    private boolean savedGesturesEnabled = true;
+    private boolean savedBoundsEnabled = true;
 
     private final GestureController.OnStateChangeListener onGestureStateChangeListener = new GestureController.OnStateChangeListener() {
         @Override
@@ -259,7 +274,13 @@ public class VideoViewFragment extends MediaViewFragment implements Player.Liste
 
         if (this.gestureFrameLayoutRef != null && this.gestureFrameLayoutRef.get() != null) {
             this.gestureFrameLayoutRef.get().getController().removeOnStateChangeListener(onGestureStateChangeListener);
+            // F1Whisper: drop the PiP layout listener so it does not retain the destroyed view.
+            if (this.pipLayoutListener != null) {
+                this.gestureFrameLayoutRef.get().removeOnLayoutChangeListener(this.pipLayoutListener);
+            }
         }
+        this.pipLayoutListener = null;
+        this.isInPipScaling = false;
 
         super.onDestroyView();
     }
@@ -300,10 +321,288 @@ public class VideoViewFragment extends MediaViewFragment implements Player.Liste
     public void setUserVisibleHint(boolean isVisibleToUser) {
         logger.debug("setUserVisibleHint = {}", isVisibleToUser);
 
+        // F1Whisper: do NOT pause when the host activity is entering / already in picture-in-picture.
+        // Entering PiP drives the activity through onPause(), which would otherwise pause the player
+        // here and freeze the floating window on a single decoded frame. The ExoPlayer surface keeps
+        // rendering across the PiP transition, so the live video continues playing in the PiP window.
+        if (!isVisibleToUser && isHostInPictureInPicture()) {
+            logger.debug("setUserVisibleHint: in PiP — keeping player running");
+            return;
+        }
+
         // stop player if fragment comes out of view
         if (!isVisibleToUser && this.videoPlayer != null && (this.videoPlayer.isLoading() || this.videoPlayer.isPlaying())) {
             this.videoPlayer.setPlayWhenReady(false);
             this.videoPlayer.pause();
         }
+    }
+
+    /**
+     * F1Whisper: true while the host {@link MediaViewerActivity} is transitioning into or already in
+     * picture-in-picture mode. Used to keep the ExoPlayer surface rendering across the transition.
+     */
+    private boolean isHostInPictureInPicture() {
+        return getActivity() instanceof MediaViewerActivity
+            && ((MediaViewerActivity) getActivity()).isEnteringOrInPictureInPictureMode();
+    }
+
+    /**
+     * F1Whisper: hides the on-surface playback controls in PiP so ONLY the raw video surface shows in
+     * the floating window, and restores them on exit. Does NOT touch playback — the player keeps
+     * rendering. Gesture (pinch-zoom) suppression is handled by the PiP scaling lifecycle in
+     * {@link #onEnterPip()} / {@link #onExitPip()}, not here.
+     */
+    public void setChromeVisibleForPip(boolean visible) {
+        PlayerView playerView = videoViewRef != null ? videoViewRef.get() : null;
+        if (playerView != null) {
+            if (visible) {
+                playerView.setUseController(true);
+            } else {
+                playerView.hideController();
+                playerView.setUseController(false);
+            }
+        }
+    }
+
+    /**
+     * F1Whisper: fixes the "only the upper-left quarter of the video shows in the PiP window" crop.
+     *
+     * <p><b>Root cause.</b> The {@code PlayerView} is wrapped in a {@link GestureFrameLayout}, which
+     * does NOT let its child lay out at the window size and rely on ExoPlayer's resize-mode to scale
+     * the video. Instead {@code GestureFrameLayout.dispatchDraw} always does
+     * {@code canvas.concat(matrix)} with a matrix produced by its gesture controller's {@code State}.
+     * The controller computes that matrix as a "fit" of the child's measured size (laid out at the
+     * FULLSCREEN size) into the current viewport. When the window shrinks into PiP, the controller's
+     * image size still reflects the fullscreen child while the canvas is clipped to the tiny PiP
+     * window, so the child is drawn at fullscreen scale anchored at the origin — only the top-left
+     * corner is visible.</p>
+     *
+     * <p><b>Fix.</b> While in PiP we force the gesture transform to the identity matrix so the
+     * PlayerView (match_parent + {@code RESIZE_MODE_FIT}) draws 1:1 at the window bounds and ExoPlayer's
+     * own internal {@code AspectRatioFrameLayout} does the aspect-correct letterbox — exactly how
+     * Telegram lets its {@code AspectRatioFrameLayout} (match_parent) size the texture in PiP. The
+     * identity matrix is produced by setting the gesture {@code Fit.NONE} with image size == viewport
+     * size, which makes the controller's fit-zoom 1.0 with zero translation. We do NOT touch the
+     * {@code TextureView}'s transform or its {@code SurfaceTexture} default buffer size: those are owned
+     * by the media3 {@code PlayerView}, and overriding the buffer size to the view size (the prior
+     * attempt) fights the player and distorts/crops the frame.</p>
+     *
+     * <p><b>Race fix.</b> The OS does not deliver the final PiP window size synchronously, and
+     * {@code requestLayout()} only schedules a pass. So instead of posting once and reading (stale)
+     * dimensions, we register an {@link View.OnLayoutChangeListener} and re-apply the identity transform
+     * on EVERY layout pass while in PiP. The {@code GestureFrameLayout}'s own {@code onSizeChanged} →
+     * {@code setViewport(...)} → {@code updateState()} re-fits against the (still fullscreen) image on
+     * each resize, and our listener immediately neutralizes it again — so no matter when the window
+     * settles to its final PiP bounds, the very next layout pass corrects the transform.</p>
+     */
+    public void onEnterPip() {
+        final GestureFrameLayout gestureFrame = gestureFrameLayoutRef != null ? gestureFrameLayoutRef.get() : null;
+        final PlayerView playerView = videoViewRef != null ? videoViewRef.get() : null;
+        if (gestureFrame == null || playerView == null) {
+            return;
+        }
+
+        // Save the fullscreen gesture settings exactly once so PiP exit fully restores them.
+        if (!isInPipScaling) {
+            final Settings settings = gestureFrame.getController().getSettings();
+            savedFitMethod = settings.getFitMethod();
+            savedGesturesEnabled = settings.isGesturesEnabled();
+            savedBoundsEnabled = settings.isRestrictBounds();
+            isInPipScaling = true;
+        }
+
+        // PlayerView fits the full frame (correct aspect, letterboxed) into the window.
+        playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+
+        // Apply immediately for the first frame, then keep re-applying on every layout pass until the
+        // PiP window settles — defeats the race where a single post() reads stale fullscreen bounds.
+        neutralizeGestureTransformForPip();
+
+        if (pipLayoutListener == null) {
+            pipLayoutListener = (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+                neutralizeGestureTransformForPip();
+        }
+        gestureFrame.removeOnLayoutChangeListener(pipLayoutListener);
+        gestureFrame.addOnLayoutChangeListener(pipLayoutListener);
+    }
+
+    /**
+     * F1Whisper: forces the {@link GestureFrameLayout} draw transform to the identity so the wrapped
+     * {@link PlayerView} renders 1:1 at the current (PiP) window bounds. Reads the live view bounds at
+     * call time (never a stale cached value) and is safe to call repeatedly.
+     */
+    private void neutralizeGestureTransformForPip() {
+        if (!isInPipScaling) {
+            return;
+        }
+        final GestureFrameLayout gestureFrame = gestureFrameLayoutRef != null ? gestureFrameLayoutRef.get() : null;
+        if (gestureFrame == null || !isAdded()) {
+            return;
+        }
+        final int viewportW = gestureFrame.getWidth();
+        final int viewportH = gestureFrame.getHeight();
+        if (viewportW <= 0 || viewportH <= 0) {
+            return;
+        }
+        final GestureController controller = gestureFrame.getController();
+        final Settings settings = controller.getSettings();
+        // Fit.NONE + image size == viewport size => fit-zoom 1.0, no translation => identity matrix.
+        settings.setFitMethod(Settings.Fit.NONE)
+            .setViewport(viewportW, viewportH)
+            .setImage(viewportW, viewportH);
+        if (settings.isGesturesEnabled()) {
+            settings.disableGestures();
+        }
+        if (settings.isRestrictBounds()) {
+            settings.disableBounds();
+        }
+        controller.resetState();
+        controller.updateState();
+    }
+
+    /**
+     * F1Whisper: restores normal fullscreen rendering when the user expands the PiP window back. Removes
+     * the PiP layout listener and restores the saved gesture {@link Settings} (fit method, gestures,
+     * bounds), then lets the {@link GestureFrameLayout} recompute its fit transform against the restored
+     * fullscreen viewport and the real child (video) size.
+     */
+    public void onExitPip() {
+        final GestureFrameLayout gestureFrame = gestureFrameLayoutRef != null ? gestureFrameLayoutRef.get() : null;
+        if (gestureFrame != null && pipLayoutListener != null) {
+            gestureFrame.removeOnLayoutChangeListener(pipLayoutListener);
+        }
+        if (!isInPipScaling) {
+            return;
+        }
+        isInPipScaling = false;
+
+        final PlayerView playerView = videoViewRef != null ? videoViewRef.get() : null;
+        if (playerView != null) {
+            playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+        }
+        if (gestureFrame == null) {
+            return;
+        }
+
+        final Settings settings = gestureFrame.getController().getSettings();
+        // Restore the saved fit method and re-balance the disable counters we incremented for PiP.
+        if (savedFitMethod != null) {
+            settings.setFitMethod(savedFitMethod);
+        }
+        if (!settings.isGesturesEnabled() && savedGesturesEnabled) {
+            settings.enableGestures();
+        }
+        if (!settings.isRestrictBounds() && savedBoundsEnabled) {
+            settings.enableBounds();
+        }
+
+        // Recompute the fit against the restored fullscreen viewport and the real child size, once the
+        // expand relayout has produced the fullscreen bounds.
+        gestureFrame.post(() -> {
+            final GestureFrameLayout gf = gestureFrameLayoutRef != null ? gestureFrameLayoutRef.get() : null;
+            if (gf == null || !isAdded()) {
+                return;
+            }
+            final int viewportW = gf.getWidth();
+            final int viewportH = gf.getHeight();
+            final View child = gf.getChildCount() > 0 ? gf.getChildAt(0) : null;
+            final int imageW = child != null && child.getMeasuredWidth() > 0 ? child.getMeasuredWidth() : viewportW;
+            final int imageH = child != null && child.getMeasuredHeight() > 0 ? child.getMeasuredHeight() : viewportH;
+            if (viewportW > 0 && viewportH > 0) {
+                gf.getController().getSettings()
+                    .setViewport(viewportW, viewportH)
+                    .setImage(imageW, imageH);
+            }
+            gf.getController().resetState();
+            gf.getController().updateState();
+        });
+    }
+
+    /**
+     * F1Whisper: stops + releases the ExoPlayer immediately. Called by {@link MediaViewerActivity} when
+     * the PiP window is dismissed via the system "X" so audio/video does not keep decoding in the
+     * background (Telegram releases its player on PiP close). Idempotent and null-safe; {@code
+     * onDestroyView()} also releases, but only after the activity is destroyed — which is too late for
+     * a PiP dismissal that leaves the player running.
+     */
+    public void stopAndReleasePlayer() {
+        if (this.videoPlayer != null) {
+            logger.debug("stopAndReleasePlayer");
+            this.videoPlayer.setPlayWhenReady(false);
+            this.videoPlayer.stop();
+            this.videoPlayer.release();
+            this.videoPlayer = null;
+        }
+    }
+
+    /**
+     * F1Whisper: resumes playback when entering picture-in-picture so the floating window shows live
+     * motion (Telegram-style), but only when the player is READY and the video has not ended — never
+     * forces a stalled/errored player to play. Also makes the player surface visible (it may be GONE
+     * if PiP was entered before the user pressed play).
+     */
+    public void ensurePlayingForPip() {
+        if (this.videoPlayer == null) {
+            return;
+        }
+        PlayerView playerView = videoViewRef != null ? videoViewRef.get() : null;
+        if (playerView != null && playerView.getVisibility() != View.VISIBLE
+            && this.videoPlayer.getPlaybackState() == Player.STATE_READY) {
+            playerView.setVisibility(View.VISIBLE);
+            if (previewImageViewRef != null && previewImageViewRef.get() != null) {
+                previewImageViewRef.get().setVisibility(View.GONE);
+            }
+            if (progressBarRef != null && progressBarRef.get() != null) {
+                progressBarRef.get().setVisibility(View.GONE);
+            }
+        }
+        int state = this.videoPlayer.getPlaybackState();
+        if ((state == Player.STATE_READY || state == Player.STATE_BUFFERING)
+            && !this.videoPlayer.isPlaying()) {
+            this.videoPlayer.setPlayWhenReady(true);
+        }
+    }
+
+    /**
+     * F1Whisper: the intrinsic size of the currently decoded video, or {@code null} if the player is
+     * not ready / has no video track yet. Used by the host activity to compute the PiP aspect ratio
+     * from the REAL video dimensions instead of a hardcoded 16:9.
+     */
+    @Nullable
+    public androidx.media3.common.VideoSize getCurrentVideoSize() {
+        if (this.videoPlayer == null) {
+            return null;
+        }
+        androidx.media3.common.VideoSize size = this.videoPlayer.getVideoSize();
+        if (size == null || size.width <= 0 || size.height <= 0) {
+            return null;
+        }
+        return size;
+    }
+
+    /**
+     * F1Whisper: the on-screen bounds of the live player surface, used as the PiP source-rect hint so
+     * the OS animates the shrink from exactly where the video is rendered. Returns {@code null} when
+     * the surface is not laid out.
+     */
+    @Nullable
+    public android.graphics.Rect getPlayerSurfaceScreenBounds() {
+        PlayerView playerView = videoViewRef != null ? videoViewRef.get() : null;
+        if (playerView == null) {
+            return null;
+        }
+        View surfaceView = playerView.getVideoSurfaceView();
+        View boundsView = surfaceView != null ? surfaceView : playerView;
+        if (boundsView.getWidth() <= 0 || boundsView.getHeight() <= 0) {
+            return null;
+        }
+        int[] location = new int[2];
+        boundsView.getLocationOnScreen(location);
+        return new android.graphics.Rect(
+            location[0],
+            location[1],
+            location[0] + boundsView.getWidth(),
+            location[1] + boundsView.getHeight()
+        );
     }
 }

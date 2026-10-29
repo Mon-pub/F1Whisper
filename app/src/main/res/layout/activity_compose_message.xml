@@ -30,6 +30,15 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <!-- F1Whisper: background voice "now playing" banner — hidden for messages belonging to the
+         currently open chat (set via ComposeMessageActivity), shown for a voice playing from a
+         different chat. Self-managing (observes VoiceMessagePlaybackHolder). -->
+    <ch.threema.app.ui.VoicePlayerBannerView
+        android:id="@+id/voice_player_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
     <FrameLayout
         android:id="@+id/compose"
         android:layout_width="match_parent"

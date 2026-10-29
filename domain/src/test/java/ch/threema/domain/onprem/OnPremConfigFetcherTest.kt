@@ -13,6 +13,7 @@ import java.time.Instant
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
@@ -310,6 +311,93 @@ class OnPremConfigFetcherTest {
             fetcher.getOrFetch()
         }
         assert(exception.cause is IOException)
+    }
+
+    @Test
+    fun `fetch is retried after an io exception and succeeds`() {
+        val timeProvider = TestTimeProvider()
+        val onPremConfigJsonObjectMock = mockk<JSONObject>()
+        val responseBody = "response-body"
+        var callCount = 0
+        val okHttpClientMock = mockOkHttpClient { request ->
+            callCount++
+            if (callCount < 3) {
+                throw IOException()
+            }
+            request.respondWith(responseBody)
+        }
+        val onPremConfigVerifierMock = mockk<OnPremConfigVerifier> {
+            every { verify(responseBody) } returns onPremConfigJsonObjectMock
+        }
+        val onPremConfigParserMock = mockk<OnPremConfigParser> {
+            every { parse(onPremConfigJsonObjectMock, createdAt = any()) } returns mockOnPremConfig()
+        }
+        val fetcher = OnPremConfigFetcher(
+            pinnedOkHttpClient = okHttpClientMock,
+            unpinnedOkHttpClient = mockk(),
+            onPremConfigVerifier = onPremConfigVerifierMock,
+            onPremConfigParser = onPremConfigParserMock,
+            onPremConfigStore = onPremConfigStoreMock,
+            serverParameters = serverParameters,
+            timeProvider = timeProvider,
+        )
+
+        assertNotNull(fetcher.getOrFetch())
+
+        assertEquals(3, callCount)
+        verify(exactly = 1) {
+            onPremConfigStoreMock.store(any())
+        }
+    }
+
+    @Test
+    fun `fetch gives up after exhausting retries on repeated io exceptions`() {
+        var callCount = 0
+        val okHttpClientMock = mockOkHttpClient {
+            callCount++
+            throw IOException()
+        }
+        val fetcher = OnPremConfigFetcher(
+            pinnedOkHttpClient = okHttpClientMock,
+            unpinnedOkHttpClient = mockk(),
+            onPremConfigVerifier = mockk(),
+            onPremConfigParser = mockk(),
+            onPremConfigStore = onPremConfigStoreMock,
+            serverParameters = serverParameters,
+            timeProvider = TestTimeProvider(),
+        )
+
+        val exception = assertFailsWith<ThreemaException> {
+            fetcher.getOrFetch()
+        }
+
+        assert(exception.cause is IOException)
+        assertEquals(3, callCount)
+    }
+
+    @Test
+    fun `fetch is not retried after an unauthorized error`() {
+        val timeProvider = TestTimeProvider()
+        var callCount = 0
+        val okHttpClientMock = mockOkHttpClient { request ->
+            callCount++
+            request.respondWith(code = 401)
+        }
+        val fetcher = OnPremConfigFetcher(
+            pinnedOkHttpClient = okHttpClientMock,
+            unpinnedOkHttpClient = mockk(),
+            onPremConfigVerifier = mockk(),
+            onPremConfigParser = mockk(),
+            onPremConfigStore = onPremConfigStoreMock,
+            serverParameters = serverParameters,
+            timeProvider = timeProvider,
+        )
+
+        assertFailsWith<UnauthorizedFetchException> {
+            fetcher.getOrFetch()
+        }
+
+        assertEquals(1, callCount)
     }
 
     @Test

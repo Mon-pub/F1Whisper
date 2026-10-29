@@ -41,9 +41,26 @@ import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 public class PollUtil {
     private static final Logger logger = getThreemaLogger("PollUtil");
 
+    /**
+     * F1Whisper: whether this poll is an interactive checklist (rides the Poll wire, displayType
+     * == CHECKLIST). Used to branch-scope checklist-only permission relaxations so real polls never
+     * regress.
+     */
+    public static boolean isChecklist(@Nullable PollModel model) {
+        return model != null && model.getDisplayType() == PollModel.DisplayType.CHECKLIST;
+    }
+
     public static boolean canVote(@Nullable PollModel model, @Nullable MessageReceiver messageReceiver) {
-        return model != null
-            && model.getState() == PollModel.State.OPEN
+        if (model == null) {
+            return false;
+        }
+        // CHECKLIST relaxation (scoped): any member may toggle (check/uncheck) items at any time --
+        // a shared checklist has no "voting is over" close step. A real poll keeps the OPEN-state
+        // gate unchanged so closing still ends voting.
+        if (isChecklist(model)) {
+            return canVote(messageReceiver);
+        }
+        return model.getState() == PollModel.State.OPEN
             && canVote(messageReceiver);
     }
 
@@ -65,6 +82,11 @@ public class PollUtil {
     }
 
     public static boolean canClose(@Nullable PollModel model, @Nullable String myIdentity, @Nullable MessageReceiver messageReceiver) {
+        // CHECKLIST relaxation (scoped): a shared checklist is never "closed" -- items stay
+        // toggleable indefinitely -- so no close action is offered. Real polls are unchanged.
+        if (isChecklist(model)) {
+            return false;
+        }
         return isMine(model, myIdentity)
             && model.getState() == PollModel.State.OPEN
             && isMember(messageReceiver);
@@ -87,6 +109,12 @@ public class PollUtil {
         @Nullable PollModel pollModel,
         boolean canVote
     ) {
+        // F1Whisper: a CHECKLIST is an interactive inline bubble (tap items directly); it must NEVER
+        // open the poll "vote" modal -- not after creation, not on tap. Suppress the dialog entirely
+        // for checklists (the inline decorator handles all interaction).
+        if (isChecklist(pollModel)) {
+            return;
+        }
         if (canVote) {
             openVoteDialog(fragmentManager, pollModel);
         } else if (canViewMatrix(pollModel)) {
@@ -98,6 +126,12 @@ public class PollUtil {
      * Must only be called if [canVote] returns true.
      */
     public static void openVoteDialog(@Nullable FragmentManager fragmentManager, @Nullable PollModel pollModel) {
+        // F1Whisper: checklists never use the poll "vote" modal (the inline bubble is the interface).
+        // Guard the single chokepoint so EVERY caller path (post-create, poll notice, overview) is
+        // covered, not just openDefaultActivity().
+        if (isChecklist(pollModel)) {
+            return;
+        }
         if (fragmentManager != null && pollModel != null) {
             PollVoteDialog.newInstance(pollModel.getId()).show(fragmentManager, "vote");
         }
@@ -235,6 +269,40 @@ public class PollUtil {
         @NonNull MessageId messageId,
         @NonNull TriggerSource triggerSource
     ) {
+        return createPoll(
+            receiver,
+            description,
+            pollType,
+            pollAssessment,
+            PollModel.DisplayType.LIST_MODE,
+            pollChoiceModelList,
+            pollId,
+            messageId,
+            triggerSource
+        );
+    }
+
+    /**
+     * Create a poll with an explicit display type.
+     *
+     * <p>{@code displayType} is normally {@link PollModel.DisplayType#LIST_MODE}. Pass
+     * {@link PollModel.DisplayType#CHECKLIST} to create an F1Whisper interactive checklist, which
+     * rides the same Poll wire verbatim (no new message type) and is discriminated only by the
+     * display type. NOTE: a checklist is F1Whisper &lt;-&gt; F1Whisper only -- an upstream client
+     * rejects displayType=2 wholesale (its {@code DisplayType.fromId} throws).
+     */
+    @Nullable
+    public static PollModel createPoll(
+        MessageReceiver receiver,
+        String description,
+        PollModel.Type pollType,
+        PollModel.Assessment pollAssessment,
+        @NonNull PollModel.DisplayType displayType,
+        List<PollChoiceModel> pollChoiceModelList,
+        @NonNull PollId pollId,
+        @NonNull MessageId messageId,
+        @NonNull TriggerSource triggerSource
+    ) {
         @NonNull
         PollModel pollModel;
 
@@ -270,6 +338,11 @@ public class PollUtil {
                     throw new NotAllowedException("not allowed");
             }
 
+            // Override the default LIST_MODE display type set by pollService.create(...). The same
+            // model instance is serialized by modifyFinished(...) below, so the display type rides
+            // out on the wire (displayType=2 for a checklist).
+            pollModel.setDisplayType(displayType);
+
             //add choices
             for (PollChoiceModel c : pollChoiceModelList) {
                 pollService.update(pollModel, c);
@@ -278,7 +351,10 @@ public class PollUtil {
             try {
                 pollService.modifyFinished(pollModel, messageId, triggerSource);
                 if (triggerSource == TriggerSource.LOCAL) {
-                    showToast(ThreemaApplication.getAppContext(), R.string.ballot_created_successfully, ToastDuration.LONG);
+                    int createdToast = displayType == PollModel.DisplayType.CHECKLIST
+                        ? R.string.checklist_created_successfully
+                        : R.string.ballot_created_successfully;
+                    showToast(ThreemaApplication.getAppContext(), createdToast, ToastDuration.LONG);
                 }
             } catch (MessageTooLongException e) {
                 pollService.remove(pollModel);

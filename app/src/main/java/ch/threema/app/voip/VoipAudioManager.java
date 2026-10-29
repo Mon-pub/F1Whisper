@@ -15,7 +15,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.os.Build;
 
 import org.slf4j.Logger;
 import org.webrtc.ThreadUtils;
@@ -24,10 +26,12 @@ import java.util.HashSet;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import ch.threema.app.managers.ListenerManager;
 import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.utils.AudioDevice;
+import ch.threema.app.utils.AudioDeviceUtilKt;
 import ch.threema.app.voip.listeners.VoipAudioManagerListener;
 import ch.threema.app.voip.managers.VoipListenerManager;
 import ch.threema.app.voip.services.VoipStateService;
@@ -283,7 +287,12 @@ public class VoipAudioManager {
         this.bluetoothManager.stop();
 
         // Restore previously stored audio states.
-        this.setSpeakerphoneOn(this.savedIsSpeakerPhoneOn);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Release whatever communication device we routed to (single routing owner).
+            this.audioManager.clearCommunicationDevice();
+        } else {
+            this.setSpeakerphoneOn(this.savedIsSpeakerPhoneOn);
+        }
         this.setMicrophoneMute(this.savedIsMicrophoneMute);
         this.audioManager.setMode(this.savedAudioMode);
 
@@ -305,25 +314,67 @@ public class VoipAudioManager {
             return;
         }
 
-        switch (device) {
-            case SPEAKER_PHONE:
-                setSpeakerphoneOn(true);
-                break;
-            case EARPIECE:
-                setSpeakerphoneOn(false);
-                break;
-            case WIRED_HEADSET:
-                setSpeakerphoneOn(false);
-                break;
-            case BLUETOOTH:
-                setSpeakerphoneOn(false);
-                break;
-            case NONE:
-            default:
-                logger.error("Invalid audio device selection");
-                break;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // On API 31+ every device (including Bluetooth) is routed through the communication-device
+            // API by the single routing owner below, never via setSpeakerphoneOn()/startBluetoothSco().
+            routeCommunicationDevice(device);
+        } else {
+            switch (device) {
+                case SPEAKER_PHONE:
+                    setSpeakerphoneOn(true);
+                    break;
+                case EARPIECE:
+                    setSpeakerphoneOn(false);
+                    break;
+                case WIRED_HEADSET:
+                    setSpeakerphoneOn(false);
+                    break;
+                case BLUETOOTH:
+                    setSpeakerphoneOn(false);
+                    break;
+                case NONE:
+                default:
+                    logger.error("Invalid audio device selection");
+                    break;
+            }
         }
         selectedAudioDevice = device;
+    }
+
+    /**
+     * Route call audio to the platform communication device matching the given logical device
+     * (API 31+). This is the sole owner of setCommunicationDevice()/clearCommunicationDevice() on
+     * 31+: VoipBluetoothManager only reports availability and enforces abort policy, it never routes.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private void routeCommunicationDevice(AudioDevice device) {
+        AudioDeviceInfo info = AudioDeviceUtilKt.findCommunicationDevice(audioManager, device);
+        if (info != null) {
+            if (!audioManager.setCommunicationDevice(info)) {
+                logger.warn("setCommunicationDevice({}) failed", device);
+            }
+        } else if (device == AudioDevice.EARPIECE) {
+            // The earpiece has no explicit device object; it is the platform default communication
+            // route, so clearing the selection routes back to it.
+            audioManager.clearCommunicationDevice();
+        } else {
+            // Speaker (both TYPE_BUILTIN_SPEAKER and _SAFE are mapped), wired or Bluetooth genuinely
+            // absent: leave the current route untouched rather than misroute to the earpiece.
+            logger.warn("No communication device found for {}", device);
+        }
+    }
+
+    /**
+     * Re-assert the currently selected device's route (API 31+). Called by VoipBluetoothManager when
+     * the platform has silently rerouted us off Bluetooth. Keeps every setCommunicationDevice() call
+     * inside this single routing owner.
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    void reassertCommunicationDevice() {
+        ThreadUtils.checkIsOnMainThread();
+        if (selectedAudioDevice != null && selectedAudioDevice != AudioDevice.NONE) {
+            routeCommunicationDevice(selectedAudioDevice);
+        }
     }
 
     /**

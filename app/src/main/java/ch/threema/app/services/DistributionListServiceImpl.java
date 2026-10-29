@@ -216,6 +216,13 @@ public class DistributionListServiceImpl implements DistributionListService {
         // Remove conversation tags
         conversationTagService.removeAll(distributionListConversationId, TriggerSource.LOCAL);
 
+        // F1Whisper (fork review M-09): mirror the tag cleanup — permanently deleting the
+        // distribution list must also drop its chat-folder memberships, otherwise recreating a
+        // chat with the same conversation UID silently restores old folders.
+        serviceManager.getChatFolderService().onConversationDeleted(
+            distributionListConversationId.toDatabaseValue()
+        );
+
         // Delete distribution list fully from database
         this.databaseService.getDistributionListModelFactory().delete(distributionListModel);
 

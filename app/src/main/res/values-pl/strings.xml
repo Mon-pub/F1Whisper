@@ -607,6 +607,8 @@ Wprowadź pytanie do swojej ankiety.</string>
     <string name="prefs_sendlog_summary">Wyślij plik dziennika do ${company_name} do dalszej analizy w razie problemów</string>
     <string name="prefs_exportlog">Eksportuj zapis</string>
     <string name="prefs_exportlog_summary">Udostępnij plik zapisu innej aplikacji</string>
+    <string name="prefs_connection_diagnostics">Diagnostyka połączenia &amp; powiadomień</string>
+    <string name="prefs_connection_diagnostics_summary">Wyeksportuj raport o stanie połączenia, powiadomień push, powiadomień i baterii, aby pomóc w diagnozowaniu brakujących powiadomień</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Aby wysłać media, zezwól ${app_name} na dostęp do pamięci.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -941,7 +943,7 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="safe_learn_more_button">Więcej informacji</string>
     <string name="safe_enable_explain">Wszystko, czego potrzebujesz do rozmowy, przechowywane jest wyłącznie na Twoim urządzeniu. Nie musisz tworzyć u nas żadnego konta i nie możemy Ci pomóc, jeśli zgubisz swój telefon lub przypadkowo usuniesz dane.\n\n${app_name_short} Safe tworzy automatyczne kopie zapasowe wszystkich istotnych danych – w tym kluczy, listy kontaktów i członkostwa w grupach (lecz bez treści wiadomości),  anonimowo na bezpiecznym, wybranym przez Ciebie serwerze.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Czy na pewno chcesz wyłączyć usługę ${app_name_short} Safe? Korzystając z ${app_name_short} Safe możesz odzyskać dostęp do swojego ${app_name_short} ID, kontaktów i grup, nawet w przypadku utracenia dostępu do urządzenia.</string>
+    <string name="safe_disable_confirm">Czy na pewno chcesz wyłączyć usługę ${app_name_short} Safe? Korzystając z ${app_name_short} Safe możesz odzyskać dostęp do swojego ${app_name_short} ID i grup, nawet w przypadku utracenia dostępu do urządzenia.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Wybierz hasło. Będzie Ci ono potrzebne do przywrócenia kopii zapasowej ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -958,14 +960,10 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="safe_threema_id">Twój identyfikator ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Wprowadź identyfikator ${app_name_short}, który chcesz odzyskać</string>
-    <string name="safe_search_id_title">Wprowadź numer telefonu lub adres e-mail powiązany z Twoim identyfikatorem ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Sprawdzanie identyfikatora ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Nie znaleziono identyfikatora ${app_name_short}</string>
     <string name="safe_no_backup_found">Nie znaleziono kopii zapasowej na serwerze. Sprawdź identyfikator i hasło.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Znaleziono kilka identyfikatorów ${app_name_short}. Wybierz ten, którego chcesz użyć:</string>
     <string name="safe_backup_now">Utwórz kopię</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Pozwól ${app_name_short} Safe automatycznie tworzyć bezpieczne i anonimowe kopie zapasowe wszystkich ważnych danych.</string>
@@ -1003,7 +1001,6 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="safe_restore">Przywróć ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Trwa tworzenie lub przywracanie kopii zapasowej. Status procesu znajdziesz w powiadomieniu.</string>
     <string name="restore_error_body">Przywracanie nie zostało pomyślnie zakończone</string>
-    <string name="forgot_your_id">Nie pamiętasz swojego identyfikatora?</string>
     <string name="restore_success_body">Przywracanie zakończone powodzeniem</string>
     <string name="work_data_sync">Synch. danych</string>
     <string name="private_contact">Kontakt prywatny</string>
@@ -1371,6 +1368,10 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <string name="forward_security_notification_rejected_text_group">Nie powiodło się wysłanie co najmniej jednej wiadomości do „%1$s”.</string>
     <string name="forward_security_notification_rejected_text_generic">Nie powiodło się wysłanie co najmniej jednej wiadomości.</string>
     <string name="self_updater_installation_failed">Pobranie aktualizacji nie powiodło się. Pobierz ją ze strony <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> i zainstaluj ręcznie.</string>
+    <string name="self_updater_downloading_background">Pobieranie aktualizacji w tle…</string>
+    <string name="self_updater_update_ready_title">Pobrano aktualizację</string>
+    <string name="self_updater_update_ready_text">Dotknij, aby zainstalować aktualizację</string>
+    <string name="self_updater_download_failed">Pobieranie aktualizacji nie powiodło się. Dotknij, aby pobrać ją ręcznie.</string>
     <string name="spam_first_contact">Ten czat jest z nieznanym kontaktem</string>
     <string name="spam_report">Zgłoś Spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1547,6 +1548,10 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Aplikacja nie ma uprawnień do utrzymywania stałego połączenia z serwerami, które jest wymagane do działania ${app_name_short} Push. Nie będziesz informowany o nowych wiadomościach, gdy aplikacja działa w tle. Aby to naprawić, dotknij \"Wykorzystanie baterii przez aplikację\" i wybierz \"Bez ograniczeń\".</string>
     <string name="problemsolver_to_settings">Do ustawień</string>
+    <string name="problemsolver_title_oem_autostart">Zezwól na działanie w tle</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Urządzenia %1$s mogą uniemożliwiać aplikacji F1Whisper działanie w tle, co blokuje powiadomienia o wiadomościach nawet wtedy, gdy optymalizacja baterii jest już wyłączona. Otwórz przewodnik i zezwól aplikacji F1Whisper na automatyczne uruchamianie i działanie w tle.</string>
+    <string name="problemsolver_oem_autostart_action">Otwórz przewodnik konfiguracji</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Odrzuć</string>
     <string name="prefs_advanced_options">Opcje zaawansowane</string>
@@ -1896,4 +1901,165 @@ podanie wyłącznie imienia lub pseudonimu. Jeśli nie ustawisz pseudonimu, będ
         <item quantity="many">%d członków grupy</item>
         <item quantity="other">%d członków grupy</item>
     </plurals>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Zmień serwer</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Domena serwera</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Zmienić serwer?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_message">Zmiana serwera prawdopodobnie spowoduje rozłączenie Twojej obecnej tożsamości. Zrób to tylko wtedy, gdy Twój dostawca potwierdził nową domenę. Jeśli domena jest nieprawidłowa, aplikacja przestanie działać.</string>
+    <!-- Action label for using a different activation key -->
+    <string name="use_different_key">Użyj innego klucza</string>
+    <string name="activation_key_already_redeemed">Ten klucz aktywacyjny został już użyty. Proszę wpisać inny klucz.</string>
+    <!-- Safe-password complexity validation error -->
+    <string name="safe_password_complexity_unmet">Hasło musi mieć więcej niż 10 znaków oraz zawierać małą literę, wielką literę, cyfrę i symbol</string>
+    <string name="notification_channel_emoji_reactions">Reakcje</string>
+    <string name="reaction_notification_text">%1$s zareagował(a) %2$s na Twoją wiadomość</string>
+    <string name="prefs_title_reaction_notifications">Powiadomienia o reakcjach</string>
+    <string name="prefs_sum_reaction_notifications">Powiadamiaj mnie, gdy ktoś zareaguje na jedną z moich wiadomości</string>
+    <string name="chat_background_choose">Tła</string>
+    <string name="chat_background_random">Losowe (inne dla każdego czatu)</string>
+    <string name="chat_background_numbered">Tło %1$d</string>
+    <string name="listen_once_enabled">Odtwarzanie jednorazowe: wł.</string>
+    <string name="listen_once_disabled">Odtwarzanie jednorazowe: wył.</string>
+    <string name="listen_once_badge_content_description">Wiadomość głosowa do jednorazowego odtworzenia</string>
+    <string name="forwarded_message_label">Przekazano</string>
+    <string name="listen_once_already_listened">Odtworzono</string>
+    <string name="listen_once_sent">Jednorazowa wiadomość głosowa</string>
+    <string name="listen_once_cannot_forward">Wiadomości do jednorazowego odsłuchania nie można przesłać dalej</string>
+    <string name="listen_once_expired">Wiadomość głosowa wygasła</string>
+    <string name="group_one_typing">%s pisze…</string>
+    <string name="group_two_typing">%1$s i %2$s piszą…</string>
+    <string name="group_many_typing">%1$s i %2$d innych pisze…</string>
+    <string name="message_details_read_by">Przeczytane przez</string>
+    <string name="message_details_delivered_to">Dostarczone do</string>
+    <string name="message_details_sent_to">Wysłane do</string>
+    <string name="markup_monospace">Czcionka o stałej szerokości</string>
+    <string name="markup_spoiler">Spoiler</string>
+    <string name="spoiler_hidden_content_description">Ukryty tekst spoilera, dotknij dwukrotnie, aby odsłonić</string>
+    <string name="media_spoiler">Spoiler</string>
+    <string name="media_spoiler_reveal">Dotknij, aby odsłonić</string>
+    <string name="media_spoiler_badge_content_description">Ukryte multimedia. Dotknij dwukrotnie, aby odsłonić.</string>
+    <string name="chat_folders">Foldery czatów</string>
+    <string name="manage_folders">Zarządzaj folderami</string>
+    <string name="add_to_folder">Dodaj do folderu</string>
+    <string name="folder_all">Wszystkie</string>
+    <string name="new_folder">Nowy folder</string>
+    <string name="create_folder">Utwórz folder</string>
+    <string name="rename_folder">Zmień nazwę folderu</string>
+    <string name="delete_folder">Usuń folder</string>
+    <string name="delete_folder_confirm">Usunąć ten folder? Twoje czaty nie zostaną usunięte.</string>
+    <string name="folder_name_hint">Nazwa folderu</string>
+    <string name="folder_name_empty">Wprowadź nazwę folderu</string>
+    <string name="no_chat_folders">Nie utworzono jeszcze żadnych folderów</string>
+    <string name="folder_created">Folder utworzony</string>
+    <string name="folder_deleted">Folder usunięty</string>
+    <string name="add_to_folder_title">Dodaj czat do folderów</string>
+    <string name="folder_empty">Brak czatów w tym folderze</string>
+    <string name="prefs_refresh_onprem_config">Odśwież konfigurację serwera</string>
+    <string name="prefs_refresh_onprem_config_summary">Pobierz ponownie konfigurację serwera teraz. Przydatne, gdy serwer doda nowe funkcje, takie jak łączenie z komputerem.</string>
+    <string name="onprem_config_refreshed">Konfiguracja serwera odświeżona</string>
+    <string name="prefs_title_link_previews">Generuj podglądy linków</string>
+    <string name="prefs_sum_link_previews">Pobieraj podglądy linków w wysyłanych wiadomościach. Podglądy są wysyłane z szyfrowaniem end-to-end; urządzenie odbiorcy nigdy nie łączy się ze stroną.</string>
+    <string name="link_preview_remove">Usuń podgląd linku</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Przeciągnij uchwyty, aby przyciąć</string>
+    <string name="audio_trim_action">Przytnij</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimalizuj</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Lista zadań</string>
+    <string name="checklist_create_as">Utwórz jako listę zadań</string>
+    <string name="checklist_fork_only">Listy zadań działają tylko między użytkownikami F1Whisper.</string>
+    <string name="checklist_toggle_item">Przełącz element listy</string>
+    <string name="checklist_checked_by">Zaznaczone przez %1$s</string>
+    <string name="checklist_created_successfully">Lista zadań utworzona</string>
+    <string name="checklist_placeholder">Lista zadań</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Przypnij wiadomość</string>
+    <string name="unpin_message">Odepnij</string>
+    <string name="pinned_message_banner_label">Przypięta wiadomość</string>
+    <string name="pinned_message_banner_dismiss">Ukryj baner przypiętej wiadomości</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Wpisz tytuł listy zadań</string>
+    <string name="checklist_wizard0_explain">Utwórz wspólną listę zadań. Każdy w czacie może w dowolnym momencie zaznaczać i odznaczać pozycje, a zaznaczone pozycje przenoszą się na dół.</string>
+    <string name="checklist_add_items">Dodaj pozycje</string>
+    <string name="checklist_item_add">Dodaj pozycję</string>
+    <string name="checklist_item_count_error">Dodaj co najmniej jedną pozycję</string>
+    <string name="checklist_add_item_title">Dodaj element</string>
+    <string name="checklist_add_item_hint">Nazwa nowego elementu</string>
+    <string name="checklist_add_item_button">Dodaj</string>
+    <string name="checklist_delete_item_title">Usunąć element?</string>
+    <string name="checklist_delete_item_message">Czy na pewno chcesz usunąć \"%1$s\"?</string>
+    <string name="checklist_delete_button">Usuń</string>
+    <string name="checklist_reorder_item">Przenieś element listy</string>
+    <string name="checklist_cannot_reorder">Tego elementu nie można przenieść</string>
+    <string name="checklist_edit_title">Edytuj listę</string>
+    <string name="checklist_edit_apply">Zastosuj</string>
+    <string name="checklist_rename_item_title">Zmień nazwę pozycji</string>
+    <string name="audio_trim_not_supported">Przycinanie nie jest obsługiwane dla tego formatu audio. Usuń przycięcie, aby wysłać cały plik.</string>
+    <string name="audio_trim_failed">Nie udało się przyciąć tego dźwięku. Nic nie zostało wysłane. Spróbuj ponownie lub usuń przycięcie.</string>
+    <string name="pinned_message_banner_label_counter">Przypięta wiadomość %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Znikające wiadomości</string>
+    <string name="disappearing_messages_summary">Nowe wiadomości w tym czacie znikną po upływie wybranego czasu od przeczytania.</string>
+    <string name="disappearing_off">Wył.</string>
+    <string name="disappearing_duration_picker_title">Minutnik znikania</string>
+    <string name="status_disappearing_set">%1$s ustawił(a) minutnik znikających wiadomości: %2$s</string>
+    <string name="status_disappearing_set_you">Ustawiono minutnik znikających wiadomości: %1$s</string>
+    <string name="status_disappearing_off">%1$s wyłączył(a) znikające wiadomości</string>
+    <string name="status_disappearing_off_you">Wyłączono znikające wiadomości</string>
+    <string name="disappearing_messages_unsupported">Znikające wiadomości działają tylko między użytkownikami F1Whisper i nie stanowią gwarancji bezpieczeństwa.</string>
+    <string name="disappearing_duration_30s">30 sekund</string>
+    <string name="disappearing_duration_5m">5 minut</string>
+    <string name="disappearing_duration_1h">1 godzina</string>
+    <string name="disappearing_duration_8h">8 godzin</string>
+    <string name="disappearing_duration_1d">1 dzień</string>
+    <string name="disappearing_duration_1w">1 tydzień</string>
+    <string name="disappearing_duration_4w">4 tygodnie</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Znika</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s po przeczytaniu</string>
+    <string name="connectivity_probe_dialog_title">Diagnostyka połączenia</string>
+    <string name="connectivity_probe_running">Trwają kontrole…</string>
+    <string name="connectivity_probe_done">Kontrole zakończone</string>
+    <string name="connectivity_probe_send_btn">Wyślij diagnostykę</string>
+    <string name="connectivity_probe_close_btn">Zamknij</string>
+    <string name="connectivity_probe_verdict_all_ok">Serwer jest osiągalny. Sprawdź ustawienia konta lub urządzenia.</string>
+    <string name="connectivity_probe_verdict_no_internet">Brak działającego internetu w tej sieci.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Podejrzenie zatrucia DNS: systemowy DNS zwraca różne adresy IP.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Podejrzenie blokowania TLS na podstawie SNI: nasza nazwa hosta jest zablokowana.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Adres IP serwera jest zablokowany w tej sieci.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Port czatu (5222) jest zablokowany. HTTPS nadal działa.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Serwer jest osiągalny, ale połączenie sieciowe jest bardzo wolne lub ograniczane — połączenia mogą przez to przekraczać limit czasu. Spróbuj ponownie albo przełącz się między Wi-Fi a danymi komórkowymi.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Niektóre kontrole nie powiodły się. Udostępnij raport do analizy.</string>
+    <string name="connectivity_probe_label_dns">Resolwery DNS</string>
+    <string name="connectivity_probe_label_tcp443">Port TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Punkt końcowy konfiguracji</string>
+    <string name="connectivity_probe_label_chat">Port czatu (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (kontrola)</string>
+    <string name="connectivity_probe_label_hints">Dodatkowe wskazówki</string>
+    <string name="connectivity_probe_hint_middlebox">Szybkie połączenie, ale wolne szyfrowane uzgadnianie (handshake) — możliwe, że to połączenie przechwytuje przezroczyste proxy lub urządzenie ograniczające ruch (traffic shaping).</string>
+    <string name="connectivity_probe_hint_port53">Zapytanie DNS urządzenia zostało obsłużone podejrzanie szybko, podczas gdy wszystko inne działało wolno — ta sieć może przechwytywać zapytania DNS.</string>
+    <string name="ballot_removed">Ankieta usunięta</string>
+    <string name="cd_menu_more">Więcej opcji</string>
+    <string name="error_reporting_details_button">Szczegóły techniczne</string>
+    <string name="error_reporting_learn_more_button">Dowiedz się więcej</string>
+    <string name="hint_search_list">Wpisz tekst wyszukiwania</string>
+    <string name="notifications_for_one_week">Na 1 tydzień</string>
+    <string name="prefs_about">O aplikacji</string>
+    <string name="prefs_advanced">Zaawansowane</string>
+    <string name="prefs_community_and_sharing">Społeczność i udostępnianie</string>
+    <string name="prefs_linked_devices">Połączone urządzenia</string>
+    <string name="prefs_title_sum_message_log_forced_on">Aktywność systemu jest zapisywana w logach. Usuń plik «%1$s», aby wyłączyć zapisywanie logów. (%2$s)</string>
+    <string name="prefs_title_sum_message_log_on_since">Zapisywanie aktywności systemu w logach od %1$s (%2$s)</string>
+    <string name="reply_to_message">Odpowiedz</string>
+    <string name="restore_id_string_label">Ciąg tekstowy eksportu identyfikatora</string>
+    <string name="search_list">Przeszukaj listę</string>
+    <string name="startup_error_details">Nie udało się otworzyć aplikacji ${app_name_short} z powodu nieoczekiwanego błędu. Wyeksportuj poniższy plik logu i skontaktuj się z naszym zespołem wsparcia, abyśmy mogli zbadać problem. Przepraszamy za niedogodności.</string>
+    <string name="status_group_you_left">Opuściłeś(aś) grupę.</string>
+    <string name="status_group_you_were_added">Dodano Cię do grupy.</string>
+    <string name="status_group_you_were_removed">Usunięto Cię z grupy.</string>
 </resources>

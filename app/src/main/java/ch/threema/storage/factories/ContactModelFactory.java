@@ -264,7 +264,11 @@ public class ContactModelFactory extends ModelFactory {
                 .setForwardSecurityState(cHelper.getInt(ContactModel.COLUMN_FORWARD_SECURITY_STATE))
                 .setJobTitle(cHelper.getString(ContactModel.COLUMN_JOB_TITLE))
                 .setDepartment(cHelper.getString(ContactModel.COLUMN_DEPARTMENT))
-                .setNotificationTriggerPolicyOverride(notificationTriggerPolicyOverride);
+                .setNotificationTriggerPolicyOverride(notificationTriggerPolicyOverride)
+                // F1Whisper: nullable per-conversation disappearing-messages timers (getInt returns a
+                // nullable Integer, so NULL is preserved rather than coerced to 0).
+                .setDisappearingMessagesTimerSeconds(cHelper.getInt(ContactModel.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS))
+                .setPeerDisappearingTimerSeconds(cHelper.getInt(ContactModel.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS));
 
             // Convert state to enum
             switch (cHelper.getString(ContactModel.COLUMN_STATE)) {
@@ -435,6 +439,8 @@ public class ContactModelFactory extends ModelFactory {
         )
             : null;
         contentValues.put(ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE_EXPIRES_AT, expiresAt);
+        contentValues.put(ContactModel.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS, contactModel.getDisappearingMessagesTimerSeconds());
+        contentValues.put(ContactModel.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS, contactModel.getPeerDisappearingTimerSeconds());
         // Note: Sync state not implemented in "old model" anymore
 
         getWritableDatabase().insertOrThrow(
@@ -459,6 +465,26 @@ public class ContactModelFactory extends ModelFactory {
         final @Nullable Long lastUpdateTime = lastUpdate != null ? lastUpdate.toEpochMilli() : null;
         ContentValues contentValues = new ContentValues();
         contentValues.put(ContactModel.COLUMN_LAST_UPDATE_AT, lastUpdateTime);
+
+        getWritableDatabase().update(
+            ContactModel.TABLE,
+            contentValues,
+            ContactModel.COLUMN_IDENTITY + " = ?",
+            new String[]{identity}
+        );
+    }
+
+    /**
+     * F1Whisper: persists the shared per-conversation disappearing-messages timer of the given
+     * identity ({@code null} = off). Column-scoped and update-only: it never inserts, so a contact
+     * that was deleted in the meantime is not resurrected.
+     */
+    public void setDisappearingMessagesTimerSeconds(
+        @NonNull String identity,
+        @Nullable Integer timerSeconds
+    ) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ContactModel.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS, timerSeconds);
 
         getWritableDatabase().update(
             ContactModel.TABLE,
@@ -537,6 +563,8 @@ public class ContactModelFactory extends ModelFactory {
                     "`" + ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE_POLICY + "` INTEGER DEFAULT NULL," +
                     "`" + ContactModel.COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE_EXPIRES_AT + "` BIGINT DEFAULT NULL," +
                     "`" + ContactModel.COLUMN_WORK_LAST_FULL_SYNC_AT + "` DATETIME DEFAULT NULL," +
+                    "`" + ContactModel.COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS + "` INTEGER DEFAULT NULL," +
+                    "`" + ContactModel.COLUMN_PEER_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL," +
                     "PRIMARY KEY (`" + ContactModel.COLUMN_IDENTITY + "`) );"
             };
         }

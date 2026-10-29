@@ -42,7 +42,34 @@ val appVersion = "6.5.3"
  */
 val betaSuffix = ""
 
-val defaultVersionCode = 1216
+// F1Whisper: the fork release iteration N = the trailing number of the release tag "v<base>-N", e.g. "v6.5.3-41"
+// (passed as -Pf1wReleaseName on tagged CI builds; 0 for untagged/local builds). It is folded into
+// BOTH the versionName ("<base>o-N") and the versionCode (1148 + N) so every published F1Whisper
+// release reports a DISTINCT, monotonically increasing version. The server's check_license update
+// advertisement and the in-place self-update both depend on this — without it, every release looked
+// identical ("6.4.3o" / build 1148) to the server and no update could ever be detected.
+// F1Whisper (fork review H-07): STRICT parsing. A provided-but-malformed value used to fall back
+// silently to release 0 (versionCode 1148) — in CI that could publish a wrongly-versioned release,
+// and locally it produced INSTALL_FAILED_VERSION_DOWNGRADE surprises. Absent property (plain local
+// dev build) keeps the base-version behavior unchanged.
+// F1Whisper (second follow-up S2-11): explicit upper bound so the versionCode arithmetic can
+// never overflow Android's limit (2_100_000_000) — checked here in addition to the CI gate.
+val f1wReleaseMax = 100_000
+val f1wRelease: Int = (project.findProperty("f1wReleaseName") as String?)
+    ?.let { raw ->
+        raw.substringAfterLast('-').trim().toIntOrNull()?.takeIf { it > 0 && it <= f1wReleaseMax }
+            ?: error(
+                "Malformed -Pf1wReleaseName='$raw': expected a release tag ending in '-<positive integer>' " +
+                    "(1..$f1wReleaseMax, e.g. v6.5.3-41). Refusing to fall back to a default version silently.",
+            )
+    } ?: 0
+val f1wReleaseSuffix = if (f1wRelease > 0) "-$f1wRelease" else ""
+
+// F1Whisper: N is one fork-wide counter that never resets, and the versionCode stays FROZEN at 1148 + N across
+// upstream base changes (1148 = the upstream build the fork started from). Nothing compares the versionCode with an
+// upstream value, and the server's version gates read only N, so tracking upstream's build number would only add a
+// discontinuity. Resolve this line as "keep ours" on every upstream merge.
+val defaultVersionCode = 1148 + f1wRelease
 
 /**
  * Map with keystore paths (if found).
@@ -54,6 +81,43 @@ val keystores: Map<String, KeystoreConfig?> = mapOf(
     "onprem_release" to findKeystore(projectDir, "onprem"),
     "blue_release" to findKeystore(projectDir, "threema_blue"),
 )
+
+/**
+ * F1Whisper release signing identity.
+ *
+ * Resolves the keystore credentials for the self-hosted "F1Whisper" onprem release from, in
+ * priority order, environment variables (used by GitHub Actions) and then `local.properties`
+ * (used for local signed builds). Keys: `F1W_KEYSTORE_FILE`, `F1W_KEYSTORE_PASSWORD`,
+ * `F1W_KEY_ALIAS`, `F1W_KEY_PASSWORD`. Returns null when the credentials are incomplete or the
+ * keystore file is missing, so that debug builds and unsigned CI/dev builds still configure and
+ * build without the secrets present. The keystore is never committed; see RELEASING.md.
+ */
+val f1whisperReleaseKeystore: KeystoreConfig? = run {
+    fun resolve(key: String): String? =
+        System.getenv(key)?.takeIf { it.isNotBlank() } ?: LocalProperties.getString(key)?.takeIf { it.isNotBlank() }
+
+    val storePath = resolve("F1W_KEYSTORE_FILE")
+    val storePassword = resolve("F1W_KEYSTORE_PASSWORD")
+    val keyAlias = resolve("F1W_KEY_ALIAS")
+    val keyPassword = resolve("F1W_KEY_PASSWORD")
+
+    if (storePath == null || storePassword == null || keyAlias == null || keyPassword == null) {
+        null
+    } else {
+        val storeFile = file(storePath)
+        if (!storeFile.isFile) {
+            logger.warn("F1W_KEYSTORE_FILE='$storePath' is not a file; onprem release will be unsigned.")
+            null
+        } else {
+            KeystoreConfig(
+                storeFile = storeFile,
+                storePassword = storePassword,
+                keyAlias = keyAlias,
+                keyPassword = keyPassword,
+            )
+        }
+    }
+}
 
 android {
     // NOTE: When adjusting compileSdk, buildToolsVersion or ndkVersion, make sure to also adjust
@@ -160,6 +224,13 @@ android {
         androidResources.localeFilters.addAll(
             setOf(
                 "en",
+                "ar",
+                "bn",
+                "fa",
+                "hi",
+                "ug",
+                "ur",
+                "uz",
                 "be-rBY",
                 "bg",
                 "ca",
@@ -198,8 +269,40 @@ android {
         }
     }
 
+    // F1Whisper: -Parm64Only restricts the packaged native libs (and the -PnoAbiSplits universal
+    // APK) to arm64-v8a, dropping the x86/x86_64/armeabi-v7a .so payloads (~32 MB compressed) for an
+    // arm64-majority audience, and pairs with the Rust `targets` gate below to cross-compile a single
+    // target (much faster CI). Reversible: omit the property to ship the full 4-ABI universal APK.
+    //
+    // -ParmMobile is the shipped release mode: it packages BOTH arm64-v8a and armeabi-v7a (dropping
+    // only the x86/x86_64 emulator payloads). The armeabi-v7a slice is needed by arm64 SoCs that
+    // expose a 32-bit-only userspace (low-RAM "A64 / arm32-binder64" Android Go devices), which
+    // cannot load arm64 .so. arm32 .so are smaller than arm64, so the universal APK grows only
+    // ~8 MB compressed. arm64Only takes precedence if both are set.
+    if (project.hasProperty("arm64Only")) {
+        defaultConfig.ndk.abiFilters.clear()
+        defaultConfig.ndk.abiFilters.add("arm64-v8a")
+    } else if (project.hasProperty("armMobile")) {
+        defaultConfig.ndk.abiFilters.clear()
+        defaultConfig.ndk.abiFilters.add("arm64-v8a")
+        defaultConfig.ndk.abiFilters.add("armeabi-v7a")
+    }
+
     // Assign different version code for each output
     android.applicationVariants.all {
+        // Capture variant identity for the human-readable APK filename below.
+        // Pattern: <appName>-v<version>-<flavor>-<buildType>.apk, e.g.
+        // "F1Whisper-v6.5.3-41-onprem-release.apk" on a tagged CI release, or
+        // "F1Whisper-v6.5.3o-onprem-release.apk" for a plain local build.
+        // The release pipeline passes the git tag via -Pf1wReleaseName=<tag> (e.g. "v6.5.3-41")
+        // so published artifacts carry the exact release version; a local build with no such
+        // property falls back to the per-variant versionName. A leading "v" on the tag is
+        // stripped so it is not duplicated by the "v" prefix in the filename.
+        val releaseName = (project.findProperty("f1wReleaseName") as String?)
+            ?.trim()?.removePrefix("v")?.takeIf { it.isNotEmpty() }
+        val variantVersionName = releaseName ?: versionName
+        val variantFlavorName = flavorName
+        val variantBuildTypeName = buildType.name
         outputs.all {
             if (this is ApkVariantOutputImpl) {
                 val abi = getFilter("ABI")
@@ -211,6 +314,12 @@ android {
                     else -> 0
                 }
                 versionCodeOverride = abiVersionCode * 1_000_000 + defaultVersionCode
+
+                // Embed the app name + version into the output APK filename so released artifacts
+                // are self-describing (rather than the generic "app-onprem-release.apk"). The ABI is
+                // appended only for per-ABI split outputs; the universal APK (noAbiSplits) omits it.
+                val abiSuffix = if (abi.isNullOrBlank()) "" else "-$abi"
+                outputFileName = "F1Whisper-v$variantVersionName-$variantFlavorName-$variantBuildTypeName$abiSuffix.apk"
             }
         }
     }
@@ -344,13 +453,15 @@ android {
             setSentryConfig(SentryConfig.SANDBOX)
         }
         create("onprem") {
-            versionName = "${appVersion}o$betaSuffix"
-            applicationId = "ch.threema.app.onprem"
+            // F1Whisper: append the fork release iteration so the app reports e.g. "6.5.3o-41" (and
+            // build 1148+41); this is the version the update check compares against the latest tag.
+            versionName = "${appVersion}o$f1wReleaseSuffix$betaSuffix"
+            applicationId = "info.f1tech.threema"
             testApplicationId = "$applicationId.test"
             setProductNames(
-                appName = "Threema OnPrem",
-                shortAppName = "Threema",
-                companyName = "Threema",
+                appName = "F1Whisper",
+                shortAppName = "F1",
+                companyName = "F1Tech",
             )
             stringResValue("package_name", applicationId!!)
             stringResValue("contacts_mime_type", "vnd.android.cursor.item/vnd.$applicationId.profile")
@@ -359,7 +470,7 @@ android {
             stringBuildConfigField("CHAT_SERVER_PREFIX", "")
             stringBuildConfigField("CHAT_SERVER_IPV6_PREFIX", "")
             stringBuildConfigField("CHAT_SERVER_SUFFIX", null)
-            stringBuildConfigField("MEDIA_PATH", "ThreemaOnPrem")
+            stringBuildConfigField("MEDIA_PATH", "F1WhisperOnPrem")
             booleanBuildConfigField("CHAT_SERVER_GROUPS", false)
             byteArrayBuildConfigField("SERVER_PUBKEY", null)
             byteArrayBuildConfigField("SERVER_PUBKEY_ALT", null)
@@ -374,8 +485,30 @@ android {
             stringBuildConfigField("LOG_TAG", "3maop")
 
             // config fields for action URLs / deep links
-            val uriScheme = "threemaonprem"
-            val actionUrl = "onprem.threema.ch"
+            val uriScheme = "f1secure"
+            // App Links host for https deep links (/add, /compose, /license, /debug). Sourced, in
+            // precedence order (S3-04 / T3-12): an explicit `-PonPremActionUrl` Gradle property
+            // (how CI supplies the PUBLIC `ONPREM_ACTION_URL` Actions variable — the host is public
+            // in every APK, so it is a variable, not a secret), then the untracked `local.properties`
+            // `onPremActionUrl` key (local dev), then a non-resolvable placeholder. `-P` wins so a
+            // clean CI runner and an explicit override both work regardless of local.properties.
+            val actionUrlProperty = (project.findProperty("onPremActionUrl") as String?)
+                ?.trim()?.takeIf { it.isNotEmpty() }
+            val actionUrl = actionUrlProperty
+                ?: LocalProperties.getString("onPremActionUrl")
+                ?: "example.invalid"
+            // Real-release guard (S3-04 / T3-12): a tagged release (f1wReleaseName set — CI passes
+            // the git tag, and the local signed-test build passes it for the versionCode) must never
+            // ship the placeholder host. Local/dev builds with no release name keep the placeholder.
+            val onPremReleaseName = (project.findProperty("f1wReleaseName") as String?)
+                ?.trim()?.takeIf { it.isNotEmpty() }
+            if (onPremReleaseName != null && actionUrl == "example.invalid") {
+                throw GradleException(
+                    "Refusing to build release '$onPremReleaseName' with the placeholder App Links host " +
+                        "'example.invalid'. Provide the real host via -PonPremActionUrl=<host> (CI: the " +
+                        "ONPREM_ACTION_URL Actions variable) or the onPremActionUrl key in local.properties.",
+                )
+            }
             stringBuildConfigField("uriScheme", uriScheme)
             stringBuildConfigField("actionUrl", actionUrl)
 
@@ -540,6 +673,27 @@ android {
                 logger.warn("No onprem keystore found. Falling back to locally generated keystore.")
             }
 
+        // F1Whisper onprem release config (self-hosted fork; keystore via F1W_* env / local.properties)
+        f1whisperReleaseKeystore
+            ?.let { keystore ->
+                create("f1whisper_release") {
+                    apply(keystore)
+                    // Explicitly establish v2+v3 signing scheme. v1 (JAR) signing is excluded because
+                    // F1Whisper targets minSdk 24 (Android 7), which requires only v2+. Enabling v3
+                    // establishes a key-rotation lineage from the first release so future key migration
+                    // via KeyRotation is possible without breaking update eligibility on Android 9+.
+                    enableV1Signing = false
+                    enableV2Signing = true
+                    enableV3Signing = true
+                }
+            }
+            ?: run {
+                logger.info(
+                    "No F1Whisper release keystore configured (F1W_* not set). " +
+                        "Onprem release will be unsigned unless the upstream onprem keystore is present.",
+                )
+            }
+
         // Blue release config
         keystores["blue_release"]
             ?.let { keystore ->
@@ -601,7 +755,24 @@ android {
             java.srcDir("src/foss_based/java")
         }
         getByName("onprem") {
-            java.srcDir("src/google_services_based/java")
+            // F1Whisper: onprem uses the FOSS (FCM-free) push/license JAVA source set, NOT
+            // google_services_based. The self-hosted OnPrem backend has no FCM/GMS push server
+            // (BuildFlavor.forceThreemaPush keeps the persistent socket on at runtime), so the
+            // Firebase/Play-Services classes are dead weight in the packaged APK. Using foss_based
+            // java here (same set libre uses) drops them from the dex; the firebase/play-services
+            // dependencies are correspondingly omitted in the dependencies {} block below.
+            //
+            // We deliberately do NOT override assets to src/foss_based/assets. That FOSS asset set
+            // ships a DIFFERENT (free-licensed) emoji spritemap, so pulling it swapped the
+            // recognizable Threema emoji for the generic FOSS set (regression introduced when the
+            // GMS-strip over-copied libre's asset line in v6.4.3-5). GMS-free is a java/deps
+            // property, not an asset one: onprem keeps the default (main) assets, which carry the
+            // proprietary Threema emoji at app/assets/emojis. The foss `passwords` blocklist is
+            // byte-identical to main's, so the Safe password policy is unaffected.
+            // To re-enable FCM for onprem: revert this to "src/google_services_based/java", restore
+            // the onpremImplementation(playServices.base / firebase.messaging / libgsaverification)
+            // lines, and restore the FCM <service> + gms metadata in src/onprem/AndroidManifest.xml.
+            java.srcDir("src/foss_based/java")
         }
         getByName("green") {
             java.srcDir("src/google_services_based/java")
@@ -636,6 +807,11 @@ android {
     buildTypes {
         debug {
             isDebuggable = true
+            // F1Whisper: optional package suffix so instrumented tests never share a package with an installed release
+            // build, e.g. `./gradlew connectedOnpremDebugAndroidTest -Pf1wDebugApplicationIdSuffix=.dbtest`.
+            (project.findProperty("f1wDebugApplicationIdSuffix") as String?)?.let { suffix ->
+                applicationIdSuffix = suffix
+            }
             ndk {
                 debugSymbolLevel = "FULL"
             }
@@ -674,6 +850,13 @@ android {
 
             if (keystores["onprem_release"] != null) {
                 productFlavors["onprem"].signingConfig = signingConfigs["onprem_release"]
+            }
+
+            // F1Whisper release signing (self-hosted fork) takes priority for the onprem flavor when
+            // the F1W_* credentials are present. Only wired when configured, so unsigned CI/dev
+            // release builds without the secrets still configure and build.
+            if (f1whisperReleaseKeystore != null) {
+                productFlavors["onprem"].signingConfig = signingConfigs["f1whisper_release"]
             }
 
             if (keystores["blue_release"] != null) {
@@ -759,6 +942,11 @@ android {
     }
 
     lint {
+        // F1Whisper (second follow-up S2-09): reviewed baseline for the INHERITED lint debt
+        // (pre-fork upstream findings). Policy: the baseline is frozen — zero NEW errors in
+        // changed code; genuinely fixed findings should be removed from the baseline over time.
+        // Full `lintOnpremRelease` gates the release chain against this file.
+        baseline = file("lint-baseline-onprem.xml")
         // if true, stop the gradle build if errors are found
         abortOnError = true
         // if true, check all issues, including those that are off by default
@@ -770,6 +958,11 @@ android {
         checkReleaseBuilds = true
         // turn off checking the given issue id's
         disable.addAll(setOf("TypographyFractions", "TypographyQuotes", "RtlHardcoded", "RtlCompat", "RtlEnabled"))
+        // F1Whisper (S2-09): AppLinksAutoVerify performs a LIVE network fetch of the app-link
+        // host's assetlinks.json during analysis — a non-hermetic check whose outcome depends on
+        // a server response, not on the source. In the release gate that could block (or pass) a
+        // release for reasons unrelated to the code; deep-link verification is covered on-device.
+        disable.add("AppLinksAutoVerify")
         // Set the severity of the given issues to error
         error.addAll(setOf("Wakelock", "TextViewEdits", "ResourceAsColor"))
         // Set the severity of the given issues to fatal (which means they will be
@@ -807,6 +1000,23 @@ androidComponents {
         val name = variant.name
         if (variant.buildType == "release" && ("green" in name || "sandbox_work" in name)) {
             variant.enable = false
+        }
+    }
+    // F1Whisper: a debug build with -Pf1wDebugApplicationIdSuffix also gets its own contacts account type and mime
+    // types (resources and the call intent filter), so it can never sync or delete the raw contacts of the release
+    // app installed next to it.
+    if (project.findProperty("f1wDebugApplicationIdSuffix") != null) {
+        onVariants(selector().withBuildType("debug")) { variant ->
+            fun putString(name: String, value: (String) -> String) {
+                variant.resValues.put(
+                    variant.makeResValueKey("string", name),
+                    variant.applicationId.map { com.android.build.api.variant.ResValue(value(it)) },
+                )
+            }
+            putString("package_name") { it }
+            putString("contacts_mime_type") { "vnd.android.cursor.item/vnd.$it.profile" }
+            putString("call_mime_type") { "vnd.android.cursor.item/vnd.$it.call" }
+            variant.manifestPlaceholders.put("callMimeType", variant.applicationId.map { "vnd.android.cursor.item/vnd.$it.call" })
         }
     }
 }
@@ -925,6 +1135,9 @@ dependencies {
     implementation(libs.glide)
     ksp(libs.glide.ksp)
 
+    // F1Whisper: DNS-over-HTTPS for the connectivity troubleshooter (BOM-managed version).
+    implementation(libs.okhttp3.dnsoverhttps)
+
     // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
@@ -950,6 +1163,11 @@ dependencies {
 
     // add JSON support to tests without mocking
     testImplementation(libs.json)
+
+    // F1Whisper (follow-up review P0-6/H-01): real-SQL regression tests for pagination and the
+    // v124->v125 migration execute the production SQL strings against an in-memory SQLite on the
+    // JVM (SQLCipher's SQLiteDatabase is Android-native and cannot run in unit tests).
+    testImplementation("org.xerial:sqlite-jdbc:3.45.1.0")
 
     testImplementation(libs.archunit.junit4)
 
@@ -988,7 +1206,7 @@ dependencies {
     "store_googleImplementation"(libs.playServices.base)
     "store_google_workImplementation"(libs.playServices.base)
     "store_threemaImplementation"(libs.playServices.base)
-    "onpremImplementation"(libs.playServices.base)
+    // F1Whisper: onprem omits play-services-base (FCM-free; see onprem source set above).
     "greenImplementation"(libs.playServices.base)
     "sandbox_workImplementation"(libs.playServices.base)
     "blueImplementation"(libs.playServices.base)
@@ -1002,7 +1220,7 @@ dependencies {
     "store_googleImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
     "store_google_workImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
     "store_threemaImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
-    "onpremImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
+    // F1Whisper: onprem omits firebase-messaging (FCM-free; see onprem source set above).
     "greenImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
     "sandbox_workImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
     "blueImplementation"(libs.firebase.messaging) { excludeFirebaseDependencies() }
@@ -1011,7 +1229,7 @@ dependencies {
     "noneImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
     "store_googleImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
     "store_google_workImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
-    "onpremImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
+    // F1Whisper: onprem omits the Google Assistant verification client (FCM-free; see onprem source set above).
     "store_threemaImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
     "greenImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
     "sandbox_workImplementation"(group = "", name = "libgsaverification-client", ext = "aar")
@@ -1025,7 +1243,10 @@ dependencies {
     "libreImplementation"(libs.maplibre) {
         exclude(group = "com.google.android.gms")
     }
-    "onpremImplementation"(libs.maplibre)
+    // F1Whisper: exclude transitive Google location services from maplibre on onprem (mirrors libre).
+    "onpremImplementation"(libs.maplibre) {
+        exclude(group = "com.google.android.gms")
+    }
     "greenImplementation"(libs.maplibre)
     "sandbox_workImplementation"(libs.maplibre)
     "blueImplementation"(libs.maplibre)
@@ -1055,7 +1276,17 @@ cargo {
     libname = "libthreema" // must match the Cargo.toml's package name
     profile = "release"
     pythonCommand = "python3"
-    targets = listOf("x86_64", "arm64", "arm", "x86")
+    // F1Whisper: gate the Rust cross-compile on -Prust.targets (comma-separated), -ParmMobile or
+    // -Parm64Only. Default = all 4 ABIs. -Parm64Only builds only arm64; -ParmMobile builds arm64 +
+    // arm (matching the armeabi-v7a abiFilter above for 32-bit-only arm64 devices). An explicit
+    // -Prust.targets always wins.
+    targets = (project.findProperty("rust.targets") as String?)
+        ?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }
+        ?: when {
+            project.hasProperty("arm64Only") -> listOf("arm64")
+            project.hasProperty("armMobile") -> listOf("arm64", "arm")
+            else -> listOf("x86_64", "arm64", "arm", "x86")
+        }
     features {
         defaultAnd(arrayOf("uniffi"))
     }

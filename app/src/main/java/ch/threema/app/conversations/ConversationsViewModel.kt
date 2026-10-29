@@ -28,6 +28,7 @@ import ch.threema.app.messagereceiver.MessageReceiver
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.protocolsteps.ValidContactsLookupSteps
 import ch.threema.app.restrictions.AppRestrictions
+import ch.threema.app.services.ChatFolderService
 import ch.threema.app.services.ConversationCategoryService
 import ch.threema.app.services.ConversationService
 import ch.threema.app.services.DistributionListService
@@ -94,6 +95,7 @@ class ConversationsViewModel(
     private val dispatcherProvider: DispatcherProvider,
     private val conversationService: ConversationService,
     private val conversationCategoryService: ConversationCategoryService,
+    private val chatFolderService: ChatFolderService,
     private val preferenceService: PreferenceService,
     private val messageService: MessageService,
     private val notificationService: NotificationService,
@@ -136,6 +138,12 @@ class ConversationsViewModel(
     @Volatile
     private var latestConversationUiModelsResult: Result<List<ConversationUiModel>>? = null
 
+    // The cached set of conversation uids that are members of the currently selected folder. Empty
+    // when no folder is selected (the "All" filter). Always refreshed for the active folder before
+    // it is used for filtering.
+    @Volatile
+    private var selectedFolderMemberUids: Set<String> = emptySet()
+
     private var addOrUpdateSupportContactJob: Job? = null
 
     override suspend fun initialize(): ConversationsViewState {
@@ -154,6 +162,7 @@ class ConversationsViewModel(
 
     private suspend fun produceInitialState(): ConversationsViewState = withContext(dispatcherProvider.io) {
         val hidePrivateConversations: Boolean = preferenceService.arePrivateChatsHidden()
+        val folders: List<ChatFolderUiModel> = buildFolderUiModels()
         val initialItemsState: ItemsState = produceInitialItemsState(hidePrivateConversations)
         val archivedConversationsCount: Long = conversationService.countArchived(
             /* searchQuery = */
@@ -178,6 +187,8 @@ class ConversationsViewModel(
             contactNameFormat = contactNameFormatOrDefault,
             availabilityStatus = getAvailabilityStatusOrNone(),
             pendingAction = null,
+            folders = folders,
+            selectedFolderId = null,
         )
     }
 
@@ -188,10 +199,12 @@ class ConversationsViewModel(
             .fold(
                 onSuccess = { conversationUiModels ->
                     ItemsState.Loaded(
-                        items = filterConversationUiModelsBySearchQuery(
+                        items = filterConversationUiModels(
                             conversationUiModels = conversationUiModels,
                             hidePrivateConversations = hidePrivateConversations,
                             searchQuery = null,
+                            selectedFolderId = null,
+                            selectedFolderMemberUids = emptySet(),
                         ).map(::ConversationListItemUiModel),
                     )
                 },
@@ -210,14 +223,23 @@ class ConversationsViewModel(
             flow5 = watchAvailabilityStatusOrNone(),
         ) { conversationUiModelsResult, hidePrivateConversations, openedConversationId, contactNameFormat, availabilityStatus ->
             latestConversationUiModelsResult = conversationUiModelsResult
+            // Recompute the folders so that newly created/renamed/deleted folders are reflected. The
+            // chat folder service fires `onModifiedAll()` on every mutation which re-triggers this combine.
+            val folders: List<ChatFolderUiModel> = buildFolderUiModels()
+            // If the currently selected folder no longer exists, fall back to the "All" filter.
+            val selectedFolderId: Long? = currentViewState.selectedFolderId
+                ?.takeIf { selectedId -> folders.any { it.id == selectedId } }
+            selectedFolderMemberUids = loadFolderMemberUids(selectedFolderId)
             val updatedItemsState = conversationUiModelsResult
                 .fold(
                     onSuccess = { conversationUiModels ->
                         ItemsState.Loaded(
-                            items = filterConversationUiModelsBySearchQuery(
+                            items = filterConversationUiModels(
                                 conversationUiModels = conversationUiModels,
                                 hidePrivateConversations = hidePrivateConversations,
                                 searchQuery = currentViewState.searchQuery,
+                                selectedFolderId = selectedFolderId,
+                                selectedFolderMemberUids = selectedFolderMemberUids,
                             ).map { conversationUiModel ->
                                 ConversationListItemUiModel(
                                     model = conversationUiModel,
@@ -244,6 +266,8 @@ class ConversationsViewModel(
                     archivedConversationsCount = archivedConversationsCount,
                     contactNameFormat = contactNameFormat,
                     availabilityStatus = availabilityStatus,
+                    folders = folders,
+                    selectedFolderId = selectedFolderId,
                 )
             }
         }
@@ -293,10 +317,12 @@ class ConversationsViewModel(
             return@runAction
         }
         val updatedItems: List<ConversationListItemUiModel> =
-            filterConversationUiModelsBySearchQuery(
+            filterConversationUiModels(
                 conversationUiModels = latestConversationUiModels,
                 hidePrivateConversations = currentViewState.hidePrivateConversations,
                 searchQuery = searchQuery,
+                selectedFolderId = currentViewState.selectedFolderId,
+                selectedFolderMemberUids = selectedFolderMemberUids,
             ).map { conversationUiModel ->
                 ConversationListItemUiModel(
                     model = conversationUiModel,
@@ -323,6 +349,49 @@ class ConversationsViewModel(
     }
 
     /**
+     *  Selects a chat folder to filter the conversation list by. Pass `null` to clear the filter ("All").
+     */
+    fun onFolderSelected(folderId: Long?) = runAction {
+        val effectiveFolderId: Long? = folderId
+            ?.takeIf { selectedId -> currentViewState.folders.any { it.id == selectedId } }
+        selectedFolderMemberUids = loadFolderMemberUids(effectiveFolderId)
+
+        val latestConversationUiModels: List<ConversationUiModel> = latestConversationUiModelsResult?.getOrNull()
+            ?: emptyList()
+        val updatedItems: List<ConversationListItemUiModel> =
+            filterConversationUiModels(
+                conversationUiModels = latestConversationUiModels,
+                hidePrivateConversations = currentViewState.hidePrivateConversations,
+                searchQuery = currentViewState.searchQuery,
+                selectedFolderId = effectiveFolderId,
+                selectedFolderMemberUids = selectedFolderMemberUids,
+            ).map { conversationUiModel ->
+                ConversationListItemUiModel(
+                    model = conversationUiModel,
+                    isHighlighted = conversationUiModel.conversationId == highlightedConversationFlow.value,
+                )
+            }
+        updateViewState {
+            copy(
+                itemsState = ItemsState.Loaded(
+                    items = updatedItems,
+                ),
+                selectedFolderId = effectiveFolderId,
+            )
+        }
+    }
+
+    /**
+     *  Sets the folder membership of the given conversation to exactly [folderIds]. The chat folder
+     *  service fires `onModifiedAll()` so the list refreshes automatically.
+     */
+    fun onAddConversationToFolders(conversationId: ConversationId, folderIds: Set<Long>) = runAction {
+        withContext(dispatcherProvider.io) {
+            chatFolderService.setConversationFolders(conversationId.toDatabaseValue(), folderIds)
+        }
+    }
+
+    /**
      *  Determine if the change to the query value **could** have an effective impact on the result list after search. A query change from `null` to
      *  an `empty string`, or vice versa, will have no effect on the searching logic.
      *
@@ -336,11 +405,14 @@ class ConversationsViewModel(
 
     /**
      *  Takes a list of all conversation models and returns a list of conversation models that should be effectively presented to the user.
+     *  Besides the search query and the private-chats setting, this applies the selected chat folder (if any).
      */
-    private fun filterConversationUiModelsBySearchQuery(
+    private fun filterConversationUiModels(
         conversationUiModels: List<ConversationUiModel>,
         hidePrivateConversations: Boolean,
         searchQuery: String?,
+        selectedFolderId: Long?,
+        selectedFolderMemberUids: Set<String>,
     ): List<ConversationUiModel> =
         conversationUiModels
             .filter { conversationUiModel ->
@@ -349,6 +421,25 @@ class ConversationsViewModel(
             .filter { conversationUiModel ->
                 conversationUiModel.matchesSearchQuery(searchQuery)
             }
+            .filter { conversationUiModel ->
+                selectedFolderId == null || conversationUiModel.conversationId.toDatabaseValue() in selectedFolderMemberUids
+            }
+
+    private suspend fun buildFolderUiModels(): List<ChatFolderUiModel> =
+        withContext(dispatcherProvider.io) {
+            chatFolderService.getFolders().map { folder ->
+                ChatFolderUiModel(id = folder.id, name = folder.name)
+            }
+        }
+
+    private suspend fun loadFolderMemberUids(folderId: Long?): Set<String> =
+        if (folderId == null) {
+            emptySet()
+        } else {
+            withContext(dispatcherProvider.io) {
+                chatFolderService.getMemberUids(folderId)
+            }
+        }
 
     /**
      *  @param isAndroidSystemLockConfigured Whether the system has a screen lock defined (not Threema)

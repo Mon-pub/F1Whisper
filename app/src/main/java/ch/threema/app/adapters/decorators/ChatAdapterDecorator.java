@@ -6,8 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.text.Spannable;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.ShapeAppearanceModel;
@@ -19,8 +22,10 @@ import org.slf4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.media3.session.MediaController;
 import ch.threema.app.R;
@@ -34,12 +39,14 @@ import ch.threema.app.services.MessageService;
 import ch.threema.app.services.UserService;
 import ch.threema.app.services.poll.PollService;
 import ch.threema.app.services.license.LicenseService;
+import ch.threema.app.ui.DisappearingTimerBadgeView;
 import ch.threema.app.ui.listitemholder.AbstractListItemHolder;
 import ch.threema.app.ui.listitemholder.ComposeMessageHolder;
 import ch.threema.app.utils.ImageViewUtil;
 import ch.threema.app.utils.LinkifyUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.NameUtil;
+import ch.threema.app.utils.QuoteUtil;
 import ch.threema.app.utils.StateBitmapUtil;
 import ch.threema.app.utils.TextExtensionsKt;
 import ch.threema.storage.models.AbstractMessageModel;
@@ -48,6 +55,7 @@ import ch.threema.storage.models.DistributionListMessageModel;
 import ch.threema.storage.models.MessageState;
 import ch.threema.storage.models.MessageType;
 import ch.threema.storage.models.data.DisplayTag;
+import ch.threema.storage.models.group.GroupMessageModel;
 
 import static ch.threema.app.utils.MessageUtilKt.getUiContentColor;
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
@@ -74,6 +82,10 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
     private final StateBitmapUtil stateBitmapUtil;
 
     protected OnClickElement onClickElement = null;
+    // F1Whisper: a DEDICATED tap channel for the reply-quote header on a media bubble, kept separate
+    // from onClickElement (the whole-bubble tap, which for media opens the attachment). Tapping the
+    // quote strip jumps to the quoted message; tapping the media body opens it.
+    private OnClickElement onClickQuoteElement = null;
     private OnLongClickElement onLongClickElement = null;
     private OnTouchElement onTouchElement = null;
     @NonNull
@@ -248,6 +260,11 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
         this.onClickElement = onClickElement;
     }
 
+    // F1Whisper: dedicated tap channel for the media reply-quote header (jump to quoted message).
+    public void setOnClickQuoteElement(OnClickElement onClickQuoteElement) {
+        this.onClickQuoteElement = onClickQuoteElement;
+    }
+
     public void setOnLongClickElement(OnLongClickElement onClickElement) {
         onLongClickElement = onClickElement;
     }
@@ -306,6 +323,22 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
             return;
         }
 
+        final @NonNull ComposeMessageHolder viewHolder = (ComposeMessageHolder) abstractViewHolder;
+
+        // F1Whisper (eleventh fork review, F11-07): the second belt of the expired-row fix. The first belt is
+        // ComposeMessageAdapter.getItemType routing an overdue row to the deleted tombstone; this one catches a row
+        // whose deadline passes BETWEEN that routing decision and this bind, where the selected decorator is still a
+        // payload one. When the synchronous decision says "gone" and this decorator is not already the tombstone,
+        // bind nothing: blank and hide every payload-bearing view (a recycled holder may still be showing this very
+        // message's previous bind), keep the date, and overwrite the bubble's click listeners so no stale action
+        // survives. The result mirrors what DeletedChatAdapterDecorator binds. As before, nothing is deleted on this
+        // thread - enforceIfExpired answers from the model and the durable removal stays on the worker (F10-06).
+        if (ch.threema.app.services.DisappearingMessageService.enforceIfExpired(getMessageModel())
+            && !(this instanceof DeletedChatAdapterDecorator)) {
+            withholdExpiredContent(viewHolder, context);
+            return;
+        }
+
         boolean isUserMessage = !getMessageModel().isStatusMessage()
             && getMessageModel().getType() != MessageType.STATUS
             && getMessageModel().getType() != MessageType.GROUP_CALL_STATUS;
@@ -314,12 +347,25 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
             ? helper.getMyIdentity()
             : messageModel.getIdentity();
 
-        final @NonNull ComposeMessageHolder viewHolder = (ComposeMessageHolder) abstractViewHolder;
-
         applyContentColor(viewHolder, getUiContentColor(getMessageModel(), context));
 
         //configure the chat message
         configureChatMessage(viewHolder, context, position);
+
+        // F1Whisper: show the "Forwarded" header for media/file/voice messages carrying the "fwd"
+        // metadata flag (set on forward; rides the E2E file metadata so the recipient sees it too).
+        // Plain text/location have no metadata carrier and are never marked. Toggled here in the base
+        // so every file-type bubble gets it without per-decorator duplication.
+        if (viewHolder.forwardedLabelView != null) {
+            final boolean isForwarded = getMessageModel().getType() == MessageType.FILE
+                && getMessageModel().getFileData() != null
+                && getMessageModel().getFileData().isForwarded();
+            viewHolder.forwardedLabelView.setVisibility(isForwarded ? View.VISIBLE : View.GONE);
+        }
+
+        // F1Whisper: generalized reply-quote header for non-text bubbles (photo/video/file/voice).
+        // TEXT keeps its own dedicated quote layout (+ configureQuote); this covers everything else.
+        configureQuoteHeader(viewHolder, context);
 
         if (isUserMessage) {
             if (!messageModel.isOutbox() && groupId > 0) {
@@ -412,6 +458,56 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
                 viewHolder.starredIcon.setVisibility((messageModel.getDisplayTags() & DisplayTag.DISPLAY_TAG_STARRED) == DisplayTag.DISPLAY_TAG_STARRED ? View.VISIBLE : View.GONE);
             }
 
+            // F1Whisper: animated disappearing-messages countdown clock, mirroring the starred badge
+            // style/placement. Three states, re-derived on every bind (this decorator is the ListView
+            // recycle hook, so we ALWAYS stop the previous countdown first, then restart it only if
+            // still running -- otherwise a recycled row would keep a stale countdown ticking):
+            //   - not disappearing            -> GONE
+            //   - timer frozen but not started -> static full-disc frame (incoming unread), no ticking
+            //   - countdown running            -> setExpirationTime(...) + start the frame animation
+            if (viewHolder.disappearingIcon != null) {
+                final DisappearingTimerBadgeView disappearingIcon = viewHolder.disappearingIcon;
+                // Always tear down any pending countdown from this row's previous binding first.
+                disappearingIcon.stopAnimation();
+
+                if (!messageModel.isDisappearing()) {
+                    disappearingIcon.setVisibility(View.GONE);
+                } else {
+                    final Long expireStartedAt = messageModel.getExpireStartedAt();
+                    final Integer timerSeconds = messageModel.getDisappearingTimerSeconds();
+                    disappearingIcon.setVisibility(View.VISIBLE);
+                    if (expireStartedAt != null && timerSeconds != null && timerSeconds > 0) {
+                        // Running countdown: bind the window and animate down to zero.
+                        //
+                        // F1Whisper (twelfth fork review, F12-03): the countdown's zero is an EVENT on the bound
+                        // row, not just the last frame. Expiry used to be checked only at bind time, so a row
+                        // bound while live stayed fully visible and actionable past its deadline until the durable
+                        // worker deletion happened to land - and indefinitely when that deletion failed. The
+                        // badge's tick is the only code guaranteed to be running on such a row at its deadline, so
+                        // arm it: re-ask the synchronous authority (which also re-enqueues the conditional durable
+                        // removal on the worker, F10-06) and withhold this exact holder like the second belt above.
+                        // The reaction dies with the binding - stopAnimation() (run first on every re-bind,
+                        // withhold and detach) clears the listener, and the tick fires it only while it is still
+                        // the current tick, so it can never target a recycled holder's new content.
+                        disappearingIcon.setDeadlineListener(() -> {
+                            if (ch.threema.app.services.DisappearingMessageService.enforceIfExpired(getMessageModel())
+                                && !(this instanceof DeletedChatAdapterDecorator)) {
+                                withholdExpiredContent(viewHolder, context);
+                            }
+                        });
+                        disappearingIcon.setExpirationTime(expireStartedAt, timerSeconds * 1000L);
+                        disappearingIcon.startAnimation();
+                    } else {
+                        // Frozen but not yet started (typically an incoming unread message): show the
+                        // full clock face with no animation until the countdown begins on read. The
+                        // preceding stopAnimation() has already cancelled any pending tick from this
+                        // row's previous binding and cleared its startedAt/expiresIn, so nothing can
+                        // repaint a prior message's countdown frame over this static full disc.
+                        disappearingIcon.setPercentComplete(0f);
+                    }
+                }
+            }
+
             if (viewHolder.deliveredIndicator != null) {
                 stateBitmapUtil.setStateDrawable(context, messageModel, viewHolder.deliveredIndicator, null);
             }
@@ -424,6 +520,226 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
                 viewHolder.controller.setIsUsedForOutboxMessage(getMessageModel().isOutbox());
             }
         }
+    }
+
+    /**
+     * F1Whisper (eleventh fork review, F11-07): withhold an expired row's content on a holder whose layout is still a
+     * payload one (the intra-bind race the second belt in {@link #configure} catches). Every payload- or
+     * stale-state-bearing view the holder may carry is blanked or hidden - each layout inflates only a subset, hence
+     * the null checks - because a recycled holder can still be displaying content from its previous bind, including
+     * this very message's own payload. What remains matches the deleted tombstone: the date, and a bubble whose click
+     * listeners are OVERWRITTEN (not merely skipped - skipping would leave the recycled view's stale listeners live).
+     */
+    @VisibleForTesting
+    void withholdExpiredContent(@NonNull ComposeMessageHolder viewHolder, @NonNull Context context) {
+        blankAll(
+            viewHolder.bodyTextView,
+            viewHolder.secondaryTextView,
+            viewHolder.tertiaryTextView,
+            viewHolder.size,
+            viewHolder.senderName,
+            viewHolder.tapToResend
+        );
+        if (viewHolder.attachmentImage != null) {
+            viewHolder.attachmentImage.setImageBitmap(null);
+        }
+        if (viewHolder.disappearingIcon != null) {
+            // A recycled row's countdown must not keep ticking over the withheld bubble.
+            viewHolder.disappearingIcon.stopAnimation();
+        }
+        hideAll(
+            viewHolder.attachmentImage,
+            viewHolder.contentView,
+            viewHolder.controller,
+            viewHolder.seekBar,
+            viewHolder.transcoderView,
+            viewHolder.readOnContainer,
+            viewHolder.audioMessageIcon,
+            viewHolder.linkPreviewInfo,
+            viewHolder.forwardedLabelView,
+            viewHolder.editedText,
+            viewHolder.emojiReactionGroup,
+            viewHolder.quoteBar,
+            viewHolder.quoteThumbnail,
+            viewHolder.quoteTypeImage,
+            viewHolder.senderView,
+            viewHolder.avatarView,
+            viewHolder.deliveredIndicator,
+            viewHolder.starredIcon,
+            viewHolder.disappearingIcon,
+            viewHolder.tapToResend
+        );
+        hideQuoteHeader(viewHolder);
+        if (viewHolder.dateView != null) {
+            viewHolder.dateView.setText(MessageUtil.getDisplayDate(
+                context,
+                getMessageModel().getPostedAt(),
+                getMessageModel().isOutbox(),
+                getMessageModel().getModifiedAt(),
+                true
+            ));
+        }
+        setOnClickListener(v -> {
+        }, viewHolder.messageBlockView);
+    }
+
+    private static void blankAll(@Nullable TextView... views) {
+        for (TextView view : views) {
+            if (view != null) {
+                view.setText("");
+            }
+        }
+    }
+
+    private static void hideAll(@Nullable View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /**
+     * F1Whisper: bind the generalized reply-quote header for a non-text bubble that answers a quoted
+     * message (photo/video/file/voice carrying a "qi" reference in its FileData). Reuses the existing
+     * type-agnostic {@link QuoteUtil#getQuoteContent} resolver, so a media quote renders identically
+     * to a text quote (sender + snippet + type-icon + thumbnail). Runs once per bind in the base so
+     * every file-type decorator gets it without duplication; TEXT keeps its own dedicated quote layout
+     * and is excluded here (no double render). The header is hidden (GONE) for every other case, so a
+     * recycled holder never keeps a stale header.
+     */
+    private void configureQuoteHeader(@NonNull ComposeMessageHolder viewHolder, @NonNull Context context) {
+        if (viewHolder.quoteHeaderContainer == null) {
+            // Layout has no quote-header slot (non-user-message layout) - nothing to do.
+            return;
+        }
+
+        final AbstractMessageModel model = getMessageModel();
+        // Gate: only non-text, non-deleted file-type bubbles with a resolvable V2 quote reference.
+        // - TEXT keeps its dedicated quote layout + configureQuote (byte-identical, no double render).
+        // - isDeleted(): a deleted FILE keeps type==FILE and its quotedMessageId column, but its
+        //   tombstone must NOT show a quote strip (getFileData() is also null once body is nulled).
+        // - getFileData()!=null: media/file/voice only (LOCATION/BALLOT quote-answers are deferred).
+        final boolean showQuoteHeader = model.getType() != MessageType.TEXT
+            && !model.isDeleted()
+            && model.getFileData() != null
+            && QuoteUtil.getQuoteType(model) == QuoteUtil.QUOTE_TYPE_V2;
+        if (!showQuoteHeader) {
+            hideQuoteHeader(viewHolder);
+            return;
+        }
+
+        final @Nullable QuoteUtil.QuoteContent content = QuoteUtil.getQuoteContent(
+            model,
+            helper.getMessageReceiver(),
+            false,
+            helper.getThumbnailCache(),
+            context,
+            helper.getMessageService(),
+            helper.getUserService(),
+            helper.getFileService(),
+            helper.getPreferenceService().getContactNameFormat()
+        );
+        if (content == null) {
+            hideQuoteHeader(viewHolder);
+            return;
+        }
+
+        // Sender name - hidden for a deleted/not-found target (identity == null there).
+        final @Nullable ContactModel quotedContact = content.identity != null
+            ? helper.getContactService().getByIdentity(content.identity)
+            : null;
+        if (viewHolder.quoteHeaderSender != null) {
+            if (quotedContact != null) {
+                viewHolder.quoteHeaderSender.setText(NameUtil.getQuoteName(
+                    quotedContact,
+                    helper.getUserService(),
+                    helper.getPreferenceService().getContactNameFormat()
+                ));
+                viewHolder.quoteHeaderSender.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.quoteHeaderSender.setVisibility(View.GONE);
+            }
+        }
+
+        // Snippet - the resolved one-line preview, or the deleted/not-found placeholder.
+        if (viewHolder.quoteHeaderSnippet != null) {
+            viewHolder.quoteHeaderSnippet.setText(content.quotedText);
+        }
+
+        // Type icon - GONE when the quoted type has no icon.
+        if (viewHolder.quoteHeaderTypeImage != null) {
+            if (content.icon != null) {
+                viewHolder.quoteHeaderTypeImage.setImageResource(content.icon);
+                viewHolder.quoteHeaderTypeImage.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.quoteHeaderTypeImage.setVisibility(View.GONE);
+            }
+        }
+
+        // Thumbnail - GONE for voice (suppressed in extractQuoteV2) and when absent.
+        if (viewHolder.quoteHeaderThumbnail != null) {
+            if (content.thumbnail != null) {
+                viewHolder.quoteHeaderThumbnail.setImageBitmap(content.thumbnail);
+                viewHolder.quoteHeaderThumbnail.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.quoteHeaderThumbnail.setVisibility(View.GONE);
+            }
+        }
+
+        // Accent bar - identity color (group member / contact), else the default quote-bar color.
+        if (viewHolder.quoteHeaderBar != null) {
+            @NonNull ColorStateList barColor = context.getColorStateList(R.color.bubble_quote_bar_default_colorstatelist);
+            if (content.identity != null && !helper.getMyIdentity().equals(content.identity)) {
+                if (model instanceof GroupMessageModel) {
+                    if (this.identityColors != null && this.identityColors.containsKey(content.identity)) {
+                        final @Nullable @ColorInt Integer identityColor = this.identityColors.get(content.identity);
+                        if (identityColor != null) {
+                            barColor = ColorStateList.valueOf(identityColor);
+                        }
+                    }
+                } else if (quotedContact != null) {
+                    barColor = ColorStateList.valueOf(quotedContact.getIdColor().getThemedColor(context));
+                }
+            }
+            viewHolder.quoteHeaderBar.setBackgroundTintList(barColor);
+        }
+
+        viewHolder.quoteHeaderContainer.setVisibility(View.VISIBLE);
+        // Tap the quote header -> jump to the quoted message via the DEDICATED quote channel (NOT the
+        // whole-bubble onClick, which for a media bubble opens the attachment). onClickQuoteElement
+        // routes to ComposeMessageFragment.jumpToQuotedMessage(), which runs the existing searchV2Quote
+        // paging jump (or the "message deleted" toast for a missing target).
+        viewHolder.quoteHeaderContainer.setOnClickListener(v -> {
+            if (onClickQuoteElement != null) {
+                onClickQuoteElement.onClick(getMessageModel());
+            }
+        });
+        // Long-press the quote header -> forward to the bubble's long-click (selection / context menu),
+        // consuming it so the parent messageBlockView does not ALSO fire (avoids a double selection
+        // toggle). Without this the clickable strip would swallow the long-press entirely.
+        viewHolder.quoteHeaderContainer.setOnLongClickListener(v -> {
+            if (onLongClickElement != null) {
+                onLongClickElement.onLongClick(getMessageModel());
+                return true;
+            }
+            return false;
+        });
+    }
+
+    /**
+     * F1Whisper: hide the reply-quote header and clear its tap/long-press listeners so a recycled row
+     * never keeps a stale target (the strip is clickable only while an actual quote is shown).
+     */
+    private void hideQuoteHeader(@NonNull ComposeMessageHolder viewHolder) {
+        if (viewHolder.quoteHeaderContainer == null) {
+            return;
+        }
+        viewHolder.quoteHeaderContainer.setVisibility(View.GONE);
+        viewHolder.quoteHeaderContainer.setOnClickListener(null);
+        viewHolder.quoteHeaderContainer.setOnLongClickListener(null);
+        viewHolder.quoteHeaderContainer.setClickable(false);
+        viewHolder.quoteHeaderContainer.setLongClickable(false);
     }
 
     public Spannable highlightMatches(@NonNull Context context, @Nullable CharSequence fullText, @Nullable String filterText) {
@@ -478,6 +794,41 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
 
     protected int getThumbnailWidth() {
         return helper.getThumbnailWidth();
+    }
+
+    /**
+     * Tag used to look up / deduplicate the single spoiler overlay child added programmatically to a
+     * media bubble's content block. Because list-item holders are recycled, the overlay must be
+     * deduplicated and explicitly removed when the bubble is no longer a (un-revealed) spoiler.
+     */
+    private static final String SPOILER_OVERLAY_TAG = "spoiler_overlay";
+
+    /**
+     * Show or hide the F1Whisper "spoiler" tap-to-reveal overlay on a media bubble's content block.
+     * Always call with {@code show = false} for non-spoiler / revealed bubbles so a recycled holder
+     * does not keep a stale overlay.
+     *
+     * @param holder the media bubble holder (its {@code contentView} is the FrameLayout content block)
+     * @param show   {@code true} to add the overlay, {@code false} to remove it
+     */
+    protected void showSpoilerOverlay(@NonNull ComposeMessageHolder holder, boolean show) {
+        final ViewGroup parent = holder.contentView;
+        if (parent == null) {
+            return;
+        }
+        final View existing = parent.findViewWithTag(SPOILER_OVERLAY_TAG);
+        if (!show) {
+            if (existing != null) {
+                parent.removeView(existing);
+            }
+            return;
+        }
+        if (existing == null) {
+            final View overlay = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.spoiler_overlay, parent, false);
+            overlay.setTag(SPOILER_OVERLAY_TAG);
+            parent.addView(overlay);
+        }
     }
 
     protected ThumbnailCache getThumbnailCache() {

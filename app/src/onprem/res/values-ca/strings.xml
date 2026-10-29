@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F1Whisper: onprem-flavor string overrides and additions for Catalan. -->
+<resources>
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">Cal una versió més nova per continuar usant aquest servidor. Actualitzeu en %1$s.</string>
+    <string name="mandatory_update_forced_title">Cal actualitzar</string>
+    <string name="mandatory_update_forced_body">Cal una versió més nova per continuar usant aquest servidor. Actualitzeu ara.</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">Actualitza ara</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="one">%d dia</item>
+        <item quantity="other">%d dies</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="one">%d hora</item>
+        <item quantity="other">%d hores</item>
+    </plurals>
+</resources>

@@ -30,7 +30,9 @@ import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.services.ConversationCategoryService
 import ch.threema.app.startup.AppStartupAware
 import ch.threema.app.startup.waitUntilReady
+import ch.threema.app.ui.VoicePlayerBannerView
 import ch.threema.app.utils.ConfigUtils
+import ch.threema.app.utils.IntentDataUtil
 import ch.threema.app.utils.ShortcutUtil
 import ch.threema.app.utils.logScreenVisibility
 import ch.threema.base.utils.getThreemaLogger
@@ -150,7 +152,24 @@ class ComposeMessageActivity : ThreemaToolbarActivity(), DialogClickListener, Ap
                 show(composeMessageFragment!!)
             }
         }
+        updateVoiceBannerOpenChat(intent)
         return true
+    }
+
+    /**
+     * F1Whisper: tell the background voice "now playing" banner which chat is open so it hides for a
+     * voice message belonging to THIS chat (that chat renders the bubble itself) and shows only for a
+     * voice playing from a different chat.
+     */
+    private fun updateVoiceBannerOpenChat(intent: Intent?) {
+        val banner = findViewById<VoicePlayerBannerView?>(R.id.voice_player_banner) ?: return
+        val uniqueId = try {
+            IntentDataUtil.getMessageReceiverFromIntent(applicationContext, intent)?.conversationId?.toDatabaseValue()
+        } catch (e: Exception) {
+            logger.warn("Could not resolve open chat for voice banner", e)
+            null
+        }
+        banner.setOpenChatUniqueId(uniqueId)
     }
 
     override fun getLayoutResource() = if (ConfigUtils.isTabletLayout(this)) {
@@ -186,6 +205,7 @@ class ComposeMessageActivity : ThreemaToolbarActivity(), DialogClickListener, Ap
                 composeMessageFragment.onNewIntent(intent)
             }
         }
+        updateVoiceBannerOpenChat(intent)
     }
 
     override fun enableOnBackPressedCallback() = true

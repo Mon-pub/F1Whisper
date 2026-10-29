@@ -43,24 +43,11 @@
                     android:gravity="center_horizontal"
                     android:text="@string/safe_restore_enter_id" />
 
-                <TextView
-                    android:id="@+id/forgot_id"
-                    style="@style/WizardTextBodyMedium"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/grid_unit_x3"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="end"
-                    android:text="@string/forgot_your_id"
-                    android:textColor="?attr/colorPrimary"
-                    android:textStyle="bold" />
-
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/safe_id_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/grid_unit_x0_5"
+                    android:layout_marginTop="@dimen/grid_unit_x3"
                     app:hintAnimationEnabled="false"
                     app:hintEnabled="false">
 
@@ -97,7 +84,7 @@
                 android:id="@+id/cancel_compose"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="@dimen/grid_unit_x1"
+                android:layout_marginEnd="@dimen/grid_unit_x1"
                 android:layout_weight="1"
                 app:textButtonPrimary_text="@string/cancel" />
 
@@ -105,7 +92,7 @@
                 android:id="@+id/safe_restore_button_compose"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/grid_unit_x1"
+                android:layout_marginStart="@dimen/grid_unit_x1"
                 android:layout_weight="1"
                 app:buttonPrimary_text="@string/restore" />
 

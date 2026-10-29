@@ -68,6 +68,8 @@ public class ContactModel extends Contact implements ReceiverModel {
     public static final String COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE_POLICY = "notificationTriggerPolicyOverridePolicy";
     public static final String COLUMN_NOTIFICATION_TRIGGER_POLICY_OVERRIDE_EXPIRES_AT = "notificationTriggerPolicyOverrideExpiresAt";
     public static final String COLUMN_WORK_LAST_FULL_SYNC_AT = "workLastFullSyncAt";
+    public static final String COLUMN_DISAPPEARING_MESSAGES_TIMER_SECONDS = "disappearingMessagesTimerSeconds"; /* F1Whisper: the SHARED per-conversation disappearing-messages timer in seconds, governing both freeze directions; null/0 = off */
+    public static final String COLUMN_PEER_DISAPPEARING_TIMER_SECONDS = "peerDisappearingTimerSeconds"; /* F1Whisper: LEGACY, DEAD. Was the per-direction inbound timer; the shared-field LWW model made it redundant and no code reads or writes it. Kept only so the schema needs no migration. */
 
     public static final byte[] NO_PROFILE_PICTURE_BLOB_ID = new byte[0];
 
@@ -117,6 +119,10 @@ public class ContactModel extends Contact implements ReceiverModel {
     private @Nullable String jobTitle;
     private @Nullable String department;
     private @Nullable ContactNotificationTriggerPolicyOverride notificationTriggerPolicyOverride;
+    // F1Whisper: my own per-conversation disappearing-messages timer (seconds); null/0 = off.
+    private @Nullable Integer disappearingMessagesTimerSeconds;
+    // F1Whisper: legacy per-direction peer timer (seconds); no longer read, see COLUMN_PEER_DISAPPEARING_TIMER_SECONDS.
+    private @Nullable Integer peerDisappearingTimerSeconds;
     private @NonNull AvailabilityStatus availabilityStatus = AvailabilityStatus.None.INSTANCE;
 
     private ContactModel(String identity, @NonNull byte[] publicKey) {
@@ -467,6 +473,41 @@ public class ContactModel extends Contact implements ReceiverModel {
 
     public ContactModel setNotificationTriggerPolicyOverride(@Nullable ContactNotificationTriggerPolicyOverride notificationTriggerPolicyOverride) {
         this.notificationTriggerPolicyOverride = notificationTriggerPolicyOverride;
+        return this;
+    }
+
+    /**
+     * F1Whisper: the SHARED per-conversation disappearing-messages timer in seconds — the one value
+     * that governs BOTH the outgoing and the incoming freeze for this 1:1 conversation, and that the
+     * picker shows. A genuine timer change by either party overwrites it (last-writer-wins, OFF
+     * included). {@code null} or {@code 0} means disappearing messages are off for this contact.
+     */
+    @Nullable
+    public Integer getDisappearingMessagesTimerSeconds() {
+        return disappearingMessagesTimerSeconds;
+    }
+
+    public ContactModel setDisappearingMessagesTimerSeconds(@Nullable Integer disappearingMessagesTimerSeconds) {
+        this.disappearingMessagesTimerSeconds = disappearingMessagesTimerSeconds;
+        return this;
+    }
+
+    /**
+     * F1Whisper: the peer's last-advertised disappearing-messages timer in seconds, used ONLY to
+     * detect a genuine peer change (an advertisement that differs from this value) and so tell a real
+     * change apart from an un-updated peer's 5-minute re-assert or an at-least-once redelivery of a
+     * control message already applied. It is NOT read by any
+     * freeze path — the shared {@link #getDisappearingMessagesTimerSeconds()} governs both
+     * directions. {@code null} means the peer has never advertised a timer, {@code 0} means it
+     * advertised OFF.
+     */
+    @Nullable
+    public Integer getPeerDisappearingTimerSeconds() {
+        return peerDisappearingTimerSeconds;
+    }
+
+    public ContactModel setPeerDisappearingTimerSeconds(@Nullable Integer peerDisappearingTimerSeconds) {
+        this.peerDisappearingTimerSeconds = peerDisappearingTimerSeconds;
         return this;
     }
 

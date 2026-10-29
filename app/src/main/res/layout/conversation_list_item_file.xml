@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:orientation="vertical"
-            android:paddingLeft="@dimen/chat_bubble_container_padding_left_right">
+            android:paddingStart="@dimen/chat_bubble_container_padding_left_right">
 
             <TextView
                 style="@style/Threema.Bubble.Text.Body"

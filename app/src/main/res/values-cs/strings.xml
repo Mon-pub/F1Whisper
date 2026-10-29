@@ -620,6 +620,8 @@ možné je obnovit.</string>
     <string name="prefs_sendlog_summary">Odeslat soubor se záznamem společnosti ${company_name} pro další analýzu, pokud nastanou problémy</string>
     <string name="prefs_exportlog">Exportovat záznam</string>
     <string name="prefs_exportlog_summary">Sdílet soubor se záznamem s jinou aplikací</string>
+    <string name="prefs_connection_diagnostics">Diagnostika připojení &amp; oznámení</string>
+    <string name="prefs_connection_diagnostics_summary">Exportovat zprávu o stavu připojení, push, oznámení a baterie pro snazší diagnostiku chybějících oznámení</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Chcete‑li uložit či odeslat média, povolte aplikaci ${app_name} oprávnění přístupu k úložišti.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -950,7 +952,7 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="safe_learn_more_button">Zjistit více</string>
     <string name="safe_enable_explain">Vše, co se týká konverzací, je uloženo pouze ve vašem zařízení. Nemáte u nás účet a nemůžeme vám pomoci, pokud ztratíte svůj telefon nebo nechtěně odstraníte svá data.\n${app_name_short} Safe vytváří automatické zálohy všech důležitých dat včetně vašich šifrovacích klíčů, seznamu kontaktů a členství ve skupinách (ale bez obsahu zpráv) anonymně a na zabezpečeném serveru podle vašeho výběru.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Přejete si pokračovat bez povolení ${app_name_short} Safe? Při používání ${app_name_short} Safe můžete obnovit vaše ${app_name_short} ID, kontakty a skupiny v případě ztráty přístupu k zařízení.</string>
+    <string name="safe_disable_confirm">Přejete si pokračovat bez povolení ${app_name_short} Safe? Při používání ${app_name_short} Safe můžete obnovit vaše ${app_name_short} ID a skupiny v případě ztráty přístupu k zařízení.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Zvolte si prosím silné heslo. Toto heslo budete v budoucnu potřebovat k obnovení dat ze zálohy ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -967,14 +969,10 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="safe_threema_id">Vaše ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Zadejte prosím ${app_name_short} ID, které si přejete obnovit</string>
-    <string name="safe_search_id_title">Zadejte prosím číslo mobilního telefonu nebo e-mailovou adresu propojenou s vaším ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Vyhledává se ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Žádné ${app_name_short} ID nebylo nalezeno</string>
     <string name="safe_no_backup_found">Na serveru nebyla nalezena žádná záloha. Zkontrolujte ID a heslo.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Bylo nalezeno více ${app_name_short} ID. Vyberte prosím ID, které chcete použít:</string>
     <string name="safe_backup_now">Zálohovat</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Povolením ${app_name_short} Safe vytvoříte automatické zabezpečené a anonymní zálohy všech vašich důležitých dat.</string>
@@ -1012,7 +1010,6 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="safe_restore">Obnovení ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Zálohování nebo obnovení právě probíhá. Průběh sledujte v panelu oznámení.</string>
     <string name="restore_error_body">Obnovení dat neproběhlo úspěšně</string>
-    <string name="forgot_your_id">Zapomněli jste své ID?</string>
     <string name="restore_success_body">Obnovení dat bylo úspěšně dokončeno</string>
     <string name="work_data_sync">Synchronizace dat</string>
     <string name="private_contact">Soukromý kontakt</string>
@@ -1382,6 +1379,10 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <string name="forward_security_notification_rejected_text_group">Jednu nebo více zpráv se nezdařilo odeslat kontaktu „%1$s“.</string>
     <string name="forward_security_notification_rejected_text_generic">Jednu nebo více zpráv se nezdařilo odeslat.</string>
     <string name="self_updater_installation_failed">Stažení aktualizace selhalo. Stáhněte a nainstalujte aktualizaci z <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> ručně.</string>
+    <string name="self_updater_downloading_background">Stahování aktualizace na pozadí…</string>
+    <string name="self_updater_update_ready_title">Aktualizace stažena</string>
+    <string name="self_updater_update_ready_text">Klepnutím nainstalujte aktualizaci</string>
+    <string name="self_updater_download_failed">Stažení aktualizace selhalo. Klepnutím ji stáhnete ručně.</string>
     <string name="spam_first_contact">Tato konverzace pochází od neznámého kontaktu</string>
     <string name="spam_report">Nahlásit spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1558,6 +1559,10 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Aplikaci není dovoleno udržovat trvalé připojení k serverům, které je nutné pro fungování ${app_name_short} Push. Když bude aplikace na pozadí, nebudete informováni o nových zprávách. Chcete‑li tento problém opravit, klepněte na „Využití baterie“ a vyberte „Neomezeno“.</string>
     <string name="problemsolver_to_settings">Do nastavení</string>
+    <string name="problemsolver_title_oem_autostart">Povolit běh na pozadí</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Zařízení %1$s mohou bránit aplikaci F1Whisper v běhu na pozadí, což blokuje oznámení o zprávách i v případě, že je optimalizace baterie již vypnutá. Otevřete návod a povolte aplikaci F1Whisper automatické spuštění a běh na pozadí.</string>
+    <string name="problemsolver_oem_autostart_action">Otevřít návod k nastavení</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Zavřít</string>
     <string name="prefs_advanced_options">Pokročilá nastavení</string>
@@ -1926,4 +1931,141 @@ přátelům vás automaticky najít, pokud vás mají v adresáři svého telef
         <item quantity="many">%d členů skupiny</item>
         <item quantity="other">%d členů skupiny</item>
     </plurals>
+    <!-- F1Whisper: on-prem server change dialog -->
+    <string name="change_server_dialog_title">Změnit server</string>
+    <string name="change_server_dialog_hint">Doména serveru</string>
+    <string name="change_server_warning_title">Změnit server?</string>
+    <string name="change_server_warning_message">Změna serveru pravděpodobně odpojí vaši aktuální identitu. Proveďte ji pouze tehdy, pokud váš poskytovatel potvrdil novou doménu. Pokud je doména nesprávná, aplikace přestane fungovat.</string>
+    <string name="use_different_key">Použít jiný klíč</string>
+    <string name="activation_key_already_redeemed">Tento aktivační klíč byl již použit. Zadejte prosím jiný klíč.</string>
+    <string name="safe_password_complexity_unmet">Heslo musí být delší než 10 znaků a obsahovat malé písmeno, velké písmeno, číslici a symbol</string>
+    <string name="notification_channel_emoji_reactions">Reakce</string>
+    <string name="reaction_notification_text">%1$s reagoval(a) %2$s na vaši zprávu</string>
+    <string name="prefs_title_reaction_notifications">Oznámení o reakcích</string>
+    <string name="prefs_sum_reaction_notifications">Upozornit mě, když někdo zareaguje na některou z mých zpráv</string>
+    <string name="chat_background_choose">Pozadí</string>
+    <string name="chat_background_random">Náhodné (pro každou konverzaci jiné)</string>
+    <string name="chat_background_numbered">Pozadí %1$d</string>
+    <string name="listen_once_enabled">Přehrát jen jednou: zapnuto</string>
+    <string name="listen_once_disabled">Přehrát jen jednou: vypnuto</string>
+    <string name="listen_once_badge_content_description">Hlasová zpráva k jednorázovému přehrání</string>
+    <string name="forwarded_message_label">Přeposláno</string>
+    <string name="listen_once_already_listened">Přehráno</string>
+    <string name="listen_once_sent">Hlasová zpráva k jednorázovému přehrání</string>
+    <string name="listen_once_cannot_forward">Zprávy k jednorázovému poslechu nelze přeposlat</string>
+    <string name="listen_once_expired">Platnost hlasové zprávy vypršela</string>
+    <string name="group_one_typing">%s píše…</string>
+    <string name="group_two_typing">%1$s a %2$s píšou…</string>
+    <string name="group_many_typing">%1$s a %2$d další píšou…</string>
+    <string name="message_details_read_by">Přečteno</string>
+    <string name="message_details_delivered_to">Doručeno</string>
+    <string name="message_details_sent_to">Odesláno</string>
+    <string name="markup_monospace">Neproporcionální</string>
+    <string name="markup_spoiler">Spoiler</string>
+    <string name="spoiler_hidden_content_description">Skrytý text spoileru, dvojitým klepnutím jej odhalíte</string>
+    <string name="media_spoiler">Spoiler</string>
+    <string name="media_spoiler_reveal">Klepnutím odhalíte</string>
+    <string name="media_spoiler_badge_content_description">Skryté médium. Dvojitým klepnutím jej odhalíte.</string>
+    <string name="chat_folders">Složky konverzací</string>
+    <string name="manage_folders">Spravovat složky</string>
+    <string name="add_to_folder">Přidat do složky</string>
+    <string name="folder_all">Vše</string>
+    <string name="new_folder">Nová složka</string>
+    <string name="create_folder">Vytvořit složku</string>
+    <string name="rename_folder">Přejmenovat složku</string>
+    <string name="delete_folder">Smazat složku</string>
+    <string name="delete_folder_confirm">Odebrat tuto složku? Vaše konverzace nebudou smazány.</string>
+    <string name="folder_name_hint">Název složky</string>
+    <string name="folder_name_empty">Zadejte prosím název složky</string>
+    <string name="no_chat_folders">Zatím jste nevytvořili žádné složky</string>
+    <string name="folder_created">Složka vytvořena</string>
+    <string name="folder_deleted">Složka smazána</string>
+    <string name="add_to_folder_title">Přidat konverzaci do složek</string>
+    <string name="folder_empty">V této složce nejsou žádné konverzace</string>
+    <string name="prefs_refresh_onprem_config">Obnovit konfiguraci serveru</string>
+    <string name="prefs_refresh_onprem_config_summary">Znovu stáhnout konfiguraci serveru. Užitečné poté, co server přidá nové funkce, jako je propojení s počítačem.</string>
+    <string name="onprem_config_refreshed">Konfigurace serveru byla obnovena</string>
+    <string name="prefs_title_link_previews">Vytvářet náhledy odkazů</string>
+    <string name="prefs_sum_link_previews">Načítat náhledy odkazů ve zprávách, které odesíláte. Náhledy se odesílají koncově šifrované; zařízení příjemce nikdy nekontaktuje webovou stránku.</string>
+    <string name="link_preview_remove">Odebrat náhled odkazu</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Přetáhněte úchyty pro oříznutí</string>
+    <string name="audio_trim_action">Oříznout</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimalizovat</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Seznam úkolů</string>
+    <string name="checklist_create_as">Vytvořit jako seznam úkolů</string>
+    <string name="checklist_fork_only">Seznamy úkolů fungují pouze mezi uživateli F1Whisper.</string>
+    <string name="checklist_toggle_item">Přepnout položku seznamu</string>
+    <string name="checklist_checked_by">Zaškrtnuto uživatelem %1$s</string>
+    <string name="checklist_created_successfully">Seznam úkolů byl vytvořen</string>
+    <string name="checklist_placeholder">Seznam úkolů</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Připnout zprávu</string>
+    <string name="unpin_message">Odepnout</string>
+    <string name="pinned_message_banner_label">Připnutá zpráva</string>
+    <string name="pinned_message_banner_dismiss">Skrýt banner připnuté zprávy</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Zadejte název seznamu úkolů</string>
+    <string name="checklist_wizard0_explain">Vytvořte sdílený seznam úkolů. Kdokoli v chatu může kdykoli položky zaškrtnout i odškrtnout a zaškrtnuté položky se přesunou dolů.</string>
+    <string name="checklist_add_items">Přidat položky</string>
+    <string name="checklist_item_add">Přidat položku</string>
+    <string name="checklist_item_count_error">Přidejte prosím alespoň jednu položku</string>
+    <string name="checklist_add_item_title">Přidat položku</string>
+    <string name="checklist_add_item_hint">Název nové položky</string>
+    <string name="checklist_add_item_button">Přidat</string>
+    <string name="checklist_delete_item_title">Smazat položku?</string>
+    <string name="checklist_delete_item_message">Opravdu chcete smazat \"%1$s\"?</string>
+    <string name="checklist_delete_button">Smazat</string>
+    <string name="checklist_reorder_item">Přesunout položku seznamu</string>
+    <string name="checklist_cannot_reorder">Tuto položku nelze přesunout</string>
+    <string name="checklist_edit_title">Upravit seznam</string>
+    <string name="checklist_edit_apply">Použít</string>
+    <string name="checklist_rename_item_title">Přejmenovat položku</string>
+    <string name="audio_trim_not_supported">Oříznutí není pro tento zvukový formát podporováno. Odeberte oříznutí, chcete-li odeslat celý soubor.</string>
+    <string name="audio_trim_failed">Tento zvuk se nepodařilo oříznout. Nic nebylo odesláno. Zkuste to znovu nebo odeberte oříznutí.</string>
+    <string name="pinned_message_banner_label_counter">Připnutá zpráva %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Mizející zprávy</string>
+    <string name="disappearing_messages_summary">Nové zprávy v tomto chatu zmizí po zvoleném čase od přečtení.</string>
+    <string name="disappearing_off">Vypnuto</string>
+    <string name="disappearing_duration_picker_title">Časovač mizení</string>
+    <string name="status_disappearing_set">%1$s nastavil(a) časovač mizejících zpráv: %2$s</string>
+    <string name="status_disappearing_set_you">Nastavili jste časovač mizejících zpráv: %1$s</string>
+    <string name="status_disappearing_off">%1$s vypnul(a) mizející zprávy</string>
+    <string name="status_disappearing_off_you">Vypnuli jste mizející zprávy</string>
+    <string name="disappearing_messages_unsupported">Mizející zprávy fungují pouze mezi uživateli F1Whisper a nejsou bezpečnostní zárukou.</string>
+    <string name="disappearing_duration_30s">30 sekund</string>
+    <string name="disappearing_duration_5m">5 minut</string>
+    <string name="disappearing_duration_1h">1 hodina</string>
+    <string name="disappearing_duration_8h">8 hodin</string>
+    <string name="disappearing_duration_1d">1 den</string>
+    <string name="disappearing_duration_1w">1 týden</string>
+    <string name="disappearing_duration_4w">4 týdny</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Zmizí</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s po přečtení</string>
+    <string name="connectivity_probe_dialog_title">Diagnostika připojení</string>
+    <string name="connectivity_probe_running">Probíhají kontroly…</string>
+    <string name="connectivity_probe_done">Kontroly dokončeny</string>
+    <string name="connectivity_probe_send_btn">Odeslat diagnostiku</string>
+    <string name="connectivity_probe_close_btn">Zavřít</string>
+    <string name="connectivity_probe_verdict_all_ok">Server je dostupný. Zkontrolujte nastavení účtu nebo zařízení.</string>
+    <string name="connectivity_probe_verdict_no_internet">V této síti nefunguje internet.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Podezření na otravu DNS: systémový DNS vrací jiné IP adresy.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Podezření na blokování TLS podle SNI: náš název hostitele je blokován.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">IP adresa serveru je v této síti blokována.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Port chatu (5222) je blokován. HTTPS stále funguje.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server je dostupný, ale síť je velmi pomalá nebo omezená – spojení mohou vypršet. Zkuste to znovu, nebo přepněte mezi Wi-Fi a mobilními daty.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Některé kontroly selhaly. Sdílejte zprávu k analýze.</string>
+    <string name="connectivity_probe_label_dns">Překladače DNS</string>
+    <string name="connectivity_probe_label_tcp443">Port TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Koncový bod konfigurace</string>
+    <string name="connectivity_probe_label_chat">Port chatu (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (kontrola)</string>
+    <string name="connectivity_probe_label_hints">Další signály</string>
+    <string name="connectivity_probe_hint_middlebox">Rychlé připojení, ale pomalé šifrované handshake – toto připojení může odposlouchávat transparentní proxy nebo zařízení pro tvarování provozu.</string>
+    <string name="connectivity_probe_hint_port53">DNS zařízení odpovědělo podezřele rychle, zatímco vše ostatní bylo pomalé – tato síť může zachytávat DNS dotazy.</string>
 </resources>

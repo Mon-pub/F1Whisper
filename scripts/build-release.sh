@@ -195,7 +195,15 @@ for variant in "${variant_array[@]}"; do
         run_command+=" -v \"$keystore_realpath:/keystore\""
     fi
     run_command+=" \"$DOCKERIMAGE:$APP_VERSION_CODE\""
-    run_command+=" /bin/bash -c \"cd /code && ./gradlew clean -PbuildUniversalApk $target\""
+    # S3-04 (T3-12): local.properties is masked with /dev/null for reproducible Docker builds, so
+    # forward the App Links host explicitly when supplied via the ONPREM_ACTION_URL env var (a
+    # public value — the host ships in every APK). Absent -> the placeholder fallback is used, and
+    # the onprem release guard in app/build.gradle.kts fails a named release that lacks a real host.
+    gradle_extra=""
+    if [ -n "${ONPREM_ACTION_URL:-}" ]; then
+        gradle_extra=" -PonPremActionUrl=${ONPREM_ACTION_URL}"
+    fi
+    run_command+=" /bin/bash -c \"cd /code && ./gradlew clean -PbuildUniversalApk${gradle_extra} $target\""
     eval "$run_command"
 
     # Copy files

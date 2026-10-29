@@ -5,8 +5,8 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:paddingLeft="@dimen/edittext_padding"
-    android:paddingRight="@dimen/edittext_padding"
+    android:paddingStart="@dimen/edittext_padding"
+    android:paddingEnd="@dimen/edittext_padding"
     android:paddingTop="@dimen/dialog_margin_below_title">
 
     <com.google.android.material.textfield.TextInputLayout

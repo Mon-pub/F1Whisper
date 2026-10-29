@@ -4,17 +4,13 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver;
@@ -44,7 +40,6 @@ import ch.threema.app.AppConstants;
 import ch.threema.app.R;
 import ch.threema.app.actions.LocationMessageSendAction;
 import ch.threema.app.actions.SendAction;
-import ch.threema.app.activities.EditSendContactActivity;
 import ch.threema.app.activities.ImagePaintActivity;
 import ch.threema.app.activities.SendMediaActivity;
 import ch.threema.app.activities.ThreemaActivity;
@@ -87,10 +82,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
     private static final Logger logger = getThreemaLogger("MediaAttachActivity");
 
-    private static final int CONTACT_PICKER_INTENT = 33002;
     private static final int LOCATION_PICKER_INTENT = 33003;
 
-    private static final int PERMISSION_REQUEST_ATTACH_CONTACT = 2;
     private static final int PERMISSION_REQUEST_QR_READER = 3;
     private static final int PERMISSION_REQUEST_ATTACH_FROM_EXTERNAL_CAMERA = 6;
 
@@ -100,12 +93,17 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
     private ConstraintLayout sendPanel;
     private LinearLayout attachPanel;
-    private ControlPanelButton attachGalleryButton, attachLocationButton, attachQRButton, attachPollButton, attachContactButton, attachDrawingButton, attachFileButton, sendButton, editButton, cancelButton, attachFromExternalCameraButton;
+    private ControlPanelButton attachGalleryButton, attachLocationButton, attachQRButton, attachPollButton, attachChecklistButton, attachDrawingButton, attachFileButton, sendButton, editButton, cancelButton, attachFromExternalCameraButton;
     private Button selectCounterButton;
     private ImageView moreArrowView;
     private HorizontalScrollView scrollView;
 
     private MessageReceiver messageReceiver;
+    // F1Whisper: apiMessageId of the message being replied-to when the attach flow was launched from
+    // an active quote. Threaded into each terminal media send so a media/file answer carries the
+    // reply-quote (Signal-style "reply with any type").
+    @Nullable
+    private String pendingQuoteApiMessageId;
 
     @NonNull
     private final DependencyContainer dependencies = KoinJavaComponent.get(DependencyContainer.class);
@@ -120,18 +118,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             }
         });
 
-    private final ActivityResultLauncher<Intent> editContactResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-        r -> {
-            if (r.getResultCode() == RESULT_OK) {
-                if (r.getData() != null && r.getData().getExtras() != null && r.getData().getExtras().get(EditSendContactActivity.RESULT_CONTACT_URI) instanceof Uri) {
-                    Uri modifiedVcardUri = (Uri) r.getData().getExtras().get(EditSendContactActivity.RESULT_CONTACT_URI);
-                    String caption = (String) r.getData().getExtras().get(EditSendContactActivity.RESULT_CONTACT_NAME);
-                    sendFileMessage(new ArrayList<>(Collections.singletonList(modifiedVcardUri)), new ArrayList<>(Collections.singletonList(caption)));
-                }
-            }
-            finish();
-        });
-
     private final ActivityResultLauncher<Intent> drawingResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
         result -> {
             if (result.getResultCode() == Activity.RESULT_OK) {
@@ -141,9 +127,16 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                     return;
                 }
                 MediaItem mediaItem = resultIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+                // F1Whisper: a drawing answer sent while quoting carries the reply-quote.
+                if (mediaItem != null && pendingQuoteApiMessageId != null) {
+                    mediaItem.setQuotedMessageId(pendingQuoteApiMessageId);
+                }
                 @SuppressWarnings("rawtypes")
                 MessageReceiver drawingReceiver = IntentDataUtil.getMessageReceiverFromIntent(MediaAttachActivity.this, resultIntent);
                 dependencies.getMessageService().sendMediaAsync(Collections.singletonList(mediaItem), Collections.singletonList(drawingReceiver));
+                // F1Whisper: this direct-send path does not go through SendMediaActivity, so signal the
+                // compose screen that media (and any reply-quote) was consumed - do NOT reopen the quote.
+                signalMediaSent();
             }
             finish();
         });
@@ -200,6 +193,7 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
     public void handleIntent() {
         Intent intent = this.getIntent();
         this.messageReceiver = IntentDataUtil.getMessageReceiverFromIntent(this, intent);
+        this.pendingQuoteApiMessageId = IntentDataUtil.getQuotedApiMessageIdFromIntent(intent);
 
         if (this.messageReceiver == null) {
             logger.error("invalid receiver");
@@ -228,8 +222,11 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         this.attachFileButton = attachPanel.findViewById(R.id.attach_file);
         this.attachQRButton = attachPanel.findViewById(R.id.attach_qr_code);
         this.attachPollButton = attachPanel.findViewById(R.id.attach_poll);
-        this.attachContactButton = attachPanel.findViewById(R.id.attach_contact);
+        this.attachChecklistButton = attachPanel.findViewById(R.id.attach_checklist);
         this.attachDrawingButton = attachPanel.findViewById(R.id.attach_drawing);
+
+        // Attaching a device address-book contact has been removed for privacy reasons.
+        attachPanel.findViewById(R.id.attach_contact).setVisibility(View.GONE);
         this.attachFromExternalCameraButton = attachPanel.findViewById(R.id.attach_system_camera);
 
         // Send/edit/cancel buttons
@@ -258,6 +255,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         if (messageReceiver instanceof DistributionListMessageReceiver ||
             (messageReceiver instanceof GroupMessageReceiver && dependencies.getGroupService().isNotesGroup(((GroupMessageReceiver) messageReceiver).getGroup()))) {
             this.attachPollButton.setVisibility(View.GONE);
+            // A checklist rides the poll wire, so it shares the same receiver constraints.
+            this.attachChecklistButton.setVisibility(View.GONE);
         }
     }
 
@@ -267,7 +266,7 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         attachFileButton.setOnClickListener(this);
         attachQRButton.setOnClickListener(this);
         attachPollButton.setOnClickListener(this);
-        attachContactButton.setOnClickListener(this);
+        attachChecklistButton.setOnClickListener(this);
         attachDrawingButton.setOnClickListener(this);
         sendButton.setOnClickListener(this);
         editButton.setOnClickListener(this);
@@ -361,7 +360,9 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             if (attachPollButton.getVisibility() == View.VISIBLE) {
                 AnimationUtil.bubbleAnimate(attachPollButton, animDelay += animDelayDiff);
             }
-            AnimationUtil.bubbleAnimate(attachContactButton, animDelay += animDelayDiff);
+            if (attachChecklistButton.getVisibility() == View.VISIBLE) {
+                AnimationUtil.bubbleAnimate(attachChecklistButton, animDelay += animDelayDiff);
+            }
             AnimationUtil.bubbleAnimate(attachDrawingButton, animDelay += animDelayDiff);
             AnimationUtil.bubbleAnimate(attachQRButton, animDelay += animDelayDiff);
             AnimationUtil.bubbleAnimate(attachFromExternalCameraButton, animDelay + animDelayDiff);
@@ -380,13 +381,11 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             }
         } else if (id == R.id.attach_poll) {
             createPoll();
+        } else if (id == R.id.attach_checklist) {
+            createChecklist();
         } else if (id == R.id.attach_qr_code) {
             if (ConfigUtils.requestCameraPermissions(this, null, PERMISSION_REQUEST_QR_READER)) {
                 attachQR(v);
-            }
-        } else if (id == R.id.attach_contact) {
-            if (ConfigUtils.requestContactPermissions(this, null, PERMISSION_REQUEST_ATTACH_CONTACT)) {
-                attachContact();
             }
         } else if (id == R.id.attach_drawing) {
             attachDrawing();
@@ -433,9 +432,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
         if (isPermissionGranted) {
             switch (requestCode) {
-                case PERMISSION_REQUEST_ATTACH_CONTACT:
-                    attachContact();
-                    break;
                 case PERMISSION_REQUEST_ATTACH_FILE:
                     attachFile();
                     break;
@@ -460,11 +456,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             }
         } else {
             switch (requestCode) {
-                case PERMISSION_REQUEST_ATTACH_CONTACT:
-                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
-                        super.showPermissionRationale(R.string.permission_contacts_required);
-                    }
-                    break;
                 case PERMISSION_REQUEST_QR_READER:
                     if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                         super.showPermissionRationale(R.string.permission_camera_qr_required);
@@ -515,9 +506,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                     String poiName = intent.getStringExtra(INTENT_DATA_LOCATION_NAME);
                     sendLocationMessage(location, poiName);
                     break;
-                case CONTACT_PICKER_INTENT:
-                    editContact(intent.getData());
-                    break;
                 case ThreemaActivity.ACTIVITY_ID_CREATE_POLL:
                     finish();
                     break;
@@ -528,8 +516,14 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                         IntentDataUtil.addLastMediaFilterToIntent(resultIntent,
                             intent.getStringExtra(ComposeMessageFragment.EXTRA_LAST_MEDIA_SEARCH_QUERY),
                             intent.getIntExtra(ComposeMessageFragment.EXTRA_LAST_MEDIA_TYPE_QUERY, -1));
-                        setResult(RESULT_OK, resultIntent);
                     }
+                    // F1Whisper: SendMediaActivity returns RESULT_OK only when it actually sent (and it
+                    // consumed the reply-quote). Signal that to the compose screen so it does not reopen
+                    // the quote popup; on a back-out (RESULT_CANCELED) the flag stays absent -> reopen.
+                    if (resultCode == RESULT_OK) {
+                        resultIntent.putExtra(ComposeMessageFragment.EXTRA_MEDIA_WAS_SENT, true);
+                    }
+                    setResult(RESULT_OK, resultIntent);
                     finish();
                     break;
             }
@@ -548,6 +542,26 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
     /* end section callback methods */
 
     /* start section attachment/sending methods */
+
+    /**
+     * F1Whisper: mark this MediaAttach result as "media was actually sent" so the compose screen does
+     * NOT reopen the reply-quote popup (the quote rode the send via "qi"). Called from the two direct
+     * send paths (gallery quick-send, in-attach drawing); the SendMediaActivity handoff signals it from
+     * the SEND_MEDIA result. The result intent also carries the current last-media-filter — setResult
+     * REPLACES any previously staged intent, so building a flag-only intent here would clobber the
+     * filter the compose screen re-applies on the next attach. Needed because plain result codes are
+     * unreliable here (these direct sends still finish() with RESULT_CANCELED).
+     */
+    private void signalMediaSent() {
+        Intent resultIntent = new Intent();
+        if (mediaAttachViewModel != null && mediaAttachViewModel.getLastQueryType() != null) {
+            IntentDataUtil.addLastMediaFilterToIntent(resultIntent,
+                mediaAttachViewModel.getLastQuery(),
+                mediaAttachViewModel.getLastQueryType());
+        }
+        resultIntent.putExtra(ComposeMessageFragment.EXTRA_MEDIA_WAS_SENT, true);
+        setResult(RESULT_OK, resultIntent);
+    }
 
     @UiThread
     public void onEdit(final ArrayList<Uri> uriList) {
@@ -571,6 +585,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                 AppConstants.INTENT_DATA_TEXT,
                 messageReceiver.getDisplayName(dependencies.getPreferenceService().getContactNameFormat())
             );
+            // F1Whisper: forward the reply-quote so the gallery-edit answer carries it through SendMediaActivity.
+            IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
             // pass on last filter to potentially re-use it when adding more media items
             if (mediaAttachViewModel.getLastQuery() != null) {
                 IntentDataUtil.addLastMediaFilterToIntent(intent,
@@ -591,7 +607,16 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
 
         List<MediaItem> mediaItems = MediaItem.getFromUris(list, this, false);
         if (!mediaItems.isEmpty()) {
+            // F1Whisper: a gallery quick-send answer sent while quoting carries the reply-quote.
+            if (pendingQuoteApiMessageId != null) {
+                for (MediaItem mediaItem : mediaItems) {
+                    mediaItem.setQuotedMessageId(pendingQuoteApiMessageId);
+                }
+            }
             dependencies.getMessageService().sendMediaAsync(mediaItems, Collections.singletonList(messageReceiver));
+            // F1Whisper: direct send (does not go through SendMediaActivity) - signal the compose screen
+            // that media/reply-quote was consumed so it does not reopen the quote popup.
+            signalMediaSent();
             finish();
         }
     }
@@ -622,6 +647,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         );
         intent.putExtra(AppConstants.INTENT_DATA_PICK_FROM_CAMERA, true);
         intent.putExtra(SendMediaActivity.EXTRA_USE_EXTERNAL_CAMERA, true);
+        // F1Whisper: forward the reply-quote so an external-camera answer carries it through SendMediaActivity.
+        IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
         startActivityForResult(intent, ThreemaActivity.ACTIVITY_ID_SEND_MEDIA);
     }
 
@@ -631,18 +658,22 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
         startActivityForResult(intent, ThreemaActivity.ACTIVITY_ID_CREATE_POLL);
     }
 
+    /**
+     * F1Whisper: launch the poll wizard pre-configured for a shared interactive checklist
+     * (Scarlet-Notes-style). The wizard reads {@link PollWizardActivity#EXTRA_CREATE_CHECKLIST}
+     * and switches to checklist mode (displayType=CHECKLIST, multiple-choice), hiding the poll-only
+     * options, so the user lands directly on "enter your items".
+     */
+    private void createChecklist() {
+        Intent intent = new Intent(this, PollWizardActivity.class);
+        IntentDataUtil.addMessageReceiverToIntent(intent, messageReceiver);
+        intent.putExtra(PollWizardActivity.EXTRA_CREATE_CHECKLIST, true);
+        startActivityForResult(intent, ThreemaActivity.ACTIVITY_ID_CREATE_POLL);
+    }
+
     private void launchPlacePicker() {
         Intent intent = new Intent(this, LocationPickerActivity.class);
         startActivityForResult(intent, LOCATION_PICKER_INTENT);
-    }
-
-    private void attachContact() {
-        try {
-            Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-            startActivityForResult(intent, CONTACT_PICKER_INTENT);
-        } catch (ActivityNotFoundException e) {
-            SingleToast.getInstance().showShortText(getString(R.string.no_activity_for_mime_type));
-        }
     }
 
     private void attachQR(@NonNull View view) {
@@ -673,6 +704,8 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
             AppConstants.INTENT_DATA_TEXT,
             messageReceiver.getDisplayName(dependencies.getPreferenceService().getContactNameFormat())
         );
+        // F1Whisper: forward the reply-quote so a file answer carries it through SendMediaActivity.
+        IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
         startActivityForResult(intent, ThreemaActivity.ACTIVITY_ID_SEND_MEDIA);
     }
 
@@ -692,52 +725,6 @@ public class MediaAttachActivity extends MediaSelectionBaseActivity implements V
                         finish();
                     }
                 })).start();
-    }
-
-    private void editContact(Uri contactUri) {
-        if (!validateSendingPermission()) {
-            return;
-        }
-
-        Cursor cursor = this.getContentResolver().query(contactUri, null, null, null, null);
-        if (cursor != null && cursor.moveToFirst() && cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY) >= 0) {
-            @SuppressLint("Range") String lookupKey = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.LOOKUP_KEY));
-            cursor.close();
-
-            controlPanel.setVisibility(View.GONE);
-
-            isEditingContact = true;
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-
-            Uri vcardUri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_VCARD_URI, lookupKey);
-
-            Intent editContactIntent = EditSendContactActivity.createIntent(this, vcardUri);
-
-            editContactResultLauncher.launch(editContactIntent);
-        } else {
-            Toast.makeText(this, R.string.contact_not_found, Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Send file messages of any type
-     */
-    private void sendFileMessage(final ArrayList<Uri> uriList, final ArrayList<String> captions) {
-        if (!validateSendingPermission()) {
-            return;
-        }
-
-        List<MediaItem> mediaItems = new ArrayList<>(uriList.size());
-        for (int i = 0; i < uriList.size(); i++) {
-            MediaItem mediaItem = new MediaItem(uriList.get(i), MediaItem.TYPE_FILE);
-            if (captions != null) {
-                mediaItem.setCaption(captions.get(i));
-            }
-            mediaItem.setOriginalUri(mediaItem.getUri());
-            mediaItems.add(mediaItem);
-        }
-        dependencies.getMessageService().sendMediaAsync(mediaItems, Collections.singletonList(messageReceiver));
-        finish();
     }
 
     private boolean validateSendingPermission() {

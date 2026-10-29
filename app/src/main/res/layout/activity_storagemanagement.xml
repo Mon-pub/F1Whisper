@@ -16,8 +16,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/tablet_additional_padding_horizontal"
-            android:layout_marginRight="@dimen/tablet_additional_padding_horizontal"
+            android:layout_marginStart="@dimen/tablet_additional_padding_horizontal"
+            android:layout_marginEnd="@dimen/tablet_additional_padding_horizontal"
             android:orientation="vertical">
 
             <LinearLayout
@@ -42,7 +42,7 @@
                             android:id="@+id/storage_threema"
                             android:layout_width="1dp"
                             android:layout_height="match_parent"
-                            android:layout_gravity="left"
+                            android:layout_gravity="start"
                             android:background="@color/material_red"
                             android:minWidth="1dp" />
 
@@ -50,7 +50,7 @@
                             android:id="@+id/storage_empty"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_gravity="right"
+                            android:layout_gravity="end"
                             android:background="@color/material_green" />
 
                         <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -98,16 +98,16 @@
                         android:id="@+id/legend_in_use"
                         android:layout_width="12dp"
                         android:layout_height="12dp"
-                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="6dp"
+                        android:layout_marginEnd="6dp"
                         android:background="@color/material_indigo" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_toLeftOf="@+id/in_use_view"
-                        android:layout_toRightOf="@id/legend_in_use"
+                        android:layout_toStartOf="@+id/in_use_view"
+                        android:layout_toEndOf="@id/legend_in_use"
                         android:ellipsize="end"
                         android:text="@string/storage_total_in_use"
                         android:textAppearance="?android:textAppearanceMedium" />
@@ -116,7 +116,7 @@
                         android:id="@+id/in_use_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:text=""
                         android:textAppearance="?android:textAppearanceMedium" />
 
@@ -130,16 +130,16 @@
                         android:id="@+id/legend_free"
                         android:layout_width="12dp"
                         android:layout_height="12dp"
-                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="6dp"
+                        android:layout_marginEnd="6dp"
                         android:background="@color/material_green" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_toLeftOf="@+id/free_view"
-                        android:layout_toRightOf="@id/legend_free"
+                        android:layout_toStartOf="@+id/free_view"
+                        android:layout_toEndOf="@id/legend_free"
                         android:ellipsize="end"
                         android:text="@string/storage_total_free"
                         android:textAppearance="?android:textAppearanceMedium" />
@@ -148,7 +148,7 @@
                         android:id="@+id/free_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:text=""
                         android:textAppearance="?android:textAppearanceMedium" />
 
@@ -162,17 +162,17 @@
                         android:id="@+id/legend_usage"
                         android:layout_width="12dp"
                         android:layout_height="12dp"
-                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="6dp"
+                        android:layout_marginEnd="6dp"
                         android:background="@color/material_red" />
 
                     <TextView
                         android:id="@+id/used_by_threema"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_toLeftOf="@+id/usage_view"
-                        android:layout_toRightOf="@id/legend_usage"
+                        android:layout_toStartOf="@+id/usage_view"
+                        android:layout_toEndOf="@id/legend_usage"
                         android:ellipsize="end"
                         android:textAppearance="?android:textAppearanceMedium" />
 
@@ -180,7 +180,7 @@
                         android:id="@+id/usage_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:text=""
                         android:textAppearance="?android:textAppearanceMedium" />
 
@@ -227,7 +227,7 @@
                         android:id="@+id/auto_delete_info"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
                         android:layout_gravity="center_vertical"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/new_wizard_more_information"
@@ -308,7 +308,7 @@
                     style="@style/Threema.MaterialButton.Action"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:text="@string/delete_data" />
 
             </LinearLayout>
@@ -316,8 +316,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -350,7 +350,7 @@
                     style="@style/Threema.MaterialButton.Action"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:text="@string/delete_message" />
 
                 <com.google.android.material.divider.MaterialDivider
@@ -365,7 +365,7 @@
                     style="@style/Threema.MaterialButton.Fatal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="left"
+                    android:layout_gravity="start"
                     android:layout_marginBottom="16dp"
                     android:text="@string/delete_id_title" />
 

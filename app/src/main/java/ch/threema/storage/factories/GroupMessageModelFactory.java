@@ -235,6 +235,28 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return null;
     }
 
+    /**
+     * F1Whisper auto-resend: outgoing group messages eligible for silent auto-resend (see
+     * {@code AbstractMessageModelFactory#queryAutoResendCandidates}), oldest compose-time first.
+     *
+     * @param minCreatedAtMillis exclusive lower bound on createdAtUtc (24h lifespan cutoff).
+     */
+    @NonNull
+    public List<GroupMessageModel> getAutoResendCandidates(long minCreatedAtMillis) {
+        return convertList(queryAutoResendCandidates(minCreatedAtMillis));
+    }
+
+    /**
+     * F1Whisper auto-resend: outgoing group messages that are still unsent but have exhausted the
+     * 24h auto-resend window (see {@code AbstractMessageModelFactory#queryAgedOutUnsentMessages}).
+     *
+     * @param maxCreatedAtMillis inclusive upper bound on createdAtUtc (past the 24h window).
+     */
+    @NonNull
+    public List<GroupMessageModel> getAgedOutUnsentMessages(long maxCreatedAtMillis) {
+        return convertList(queryAgedOutUnsentMessages(maxCreatedAtMillis));
+    }
+
     public long countMessages(int groupId) {
         return DatabaseUtil.count(getReadableDatabase().rawQuery(
             "SELECT COUNT(*) FROM " + this.getTableName()
@@ -249,10 +271,7 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return DatabaseUtil.count(getReadableDatabase().rawQuery(
             "SELECT COUNT(*) FROM " + this.getTableName()
                 + " WHERE " + GroupMessageModel.COLUMN_GROUP_ID + "=?"
-                + " AND " + GroupMessageModel.COLUMN_OUTBOX + "=0"
-                + " AND " + GroupMessageModel.COLUMN_IS_SAVED + "=1"
-                + " AND " + GroupMessageModel.COLUMN_IS_READ + "=0"
-                + " AND " + GroupMessageModel.COLUMN_IS_STATUS_MESSAGE + "=0",
+                + " AND " + UNREAD_ROW_WHERE,
             new String[]{
                 String.valueOf(groupId)
             }
@@ -263,10 +282,7 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return convertList(getReadableDatabase().query(this.getTableName(),
             null,
             GroupMessageModel.COLUMN_GROUP_ID + "=?"
-                + " AND " + GroupMessageModel.COLUMN_OUTBOX + "=0"
-                + " AND " + GroupMessageModel.COLUMN_IS_SAVED + "=1"
-                + " AND " + GroupMessageModel.COLUMN_IS_READ + "=0"
-                + " AND " + GroupMessageModel.COLUMN_IS_STATUS_MESSAGE + "=0",
+                + " AND " + UNREAD_ROW_WHERE,
             new String[]{
                 String.valueOf(groupId)
             },
@@ -290,32 +306,15 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
     }
 
     public boolean createOrUpdate(GroupMessageModel groupMessageModel) {
-        boolean insert = true;
+        // F1Whisper (sixth fork review F6-01, seventh F7-01): see AbstractMessageModelFactory#refusesReinsertion.
         if (groupMessageModel.getId() > 0) {
-            Cursor cursor = getReadableDatabase().query(
-                this.getTableName(),
-                null,
-                GroupMessageModel.COLUMN_ID + "=?",
-                new String[]{
-                    String.valueOf(groupMessageModel.getId())
-                },
-                null,
-                null,
-                null
-            );
-
-            if (cursor != null) {
-                try (cursor) {
-                    insert = !cursor.moveToNext();
-                }
+            if (update(groupMessageModel)) {
+                return true;
             }
+            refusesReinsertion(groupMessageModel.getId());
+            return false;
         }
-
-        if (insert) {
-            return create(groupMessageModel);
-        } else {
-            return update(groupMessageModel);
-        }
+        return create(groupMessageModel);
     }
 
     public boolean create(GroupMessageModel groupMessageModel) {
@@ -330,23 +329,28 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return false;
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-01): reports whether the row was actually written. See
+     * {@link MessageModelFactory#update(ch.threema.storage.models.MessageModel)}.
+     */
     public boolean update(GroupMessageModel groupMessageModel) {
         ContentValues contentValues = this.buildContentValues(groupMessageModel);
         addGroupMessageStates(contentValues, groupMessageModel);
-        getWritableDatabase().update(this.getTableName(),
+        return getWritableDatabase().update(this.getTableName(),
             contentValues,
-            GroupMessageModel.COLUMN_ID + "=?",
+            CONTENT_ROW_WHERE,
             new String[]{
                 String.valueOf(groupMessageModel.getId()),
-            });
-        return true;
+            }) > 0;
     }
 
     public List<GroupMessageModel> find(int groupId, MessageService.MessageFilter filter) {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        //sort by id!
-        String orderBy = GroupMessageModel.COLUMN_ID + " DESC";
+        // F1Whisper: sort by the immutable per-row sort key (sortAtUtc), then id for stability. See
+        // MessageModelFactory.find for the full rationale. Shared TIMELINE_ORDER_BY so the
+        // pagination keyset in appendFilter stays in lockstep with the ordering (fork review H-06).
+        String orderBy = TIMELINE_ORDER_BY;
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(GroupMessageModel.COLUMN_GROUP_ID + "=?");
@@ -411,6 +415,58 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
             });
     }
 
+    /**
+     * F1Whisper disappearing messages: all group messages whose disappear deadline has already passed and which the
+     * deletion claim can still act on. Mirror of {@link MessageModelFactory#getMessagesExpiredBefore(long)} for the
+     * group table, including its {@link AbstractMessageModelFactory#pendingExpirySelection()} eligibility (F10-01).
+     */
+    public List<GroupMessageModel> getMessagesExpiredBefore(long now) {
+        return convertList(getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            expiredBeforeSelection(),
+            new String[]{String.valueOf(now)},
+            null,
+            null,
+            AbstractMessageModel.COLUMN_EXPIRES_AT + " ASC"));
+    }
+
+    /**
+     * F1Whisper disappearing messages: group rows whose countdown can never reach a deadline. Mirror
+     * of {@link MessageModelFactory#getRepairableExpiryCandidates(int)} for the group table; see
+     * there for why a row with no {@code expiresAtUtc} is invisible to the rest of the engine, why
+     * this scan is confined to the boot/app-update path, and why rows deleted for everyone are
+     * excluded from a budget this small (F10-01).
+     */
+    @NonNull
+    public List<GroupMessageModel> getRepairableExpiryCandidates(int limit) {
+        return convertList(getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            repairableExpirySelection(),
+            null,
+            null,
+            null,
+            AbstractMessageModel.COLUMN_ID + " ASC",
+            String.valueOf(limit)));
+    }
+
+    /**
+     * F1Whisper disappearing messages: the soonest pending expiry across all group messages the deletion claim can
+     * still act on, or {@code null} if nothing is scheduled. Mirror of
+     * {@link MessageModelFactory#getEarliestExpiry()} for the group table, including its
+     * {@link AbstractMessageModelFactory#pendingExpirySelection()} eligibility (F10-01).
+     */
+    @Nullable
+    public Long getEarliestExpiry() {
+        try (Cursor cursor = getReadableDatabase().rawQuery(earliestExpirySql(this.getTableName()), null)) {
+            if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+                return cursor.getLong(0);
+            }
+        }
+        return null;
+    }
+
     private GroupMessageModel getFirst(String selection, String[] selectionArgs) {
         Cursor cursor = getReadableDatabase().query(
             this.getTableName(),
@@ -433,10 +489,38 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
         return null;
     }
 
+    /**
+     * F1Whisper (group receipt regression, RB-01): the raw serialised per-member state map of row {@code id}, exactly
+     * as stored - byte for byte - or {@code null} when the column is SQL NULL or the row is gone.
+     *
+     * <p>A conditional write on this column must compare against these bytes, never against a parse-and-reserialise
+     * round trip of them: on Android {@code JSONObject} preserves the iteration order of the map it is built from, and
+     * {@code HashMap} iteration order depends on table capacity, so the same entries serialise differently out of the
+     * copy-sized map that wrote the column and the default-sized map the reload parses them into. A condition rebuilt
+     * that way never matches the stored text again once the orders diverge, and the compare-and-set refuses forever
+     * (see {@code MessageLifecycleUpdates.serialiseGroupMessageStates}).</p>
+     */
+    @Nullable
+    public String getGroupMessageStatesRaw(int id) {
+        try (Cursor cursor = getReadableDatabase().rawQuery(
+            "SELECT `" + GroupMessageModel.COLUMN_GROUP_MESSAGE_STATES + "` FROM `" + this.getTableName()
+                + "` WHERE `" + GroupMessageModel.COLUMN_ID + "` = ?",
+            new String[]{String.valueOf(id)})) {
+            if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+                return cursor.getString(0);
+            }
+        }
+        return null;
+    }
+
     private void addGroupMessageStates(@NonNull ContentValues contentValues, @NonNull GroupMessageModel groupMessageModel) {
+        // F1Whisper (group receipt regression, RB-01): an empty map is stored as NULL, exactly as
+        // MessageLifecycleUpdates.serialiseGroupMessageStates stores it - a full-row save writing "{}" where the
+        // column-scoped writers write NULL is a second way for the stored text to stop matching any reconstruction.
         String groupMessageStates = null;
-        if (groupMessageModel.getGroupMessageStates() != null) {
-            groupMessageStates = new JSONObject(groupMessageModel.getGroupMessageStates()).toString();
+        final Map<String, String> states = groupMessageModel.getGroupMessageStates();
+        if (states != null && !states.isEmpty()) {
+            groupMessageStates = new JSONObject(states).toString();
         }
 
         contentValues.put(GroupMessageModel.COLUMN_GROUP_MESSAGE_STATES, groupMessageStates);
@@ -476,7 +560,13 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
                     "`" + GroupMessageModel.COLUMN_GROUP_MESSAGE_STATES + "` VARCHAR ," +
                     "`" + GroupMessageModel.COLUMN_DISPLAY_TAGS + "` TINYINT DEFAULT 0 ," +
                     "`" + GroupMessageModel.COLUMN_EDITED_AT + "` DATETIME ," +
-                    "`" + GroupMessageModel.COLUMN_DELETED_AT + "` DATETIME );",
+                    "`" + GroupMessageModel.COLUMN_DELETED_AT + "` DATETIME ," +
+                    // F1Whisper disappearing messages (per-message frozen timer + expiry timestamps).
+                    "`" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + AbstractMessageModel.COLUMN_EXPIRE_STARTED_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + AbstractMessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL ," +
+                    // F1Whisper message-ordering fix (mirror DatabaseUpdateToVersion90134)
+                    "`" + AbstractMessageModel.COLUMN_SORT_AT + "` BIGINT DEFAULT NULL );",
 
                 // indices
                 "CREATE INDEX `group_message_uid_idx` ON `" + GroupMessageModel.TABLE + "` ( `" + GroupMessageModel.COLUMN_UID + "` )",
@@ -490,6 +580,10 @@ public class GroupMessageModelFactory extends AbstractMessageModelFactory {
                     + "`, `" + AbstractMessageModel.COLUMN_STATE
                     + "`, `" + AbstractMessageModel.COLUMN_OUTBOX
                     + "`)",
+                // F1Whisper disappearing messages: hot-path index for the alarm engine's
+                // MIN(expiresAtUtc) / expiresAtUtc<=now sweeps.
+                "CREATE INDEX `" + GroupMessageModel.TABLE + "_expiresAt_idx` ON `" + GroupMessageModel.TABLE
+                    + "` ( `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` )",
             };
         }
     }

@@ -19,6 +19,7 @@ import ch.threema.app.ui.listitemholder.ComposeMessageHolder;
 import ch.threema.app.utils.ElapsedTimeFormatter;
 import ch.threema.app.utils.ImageViewUtil;
 import ch.threema.app.utils.LinkifyUtil;
+import ch.threema.app.utils.MediaSpoilerUtil;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.domain.protocol.csp.messages.file.FileData;
@@ -65,6 +66,13 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
         });
 
         setOnClickListener(v -> {
+            // F1Whisper: while an un-revealed spoiler is shown, a tap reveals the media instead of
+            // opening it.
+            if (MediaSpoilerUtil.shouldObscure(getMessageModel())) {
+                MediaSpoilerUtil.reveal(getMessageModel().getId());
+                invalidate(holder, holder.messageBlockView.getContext(), position);
+                return;
+            }
             if (!isInChoiceMode() &&
                 getMessageModel().getState() != MessageState.TRANSCODING &&
                 getMessageModel().getState() != MessageState.SENDFAILED &&
@@ -76,7 +84,7 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
 
         setControllerClickListener(holder, videoMessagePlayer);
 
-        configureThumbnail(holder);
+        configureThumbnail(holder, position);
 
         if (getMessageModel().getType() == MessageType.FILE) {
             configureForMessageTypeFile(holder, context);
@@ -237,7 +245,7 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
         });
     }
 
-    private void configureThumbnail(@NonNull ComposeMessageHolder holder) {
+    private void configureThumbnail(@NonNull ComposeMessageHolder holder, final int position) {
         Bitmap thumbnail;
         try {
             thumbnail = getFileService().getMessageThumbnailBitmap(
@@ -249,6 +257,12 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
             thumbnail = null;
         }
 
+        // F1Whisper: blur the thumbnail and show a tap-to-reveal overlay for un-revealed spoilers.
+        final boolean obscure = MediaSpoilerUtil.shouldObscure(getMessageModel());
+        if (obscure && thumbnail != null) {
+            thumbnail = MediaSpoilerUtil.obscure(thumbnail, holder.attachmentImage.getContext());
+        }
+
         ImageViewUtil.showBitmapOrMoviePlaceholder(
             holder.contentView,
             holder.attachmentImage,
@@ -258,6 +272,20 @@ public class VideoChatAdapterDecorator extends ChatAdapterDecorator {
         holder.bodyTextView.setWidth(getThumbnailWidth());
         holder.attachmentImage.setContentDescription(holder.attachmentImage.getContext().getString(R.string.video_placeholder));
         showHide(holder.bodyTextView, false);
+
+        if (obscure) {
+            holder.attachmentImage.setContentDescription(holder.attachmentImage.getContext().getString(R.string.media_spoiler_badge_content_description));
+            showSpoilerOverlay(holder, true);
+            holder.controller.setHidden();
+        } else {
+            showSpoilerOverlay(holder, false);
+        }
+        // F1Whisper: the tap handler lives on the message block (reveal-if-spoiler, else play the
+        // video). The attachment image must stay non-clickable so the tap reaches that handler.
+        // Note: setOnClickListener(null) forces clickable=true and would swallow the tap (breaking
+        // video play / spoiler 2nd-tap), so we also explicitly clear clickable on recycled holders.
+        holder.attachmentImage.setOnClickListener(null);
+        holder.attachmentImage.setClickable(false);
     }
 
     private void setControllerState(@NonNull ComposeMessageHolder holder) {

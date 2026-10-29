@@ -4,6 +4,6 @@
     android:layout_width="wrap_content"
     android:layout_height="@dimen/emojireactions_height"
     android:layout_below="@+id/message_block"
-    android:layout_toRightOf="@id/avatar_view"
+    android:layout_toEndOf="@id/avatar_view"
     android:duplicateParentState="false"
     android:layout_marginTop="-5dp" />

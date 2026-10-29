@@ -15,6 +15,8 @@ import ch.threema.data.datatypes.ContactNameFormat
  *  setting to hide private conversations. If private conversations should be hidden, these will never be counted.
  *  @param pendingAction              Used to store temporary information about a pending action the user might or might not complete. There can only be one
  *  pending action at a time. Example: the user has to configure an app lock before the selected conversation can be marked as private.
+ *  @param folders                    The user-defined chat folders rendered as filter chips above the list.
+ *  @param selectedFolderId           The id of the currently selected folder, or `null` for the "All" filter.
  */
 @Immutable
 data class ConversationsViewState(
@@ -26,6 +28,14 @@ data class ConversationsViewState(
     val contactNameFormat: ContactNameFormat,
     val availabilityStatus: AvailabilityStatus,
     val pendingAction: ConversationsViewPendingAction?,
+    val folders: List<ChatFolderUiModel>,
+    val selectedFolderId: Long?,
+)
+
+@Immutable
+data class ChatFolderUiModel(
+    val id: Long,
+    val name: String,
 )
 
 @Immutable

@@ -14,7 +14,6 @@ import ch.threema.domain.protocol.connection.socket.ServerSocketCloseReason
 import ch.threema.domain.protocol.connection.util.ConnectionLoggingUtil
 import ch.threema.domain.protocol.connection.util.Layer3Controller
 import ch.threema.domain.protocol.connection.util.MdLayer3Controller
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 private val logger = ConnectionLoggingUtil.getConnectionLogger("AuthLayer")
@@ -23,7 +22,8 @@ internal class AuthLayer(
     private val controller: Layer3Controller,
 ) : Layer3Codec {
     init {
-        CoroutineScope(controller.dispatcher.coroutineContext).launch {
+        // F1Whisper (tenth fork review, F10-02): owned by the attempt, so it cannot outlive the graph it belongs to.
+        controller.dispatcher.scope.launch {
             controller.connected.await()
             initiateCspHandshake()
         }

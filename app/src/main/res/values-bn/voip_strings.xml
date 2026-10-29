@@ -1,0 +1,111 @@
+<resources>
+    <string name="voip_title">Threema কল</string>
+    <string name="voip_hangup">কল কাটুন</string>
+    <string name="voip_toggle_mic">মাইক্রোফোন চালু/বন্ধ করুন</string>
+    <string name="voip_toggle_speaker">স্পিকার চালু/বন্ধ করুন</string>
+    <string name="voip_switch_cam">ক্যামেরা পরিবর্তন করুন</string>
+    <string name="voip_switch_cam_front">সামনের ক্যামেরায় পরিবর্তন করা হয়েছে</string>
+    <string name="voip_switch_cam_rear">পিছনের ক্যামেরায় পরিবর্তন করা হয়েছে</string>
+    <string name="voip_toggle_video">ভিডিও মোড চালু/বন্ধ করুন</string>
+    <string name="voip_call_confirm">আপনি কি %1$s-কে কল করতে চান?</string>
+    <string name="voip_error_call">Threema কলের সময় ত্রুটি</string>
+    <string name="voip_error_init_call">কল শুরু করার সময় ত্রুটি</string>
+    <string name="voip_notification_title">আগত Threema কল</string>
+    <string name="voip_notification_text">%1$s কল করছেন</string>
+    <!-- Shown when starting a call, before the peer device is ringing -->
+    <string name="voip_status_initializing">শুরু করা হচ্ছে</string>
+    <!-- Shown when the callee has accepted the call and the connection is being established -->
+    <string name="voip_status_connecting">সংযোগ করা হচ্ছে</string>
+    <!-- Shown when a call is being disconnected -->
+    <string name="voip_status_disconnecting">সংযোগ বিচ্ছিন্ন করা হচ্ছে</string>
+    <!-- Shown when the device of the callee is ringing -->
+    <string name="voip_status_ringing">রিং হচ্ছে</string>
+    <string name="voip_mic_enable">মাইক্রোফোন চালু করুন</string>
+    <string name="voip_mic_disable">মাইক্রোফোন বন্ধ করুন</string>
+    <string name="voip_checking_compatibility">এই পরিচিতি Threema কল গ্রহণ করতে পারে কিনা যাচাই করা হচ্ছে</string>
+    <string name="voip_incompatible">এই পরিচিতি এখনও Threema কল গ্রহণ করতে সক্ষম নয়।</string>
+    <string name="voip_call_status_unavailable">কল গ্রহীতা উপলব্ধ নেই</string>
+    <string name="voip_call_status_rejected">কল প্রত্যাখ্যান করা হয়েছে</string>
+    <string name="voip_call_status_busy">কল গ্রহীতা ব্যস্ত</string>
+    <string name="voip_call_status_busy_short">ব্যস্ত</string>
+    <string name="voip_call_status_disabled">গ্রহীতা Threema কল নিষ্ক্রিয় করেছেন</string>
+    <string name="voip_call_status_missed">মিসড কল</string>
+    <string name="voip_call_finished_outbox">বহির্গামী কল</string>
+    <string name="voip_call_finished_inbox">আগত কল</string>
+    <string name="voip_call_status_aborted">কল বাতিল হয়েছে</string>
+    <string name="voip_return_call">কল ফেরত দিন</string>
+    <string name="voip_accept">গ্রহণ করুন</string>
+    <string name="voip_reject">প্রত্যাখ্যান করুন</string>
+    <string name="voip_speakerphone">স্পিকারফোন</string>
+    <string name="voip_wired_headset">হেডসেট</string>
+    <string name="voip_earpiece">ফোন</string>
+    <string name="voip_bluetooth">ব্লুটুথ</string>
+    <string name="voip_none">উপলব্ধ নেই</string>
+    <string name="voip_call_finished">Threema কল শেষ হয়েছে</string>
+    <string name="voip_another_call">সংযোগ করা যাচ্ছে না। বর্তমানে আরেকটি Threema কল সক্রিয় আছে।</string>
+    <string name="voip_prefs_title_aec">প্রতিধ্বনি বাতিলকরণ</string>
+    <string name="voip_prefs_aec_sw">সফটওয়্যার প্রতিধ্বনি বাতিলকরণ</string>
+    <string name="voip_prefs_aec_hw">হার্ডওয়্যার প্রতিধ্বনি বাতিলকরণ</string>
+    <string name="voip_prefs_title_video_codec">ভিডিও কোডেক</string>
+    <string name="voip_prefs_video_aec_hw">হার্ডওয়্যার ত্বরান্বিত</string>
+    <string name="voip_prefs_video_codec_no_vp8">VP8 নিষ্ক্রিয় করুন</string>
+    <string name="voip_prefs_video_codec_no_h264hip">H264-HiP নিষ্ক্রিয় করুন</string>
+    <string name="voip_prefs_video_codec_sw">সফটওয়্যার কোডেক</string>
+    <string name="voip_connection_failed">সংযোগ স্থাপন করা যায়নি</string>
+    <string name="voip_call_disconnected">কল সংযোগ বিচ্ছিন্ন হয়েছে</string>
+    <string name="prefs_voip_reject_incoming_calls_title">মোবাইল কল প্রত্যাখ্যান করুন</string>
+    <string name="prefs_voip_reject_incoming_calls_summary">Threema কল সক্রিয় থাকাকালীন আগত মোবাইল কল প্রত্যাখ্যান করুন।</string>
+    <string name="voip_contact_not_found">এই নম্বরের জন্য কোনো Threema পরিচিতি পাওয়া যায়নি।</string>
+    <string name="voip_another_pstn_call">কল শুরু করা যাচ্ছে না। একটি সাধারণ ফোন কল এখনও সক্রিয় আছে।</string>
+    <string name="voip_call_status_off_hours">কর্মঘণ্টার বাইরের কল</string>
+    <string name="voip_peer_video_disabled">অপর পক্ষ ভিডিও কল নিষ্ক্রিয় করেছেন।</string>
+
+    <string name="voip_error_processing_call_anser">কল উত্তর প্রক্রিয়া করার সময় একটি ত্রুটি ঘটেছে</string>
+    <string name="voip_error_peer_connection">পিয়ার সংযোগ ত্রুটি</string>
+    <string name="voip_error_determine_common_video_quality_profile">সাধারণ ভিডিও মানের প্রোফাইল নির্ধারণ করা যায়নি</string>
+
+    <string name="voip_audio_focus_lost">অডিও ফোকাস হারানো হয়েছে</string>
+
+    <string name="voip_could_not_initialize">কল শুরু করা যায়নি</string>
+
+    <!-- WebRTC debugger -->
+    <string name="voip_prefs_webrtc_debug">WebRTC ডায়াগনস্টিকস</string>
+    <string name="voip_prefs_webrtc_debug_summary">ভয়েস কল সংযোগ স্থাপনের সমস্যা সমাধানের জন্য এই টুলটি চালু করুন</string>
+    <string name="voip_webrtc_debug">WebRTC ডায়াগনস্টিকস</string>
+    <string name="voip_webrtc_debug_intro">পরীক্ষা শুরু করতে “শুরু“ বোতামে চাপুন।</string>
+    <string name="voip_webrtc_debug_start">শুরু করুন</string>
+    <string name="voip_webrtc_debug_done">সম্পন্ন হয়েছে। কল সংযোগ স্থাপনে সমস্যা হলে দয়া করে এই আউটপুটটি Threema সাপোর্টে পাঠান।</string>
+    <string name="voip_webrtc_debug_copied">ক্লিপবোর্ডে অনুলিপি সম্পন্ন হয়েছে।</string>
+    <string name="voip_webrtc_debug_copy_clipboard">ক্লিপবোর্ডে অনুলিপি করুন</string>
+
+    <!-- Group Calls -->
+    <string name="voip_gc_notification_call_started">%1$s %2$s-এ একটি গ্রুপ কল শুরু করেছেন</string>
+    <string name="voip_gc_notification_call_started_generic">%1$s একটি গ্রুপ কল শুরু করেছেন</string>
+    <string name="voip_gc_notification_call_started_generic_outbox">আপনি একটি গ্রুপ কল শুরু করেছেন</string>
+    <string name="voip_gc_join_call">যোগ দিন</string>
+    <string name="voip_gc_ongoing_call">চলমান গ্রুপ কল</string>
+    <string name="voip_gc_waiting_for_participants">অংশগ্রহণকারীদের জন্য অপেক্ষা করা হচ্ছে</string>
+    <string name="voip_gc_participant_avatar_description">অংশগ্রহণকারীর প্রোফাইল ছবি</string>
+    <string name="voip_gc_participant_mute_status_description">অংশগ্রহণকারীর মিউট অবস্থা</string>
+    <string name="voip_gc_participant_screen_share_status_description">অংশগ্রহণকারী একটি স্ক্রিন শেয়ার করছেন</string>
+    <string name="voip_gc_notification_new_call_public">একটি নতুন গ্রুপ কল শুরু হয়েছে</string>
+    <string name="voip_gc_open_call">খুলুন</string>
+    <string name="voip_gc_call_started">গ্রুপ কল শুরু হয়েছে</string>
+    <string name="voip_gc_call_ended">গ্রুপ কল শেষ হয়েছে</string>
+    <string name="voip_gc_in_call">গ্রুপ কলে আছেন</string>
+    <string name="voip_gc_sfu_not_available">সার্ভার উপলব্ধ নেই, পরে আবার চেষ্টা করুন</string>
+    <string name="voip_gc_call_error">একটি ত্রুটির কারণে কল বন্ধ হয়েছে</string>
+    <string name="voip_gc_call_start_error">গ্রুপ কল শুরু করা যায়নি</string>
+    <string name="voip_gc_call_already_ended">গ্রুপ কল ইতিমধ্যে শেষ হয়েছে</string>
+    <string name="voip_gc_screen_sharing_not_supported">স্ক্রিন শেয়ারিং বর্তমানে শুধুমাত্র ডেস্কটপ ডিভাইসে সীমাবদ্ধ।</string>
+    <string name="voip_gc_call_full_generic">সর্বোচ্চ সীমায় পৌঁছেছে: এই গ্রুপ কলে আর কোনো অংশগ্রহণকারী যোগ দিতে পারবেন না।</string>
+    <string name="voip_gc_call_full_n">সর্বোচ্চ %1$d জন অংশগ্রহণকারীর সীমায় পৌঁছেছে, আপনি এই গ্রুপ কলে যোগ দিতে পারবেন না।</string>
+    <plurals name="n_participants_in_call">
+        <item quantity="one">%d জন অংশগ্রহণকারী</item>
+        <item quantity="other">%d জন অংশগ্রহণকারী</item>
+    </plurals>
+    <plurals name="n_members_dont_support_group_calls">
+        <item quantity="one">দ্রষ্টব্য: একজন সদস্য গ্রুপ কলে অংশ নিতে পারবেন না।</item>
+        <item quantity="other">দ্রষ্টব্য: %d জন সদস্য গ্রুপ কলে অংশ নিতে পারবেন না।</item>
+    </plurals>
+</resources>

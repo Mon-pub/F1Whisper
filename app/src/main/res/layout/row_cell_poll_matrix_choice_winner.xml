@@ -10,7 +10,7 @@
         android:layout_width="@dimen/poll_matrix_cell_width"
         android:layout_height="@dimen/poll_matrix_cell_height"
         android:layout_gravity="center"
-        android:layout_marginRight="@dimen/poll_matrix_cell_border"
+        android:layout_marginEnd="@dimen/poll_matrix_cell_border"
         android:layout_marginBottom="@dimen/poll_matrix_cell_border"
         android:background="@drawable/matrix_winner_cell"
         android:gravity="center">

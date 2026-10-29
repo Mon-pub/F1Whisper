@@ -84,8 +84,6 @@ class ThreemaSafeServiceTest {
         groupServiceMock,
         /* distributionListService = */
         distributionListServiceMock,
-        /* localeService = */
-        mockk(),
         /* fileService = */
         mockk(),
         /* blockedIdentitiesService = */

@@ -203,6 +203,28 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         return null;
     }
 
+    /**
+     * F1Whisper auto-resend: outgoing 1:1 messages eligible for silent auto-resend (see
+     * {@code AbstractMessageModelFactory#queryAutoResendCandidates}), oldest compose-time first.
+     *
+     * @param minCreatedAtMillis exclusive lower bound on createdAtUtc (24h lifespan cutoff).
+     */
+    @NonNull
+    public List<MessageModel> getAutoResendCandidates(long minCreatedAtMillis) {
+        return convertList(queryAutoResendCandidates(minCreatedAtMillis));
+    }
+
+    /**
+     * F1Whisper auto-resend: outgoing 1:1 messages that are still unsent but have exhausted the 24h
+     * auto-resend window (see {@code AbstractMessageModelFactory#queryAgedOutUnsentMessages}).
+     *
+     * @param maxCreatedAtMillis inclusive upper bound on createdAtUtc (past the 24h window).
+     */
+    @NonNull
+    public List<MessageModel> getAgedOutUnsentMessages(long maxCreatedAtMillis) {
+        return convertList(queryAgedOutUnsentMessages(maxCreatedAtMillis));
+    }
+
     public long countMessages(String identity) {
         return DatabaseUtil.count(getReadableDatabase().rawQuery(
             "SELECT COUNT(*) FROM " + this.getTableName()
@@ -217,10 +239,7 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         return DatabaseUtil.count(getReadableDatabase().rawQuery(
             "SELECT COUNT(*) FROM " + this.getTableName()
                 + " WHERE " + MessageModel.COLUMN_IDENTITY + "=?"
-                + " AND " + MessageModel.COLUMN_OUTBOX + "=0"
-                + " AND " + MessageModel.COLUMN_IS_SAVED + "=1"
-                + " AND " + MessageModel.COLUMN_IS_READ + "=0"
-                + " AND " + MessageModel.COLUMN_IS_STATUS_MESSAGE + "=0",
+                + " AND " + UNREAD_ROW_WHERE,
             new String[]{
                 identity
             }
@@ -232,10 +251,7 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         return convertList(getReadableDatabase().query(this.getTableName(),
             null,
             MessageModel.COLUMN_IDENTITY + "=?"
-                + " AND " + MessageModel.COLUMN_OUTBOX + "=0"
-                + " AND " + MessageModel.COLUMN_IS_SAVED + "=1"
-                + " AND " + MessageModel.COLUMN_IS_READ + "=0"
-                + " AND " + MessageModel.COLUMN_IS_STATUS_MESSAGE + "=0",
+                + " AND " + UNREAD_ROW_WHERE,
             new String[]{
                 identity
             },
@@ -281,32 +297,18 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
     }
 
     public boolean createOrUpdate(@NonNull MessageModel messageModel) {
-        boolean insert = true;
+        // F1Whisper (sixth fork review F6-01, seventh F7-01, eighth H8-01): see
+        // AbstractMessageModelFactory#refusesReinsertion for why a positive id may never insert, and why the existence
+        // question is asked BY the update rather than before it; and CONTENT_ROW_WHERE for why a row deleted for
+        // everyone answers the same way as a row that has gone.
         if (messageModel.getId() > 0) {
-            Cursor cursor = getReadableDatabase().query(
-                this.getTableName(),
-                null,
-                MessageModel.COLUMN_ID + "=?",
-                new String[]{
-                    String.valueOf(messageModel.getId())
-                },
-                null,
-                null,
-                null
-            );
-
-            if (cursor != null) {
-                try (cursor) {
-                    insert = !cursor.moveToNext();
-                }
+            if (update(messageModel)) {
+                return true;
             }
+            refusesReinsertion(messageModel.getId());
+            return false;
         }
-
-        if (insert) {
-            return create(messageModel);
-        } else {
-            return update(messageModel);
-        }
+        return create(messageModel);
     }
 
     public boolean create(MessageModel messageModel) {
@@ -319,15 +321,22 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         return false;
     }
 
+    /**
+     * F1Whisper (seventh fork review, F7-01): reports whether the row was actually written, rather than the constant
+     * {@code true} it used to return. Every caller of a full-row save now has to be able to tell "the row is gone" from
+     * "saved", because caching or transmitting from a model whose row has gone is the disclosure this closes.
+     *
+     * <p>F1Whisper (eighth fork review, H8-01): and a row deleted for everyone is one of the rows it may not write.
+     * See {@link AbstractMessageModelFactory#CONTENT_ROW_WHERE}.</p>
+     */
     public boolean update(MessageModel messageModel) {
         ContentValues contentValues = this.buildContentValues(messageModel);
-        getWritableDatabase().update(this.getTableName(),
+        return getWritableDatabase().update(this.getTableName(),
             contentValues,
-            MessageModel.COLUMN_ID + "=?",
+            CONTENT_ROW_WHERE,
             new String[]{
                 String.valueOf(messageModel.getId())
-            });
-        return true;
+            }) > 0;
     }
 
     public int delete(MessageModel messageModel) {
@@ -341,8 +350,16 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
     public List<MessageModel> find(String identity, MessageService.MessageFilter filter) {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        //sort by id!
-        String orderBy = MessageModel.COLUMN_ID + " DESC";
+        // F1Whisper: sort by the immutable per-row sort key (sortAtUtc). It is outgoing ->
+        // createdAtUtc (local compose time, immutable) / incoming -> COALESCE(postedAtUtc,
+        // createdAtUtc) (sender time). The earlier postedAtUtc-only sort reordered same-minute
+        // OUTGOING messages, because postedAtUtc is overwritten with the send-completion time
+        // (sentAt), which is not monotonic with compose order (FS/blob/retry finish out of order).
+        // sortAtUtc is never overwritten, so compose order is preserved while incoming rows still
+        // keep sender time (so a reconnect-backlog blob stays below its own replies).
+        // Shared TIMELINE_ORDER_BY so the pagination keyset in appendFilter stays in lockstep with
+        // the ordering (fork review H-06).
+        String orderBy = TIMELINE_ORDER_BY;
         List<String> placeholders = new ArrayList<>();
 
         queryBuilder.appendWhere(MessageModel.COLUMN_IDENTITY + "=?");
@@ -432,6 +449,73 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
         );
     }
 
+    /**
+     * F1Whisper disappearing messages: all 1:1 messages whose disappear deadline has already passed and which the
+     * deletion claim can still act on. Used by the deletion engine's sweep-all-due fire and the startup purge.
+     *
+     * <p>Eligibility is {@link AbstractMessageModelFactory#pendingExpirySelection()}, deliberately the same shape the
+     * claim requires: selecting a row this engine can never remove is what turned one tombstone into a permanent
+     * five-second alarm loop (F10-01).</p>
+     */
+    public List<MessageModel> getMessagesExpiredBefore(long now) {
+        return convertList(getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            expiredBeforeSelection(),
+            new String[]{String.valueOf(now)},
+            null,
+            null,
+            AbstractMessageModel.COLUMN_EXPIRES_AT + " ASC"));
+    }
+
+    /**
+     * F1Whisper disappearing messages: 1:1 rows whose countdown can never reach a deadline, so that
+     * {@link ch.threema.app.services.ExpiryRepairDecision} can decide what to stamp on them.
+     *
+     * <p>Both {@link #getMessagesExpiredBefore(long)} and {@link #getEarliestExpiry()} select on
+     * {@code expiresAtUtc IS NOT NULL}, so a row without a deadline is not merely late to the sweep,
+     * it is invisible to the entire engine. This query is the only thing that can see it.
+     *
+     * <p>Two shapes qualify, both requiring an active frozen timer and a row that has not been
+     * deleted for everyone: a started countdown with no deadline, and a read incoming message whose
+     * countdown never started (the shape a non-atomic first-read write used to leave behind on a
+     * process kill). See {@link AbstractMessageModelFactory#repairableExpirySelection()} for why the
+     * tombstone exclusion matters to a scan this one is bounded by.
+     *
+     * <p>Deliberately bounded by {@code LIMIT} and deliberately not run on the chat-open path: there
+     * is no index that suits this predicate, so it is a table scan, and it belongs on the
+     * boot/app-update path where one scan is affordable and repeated passes converge.
+     */
+    @NonNull
+    public List<MessageModel> getRepairableExpiryCandidates(int limit) {
+        return convertList(getReadableDatabase().query(
+            this.getTableName(),
+            null,
+            repairableExpirySelection(),
+            null,
+            null,
+            null,
+            AbstractMessageModel.COLUMN_ID + " ASC",
+            String.valueOf(limit)));
+    }
+
+    /**
+     * F1Whisper disappearing messages: the soonest pending expiry across all 1:1 messages the deletion claim can still
+     * act on, or {@code null} if nothing is scheduled. Used to arm the next alarm.
+     *
+     * <p>Shares {@link AbstractMessageModelFactory#pendingExpirySelection()} with the due read and the claim. An
+     * unclaimable past deadline here is not a late alarm, it is an alarm that re-arms in the past forever (F10-01).</p>
+     */
+    @Nullable
+    public Long getEarliestExpiry() {
+        try (Cursor cursor = getReadableDatabase().rawQuery(earliestExpirySql(this.getTableName()), null)) {
+            if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
+                return cursor.getLong(0);
+            }
+        }
+        return null;
+    }
+
     private MessageModel getFirst(String selection, String[] selectionArgs) {
         Cursor cursor = getReadableDatabase().query(
             this.getTableName(),
@@ -487,7 +571,13 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
                     "`" + MessageModel.COLUMN_FORWARD_SECURITY_MODE + "` TINYINT DEFAULT 0 ," +
                     "`" + MessageModel.COLUMN_DISPLAY_TAGS + "` TINYINT DEFAULT 0 ," +
                     "`" + MessageModel.COLUMN_EDITED_AT + "` DATETIME ," +
-                    "`" + MessageModel.COLUMN_DELETED_AT + "` DATETIME );",
+                    "`" + MessageModel.COLUMN_DELETED_AT + "` DATETIME ," +
+                    // F1Whisper disappearing messages (mirror DatabaseUpdateToVersion90132)
+                    "`" + MessageModel.COLUMN_EXPIRES_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + MessageModel.COLUMN_EXPIRE_STARTED_AT + "` BIGINT DEFAULT NULL ," +
+                    "`" + MessageModel.COLUMN_DISAPPEARING_TIMER_SECONDS + "` INTEGER DEFAULT NULL ," +
+                    // F1Whisper message-ordering fix (mirror DatabaseUpdateToVersion90134)
+                    "`" + MessageModel.COLUMN_SORT_AT + "` BIGINT DEFAULT NULL );",
 
                 // indices
                 "CREATE INDEX `contact_message_uid_idx` ON `" + MessageModel.TABLE + "` ( `" + MessageModel.COLUMN_UID + "` )",
@@ -506,7 +596,10 @@ public class MessageModelFactory extends AbstractMessageModelFactory {
                     + "`(`" + AbstractMessageModel.COLUMN_TYPE
                     + "`, `" + AbstractMessageModel.COLUMN_STATE
                     + "`, `" + AbstractMessageModel.COLUMN_OUTBOX
-                    + "`)"
+                    + "`)",
+                // F1Whisper disappearing messages: the alarm engine arms/sweeps on expiresAtUtc.
+                "CREATE INDEX `" + MessageModel.TABLE + "_expiresAt_idx` ON `" + MessageModel.TABLE
+                    + "` ( `" + AbstractMessageModel.COLUMN_EXPIRES_AT + "` )"
             };
         }
     }

@@ -618,6 +618,8 @@
     <string name="prefs_sendlog_summary">Изпратете лог/журнал на ${company_name} за последващ анализ, ако имате проблеми</string>
     <string name="prefs_exportlog">Експортирайте лог</string>
     <string name="prefs_exportlog_summary">Изпратете лог-файл с друго приложение</string>
+    <string name="prefs_connection_diagnostics">Диагностика на връзката &amp; известията</string>
+    <string name="prefs_connection_diagnostics_summary">Експортирайте отчет за състоянието на връзката, push, известията и батерията, за да помогнете при диагностиката на липсващи известия</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">За да запазите или изпратите мултимедийни файлове, позволете на ${app_name} да има достъп до вътрешното хранилище.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -955,7 +957,7 @@
     <string name="safe_learn_more_button">Научете повече</string>
     <string name="safe_enable_explain">Всичко от което се нуждаете, за да чатите, е запазено само на Вашето устройство. Вие нямате регистрация и ние не можем да Ви помогнем, ако си изгубите телефона или случайно си изтриете данните.\n\n${app_name_short} Safe създава автоматично резервно копие на всички важни данни, като ключове, контакти и групи (без съдържанието на съобщенията) анонимно на сигурен сървър, който Вие сам си избирате.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Искате ли да продължите без активен ${app_name_short} Safe? Когато използвате ${app_name_short} Safe, Вие можете да възстановите Вашия ${app_name_short} идентификатор, контактите и групите, ако загубите достъп до Вашето устройство</string>
+    <string name="safe_disable_confirm">Искате ли да продължите без активен ${app_name_short} Safe? Когато използвате ${app_name_short} Safe, Вие можете да възстановите Вашия ${app_name_short} идентификатор и групите, ако загубите достъп до Вашето устройство</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Моля, изберете силна парола. Ще се нуждаете от тази парола, за да възстановите Вашето ${app_name_short} Safe резервно копие.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -972,14 +974,10 @@
     <string name="safe_threema_id">Вашият ${app_name_short} идентификатор</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Моля, въведете ${app_name_short} идентификатора, който искате да възстановите</string>
-    <string name="safe_search_id_title">Моля, въведете мобилния номер или имейл адреса, който е свързан към Вашия ${app_name_short} идентификатор</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Търсене на ${app_name_short} идентификатора</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Не е намерен ${app_name_short} идентификатора</string>
     <string name="safe_no_backup_found">Не е намерено резервно копие в сървъра. Проверете идентификатора или паролата.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Открити са множество ${app_name_short} идентификатори. Моля, изберете идентификатора, който искате да използвате:</string>
     <string name="safe_backup_now">Направете резервно копие сега</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Активирайте ${app_name_short} Safe, за да създадете автоматични, сигурни и анонимни резервни копия на всичките Ви важни данни.</string>
@@ -1017,7 +1015,6 @@
     <string name="safe_restore">Възстановяване на ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Резервното копие или възстановяването е в ход. Проверете напредъка в известията.</string>
     <string name="restore_error_body">Възстановяването е неуспешно</string>
-    <string name="forgot_your_id">Забравили сте Вашия идентификатор?</string>
     <string name="restore_success_body">Възстановяването е успешно</string>
     <string name="work_data_sync">Синхронизиране на данни</string>
     <string name="private_contact">Поверителен контакт</string>
@@ -1387,6 +1384,10 @@
     <string name="forward_security_notification_rejected_text_group">Едно или повече съобщения не могат да бъдат изпратени на %1$s.”</string>
     <string name="forward_security_notification_rejected_text_generic">Едно или повече съобщения не могат да бъдат изпратени.</string>
     <string name="self_updater_installation_failed">Изтеглянето на актуализацията е неуспешно. Моля, изтеглете и инсталирайте актуализацията от <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> ръчно.</string>
+    <string name="self_updater_downloading_background">Изтегляне на актуализацията във фонов режим…</string>
+    <string name="self_updater_update_ready_title">Актуализацията е изтеглена</string>
+    <string name="self_updater_update_ready_text">Докоснете, за да инсталирате актуализацията</string>
+    <string name="self_updater_download_failed">Изтеглянето на актуализацията е неуспешно. Докоснете, за да я изтеглите ръчно.</string>
     <string name="spam_first_contact">Чатът е от непознат контакт</string>
     <string name="spam_report">Докладвайте за спам</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1563,6 +1564,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">На приложението не му е разрешено да поддържа постоянна връзка със сървърите, а това е необходимо на ${app_name_short} Push, за да работи. Вие няма да бъдете информирани за нови съобщения, когато приложението е във фонов режим. За да го поправите, натиснете на „Използване на батерията“ и изберете „Неограничено“.</string>
     <string name="problemsolver_to_settings">Към настройките</string>
+    <string name="problemsolver_title_oem_autostart">Разрешаване на работа във фонов режим</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Устройствата %1$s може да спрат F1Whisper да работи във фонов режим, което блокира известията за съобщения дори когато оптимизацията на батерията вече е изключена. Отворете ръководството и разрешете на F1Whisper автоматично стартиране и работа във фонов режим.</string>
+    <string name="problemsolver_oem_autostart_action">Отваряне на ръководството</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Премахни</string>
     <string name="prefs_advanced_options">Разширени опции</string>
@@ -1780,6 +1785,19 @@
     <string name="tooltip_text_availability_status_in_chat">Вижте дали някой е зает или недостъпен преди да му пишете. Може да зададете собствения Ви статус в профила.</string>
     <string name="tooltip_text_availability_status_in_profile">Задайте Вашия статус, за да покажете кога сте зает или недостъпен.</string>
     <string name="view_full_availability_status_modal_title">Достъпност</string>
+    <!-- Title of the dialog for changing the on-prem server domain on the "About" screen. -->
+    <string name="change_server_dialog_title">Смяна на сървъра</string>
+    <!-- Input hint of the dialog for changing the on-prem server domain; the user enters the server domain (host). -->
+    <string name="change_server_dialog_hint">Домейн на сървъра</string>
+    <!-- Title of the warning dialog shown before applying a new on-prem server domain. -->
+    <string name="change_server_warning_title">Смяна на сървъра?</string>
+    <!-- Warning message shown before applying a new on-prem server domain. -->
+    <string name="change_server_warning_message">Смяната на сървъра вероятно ще прекъсне връзката на текущия Ви идентификатор. Направете го само ако доставчикът Ви е потвърдил новия домейн. Ако домейнът е грешен, приложението ще спре да работи.</string>
+    <!-- Action label for using a different activation key. -->
+    <string name="use_different_key">Използване на друг ключ</string>
+    <string name="activation_key_already_redeemed">Този активационен ключ вече е бил използван. Моля, въведете друг ключ.</string>
+    <!-- Safe-password complexity validation error. -->
+    <string name="safe_password_complexity_unmet">Паролата трябва да е по-дълга от 10 знака и да съдържа малки букви, главни букви, цифра и символ</string>
     <!-- A hint text that will be played by the android screen reader in accessibility mode. It explains the effect of a click action. -->
     <!-- Clicking will open a new modal view that displays the full length of a contact's availability status description. -->
     <string name="accessibility_view_full_availability_status">Докоснете, за да видите пълния статус на достъпност</string>
@@ -1881,4 +1899,133 @@
         <item quantity="one">%d член на групата</item>
         <item quantity="other">%d членове на групата</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Реакции</string>
+    <string name="reaction_notification_text">%1$s реагира с %2$s на Вашето съобщение</string>
+    <string name="prefs_title_reaction_notifications">Известия за реакции</string>
+    <string name="prefs_sum_reaction_notifications">Известявайте ме, когато някой реагира на едно от моите съобщения</string>
+    <string name="chat_background_choose">Фонове</string>
+    <string name="chat_background_random">Произволен (различен за всеки чат)</string>
+    <string name="chat_background_numbered">Фон %1$d</string>
+    <string name="listen_once_enabled">Еднократно слушане: вкл.</string>
+    <string name="listen_once_disabled">Еднократно слушане: изкл.</string>
+    <string name="listen_once_badge_content_description">Гласово съобщение за еднократно слушане</string>
+    <string name="forwarded_message_label">Препратено</string>
+    <string name="listen_once_already_listened">Прослушано</string>
+    <string name="listen_once_sent">Гласово съобщение за еднократно слушане</string>
+    <string name="listen_once_cannot_forward">Съобщенията за еднократно слушане не могат да се препращат</string>
+    <string name="listen_once_expired">Гласовото съобщение изтече</string>
+    <string name="group_one_typing">%s пише…</string>
+    <string name="group_two_typing">%1$s и %2$s пишат…</string>
+    <string name="group_many_typing">%1$s и още %2$d пишат…</string>
+    <string name="message_details_read_by">Прочетено от</string>
+    <string name="message_details_delivered_to">Доставено до</string>
+    <string name="message_details_sent_to">Изпратено до</string>
+    <string name="markup_monospace">Равноширок шрифт</string>
+    <string name="markup_spoiler">Скрит текст</string>
+    <string name="spoiler_hidden_content_description">Скрит текст, докоснете двукратно за разкриване</string>
+    <string name="media_spoiler">Скрита медия</string>
+    <string name="media_spoiler_reveal">Докоснете за разкриване</string>
+    <string name="media_spoiler_badge_content_description">Скрита медия. Докоснете двукратно за разкриване.</string>
+    <string name="chat_folders">Папки за чатове</string>
+    <string name="manage_folders">Управление на папките</string>
+    <string name="add_to_folder">Добавяне в папка</string>
+    <string name="folder_all">Всички</string>
+    <string name="new_folder">Нова папка</string>
+    <string name="create_folder">Създаване на папка</string>
+    <string name="rename_folder">Преименуване на папка</string>
+    <string name="delete_folder">Изтриване на папка</string>
+    <string name="delete_folder_confirm">Да се премахне ли тази папка? Вашите чатове няма да бъдат изтрити.</string>
+    <string name="folder_name_hint">Име на папката</string>
+    <string name="folder_name_empty">Моля, въведете име на папката</string>
+    <string name="no_chat_folders">Все още не сте създали папки</string>
+    <string name="folder_created">Папката е създадена</string>
+    <string name="folder_deleted">Папката е изтрита</string>
+    <string name="add_to_folder_title">Добавяне на чат в папки</string>
+    <string name="folder_empty">Няма чатове в тази папка</string>
+    <string name="prefs_refresh_onprem_config">Обновяване на конфигурацията на сървъра</string>
+    <string name="prefs_refresh_onprem_config_summary">Изтеглете отново конфигурацията на сървъра сега. Полезно, след като сървърът добави нови функции като свързване с настолно устройство.</string>
+    <string name="onprem_config_refreshed">Конфигурацията на сървъра е обновена</string>
+    <string name="prefs_title_link_previews">Генериране на визуализации на връзки</string>
+    <string name="prefs_sum_link_previews">Извличане на визуализации за връзките в съобщенията, които изпращате. Визуализациите се изпращат със сквозно шифроване; устройството на получателя никога не се свързва с уебсайта.</string>
+    <string name="link_preview_remove">Премахване на визуализацията на връзката</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Плъзнете манипулаторите за изрязване</string>
+    <string name="audio_trim_action">Изрязване</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Минимизиране</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Списък със задачи</string>
+    <string name="checklist_create_as">Създай като списък със задачи</string>
+    <string name="checklist_fork_only">Списъците със задачи работят само между потребители на F1Whisper.</string>
+    <string name="checklist_toggle_item">Превключване на елемент от списъка</string>
+    <string name="checklist_checked_by">Отбелязано от %1$s</string>
+    <string name="checklist_created_successfully">Списъкът със задачи е създаден</string>
+    <string name="checklist_placeholder">Списък със задачи</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Закачи съобщение</string>
+    <string name="unpin_message">Откачи</string>
+    <string name="pinned_message_banner_label">Закачено съобщение</string>
+    <string name="pinned_message_banner_dismiss">Скриване на банера за закачено съобщение</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Въведете заглавие на списъка със задачи</string>
+    <string name="checklist_wizard0_explain">Създайте споделен списък със задачи. Всеки в чата може да отмята и размята елементи по всяко време, а отметнатите елементи се преместват най-долу.</string>
+    <string name="checklist_add_items">Добавяне на елементи</string>
+    <string name="checklist_item_add">Добавяне на елемент</string>
+    <string name="checklist_item_count_error">Моля, добавете поне един елемент</string>
+    <string name="checklist_add_item_title">Добавяне на елемент</string>
+    <string name="checklist_add_item_hint">Име на нов елемент</string>
+    <string name="checklist_add_item_button">Добавяне</string>
+    <string name="checklist_delete_item_title">Изтриване на елемента?</string>
+    <string name="checklist_delete_item_message">Сигурни ли сте, че искате да изтриете \"%1$s\"?</string>
+    <string name="checklist_delete_button">Изтриване</string>
+    <string name="checklist_reorder_item">Преместване на елемент от списъка</string>
+    <string name="checklist_cannot_reorder">Този елемент не може да бъде преместен</string>
+    <string name="checklist_edit_title">Редактиране на списъка</string>
+    <string name="checklist_edit_apply">Прилагане</string>
+    <string name="checklist_rename_item_title">Преименуване на елемента</string>
+    <string name="audio_trim_not_supported">Изрязването не се поддържа за този аудиоформат. Премахнете изрязването, за да изпратите целия файл.</string>
+    <string name="audio_trim_failed">Това аудио не можа да бъде изрязано. Нищо не беше изпратено. Опитайте отново или премахнете изрязването.</string>
+    <string name="pinned_message_banner_label_counter">Закачено съобщение %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Изчезващи съобщения</string>
+    <string name="disappearing_messages_summary">Новите съобщения в този чат ще изчезнат след избраното време, откакто бъдат прочетени.</string>
+    <string name="disappearing_off">Изкл.</string>
+    <string name="disappearing_duration_picker_title">Таймер за изчезване</string>
+    <string name="status_disappearing_set">%1$s зададе таймер за изчезващи съобщения: %2$s</string>
+    <string name="status_disappearing_set_you">Задали сте таймер за изчезващи съобщения: %1$s</string>
+    <string name="status_disappearing_off">%1$s изключи изчезващите съобщения</string>
+    <string name="status_disappearing_off_you">Изключихте изчезващите съобщения</string>
+    <string name="disappearing_messages_unsupported">Изчезващите съобщения работят само между потребители на F1Whisper и не са гаранция за сигурност.</string>
+    <string name="disappearing_duration_30s">30 секунди</string>
+    <string name="disappearing_duration_5m">5 минути</string>
+    <string name="disappearing_duration_1h">1 час</string>
+    <string name="disappearing_duration_8h">8 часа</string>
+    <string name="disappearing_duration_1d">1 ден</string>
+    <string name="disappearing_duration_1w">1 седмица</string>
+    <string name="disappearing_duration_4w">4 седмици</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Изчезва</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s след прочитане</string>
+    <string name="connectivity_probe_dialog_title">Диагностика на връзката</string>
+    <string name="connectivity_probe_running">Извършване на проверки…</string>
+    <string name="connectivity_probe_done">Проверките приключиха</string>
+    <string name="connectivity_probe_send_btn">Изпращане на диагностика</string>
+    <string name="connectivity_probe_close_btn">Затваряне</string>
+    <string name="connectivity_probe_verdict_all_ok">Сървърът е достъпен. Проверете настройките на акаунта или устройството си.</string>
+    <string name="connectivity_probe_verdict_no_internet">Няма работещ интернет в тази мрежа.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Подозира се отравяне на DNS: системният DNS връща различни IP адреси.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Подозира се блокиране на TLS чрез SNI: нашето име на хост е блокирано.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">IP адресът на сървъра е блокиран в тази мрежа.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Портът за чат (5222) е блокиран. HTTPS все още работи.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Сървърът е достъпен, но мрежата е изключително бавна или ограничена — връзките може да прекъснат поради изтичане на времето. Опитайте отново или превключете между Wi-Fi и мобилни данни.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Някои проверки не успяха. Споделете отчета за анализ.</string>
+    <string name="connectivity_probe_label_dns">DNS резолвери</string>
+    <string name="connectivity_probe_label_tcp443">TCP порт 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Крайна точка за конфигурация</string>
+    <string name="connectivity_probe_label_chat">Порт за чат (5222)</string>
+    <string name="connectivity_probe_label_control">Интернет (контрол)</string>
+    <string name="connectivity_probe_label_hints">Допълнителни сигнали</string>
+    <string name="connectivity_probe_hint_middlebox">Бърза връзка, но бавно криптирано ръкостискане — възможно е прозрачен прокси или устройство за оформяне на трафика да прихваща тази връзка.</string>
+    <string name="connectivity_probe_hint_port53">DNS на устройството отговори подозрително бързо, докато всичко останало беше бавно — възможно е тази мрежа да прихваща DNS заявките.</string>
 </resources>

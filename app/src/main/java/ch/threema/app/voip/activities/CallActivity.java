@@ -119,6 +119,7 @@ import ch.threema.app.utils.PermissionUtilsKt;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.voip.AudioSelectorButton;
 import ch.threema.app.voip.CallStateSnapshot;
+import ch.threema.app.voip.IncomingCallSliderGeometry;
 import ch.threema.app.voip.listeners.VoipAudioManagerListener;
 import ch.threema.app.voip.managers.VoipListenerManager;
 import ch.threema.app.voip.services.CallRejectService;
@@ -295,6 +296,21 @@ public class CallActivity extends ThreemaActivity implements
             }
             // We do not reject the call if the resultCode is `Activity.RESULT_CANCELED`, as this may also
             // mean that another permission request was started by onNewIntent while a request was already in progress.
+        });
+
+    // F1Whisper: dedicated permission launcher for the *answer* flow. The microphone permission must
+    // be requested at the moment the user answers (mirroring Signal's handleAnswerWithAudio -> request
+    // RECORD_AUDIO -> accept/deny), because the normal post-restart request in onCreate()/onNewIntent()
+    // runs while the call UI is shown over the lock screen, where Android suppresses the runtime
+    // permission dialog. On grant we proceed into the active call; on denial we reject it cleanly.
+    private final ActivityResultLauncher<Intent> answerPermissionLauncher = registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(),
+        result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                proceedAnswerCall();
+            } else {
+                rejectOrCancelCall(VoipCallAnswerData.RejectReason.DISABLED);
+            }
         });
 
     /**
@@ -946,8 +962,15 @@ public class CallActivity extends ThreemaActivity implements
         // remove lockscreen keepalive
         keepAliveHandler.removeCallbacksAndMessages(null);
 
-        // Remove uncaught exception handler
-        Thread.setDefaultUncaughtExceptionHandler(null);
+        // F1Whisper: do NOT clear the default uncaught exception handler here. Upstream cleared it
+        // unconditionally, but nothing in this activity ever installed one - the only handler is the
+        // process-wide ThreemaUncaughtExceptionHandler that ThreemaApplication.onCreate() installs
+        // once. Clearing it left the process with NO default handler for the rest of its life, which
+        // makes a later main-thread throwable non-fatal: ThreadGroup.uncaughtException prints to
+        // System.err and returns, ART detaches the main thread and enters DestroyJavaVM, and
+        // WaitForOtherNonDaemonThreadsToExit blocks forever because dozens of non-daemon threads are
+        // alive. The app then looks "running" - the CSP connection keeps echoing - while the UI is
+        // dead and no broadcast is ever dispatched, until the system ANRs it.
 
         super.onDestroy();
     }
@@ -1269,6 +1292,18 @@ public class CallActivity extends ThreemaActivity implements
         this.commonViews.incomingCallButton.setOnTouchListener(new View.OnTouchListener() {
             float dX, oX, newX;
 
+            // F1-PATCH (RTL): the two targets are read from where they were actually laid out, never from an assumed
+            // left-to-right order. call_answer_indicator.xml anchors them with alignParentStart/alignParentEnd, which
+            // RelativeLayout mirrors in RTL locales, so in Arabic and friends decline sits at the LARGER x. See
+            // IncomingCallSliderGeometry for what the old hard-coded comparisons did there.
+            private float declineAnchorX() {
+                return commonViews.incomingCallSliderContainer.getX() + commonViews.declineButton.getX();
+            }
+
+            private float answerAnchorX() {
+                return commonViews.incomingCallSliderContainer.getX() + commonViews.answerButton.getX();
+            }
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -1277,12 +1312,11 @@ public class CallActivity extends ThreemaActivity implements
                         oX = v.getX();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        newX = event.getRawX() + dX;
-                        if (newX < commonViews.declineButton.getX() + commonViews.incomingCallSliderContainer.getX()) {
-                            newX = commonViews.declineButton.getX() + commonViews.incomingCallSliderContainer.getX();
-                        } else if (newX > commonViews.answerButton.getX()) {
-                            newX = commonViews.answerButton.getX() + commonViews.incomingCallSliderContainer.getX();
-                        }
+                        newX = IncomingCallSliderGeometry.clampToTrack(
+                            event.getRawX() + dX,
+                            declineAnchorX(),
+                            answerAnchorX()
+                        );
 
                         v.animate()
                             .x(newX)
@@ -1291,15 +1325,22 @@ public class CallActivity extends ThreemaActivity implements
                         break;
                     case MotionEvent.ACTION_UP:
                         newX = event.getRawX() + dX;
-                        if (newX > commonViews.answerButton.getX() + commonViews.incomingCallSliderContainer.getX()) {
-                            answerCall();
-                        } else if (newX < commonViews.declineButton.getX() + commonViews.incomingCallSliderContainer.getX()) {
-                            rejectOrCancelCall(VoipCallAnswerData.RejectReason.REJECTED);
-                        } else {
-                            v.animate()
-                                .x(oX)
-                                .setDuration(200)
-                                .start();
+                        switch (IncomingCallSliderGeometry.releaseAt(newX, declineAnchorX(), answerAnchorX())) {
+                            case ANSWER:
+                                answerCall();
+                                break;
+                            case REJECT:
+                                rejectOrCancelCall(VoipCallAnswerData.RejectReason.REJECTED);
+                                break;
+                            case RETURN_TO_REST:
+                            default:
+                                // Deliberately the fallback for anything unrecognised too: a verdict we cannot read
+                                // must never answer or reject a call by guess. Sliding back is visible and retryable.
+                                v.animate()
+                                    .x(oX)
+                                    .setDuration(200)
+                                    .start();
+                                break;
                         }
                         break;
                     default:
@@ -1711,6 +1752,19 @@ public class CallActivity extends ThreemaActivity implements
     @UiThread
     private void answerCall() {
         logger.info("Answer call");
+        // F1Whisper: gate the answer on the microphone permission, requested right now (the user just
+        // tapped answer, so the activity is foreground with FLAG_DISMISS_KEYGUARD and the dialog can
+        // show). Reuses the app's own call-permission flow (mic = required); proceeds only on grant.
+        // Without this, a never-granted/"ask every time" mic would silently yield a call with no audio,
+        // because the request that runs after the activity restart is suppressed over the lock screen.
+        PermissionUtilsKt.requestCallPermissions(this, answerPermissionLauncher, () -> {
+            proceedAnswerCall();
+            return Unit.INSTANCE;
+        });
+    }
+
+    @UiThread
+    private void proceedAnswerCall() {
         this.activityMode = MODE_ANSWERED_CALL;
 
         // Recreate activity with correct activity mode and with EXTRA_ACCEPT_INCOMING_CALL

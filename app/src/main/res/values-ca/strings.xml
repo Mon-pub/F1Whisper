@@ -560,6 +560,8 @@ de contacte</string>
     <string name="prefs_sendlog">Enviar registre</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="prefs_sendlog_summary">Enviar el fitxer de registre a ${company_name} per una anàlisi posterior en cas de problemes</string>
+    <string name="prefs_connection_diagnostics">Diagnòstic de connexió i notificacions</string>
+    <string name="prefs_connection_diagnostics_summary">Exporta un informe de l\'estat de la connexió, les notificacions push, les notificacions i la bateria per ajudar a diagnosticar les notificacions que falten</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Per desar o enviar multimèdia, doneu a ${app_name} permís per accedir a l\'emmagatzematge.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -746,6 +748,7 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <string name="play">Reproduir</string>
     <string name="pause">Pausa</string>
     <string name="retry">Tornar a provar</string>
+    <string name="voice_message">Missatge de veu</string>
     <string name="voice_message_record">Gravar un missatge de veu</string>
     <string name="open_navdrawer">Obrir el calaix de navegació</string>
     <string name="profile_picture">Foto de perfil</string>
@@ -861,7 +864,7 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <string name="safe_learn_more_button">Saber-ne més</string>
     <string name="safe_enable_explain">Tot el que necessiteu per xatejar es guarda només en el vostre dispositiu. No teniu cap compte amb nosaltres i no podem ajudar-vos si perdeu el vostre telèfon o elimineu les dades accidentalment.\n\n${app_name_short} Safe crea còpies de seguretat automàtiques de totes les dades importants, incloent les vostres claus, la vostra llista de contactes i grups (però no el contingut dels missatges), anònimament en un servidor segur escollit per vós.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Voleu continuar sense activar ${app_name_short} Safe? Si utilitzeu ${app_name_short} Safe, podeu restaurar la vostra ID de ${app_name_short}, contactes i grups en cas que perdeu l\'accés al vostre dispositiu.</string>
+    <string name="safe_disable_confirm">Voleu continuar sense activar ${app_name_short} Safe? Si utilitzeu ${app_name_short} Safe, podeu restaurar la vostra ID de ${app_name_short} i els grups en cas que perdeu l\'accés al vostre dispositiu.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Escolliu una contrasenya segura. Necessitareu aquesta contrasenya per restaurar la vostra còpia de ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -878,12 +881,9 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Entreu la ID de ${app_name_short} que voldríeu recuperar</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Buscant la ID de ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">No s\'ha trobat cap ID de ${app_name_short}</string>
     <string name="safe_no_backup_found">No s\'ha trobat cap còpia al servidor. Comproveu la ID i contrasenya.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">S\'ha trobat múltiples IDs de ${app_name_short}. Seleccioneu la ID que voleu usar:</string>
     <string name="safe_backup_now">Copiar ara</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Activeu ${app_name_short} Safe per crear còpies segures automàtiques i anònimes de les vostres dades importants.</string>
@@ -921,7 +921,6 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <string name="safe_restore">Restaurar ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Còpia o restauració en procés. Comproveu la notificació per informació de l\'estat.</string>
     <string name="restore_error_body">La restauració no s\'ha completat correctament</string>
-    <string name="forgot_your_id">Heu oblidat la ID?</string>
     <string name="restore_success_body">Restauració completada correctament</string>
     <string name="work_data_sync">Sincr. de dades</string>
     <string name="private_contact">Contacte privat</string>
@@ -952,6 +951,8 @@ donar només el vostre nom o un pseudònim. Si no definiu un sobrenom utilitzare
     <string name="password_bad_explain">La contrasenya escollida per a ${app_name_short} Safe no és segura i pot ser deduïda fàcilment per atacants. Escolliu-ne una altra. Pista: Utilitzeu una contrasenya composta de diverses paraules inconnexes.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">La contrasenya de ${app_name_short} Safe s\'ha actualitzat.</string>
+    <!-- Safe-password complexity validation error. -->
+    <string name="safe_password_complexity_unmet">La contrasenya ha de tenir més de 10 caràcters i contenir minúscules, majúscules, un dígit i un símbol</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe ara està activat.</string>
     <string name="push_token_cleared">S\'ha netejat el testimoni push</string>
@@ -1329,4 +1330,172 @@ Si esteu canviant a un dispositiu nou, desinstal·leu o desactiveu %s al disposi
         <item quantity="other">%d imatges seleccionades</item>
     </plurals>
     <!-- Used for indicating for how long the notifications of a chat are muted -->
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Canviar el servidor</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Domini del servidor</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Voleu canviar el servidor?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. -->
+    <string name="change_server_warning_message">Canviar el servidor probablement desconnectarà la vostra identitat actual. Feu-ho només si el vostre proveïdor ha confirmat el nou domini. Si el domini és incorrecte, l\'aplicació deixarà de funcionar.</string>
+    <!-- Action label for the activation-key screen. -->
+    <string name="use_different_key">Utilitzar una clau diferent</string>
+    <string name="activation_key_already_redeemed">Aquesta clau d\'activació ja ha estat usada. Si us plau, introduïu una clau diferent.</string>
+    <string name="notification_channel_emoji_reactions">Reaccions</string>
+    <string name="reaction_notification_text">%1$s ha reaccionat %2$s al teu missatge</string>
+    <string name="prefs_title_reaction_notifications">Notificacions de reaccions</string>
+    <string name="prefs_sum_reaction_notifications">Avisa\'m quan algú reaccioni a un dels meus missatges</string>
+    <string name="self_updater_downloading_background">S\'està baixant l\'actualització en segon pla…</string>
+    <string name="self_updater_update_ready_title">Actualització baixada</string>
+    <string name="self_updater_update_ready_text">Toca per instal·lar l\'actualització</string>
+    <string name="self_updater_download_failed">Ha fallat la baixada de l\'actualització. Toca per baixar-la manualment.</string>
+    <string name="chat_background_choose">Fons</string>
+    <string name="chat_background_random">Aleatori (diferent per a cada xat)</string>
+    <string name="chat_background_numbered">Fons %1$d</string>
+    <string name="listen_once_enabled">Escoltar una vegada: activat</string>
+    <string name="listen_once_disabled">Escoltar una vegada: desactivat</string>
+    <string name="listen_once_badge_content_description">Missatge de veu per escoltar una vegada</string>
+    <string name="forwarded_message_label">Reenviat</string>
+    <string name="listen_once_already_listened">Escoltat</string>
+    <string name="listen_once_sent">Missatge de veu per escoltar una vegada</string>
+    <string name="listen_once_cannot_forward">Els missatges d\'escolta única no es poden reenviar</string>
+    <string name="listen_once_expired">El missatge de veu ha caducat</string>
+    <string name="group_one_typing">%s està escrivint…</string>
+    <string name="group_two_typing">%1$s i %2$s estan escrivint…</string>
+    <string name="group_many_typing">%1$s i %2$d més estan escrivint…</string>
+    <string name="message_details_read_by">Llegit per</string>
+    <string name="message_details_delivered_to">Lliurat a</string>
+    <string name="message_details_sent_to">Enviat a</string>
+    <string name="markup_monospace">Monoespaiat</string>
+    <string name="markup_spoiler">Text amagat</string>
+    <string name="spoiler_hidden_content_description">Text amagat, toqueu dos cops per mostrar-lo</string>
+    <string name="media_spoiler">Contingut amagat</string>
+    <string name="media_spoiler_reveal">Toqueu per mostrar</string>
+    <string name="media_spoiler_badge_content_description">Contingut multimèdia ocult. Toqueu dos cops per mostrar-lo.</string>
+    <string name="chat_folders">Carpetes de xats</string>
+    <string name="manage_folders">Gestiona les carpetes</string>
+    <string name="add_to_folder">Afegeix a la carpeta</string>
+    <string name="folder_all">Tots</string>
+    <string name="new_folder">Carpeta nova</string>
+    <string name="create_folder">Crea una carpeta</string>
+    <string name="rename_folder">Canvia el nom de la carpeta</string>
+    <string name="delete_folder">Suprimeix la carpeta</string>
+    <string name="delete_folder_confirm">Voleu eliminar aquesta carpeta? Els vostres xats no se suprimiran.</string>
+    <string name="folder_name_hint">Nom de la carpeta</string>
+    <string name="folder_name_empty">Introduïu un nom per a la carpeta</string>
+    <string name="no_chat_folders">Encara no heu creat cap carpeta</string>
+    <string name="folder_created">Carpeta creada</string>
+    <string name="folder_deleted">Carpeta suprimida</string>
+    <string name="add_to_folder_title">Afegeix el xat a les carpetes</string>
+    <string name="folder_empty">No hi ha cap xat en aquesta carpeta</string>
+    <string name="prefs_refresh_onprem_config">Actualitza la configuració del servidor</string>
+    <string name="prefs_refresh_onprem_config_summary">Torna a baixar la configuració del servidor ara. Útil després que el servidor afegeixi funcions noves com la vinculació d’escriptori.</string>
+    <string name="onprem_config_refreshed">S’ha actualitzat la configuració del servidor</string>
+    <string name="prefs_title_link_previews">Genera previsualitzacions d\'enllaços</string>
+    <string name="prefs_sum_link_previews">Obtén previsualitzacions dels enllaços dels missatges que envies. Les previsualitzacions s\'envien xifrades d\'extrem a extrem; el dispositiu del destinatari mai no contacta amb el lloc web.</string>
+    <string name="link_preview_remove">Elimina la previsualització de l\'enllaç</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Arrossegueu els controls per retallar</string>
+    <string name="audio_trim_action">Retalla</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimitza</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Llista de tasques</string>
+    <string name="checklist_create_as">Crea com a llista de tasques</string>
+    <string name="checklist_fork_only">Les llistes de tasques només funcionen entre usuaris de F1Whisper.</string>
+    <string name="checklist_toggle_item">Commuta element de la llista</string>
+    <string name="checklist_checked_by">Marcat per %1$s</string>
+    <string name="checklist_created_successfully">Llista de tasques creada</string>
+    <string name="checklist_placeholder">Llista de tasques</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Fixa el missatge</string>
+    <string name="unpin_message">Desfixa</string>
+    <string name="pinned_message_banner_label">Missatge fixat</string>
+    <string name="pinned_message_banner_dismiss">Amaga el bàner del missatge fixat</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Introduïu un títol per a la llista</string>
+    <string name="checklist_wizard0_explain">Creeu una llista de tasques compartida. Tothom del xat pot marcar i desmarcar elements en qualsevol moment, i els elements marcats es mouen al final.</string>
+    <string name="checklist_add_items">Afegeix elements</string>
+    <string name="checklist_item_add">Afegeix un element</string>
+    <string name="checklist_item_count_error">Afegiu almenys un element</string>
+    <string name="checklist_add_item_title">Afegeix un element</string>
+    <string name="checklist_add_item_hint">Nom del nou element</string>
+    <string name="checklist_add_item_button">Afegeix</string>
+    <string name="checklist_delete_item_title">Voleu suprimir l\'element?</string>
+    <string name="checklist_delete_item_message">Segur que voleu suprimir \"%1$s\"?</string>
+    <string name="checklist_delete_button">Suprimeix</string>
+    <string name="checklist_reorder_item">Mou l\'element de la llista</string>
+    <string name="checklist_cannot_reorder">Aquest element no es pot moure</string>
+    <string name="checklist_edit_title">Edita la llista</string>
+    <string name="checklist_edit_apply">Aplica</string>
+    <string name="checklist_rename_item_title">Canvia el nom de l\'element</string>
+    <string name="audio_trim_not_supported">Aquest format d\'àudio no admet la retallada. Elimina la retallada per enviar el fitxer sencer.</string>
+    <string name="audio_trim_failed">No s\'ha pogut retallar aquest àudio. No s\'ha enviat res. Torna-ho a provar o elimina la retallada.</string>
+    <string name="pinned_message_banner_label_counter">Missatge fixat %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Missatges efímers</string>
+    <string name="disappearing_messages_summary">Els missatges nous d\'aquest xat desapareixeran després de llegir-los, passat el temps seleccionat.</string>
+    <string name="disappearing_off">Desactivat</string>
+    <string name="disappearing_duration_picker_title">Temporitzador</string>
+    <string name="status_disappearing_set">%1$s ha activat els missatges efímers a %2$s</string>
+    <string name="status_disappearing_set_you">Heu activat els missatges efímers a %1$s</string>
+    <string name="status_disappearing_off">%1$s ha desactivat els missatges efímers</string>
+    <string name="status_disappearing_off_you">Heu desactivat els missatges efímers</string>
+    <string name="disappearing_messages_unsupported">Els missatges efímers només funcionen entre usuaris de F1Whisper i no són una garantia de seguretat.</string>
+    <string name="disappearing_duration_30s">30 segons</string>
+    <string name="disappearing_duration_5m">5 minuts</string>
+    <string name="disappearing_duration_1h">1 hora</string>
+    <string name="disappearing_duration_8h">8 hores</string>
+    <string name="disappearing_duration_1d">1 dia</string>
+    <string name="disappearing_duration_1w">1 setmana</string>
+    <string name="disappearing_duration_4w">4 setmanes</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Desapareix</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s després de llegir-lo</string>
+    <string name="problemsolver_title_oem_autostart">Permetre l\'execució en segon pla</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Els dispositius %1$s poden impedir que F1Whisper s\'executi en segon pla, cosa que bloqueja les notificacions de missatges encara que l\'optimització de bateria ja estigui desactivada. Obre la guia i permet que F1Whisper s\'iniciï automàticament i s\'executi en segon pla.</string>
+    <string name="problemsolver_oem_autostart_action">Obre la guia de configuració</string>
+    <string name="connectivity_probe_dialog_title">Diagnòstic de connexió</string>
+    <string name="connectivity_probe_running">S\'estan fent comprovacions…</string>
+    <string name="connectivity_probe_done">Comprovacions completades</string>
+    <string name="connectivity_probe_send_btn">Envia el diagnòstic</string>
+    <string name="connectivity_probe_close_btn">Tanca</string>
+    <string name="connectivity_probe_verdict_all_ok">El servidor és accessible. Comproveu la configuració del compte o del dispositiu.</string>
+    <string name="connectivity_probe_verdict_no_internet">No hi ha connexió a internet en aquesta xarxa.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Se sospita enverinament de DNS: el DNS del sistema retorna IP diferents.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Se sospita bloqueig de TLS basat en SNI: el nostre nom d\'amfitrió està bloquejat.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">La IP del servidor està bloquejada en aquesta xarxa.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">El port de xat (5222) està bloquejat. HTTPS encara funciona.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">El servidor és accessible, però la xarxa és molt lenta o està limitada; les connexions poden esgotar el temps d\'espera. Torneu-ho a provar o canvieu entre Wi-Fi i dades mòbils.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Algunes comprovacions han fallat. Compartiu l\'informe per analitzar-lo.</string>
+    <string name="connectivity_probe_label_dns">Resolutors DNS</string>
+    <string name="connectivity_probe_label_tcp443">Port TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Punt final de configuració</string>
+    <string name="connectivity_probe_label_chat">Port de xat (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (control)</string>
+    <string name="connectivity_probe_label_hints">Senyals addicionals</string>
+    <string name="connectivity_probe_hint_middlebox">Connexió ràpida però encaixada de mans xifrada lenta: és possible que un servidor intermediari transparent o un dispositiu de modelatge de trànsit estigui interceptant aquesta connexió.</string>
+    <string name="connectivity_probe_hint_port53">El DNS del dispositiu ha respost sospitosament ràpid mentre tota la resta anava lenta: és possible que aquesta xarxa estigui interceptant les consultes DNS.</string>
+    <string name="rogue_device_warning"><![CDATA[S\'ha detectat una connexió des d\'un altre dispositiu amb el mateix identificador ${app_name_short}. Heu utilitzat recentment el vostre identificador ${app_name_short} en un altre dispositiu? <br><br> Si és així, podeu ignorar aquest missatge. <br><br> Si no, és possible que la vostra clau privada estigui compromesa. Si us plau, <a href="https://threema.com/faq/another_connection">seguiu els nostres suggeriments</a> per protegir el dispositiu i les dades abans de crear un identificador nou.]]></string>
+    <string name="ballot_removed">Enquesta eliminada</string>
+    <string name="cd_menu_more">Més opcions</string>
+    <string name="error_reporting_details_button">Detalls tècnics</string>
+    <string name="error_reporting_learn_more_button">Més informació</string>
+    <string name="hint_search_list">Entreu el text de cerca</string>
+    <string name="notifications_for_one_week">Durant 1 setmana</string>
+    <string name="prefs_about">Quant a</string>
+    <string name="prefs_advanced">Avançat</string>
+    <string name="prefs_community_and_sharing">Comunitat i compartició</string>
+    <string name="prefs_linked_devices">Dispositius enllaçats</string>
+    <string name="prefs_title_sum_message_log_forced_on">S\'està registrant l\'activitat del sistema. Elimineu el fitxer «%1$s» per desactivar el registre. (%2$s)</string>
+    <string name="prefs_title_sum_message_log_on_since">Registrant l\'activitat del sistema des de %1$s (%2$s)</string>
+    <string name="reply_to_message">Respondre</string>
+    <string name="restore_id_string_label">Cadena de text de l\'exportació de la ID</string>
+    <string name="search_list">Cercar a la llista</string>
+    <string name="startup_error_details">No s\'ha pogut obrir ${app_name_short} a causa d\'un error inesperat. Exporteu el fitxer de registre a continuació i contacteu amb el nostre equip d\'assistència perquè puguem investigar el problema. Disculpeu les molèsties.</string>
+    <string name="status_group_you_left">Heu deixat el grup.</string>
+    <string name="status_group_you_were_added">Se us ha afegit al grup.</string>
+    <string name="status_group_you_were_removed">Se us ha eliminat del grup.</string>
 </resources>

@@ -572,6 +572,8 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <string name="prefs_sendlog_summary">Send loggfil til ${company_name} for videre analyse, i tilfelle du har problemer</string>
     <string name="prefs_exportlog">Eksport loggfil</string>
     <string name="prefs_exportlog_summary">Del loggfil med en annen app</string>
+    <string name="prefs_connection_diagnostics">Diagnostikk for tilkobling &amp; varsler</string>
+    <string name="prefs_connection_diagnostics_summary">Eksporter en rapport over status for tilkobling, push, varsler og batteri for å hjelpe med å diagnostisere manglende varsler</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">For å lagre eller sende media, gi ${app_name} tilgang til lagring på enheten.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -755,6 +757,7 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <string name="play">Spill av</string>
     <string name="pause">Pause</string>
     <string name="retry">Prøv igjen</string>
+    <string name="voice_message">Lydmelding</string>
     <string name="voice_message_record">Spill inn lydmelding</string>
     <string name="open_navdrawer">Åpne navigasjonsskuffe</string>
     <string name="profile_picture">Profilbilde</string>
@@ -872,7 +875,7 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <string name="safe_learn_more_button">Lær mer</string>
     <string name="safe_enable_explain">Alt du trenger til å ha en samtale er bare lagret på din enhet. Du har ikke en konto med oss og dermed kan vi ikke hjelpe deg om du mister telefonen din eller sletter data ved en feil.\n\n${app_name_short} Safe lager automatiske sikkerhetskopifiler av de viktigste dataene, inkludert dine nøkler, kontaktlisten og dine guppemedlemskap (men ingen meldinger eller innhold). Dette er anonymt på en sikker server som du velger selv.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Vil du fortsette uten å aktivere ${app_name_short} Safe? Når du bruker ${app_name_short} Safe så kan du gjenopprette din ${app_name_short} ID, kontakter og grupper i tilfelle du mister tilgangen til din enhet.</string>
+    <string name="safe_disable_confirm">Vil du fortsette uten å aktivere ${app_name_short} Safe? Når du bruker ${app_name_short} Safe så kan du gjenopprette din ${app_name_short} ID og grupper i tilfelle du mister tilgangen til din enhet.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Vennligst velg et sterkt passord. Du kommer til å trenge passordet for å kunne gjenopprette din ${app_name_short} Safe sikkerhetskopi.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -889,12 +892,9 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Vennligst skriv ${app_name_short} IDen du vil gjenopprette</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Sjekker ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Ingen ${app_name_short} ID funnet</string>
     <string name="safe_no_backup_found">Ingen sikkerhetskopi er funnet på serveren. Sjekk ID og passord.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Flere ${app_name_short} IDer er funnet. Vennligst velg ID du vil bruke:</string>
     <string name="safe_backup_now">Sikkerhetskopier</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Aktiver ${app_name_short} Safe for å opprette automatiske, sikre og anonyme sikkerhetskopier av alle dine viktigste data.</string>
@@ -932,7 +932,6 @@ http://www.7-zip.org eller https://itunes.apple.com/us/app/the-unarchiver/id4254
     <string name="safe_restore">Gjenopprett ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Sikkerhetskopi eller gjenoppretting pågår nå. Sjekk varsel for status og informasjon.</string>
     <string name="restore_error_body">Gjenoppretting ble ikke fullført skikkelig</string>
-    <string name="forgot_your_id">Har du glemt din ID?</string>
     <string name="restore_success_body">Gjenoppretting vellykket</string>
     <string name="work_data_sync">Data synk.</string>
     <string name="private_contact">Privat kontakt</string>
@@ -1289,6 +1288,10 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="forward_security_notification_rejected_text_group">En eller flere meldinger kunne ikke bli sendt til \"%1$s\".</string>
     <string name="forward_security_notification_rejected_text_generic">En eller flere meldinger kunne ikke bli sendt.</string>
     <string name="self_updater_installation_failed">Det skjedde en feil under nedlasting av oppdateringen. Vennligst last ned oppdateringen fra <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> manuelt.</string>
+    <string name="self_updater_downloading_background">Laster ned oppdatering i bakgrunnen…</string>
+    <string name="self_updater_update_ready_title">Oppdatering lastet ned</string>
+    <string name="self_updater_update_ready_text">Trykk for å installere oppdateringen</string>
+    <string name="self_updater_download_failed">Nedlasting av oppdatering mislyktes. Trykk for å laste den ned manuelt.</string>
     <string name="spam_first_contact">Denne samtalen er fra en ukjent kontakt</string>
     <string name="spam_report">Rapporter spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1447,6 +1450,10 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Appen har ikke tillatelse til å opprettholde en permanent tilkobling til serverne, noe som er nødvendig for at ${app_name_short} Push skal fungere. Du vil ikke få varsel om nye meldinger så lenge appen er i bakgrunnen. For å løse dette, trykk på \"Batteribruk\" og velg \"Ubegrenset\".</string>
     <string name="problemsolver_to_settings">Til innstillinger</string>
+    <string name="problemsolver_title_oem_autostart">Tillat kjøring i bakgrunnen</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s-enheter kan hindre F1Whisper i å kjøre i bakgrunnen, noe som blokkerer meldingsvarsler selv når batterioptimalisering allerede er slått av. Åpne veiledningen og la F1Whisper starte automatisk og kjøre i bakgrunnen.</string>
+    <string name="problemsolver_oem_autostart_action">Åpne oppsettsveiledningen</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="prefs_advanced_options">Avanserte innstillinger</string>
     <string name="push_service">Push-tjeneste</string>
@@ -1454,6 +1461,13 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
     <string name="media_gallery_animated_webps">Animerte WebP-er</string>
     <string name="unsupported_image_type">Ustøttet bildeformat: %s</string>
     <string name="application_setup_steps_failed">Det er krav om en aktiv internettforbindelse for å sjekke tilstanden til kontaktene dine. Sørg for at du er tilkoblet internett, og prøv igjen.</string>
+    <string name="change_server_dialog_title">Bytt server</string>
+    <string name="change_server_dialog_hint">Serverdomene</string>
+    <string name="change_server_warning_title">Bytte server?</string>
+    <string name="change_server_warning_message">Å bytte server vil sannsynligvis koble fra din nåværende identitet. Gjør dette kun hvis tilbyderen din har bekreftet det nye domenet. Hvis domenet er feil, vil appen slutte å fungere.</string>
+    <string name="use_different_key">Bruk en annen nøkkel</string>
+    <string name="activation_key_already_redeemed">Denne aktiveringsnøkkelen er allerede brukt. Vennligst skriv inn en annen nøkkel.</string>
+    <string name="safe_password_complexity_unmet">Passordet må være lengre enn 10 tegn og inneholde små bokstaver, store bokstaver, et siffer og et symbol</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1577,4 +1591,153 @@ Om du bytter til en ny enhet, vennligst avinstaller eller deaktiver %s på den g
         <item quantity="one">%d gruppemedlem</item>
         <item quantity="other">%d gruppemedlemmer</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Reaksjoner</string>
+    <string name="reaction_notification_text">%1$s reagerte med %2$s på meldingen din</string>
+    <string name="prefs_title_reaction_notifications">Reaksjonsvarsler</string>
+    <string name="prefs_sum_reaction_notifications">Varsle meg når noen reagerer på en av meldingene mine</string>
+    <string name="chat_background_choose">Bakgrunner</string>
+    <string name="chat_background_random">Tilfeldig (varierer per samtale)</string>
+    <string name="chat_background_numbered">Bakgrunn %1$d</string>
+    <string name="listen_once_enabled">Lytt én gang: på</string>
+    <string name="listen_once_disabled">Lytt én gang: av</string>
+    <string name="listen_once_badge_content_description">Talemelding for engangslytting</string>
+    <string name="forwarded_message_label">Videresendt</string>
+    <string name="listen_once_already_listened">Lyttet</string>
+    <string name="listen_once_sent">Talemelding for engangslytting</string>
+    <string name="listen_once_cannot_forward">Meldinger for engangsavspilling kan ikke videresendes</string>
+    <string name="listen_once_expired">Talemeldingen er utløpt</string>
+    <string name="group_one_typing">%s skriver…</string>
+    <string name="group_two_typing">%1$s og %2$s skriver…</string>
+    <string name="group_many_typing">%1$s og %2$d andre skriver…</string>
+    <string name="message_details_read_by">Lest av</string>
+    <string name="message_details_delivered_to">Levert til</string>
+    <string name="message_details_sent_to">Sendt til</string>
+    <string name="markup_monospace">Fast bredde</string>
+    <string name="markup_spoiler">Skjult tekst</string>
+    <string name="spoiler_hidden_content_description">Skjult tekst, dobbelttrykk for å vise</string>
+    <string name="media_spoiler">Skjult medie</string>
+    <string name="media_spoiler_reveal">Trykk for å vise</string>
+    <string name="media_spoiler_badge_content_description">Skjult medie. Dobbelttrykk for å vise.</string>
+    <string name="chat_folders">Samtalemapper</string>
+    <string name="manage_folders">Administrer mapper</string>
+    <string name="add_to_folder">Legg til i mappe</string>
+    <string name="folder_all">Alle</string>
+    <string name="new_folder">Ny mappe</string>
+    <string name="create_folder">Opprett mappe</string>
+    <string name="rename_folder">Gi nytt navn til mappe</string>
+    <string name="delete_folder">Slett mappe</string>
+    <string name="delete_folder_confirm">Fjerne denne mappen? Samtalene dine blir ikke slettet.</string>
+    <string name="folder_name_hint">Mappenavn</string>
+    <string name="folder_name_empty">Skriv inn et mappenavn</string>
+    <string name="no_chat_folders">Du har ikke opprettet noen mapper ennå</string>
+    <string name="folder_created">Mappe opprettet</string>
+    <string name="folder_deleted">Mappe slettet</string>
+    <string name="add_to_folder_title">Legg samtale til i mapper</string>
+    <string name="folder_empty">Ingen samtaler i denne mappen</string>
+    <string name="prefs_refresh_onprem_config">Oppdater serverkonfigurasjon</string>
+    <string name="prefs_refresh_onprem_config_summary">Last ned serverkonfigurasjonen på nytt nå. Nyttig etter at serveren har lagt til nye funksjoner som skrivebordstilkobling.</string>
+    <string name="onprem_config_refreshed">Serverkonfigurasjon oppdatert</string>
+    <string name="prefs_title_link_previews">Generer lenkeforhåndsvisninger</string>
+    <string name="prefs_sum_link_previews">Hent forhåndsvisninger for lenker i meldinger du sender. Forhåndsvisninger sendes ende-til-ende-kryptert; mottakerens enhet kontakter aldri nettstedet.</string>
+    <string name="link_preview_remove">Fjern lenkeforhåndsvisning</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Dra håndtakene for å klippe</string>
+    <string name="audio_trim_action">Klippe</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimer</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Sjekkliste</string>
+    <string name="checklist_create_as">Opprett som sjekkliste</string>
+    <string name="checklist_fork_only">Sjekklister fungerer bare mellom F1Whisper-brukere.</string>
+    <string name="checklist_toggle_item">Slå av/på sjekklisteelement</string>
+    <string name="checklist_checked_by">Avkrysset av %1$s</string>
+    <string name="checklist_created_successfully">Sjekkliste opprettet</string>
+    <string name="checklist_placeholder">Sjekkliste</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Fest melding</string>
+    <string name="unpin_message">Løsne</string>
+    <string name="pinned_message_banner_label">Festet melding</string>
+    <string name="pinned_message_banner_dismiss">Skjul banner for festet melding</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Skriv inn en tittel på sjekklisten</string>
+    <string name="checklist_wizard0_explain">Lag en delt gjøremålsliste. Alle i chatten kan krysse av og fjerne avkrysning når som helst, og avkryssede elementer flyttes til bunnen.</string>
+    <string name="checklist_add_items">Legg til elementer</string>
+    <string name="checklist_item_add">Legg til et element</string>
+    <string name="checklist_item_count_error">Legg til minst ett element</string>
+    <string name="checklist_add_item_title">Legg til element</string>
+    <string name="checklist_add_item_hint">Navn på nytt element</string>
+    <string name="checklist_add_item_button">Legg til</string>
+    <string name="checklist_delete_item_title">Slette elementet?</string>
+    <string name="checklist_delete_item_message">Er du sikker på at du vil slette \"%1$s\"?</string>
+    <string name="checklist_delete_button">Slett</string>
+    <string name="checklist_reorder_item">Flytt sjekklisteelement</string>
+    <string name="checklist_cannot_reorder">Dette elementet kan ikke flyttes</string>
+    <string name="checklist_edit_title">Rediger sjekkliste</string>
+    <string name="checklist_edit_apply">Bruk</string>
+    <string name="checklist_rename_item_title">Gi nytt navn til element</string>
+    <string name="audio_trim_not_supported">Beskjæring støttes ikke for dette lydformatet. Fjern beskjæringen for å sende hele filen.</string>
+    <string name="audio_trim_failed">Kunne ikke beskjære denne lyden. Ingenting ble sendt. Prøv igjen, eller fjern beskjæringen.</string>
+    <string name="pinned_message_banner_label_counter">Festet melding %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Selvslettende meldinger</string>
+    <string name="disappearing_messages_summary">Nye meldinger i denne chatten vil forsvinne etter valgt tid når de er lest.</string>
+    <string name="disappearing_off">Av</string>
+    <string name="disappearing_duration_picker_title">Selvslettingstimer</string>
+    <string name="status_disappearing_set">%1$s angav selvslettingstid til %2$s</string>
+    <string name="status_disappearing_set_you">Du angav selvslettingstid til %1$s</string>
+    <string name="status_disappearing_off">%1$s slo av selvslettende meldinger</string>
+    <string name="status_disappearing_off_you">Du slo av selvslettende meldinger</string>
+    <string name="disappearing_messages_unsupported">Selvslettende meldinger fungerer kun mellom F1Whisper-brukere og er ingen sikkerhetsgaranti.</string>
+    <string name="disappearing_duration_30s">30 sekunder</string>
+    <string name="disappearing_duration_5m">5 minutter</string>
+    <string name="disappearing_duration_1h">1 time</string>
+    <string name="disappearing_duration_8h">8 timer</string>
+    <string name="disappearing_duration_1d">1 dag</string>
+    <string name="disappearing_duration_1w">1 uke</string>
+    <string name="disappearing_duration_4w">4 uker</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Forsvinner</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s etter lesing</string>
+    <string name="connectivity_probe_dialog_title">Tilkoblingsdiagnostikk</string>
+    <string name="connectivity_probe_running">Kjører kontroller…</string>
+    <string name="connectivity_probe_done">Kontroller fullført</string>
+    <string name="connectivity_probe_send_btn">Send diagnostikk</string>
+    <string name="connectivity_probe_close_btn">Lukk</string>
+    <string name="connectivity_probe_verdict_all_ok">Serveren er tilgjengelig. Sjekk konto- eller enhetsinnstillingene dine.</string>
+    <string name="connectivity_probe_verdict_no_internet">Ingen fungerende internett på dette nettverket.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Mistanke om DNS-forgiftning: system-DNS returnerer andre IP-er.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Mistanke om SNI-basert TLS-blokkering: vertsnavnet vårt er blokkert.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Server-IP-en er blokkert på dette nettverket.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chatport (5222) er blokkert. HTTPS fungerer fortsatt.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Serveren er tilgjengelig, men nettverkstilkoblingen er svært treg eller strupet — tilkoblinger kan derfor tidsavbrytes. Prøv igjen, eller bytt mellom Wi-Fi og mobildata.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Noen kontroller mislyktes. Del rapporten for analyse.</string>
+    <string name="connectivity_probe_label_dns">DNS-oppslag</string>
+    <string name="connectivity_probe_label_tcp443">TCP-port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Konfigurasjonsendepunkt</string>
+    <string name="connectivity_probe_label_chat">Chatport (5222)</string>
+    <string name="connectivity_probe_label_control">Internett (kontroll)</string>
+    <string name="connectivity_probe_label_hints">Flere indikatorer</string>
+    <string name="connectivity_probe_hint_middlebox">Rask tilkobling, men treg kryptert håndtrykk — en transparent proxy eller en enhet for trafikkstrupning kan avskjære denne tilkoblingen.</string>
+    <string name="connectivity_probe_hint_port53">Enhetens DNS-oppslag svarte mistenkelig raskt mens alt annet var tregt — dette nettverket kan avskjære DNS-oppslag.</string>
+    <string name="rogue_device_warning"><![CDATA[Det er oppdaget en tilkobling fra en annen enhet med den samme ${app_name_short}-ID-en. Har du nylig brukt ${app_name_short}-ID-en din på en annen enhet? <br><br> Hvis du har det, kan du se bort fra denne meldingen. <br><br> Hvis ikke, kan den private nøkkelen din være kompromittert. Vennligst <a href="https://threema.com/faq/another_connection">følg anbefalingene våre</a> for å beskytte enheten og dataene dine før du oppretter en ny ID.]]></string>
+    <string name="ballot_removed">Avstemning fjernet</string>
+    <string name="cd_menu_more">Flere alternativer</string>
+    <string name="error_reporting_details_button">Tekniske detaljer</string>
+    <string name="error_reporting_learn_more_button">Les mer</string>
+    <string name="hint_search_list">Skriv inn søketekst</string>
+    <string name="notifications_for_one_week">I 1 uke</string>
+    <string name="prefs_about">Om</string>
+    <string name="prefs_advanced">Avansert</string>
+    <string name="prefs_community_and_sharing">Fellesskap og deling</string>
+    <string name="prefs_linked_devices">Tilkoblede enheter</string>
+    <string name="prefs_title_sum_message_log_forced_on">Systemaktivitet blir logget. Slett filen \"%1$s\" for å slå av logging. (%2$s)</string>
+    <string name="prefs_title_sum_message_log_on_since">Logger systemaktivitet siden %1$s (%2$s)</string>
+    <string name="reply_to_message">Svar</string>
+    <string name="restore_id_string_label">Tekststreng for ID-eksport</string>
+    <string name="search_list">Søk i listen</string>
+    <string name="startup_error_details">${app_name_short} kunne ikke åpnes på grunn av en uventet feil. Eksporter loggfilen nedenfor og kontakt supportteamet vårt, slik at vi kan undersøke problemet. Vi beklager ulempen.</string>
+    <string name="status_group_you_left">Du har forlatt gruppen.</string>
+    <string name="status_group_you_were_added">Du ble lagt til i gruppen.</string>
+    <string name="status_group_you_were_removed">Du ble fjernet fra gruppen.</string>
 </resources>

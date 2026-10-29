@@ -51,7 +51,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="@dimen/grid_unit_x1"
+                android:layout_marginEnd="@dimen/grid_unit_x1"
                 android:layout_marginBottom="3dp"
                 app:srcCompat="@drawable/ic_key_outline"
                 app:tint="?attr/colorOnSurface" />
@@ -89,7 +89,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="@dimen/grid_unit_x1"
+                android:layout_marginStart="@dimen/grid_unit_x1"
                 android:layout_marginBottom="2dp"
                 android:contentDescription="@string/label_continue"
                 android:enabled="false"

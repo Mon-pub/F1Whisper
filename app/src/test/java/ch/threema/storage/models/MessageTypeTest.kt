@@ -20,6 +20,8 @@ class MessageTypeTest {
         assertEquals(11, MessageType.GROUP_CALL_STATUS.serializedValue)
         assertEquals(12, MessageType.FORWARD_SECURITY_STATUS.serializedValue)
         assertEquals(13, MessageType.GROUP_STATUS.serializedValue)
+        // F1Whisper: fork-only type, stored as 14
+        assertEquals(14, MessageType.DISAPPEARING_STATUS.serializedValue)
     }
 
     @Test
@@ -34,6 +36,7 @@ class MessageTypeTest {
         assertEquals(MessageType.GROUP_CALL_STATUS, MessageType.deserialize(11))
         assertEquals(MessageType.FORWARD_SECURITY_STATUS, MessageType.deserialize(12))
         assertEquals(MessageType.GROUP_STATUS, MessageType.deserialize(13))
+        assertEquals(MessageType.DISAPPEARING_STATUS, MessageType.deserialize(14))
 
         // Former types that don't exist anymore
         assertNull(MessageType.deserialize(1)) // IMAGE
@@ -42,7 +45,7 @@ class MessageTypeTest {
         assertNull(MessageType.deserialize(5)) // CONTACT
 
         // Types that don't exist (yet)
-        assertNull(MessageType.deserialize(14))
+        assertNull(MessageType.deserialize(15))
     }
 
     @Test

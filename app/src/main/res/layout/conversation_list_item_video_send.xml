@@ -5,8 +5,8 @@
     android:id="@+id/msg_list_item_send"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingLeft="@dimen/chat_bubble_container_padding_left_right"
-    android:paddingRight="@dimen/chat_bubble_container_padding_left_right"
+    android:paddingStart="@dimen/chat_bubble_container_padding_left_right"
+    android:paddingEnd="@dimen/chat_bubble_container_padding_left_right"
     android:paddingBottom="@dimen/chat_bubble_container_padding_bottom">
 
     <com.google.android.material.card.MaterialCardView
@@ -57,8 +57,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:paddingLeft="@dimen/chat_bubble_margin_end"
-                android:paddingRight="@dimen/chat_bubble_margin_start"
+                android:paddingStart="@dimen/chat_bubble_margin_end"
+                android:paddingEnd="@dimen/chat_bubble_margin_start"
                 android:textColor="?attr/colorOnBackground"
                 android:textSize="?attr/font_large"
                 android:visibility="gone" />

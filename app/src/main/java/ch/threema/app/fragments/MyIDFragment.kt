@@ -275,13 +275,9 @@ class MyIDFragment : MainFragment(), DialogClickListener, TextEntryDialogClickLi
         val myIdentity: IdentityString? = userService.identity
         if (myIdentity != null) {
             myIdView.text = userService.getIdentity()
-            if (ConfigUtils.isOnPremBuild()) {
-                shareIdButton.isVisible = false
-            } else {
-                shareIdButton.setOnClickListener {
-                    logger.info("Share ID button clicked")
-                    shareMyId(myIdentity)
-                }
+            shareIdButton.setOnClickListener {
+                logger.info("Share ID button clicked")
+                shareMyId(myIdentity)
             }
             myIdQrButton.setOnClickListener {
                 logger.info("My ID clicked, showing QR code")

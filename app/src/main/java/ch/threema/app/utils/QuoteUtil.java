@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import ch.threema.app.R;
 import ch.threema.app.cache.ThumbnailCache;
 import ch.threema.app.messagereceiver.MessageReceiver;
+import ch.threema.app.services.DisappearingMessageService;
 import ch.threema.app.services.FileService;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.services.UserService;
@@ -356,6 +357,15 @@ public class QuoteUtil {
      */
     public static boolean isQuoteable(@NonNull AbstractMessageModel messageModel) {
         if (messageModel.isDeleted()) {
+            return false;
+        }
+
+        // F1Whisper (eleventh fork review, F11-07): an overdue disappearing message is presented as a
+        // payload-free tombstone and must expose no action either. This predicate gates every quote
+        // entry point (swipe-to-reply, the selection menu, the quote composer), and quoting would copy
+        // the expired content into a new message, outliving the sender's deadline. Same synchronous
+        // decision as the adapter routing; the durable removal stays on the worker.
+        if (DisappearingMessageService.enforceIfExpired(messageModel)) {
             return false;
         }
 

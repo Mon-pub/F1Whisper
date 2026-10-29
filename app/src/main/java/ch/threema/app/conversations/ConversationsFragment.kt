@@ -37,10 +37,12 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -80,6 +82,7 @@ import ch.threema.app.AppConstants.MIN_PW_LENGTH_BACKUP
 import ch.threema.app.BuildConfig
 import ch.threema.app.BuildFlavor
 import ch.threema.app.R
+import ch.threema.app.activities.ChatFoldersActivity
 import ch.threema.app.activities.ComposeMessageActivity
 import ch.threema.app.activities.DistributionListAddActivity
 import ch.threema.app.activities.GroupDetailActivity
@@ -125,6 +128,7 @@ import ch.threema.app.preference.SettingsActivity
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.preference.service.PreferenceService.EmojiStyle
 import ch.threema.app.restrictions.AppRestrictions
+import ch.threema.app.services.ChatFolderService
 import ch.threema.app.services.ConversationCategoryService
 import ch.threema.app.services.ConversationService
 import ch.threema.app.services.ConversationTagService
@@ -153,6 +157,7 @@ import ch.threema.domain.taskmanager.TriggerSource
 import ch.threema.domain.types.Identity
 import ch.threema.storage.models.ConversationModel
 import ch.threema.storage.models.ConversationTag
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 import java.lang.ref.WeakReference
@@ -178,6 +183,7 @@ class ConversationsFragment : MainFragment() {
     private val conversationService: ConversationService by inject()
     private val conversationCategoryService: ConversationCategoryService by inject()
     private val conversationTagService: ConversationTagService by inject()
+    private val chatFolderService: ChatFolderService by inject()
     private val fileService: FileService by inject()
     private val preferenceService: PreferenceService by inject()
     private val lockAppService: LockAppService by inject()
@@ -466,6 +472,9 @@ class ConversationsFragment : MainFragment() {
             tags.add(TAG_SHARE)
         }
 
+        labels.add(SelectorDialogItem(getString(R.string.add_to_folder), R.drawable.ic_folder_outline))
+        tags.add(TAG_ADD_TO_FOLDER)
+
         labels.add(SelectorDialogItem(getString(R.string.archive_chat), R.drawable.ic_archive))
         tags.add(TAG_ARCHIVE_CONVERSATION)
 
@@ -571,6 +580,11 @@ class ConversationsFragment : MainFragment() {
             TAG_ARCHIVE_CONVERSATION -> {
                 logger.info("Clicked on button to archive conversation")
                 getConversationId()?.let(viewModel::onClickArchiveConversation)
+            }
+
+            TAG_ADD_TO_FOLDER -> {
+                logger.info("Clicked on button to add conversation to folder")
+                getConversationId()?.let(::showChatFolderSelectDialog)
             }
 
             TAG_EMPTY_CONVERSATION -> {
@@ -1094,6 +1108,14 @@ class ConversationsFragment : MainFragment() {
                                         )
                                     }
 
+                                    FolderChipRow(
+                                        folders = conversationsViewState.folders,
+                                        selectedFolderId = conversationsViewState.selectedFolderId,
+                                        onClickFolder = { folderId ->
+                                            viewModel.onFolderSelected(folderId)
+                                        },
+                                    )
+
                                     when (val itemsState = conversationsViewState.itemsState) {
                                         is ItemsState.Loaded -> {
                                             if (itemsState.items.isNotEmpty()) {
@@ -1476,6 +1498,88 @@ class ConversationsFragment : MainFragment() {
                 iconRes = R.drawable.ic_archive,
             ),
         )
+    }
+
+    /**
+     * Horizontally scrolling row of filter chips above the conversation list. Renders a leading "All"
+     * chip, one chip per folder and a trailing "manage folders" chip. The row is hidden when no
+     * folders exist so users that don't use folders see no change.
+     */
+    @Composable
+    private fun FolderChipRow(
+        folders: List<ChatFolderUiModel>,
+        selectedFolderId: Long?,
+        onClickFolder: (Long?) -> Unit,
+    ) {
+        if (folders.isEmpty()) {
+            return
+        }
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 800.dp),
+            contentPadding = PaddingValues(
+                horizontal = GridUnit.x2,
+                vertical = GridUnit.x0_5,
+            ),
+            horizontalArrangement = Arrangement.spacedBy(GridUnit.x1),
+        ) {
+            item(key = "folder-all") {
+                FilterChip(
+                    selected = selectedFolderId == null,
+                    onClick = { onClickFolder(null) },
+                    label = {
+                        ThemedText(
+                            text = stringResource(R.string.folder_all),
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    },
+                )
+            }
+            items(
+                items = folders,
+                key = { folder -> folder.id },
+            ) { folder ->
+                FilterChip(
+                    selected = selectedFolderId == folder.id,
+                    onClick = { onClickFolder(folder.id) },
+                    label = {
+                        ThemedText(
+                            text = folder.name,
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    },
+                )
+            }
+        }
+    }
+
+    private fun showChatFolderSelectDialog(conversationId: ConversationId) {
+        val folders = chatFolderService.getFolders()
+        if (folders.isEmpty()) {
+            // No folders yet, send the user straight to the manage screen to create one.
+            startActivity(ChatFoldersActivity.createIntent(requireActivity()))
+            return
+        }
+        val conversationUid = conversationId.toDatabaseValue()
+        val currentFolderIds = chatFolderService.getFolderIdsForConversation(conversationUid)
+        val folderNames = folders.map { it.name }.toTypedArray()
+        val checkedStates = BooleanArray(folders.size) { index -> folders[index].id in currentFolderIds }
+
+        MaterialAlertDialogBuilder(requireActivity())
+            .setTitle(R.string.add_to_folder_title)
+            .setMultiChoiceItems(folderNames, checkedStates) { _, which, isChecked ->
+                checkedStates[which] = isChecked
+            }
+            .setPositiveButton(R.string.ok) { _, _ ->
+                val selectedFolderIds: Set<Long> = folders
+                    .filterIndexed { index, _ -> checkedStates[index] }
+                    .map { it.id }
+                    .toSet()
+                viewModel.onAddConversationToFolders(conversationId, selectedFolderIds)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun isConversationOpenedInMultiPaneMode(
@@ -2035,6 +2139,9 @@ class ConversationsFragment : MainFragment() {
 
         // TODO(ANDR-4613): Remove this tag
         private const val TAG_OPEN_IN_LEGACY_SCREEN = 16
+
+        // F1Whisper: must stay distinct from the tags above (the dialog result is dispatched by value)
+        private const val TAG_ADD_TO_FOLDER = 17
 
         private val DURATION_ARCHIVE_UNDO_SNACKBAR: Duration = 7.seconds
 

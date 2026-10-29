@@ -83,10 +83,10 @@
     <string name="prefs_inapp_vibrate_off">Mesaj alırken titretme</string>
     <string name="workarounds">Geçici Çözümler</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="prefs_title_threema_push_switch">${app_name_short} Dürtme kullan</string>
+    <string name="prefs_title_threema_push_switch">${app_name_short} Push\'u kullan</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="prefs_sum_threema_push_on">Yeni mesajlardan haberdar olmak için ${app_name_short} Dürtme kullan</string>
-    <string name="prefs_sum_threema_push_off">Sistem Dürtme hizmetini kullanarak yeni mesajları kontrol et</string>
+    <string name="prefs_sum_threema_push_on">Yeni mesajlardan haberdar olmak için ${app_name_short} Push\'u kullan</string>
+    <string name="prefs_sum_threema_push_off">Sistem push hizmetini kullanarak yeni mesajları kontrol et</string>
     <string name="prefs_logging">Günlük tutma</string>
     <string name="prefs_title_message_log_switch">Hata ayıklama günlüğü</string>
     <!-- Summary text shown under the "Log to file" switch in the settings. %1$s is a placeholder for the time since when the logging is enabled, %2$s is a placeholder for the total file size of the logs (e.g. 2.1MB) -->
@@ -94,8 +94,8 @@
     <!-- Summary text shown under the "Log to file" switch in the settings. %1$s is a placeholder for the name of a file which is used to force-enable the logging., %2$s is a placeholder for the total file size of the logs (e.g. 2.1MB) -->
     <string name="prefs_title_sum_message_log_forced_on">Sistem etkinliği kaydediliyor. Günlük tutmayı devre dışı bırakmak için \"%1$s\" dosyasını silin. (%2$s)</string>
     <string name="prefs_title_sum_message_log_off">Olaylar günlüğe kaydedilmeyecek</string>
-    <string name="prefs_reset_push">Dürtme jetonu sıfırla</string>
-    <string name="prefs_sum_reset_push">FCM/HMS ile Dürtme bildirimleri için cihazı yeniden kaydet</string>
+    <string name="prefs_reset_push">Push jetonunu sıfırla</string>
+    <string name="prefs_sum_reset_push">FCM/HMS ile push bildirimleri için cihazı yeniden kaydet</string>
     <string name="prefs_notification_preview">Mesajın ön izlemesini göster</string>
     <string name="prefs_sum_reset_ringtones">Varsayılan sistem ayarlarını geri yükle</string>
     <string name="prefs_title_reset_ringtones">Bildirim tonu ayarlarını sıfırla</string>
@@ -620,6 +620,8 @@ ${app_name_short} uygulamasının içinden ${app_name_short} ID\'nizi yönetin.<
     <string name="prefs_sendlog_summary">Sorun olması durumunda daha ayrıntılı analiz için günlük dosyasını ${company_name}\'ya gönder</string>
     <string name="prefs_exportlog">Günlüğü dışa aktar</string>
     <string name="prefs_exportlog_summary">Günlük dosyasını başka bir uygulamayla paylaş</string>
+    <string name="prefs_connection_diagnostics">Bağlantı &amp; bildirim tanılaması</string>
+    <string name="prefs_connection_diagnostics_summary">Eksik bildirimleri tanılamaya yardımcı olmak için bağlantı, anlık iletim, bildirim ve pil durumu raporunu dışa aktarın</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Medyayı kaydetmek veya göndermek için, ${app_name}\'nın depolama alanına erişmesine izin verin.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -950,7 +952,7 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="safe_learn_more_button">Daha fazla bilgi edinin</string>
     <string name="safe_enable_explain">Sohbet etmek için ihtiyacınız olan her şey yalnızca cihazınızda saklanır.  Bizde bir hesabınız yok ve telefonunuzu kaybederseniz veya yanlışlıkla verilerinizi silerseniz size yardımcı olamayız.\n\n${app_name_short} Safe, anahtarlarınız, kişi listeniz ve grup üyelikleriniz (mesaj içeriği yok) dahil olmak üzere tüm önemli verilerin, seçtiğiniz güvenli bir sunucuda anonim olarak otomatik yedeklerini oluşturur.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">${app_name_short} Safe\'i etkinleştirmeden devam etmek istiyor musunuz? ${app_name_short} Safe\'i kullanırken, cihazınıza erişiminizi kaybetmeniz durumunda ${app_name_short} kimliğinizi, kişilerinizi ve gruplarınızı geri yükleyebilirsiniz.</string>
+    <string name="safe_disable_confirm">${app_name_short} Safe\'i etkinleştirmeden devam etmek istiyor musunuz? ${app_name_short} Safe\'i kullanırken, cihazınıza erişiminizi kaybetmeniz durumunda ${app_name_short} kimliğinizi ve gruplarınızı geri yükleyebilirsiniz.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Lütfen güçlü bir şifre belirleyin. ${app_name_short} Safe yedeğinizi geri yüklemek için bu parolaya ihtiyacınız olacak.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -967,14 +969,10 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="safe_threema_id">${app_name_short} kimliğiniz</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Lütfen kurtarmak istediğiniz ${app_name_short} kimliğini girin</string>
-    <string name="safe_search_id_title">Lütfen ${app_name_short} kimliğinize bağlı cep telefonu numarasını veya e-posta adresini girin</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} kimliği aranıyor</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} kimliği bulunamadı</string>
     <string name="safe_no_backup_found">Sunucuda yedekleme bulunamadı. Kimlik ve şifreyi kontrol edin.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Birden fazla ${app_name_short} kimliği bulundu. Lütfen kullanılacak kimliği seçin:</string>
     <string name="safe_backup_now">Şimdi yedekle</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Tüm önemli verilerinizin otomatik, güvenli ve anonim yedeklerini oluşturmak için ${app_name_short} Safe\'i etkinleştirin.</string>
@@ -1012,7 +1010,6 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="safe_restore">${app_name_short} Safe\'i geri yükle</string>
     <string name="backup_restore_in_progress">Yedekleme veya geri yükleme devam ediyor. Son durum için bildirimleri kontrol edin</string>
     <string name="restore_error_body">Geri yükleme başarıyla tamamlanmadı</string>
-    <string name="forgot_your_id">Kimliğinizi mi unuttunuz?</string>
     <string name="restore_success_body">Geri yükleme başarıyla tamamlandı</string>
     <string name="work_data_sync">Veri eşitlemesi</string>
     <string name="private_contact">Özel kişi</string>
@@ -1047,6 +1044,7 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="password_bad_explain">${app_name_short} Safe için seçilen şifre güvenli değil ve saldırganlar tarafından kolaylıkla tahmin edilebilir. Lütfen başka bir şifre belirleyiniz. İpucu: Birden çok kelimeden oluşan bir parola kullanın.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">${app_name_short} Safe şifresi güncellendi.</string>
+    <string name="safe_password_complexity_unmet">Şifre 10 karakterden uzun olmalı ve küçük harf, büyük harf, bir rakam ve bir sembol içermelidir</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe şimdi etkinleştirildi.</string>
     <string name="push_token_cleared">Push token temizlendi</string>
@@ -1381,6 +1379,10 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <string name="forward_security_notification_rejected_text_group">Bir veya daha fazla mesaj \"%1$s\" gönderilemedi.</string>
     <string name="forward_security_notification_rejected_text_generic">Bir veya daha fazla mesaj gönderilemedi.</string>
     <string name="self_updater_installation_failed">Güncellemenin indirilmesi başarısız oldu. Lütfen güncellemeyi <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> adresinden manuel olarak indirip yükleyin.</string>
+    <string name="self_updater_downloading_background">Güncelleme arka planda indiriliyor…</string>
+    <string name="self_updater_update_ready_title">Güncelleme indirildi</string>
+    <string name="self_updater_update_ready_text">Güncellemeyi yüklemek için dokunun</string>
+    <string name="self_updater_download_failed">Güncellemenin indirilmesi başarısız oldu. Manuel olarak indirmek için dokunun.</string>
     <string name="spam_first_contact">Bu sohbet bilinmeyen bir kişiden</string>
     <string name="spam_report">Şikayet et</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1557,6 +1559,10 @@ sunucularımıza güvenli bir şekilde iletildi. Kişisel anahtar hiçbir zaman 
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Uygulamanın, ${app_name_short} Push\'un çalışması için gerekli olan sunucularla kalıcı bir bağlantı kurmasına izin verilmez. Uygulama arka plandayken yeni mesajlardan haberdar olmazsınız. Bunu düzeltmek için \"Uygulama pil kullanımı\" seçeneğine dokunun ve \"Kısıtlanmamış\" seçeneğini seçin.</string>
     <string name="problemsolver_to_settings">Ayarlara</string>
+    <string name="problemsolver_title_oem_autostart">Arka planda çalışmaya izin ver</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s cihazlar F1Whisper uygulamasının arka planda çalışmasını engelleyebilir; bu da pil optimizasyonu zaten kapalı olsa bile mesaj bildirimlerini engeller. Kılavuzu açın ve F1Whisper uygulamasının otomatik başlamasına ve arka planda çalışmasına izin verin.</string>
+    <string name="problemsolver_oem_autostart_action">Kurulum kılavuzunu aç</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Reddet</string>
     <string name="prefs_advanced_options">Gelişmiş seçenekler</string>
@@ -1876,4 +1882,143 @@ Nasıl Çalışır?</string>
         <item quantity="one">%d grup üyesi</item>
         <item quantity="other">%d grup üyesi</item>
     </plurals>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Sunucuyu değiştir</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Sunucu alan adı</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Sunucu değiştirilsin mi?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. -->
+    <string name="change_server_warning_message">Sunucuyu değiştirmek büyük olasılıkla mevcut kimliğinizin bağlantısını keser. Bunu yalnızca sağlayıcınız yeni alan adını onayladıysa yapın. Alan adı yanlışsa uygulama çalışmayı durdurur.</string>
+    <string name="use_different_key">Farklı bir anahtar kullan</string>
+    <string name="activation_key_already_redeemed">Bu aktivasyon anahtarı zaten kullanıldı. Lütfen farklı bir anahtar girin.</string>
+    <string name="notification_channel_emoji_reactions">Tepkiler</string>
+    <string name="reaction_notification_text">%1$s mesajınıza %2$s tepkisini verdi</string>
+    <string name="prefs_title_reaction_notifications">Tepki bildirimleri</string>
+    <string name="prefs_sum_reaction_notifications">Biri mesajlarımdan birine tepki verdiğinde beni bilgilendir</string>
+    <string name="chat_background_choose">Arka planlar</string>
+    <string name="chat_background_random">Rastgele (her sohbette farklı)</string>
+    <string name="chat_background_numbered">Arka plan %1$d</string>
+    <string name="listen_once_enabled">Bir kez dinle: açık</string>
+    <string name="listen_once_disabled">Bir kez dinle: kapalı</string>
+    <string name="listen_once_badge_content_description">Bir kez dinlenen sesli mesaj</string>
+    <string name="forwarded_message_label">İletildi</string>
+    <string name="listen_once_already_listened">Dinlendi</string>
+    <string name="listen_once_sent">Bir kez dinlenen sesli mesaj</string>
+    <string name="listen_once_cannot_forward">Bir kez dinlenen mesajlar iletilemez</string>
+    <string name="listen_once_expired">Sesli mesajın süresi doldu</string>
+    <string name="group_one_typing">%s yazıyor…</string>
+    <string name="group_two_typing">%1$s ve %2$s yazıyor…</string>
+    <string name="group_many_typing">%1$s ve %2$d kişi daha yazıyor…</string>
+    <string name="message_details_read_by">Okuyanlar</string>
+    <string name="message_details_delivered_to">Ulaşanlar</string>
+    <string name="message_details_sent_to">Gönderilenler</string>
+    <string name="markup_monospace">Eş aralıklı</string>
+    <string name="markup_spoiler">Gizli içerik</string>
+    <string name="spoiler_hidden_content_description">Gizli metin, göstermek için çift dokunun</string>
+    <string name="media_spoiler">Gizli içerik</string>
+    <string name="media_spoiler_reveal">Göstermek için dokunun</string>
+    <string name="media_spoiler_badge_content_description">Gizli içerik. Göstermek için çift dokunun.</string>
+    <string name="chat_folders">Sohbet klasörleri</string>
+    <string name="manage_folders">Klasörleri yönet</string>
+    <string name="add_to_folder">Klasöre ekle</string>
+    <string name="folder_all">Tümü</string>
+    <string name="new_folder">Yeni klasör</string>
+    <string name="create_folder">Klasör oluştur</string>
+    <string name="rename_folder">Klasörü yeniden adlandır</string>
+    <string name="delete_folder">Klasörü sil</string>
+    <string name="delete_folder_confirm">Bu klasör kaldırılsın mı? Sohbetleriniz silinmez.</string>
+    <string name="folder_name_hint">Klasör adı</string>
+    <string name="folder_name_empty">Lütfen bir klasör adı girin</string>
+    <string name="no_chat_folders">Henüz hiç klasör oluşturmadınız</string>
+    <string name="folder_created">Klasör oluşturuldu</string>
+    <string name="folder_deleted">Klasör silindi</string>
+    <string name="add_to_folder_title">Sohbeti klasörlere ekle</string>
+    <string name="folder_empty">Bu klasörde sohbet yok</string>
+    <string name="prefs_refresh_onprem_config">Sunucu yapılandırmasını yenile</string>
+    <string name="prefs_refresh_onprem_config_summary">Sunucu yapılandırmasını şimdi yeniden indirin. Sunucu masaüstü bağlama gibi yeni özellikler ekledikten sonra kullanışlıdır.</string>
+    <string name="onprem_config_refreshed">Sunucu yapılandırması yenilendi</string>
+    <string name="prefs_title_link_previews">Bağlantı önizlemeleri oluştur</string>
+    <string name="prefs_sum_link_previews">Gönderdiğiniz mesajlardaki bağlantılar için önizlemeler alın. Önizlemeler uçtan uca şifreli gönderilir; alıcının cihazı web sitesine asla bağlanmaz.</string>
+    <string name="link_preview_remove">Bağlantı önizlemesini kaldır</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Kırpmak için tutamaçları sürükleyin</string>
+    <string name="audio_trim_action">Kırp</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Küçült</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Yapılacaklar listesi</string>
+    <string name="checklist_create_as">Yapılacaklar listesi olarak oluştur</string>
+    <string name="checklist_fork_only">Yapılacaklar listeleri yalnızca F1Whisper kullanıcıları arasında çalışır.</string>
+    <string name="checklist_toggle_item">Liste öğesini değiştir</string>
+    <string name="checklist_checked_by">%1$s tarafından işaretlendi</string>
+    <string name="checklist_created_successfully">Yapılacaklar listesi oluşturuldu</string>
+    <string name="checklist_placeholder">Yapılacaklar listesi</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Mesajı sabitle</string>
+    <string name="unpin_message">Sabitlemeyi kaldır</string>
+    <string name="pinned_message_banner_label">Sabitlenmiş mesaj</string>
+    <string name="pinned_message_banner_dismiss">Sabitlenmiş mesaj başlığını gizle</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Bir yapılacaklar listesi başlığı girin</string>
+    <string name="checklist_wizard0_explain">Paylaşılan bir yapılacaklar listesi oluşturun. Sohbetteki herkes öğeleri istediği zaman işaretleyip işaretini kaldırabilir ve işaretlenen öğeler alta taşınır.</string>
+    <string name="checklist_add_items">Öğe ekle</string>
+    <string name="checklist_item_add">Bir öğe ekle</string>
+    <string name="checklist_item_count_error">Lütfen en az bir öğe ekleyin</string>
+    <string name="checklist_add_item_title">Öğe ekle</string>
+    <string name="checklist_add_item_hint">Yeni öğe adı</string>
+    <string name="checklist_add_item_button">Ekle</string>
+    <string name="checklist_delete_item_title">Öğe silinsin mi?</string>
+    <string name="checklist_delete_item_message">\"%1$s\" öğesini silmek istediğinizden emin misiniz?</string>
+    <string name="checklist_delete_button">Sil</string>
+    <string name="checklist_reorder_item">Liste öğesini taşı</string>
+    <string name="checklist_cannot_reorder">Bu öğe taşınamaz</string>
+    <string name="checklist_edit_title">Yapılacaklar listesini düzenle</string>
+    <string name="checklist_edit_apply">Uygula</string>
+    <string name="checklist_rename_item_title">Ögeyi yeniden adlandır</string>
+    <string name="audio_trim_not_supported">Bu ses biçimi için kırpma desteklenmiyor. Dosyanın tamamını göndermek için kırpmayı kaldırın.</string>
+    <string name="audio_trim_failed">Bu ses kırpılamadı. Hiçbir şey gönderilmedi. Lütfen tekrar deneyin veya kırpmayı kaldırın.</string>
+    <string name="pinned_message_banner_label_counter">Sabitlenmiş mesaj %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Kaybolan mesajlar</string>
+    <string name="disappearing_messages_summary">Bu sohbetteki yeni mesajlar okunduktan sonra seçilen süre içinde kaybolacaktır.</string>
+    <string name="disappearing_off">Kapalı</string>
+    <string name="disappearing_duration_picker_title">Kaybolan mesaj zamanlayıcısı</string>
+    <string name="status_disappearing_set">%1$s kaybolan mesajları %2$s olarak ayarladı</string>
+    <string name="status_disappearing_set_you">Kaybolan mesajları %1$s olarak ayarladınız</string>
+    <string name="status_disappearing_off">%1$s kaybolan mesajları kapattı</string>
+    <string name="status_disappearing_off_you">Kaybolan mesajları kapattınız</string>
+    <string name="disappearing_messages_unsupported">Kaybolan mesajlar yalnızca F1Whisper kullanıcıları arasında çalışır ve bir güvenlik garantisi değildir.</string>
+    <string name="disappearing_duration_30s">30 saniye</string>
+    <string name="disappearing_duration_5m">5 dakika</string>
+    <string name="disappearing_duration_1h">1 saat</string>
+    <string name="disappearing_duration_8h">8 saat</string>
+    <string name="disappearing_duration_1d">1 gün</string>
+    <string name="disappearing_duration_1w">1 hafta</string>
+    <string name="disappearing_duration_4w">4 hafta</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Kaybolur</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">okunduktan %1$s sonra</string>
+    <string name="connectivity_probe_dialog_title">Bağlantı tanılaması</string>
+    <string name="connectivity_probe_running">Denetimler çalışıyor…</string>
+    <string name="connectivity_probe_done">Denetimler tamamlandı</string>
+    <string name="connectivity_probe_send_btn">Tanılamayı gönder</string>
+    <string name="connectivity_probe_close_btn">Kapat</string>
+    <string name="connectivity_probe_verdict_all_ok">Sunucuya erişilebiliyor. Hesap veya cihaz ayarlarınızı kontrol edin.</string>
+    <string name="connectivity_probe_verdict_no_internet">Bu ağda çalışan bir internet yok.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS zehirlenmesi şüphesi: sistem DNS\'i farklı IP\'ler döndürüyor.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI tabanlı TLS engelleme şüphesi: ana bilgisayar adımız engellendi.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Sunucu IP\'si bu ağda engellendi.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Sohbet bağlantı noktası (5222) engellendi. HTTPS hâlâ çalışıyor.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Sunucuya erişilebiliyor ancak bu ağ ciddi şekilde yavaş veya kısıtlanmış — bağlantılar zaman aşımına uğrayabilir. Tekrar deneyin veya Wi-Fi ile mobil veri arasında geçiş yapın.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Bazı denetimler başarısız oldu. Analiz için raporu paylaşın.</string>
+    <string name="connectivity_probe_label_dns">DNS çözümleyicileri</string>
+    <string name="connectivity_probe_label_tcp443">TCP bağlantı noktası 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Yapılandırma uç noktası</string>
+    <string name="connectivity_probe_label_chat">Sohbet bağlantı noktası (5222)</string>
+    <string name="connectivity_probe_label_control">İnternet (kontrol)</string>
+    <string name="connectivity_probe_label_hints">Ek sinyaller</string>
+    <string name="connectivity_probe_hint_middlebox">Bağlantı hızlı ama şifreli el sıkışma yavaş — bu, bir şeffaf proxy\'nin veya trafik şekillendirme cihazının bu bağlantıya müdahale ettiğini gösterebilir.</string>
+    <string name="connectivity_probe_hint_port53">Her şey yavaşken cihazın DNS\'i şüphe uyandıracak kadar hızlı yanıt verdi — bu ağ, DNS sorgularına müdahale ediyor olabilir.</string>
 </resources>

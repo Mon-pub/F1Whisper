@@ -49,6 +49,42 @@ class BlobLoader private constructor(
     companion object {
         private const val BUFFER_SIZE = 8192
 
+        // F1-PATCH: with a known length the blob is read straight into one array of exactly that size. A growing
+        // ByteArrayOutputStream plus its final copy needed more than twice the blob size in heap, which a large file
+        // does not leave on many phones.
+        @Throws(IOException::class)
+        internal fun readKnownLengthBlob(
+            source: BufferedSource,
+            length: Long,
+            isCancelled: () -> Boolean,
+            onProgress: (Int) -> Unit,
+        ): ByteArray? {
+            if (length < 0 || length > Int.MAX_VALUE) {
+                throw IOException("Unsupported blob length $length")
+            }
+            val blobData = try {
+                ByteArray(length.toInt())
+            } catch (_: OutOfMemoryError) {
+                throw IOException("Out of memory on allocate")
+            }
+            var offset = 0
+            while (!isCancelled() && offset < blobData.size) {
+                val read = source.read(blobData, offset, minOf(BUFFER_SIZE, blobData.size - offset))
+                if (read == -1) {
+                    break
+                }
+                offset += read
+                onProgress((100f * offset / length).toInt())
+            }
+            if (isCancelled()) {
+                return null
+            }
+            if (offset != blobData.size || !source.exhausted()) {
+                throw IOException("Unexpected read size. current: $offset, expected: $length")
+            }
+            return blobData
+        }
+
         @JvmStatic
         fun usual(
             baseOkHttpClient: OkHttpClient,
@@ -107,28 +143,25 @@ class BlobLoader private constructor(
             if (blobResult.containsContent()) {
                 logger.debug("Blob content length is {}", blobResult.length)
 
-                var offset = 0
-                while (!isCancelled && (source.read(buffer).also { read = it }) != -1) {
-                    offset += read
-
-                    try {
-                        bos.write(buffer, 0, read)
-                    } catch (_: OutOfMemoryError) {
-                        throw IOException("Out of memory on write")
-                    }
-                    progressListener?.updateProgress((100f * offset / blobResult.length).toInt())
+                val blobData = try {
+                    readKnownLengthBlob(
+                        source = source,
+                        length = blobResult.length,
+                        isCancelled = { isCancelled },
+                        onProgress = { progressListener?.updateProgress(it) },
+                    )
+                } catch (e: IOException) {
+                    progressListener?.onFinished(false)
+                    throw e
                 }
-
-                if (isCancelled) {
+                if (blobData == null) {
                     logger.info("Blob load cancelled")
                     progressListener?.onFinished(false)
                     return null
                 }
-
-                if (offset.toLong() != blobResult.length) {
-                    progressListener?.onFinished(false)
-                    throw IOException("Unexpected read size. current: " + offset + ", excepted: " + blobResult.length)
-                }
+                logger.info("Blob load complete ({} bytes received)", blobData.size)
+                progressListener?.onFinished(true)
+                return blobData
             } else {
                 logger.debug("Blob content length is unknown")
 

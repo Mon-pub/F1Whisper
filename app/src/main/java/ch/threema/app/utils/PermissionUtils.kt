@@ -149,7 +149,12 @@ enum class Permission {
      * Some permissions are not required on certain API levels.
      */
     fun isRequired(): Boolean = when (this) {
-        PERMISSION_BLUETOOTH -> Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        // F1Whisper: never proactively request BLUETOOTH_CONNECT ("Nearby devices") for calls — Signal
+        // does not either. It stays declared in the manifest so a user can still grant it manually (the
+        // legacy SCO bluetooth routing then works); we just no longer force the prompt on the first
+        // call. Without it, call audio falls back to earpiece/speaker (VoipBluetoothManager already
+        // degrades gracefully on the resulting SecurityException).
+        PERMISSION_BLUETOOTH -> false
         PERMISSION_READ_PHONE_STATE -> Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         else -> true
     }

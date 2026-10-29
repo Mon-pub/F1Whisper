@@ -5,6 +5,20 @@ import ch.threema.storage.databaseupdate.*
 import kotlin.collections.asReversed
 import net.zetetic.database.sqlcipher.SQLiteDatabase
 
+/**
+ * Selects the database updates to run for a stored schema version.
+ *
+ * F1Whisper owns the version sequence: one monotonic number, fork versions are 90000 and above. The fork's early updates
+ * used numbers inside upstream's range (121..125, 127) where upstream later shipped different updates, so both sets were
+ * moved above it. Every update adopted from upstream is registered under the next free fork number through [adopted]
+ * (upstream 120..128 became 90120..90128), and its source file stays unchanged so future upstream merges stay clean.
+ * Upstream-native numbers above 119 are never registered directly: the stored version is a single scalar and only updates
+ * numerically above it run, so an update registered below the stored high-water mark could never run.
+ *
+ * On any database recorded below 90000 every adopted upstream update runs first, then every fork update. The fork updates
+ * are written to be safe on a database where they already applied (see [DatabaseUpdateToVersion90133]), so the recorded
+ * number does not have to describe the schema. The next free number for an adopted update is 90137.
+ */
 class DatabaseUpdater(
     private val appContext: Context,
     private val database: SQLiteDatabase,
@@ -13,21 +27,27 @@ class DatabaseUpdater(
         if (oldVersion == VERSION) {
             return emptyList()
         }
-        return updates
-            .asReversed()
-            .asSequence()
-            .map { updateConstructor ->
-                updateConstructor.invoke(database, appContext)
-            }
-            .takeWhile { update ->
-                oldVersion < update.version
-            }
-            .toList()
-            .reversed()
+        return select(
+            updateConstructors = updates.map { updateConstructor -> { updateConstructor.invoke(database, appContext) } },
+            oldVersion = oldVersion,
+        )
     }
 
     companion object {
-        const val VERSION = 128
+        const val VERSION = 90136
+
+        /**
+         * The updates numerically above [oldVersion], in registration order. Constructs them lazily from the end, so only
+         * the updates that will run are built. `internal` so the selection rule itself can be tested with a synthetic list.
+         */
+        internal fun select(updateConstructors: List<() -> DatabaseUpdate>, oldVersion: Int): List<DatabaseUpdate> =
+            updateConstructors
+                .asReversed()
+                .asSequence()
+                .map { updateConstructor -> updateConstructor() }
+                .takeWhile { update -> oldVersion < update.version }
+                .toList()
+                .reversed()
 
         private val updates: List<(SQLiteDatabase, Context) -> DatabaseUpdate>
             get() = listOf(
@@ -125,15 +145,23 @@ class DatabaseUpdater(
                 update(::DatabaseUpdateToVersion117),
                 update(::DatabaseUpdateToVersion118),
                 update(::DatabaseUpdateToVersion119),
-                update(::DatabaseUpdateToVersion120),
-                update(::DatabaseUpdateToVersion121),
-                update(::DatabaseUpdateToVersion122),
-                update(::DatabaseUpdateToVersion123),
-                update(::DatabaseUpdateToVersion124),
-                update(::DatabaseUpdateToVersion125),
-                update(::DatabaseUpdateToVersion126),
-                update(::DatabaseUpdateToVersion127),
-                update(::DatabaseUpdateToVersion128),
+                // Upstream updates from here on are registered under fork version numbers (see the class comment).
+                adopted(90120, ::DatabaseUpdateToVersion120),
+                adopted(90121, ::DatabaseUpdateToVersion121),
+                adopted(90122, ::DatabaseUpdateToVersion122),
+                adopted(90123, ::DatabaseUpdateToVersion123),
+                adopted(90124, ::DatabaseUpdateToVersion124),
+                adopted(90125, ::DatabaseUpdateToVersion125),
+                adopted(90126, ::DatabaseUpdateToVersion126),
+                adopted(90127, ::DatabaseUpdateToVersion127),
+                adopted(90128, ::DatabaseUpdateToVersion128),
+                // F1Whisper's own updates.
+                update(::DatabaseUpdateToVersion90131),
+                update(::DatabaseUpdateToVersion90132),
+                update(::DatabaseUpdateToVersion90133),
+                update(::DatabaseUpdateToVersion90134),
+                update(::DatabaseUpdateToVersion90135),
+                update(::DatabaseUpdateToVersion90136),
             )
 
         private fun update(databaseUpdate: () -> DatabaseUpdate): (SQLiteDatabase, Context) -> DatabaseUpdate =
@@ -143,5 +171,11 @@ class DatabaseUpdater(
             { database, _ -> databaseUpdate(database) }
 
         private fun update(databaseUpdate: (SQLiteDatabase, Context) -> DatabaseUpdate) = databaseUpdate
+
+        private fun adopted(version: Int, databaseUpdate: () -> DatabaseUpdate): (SQLiteDatabase, Context) -> DatabaseUpdate =
+            { _, _ -> AdoptedDatabaseUpdate(version, databaseUpdate()) }
+
+        private fun adopted(version: Int, databaseUpdate: (SQLiteDatabase) -> DatabaseUpdate): (SQLiteDatabase, Context) -> DatabaseUpdate =
+            { database, _ -> AdoptedDatabaseUpdate(version, databaseUpdate(database)) }
     }
 }

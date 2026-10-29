@@ -41,6 +41,7 @@ import org.koin.java.KoinJavaComponent;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -94,6 +95,10 @@ public class MediaGalleryActivity extends ThreemaToolbarActivity implements
     MediaGalleryAdapter.OnClickItemListener,
     GenericAlertDialog.DialogClickListener,
     ExpandableTextEntryDialog.ExpandableTextEntryDialogClickListener {
+    // F1Whisper: the messages behind the URIs waiting in the caption dialog (see onYes).
+    @Nullable
+    private List<AbstractMessageModel> pendingCaptionShareMessages = null;
+
     private static final Logger logger = getThreemaLogger("MediaGalleryActivity");
 
     private static final String DIALOG_TAG_DECRYPTING_MESSAGES = "dialog_decrypting_messages";
@@ -399,8 +404,17 @@ public class MediaGalleryActivity extends ThreemaToolbarActivity implements
     @Override
     public void onYes(String tag, Object data, String text) {
         List<Uri> uris = (List<Uri>) data;
+        // F1-PATCH: share exactly the messages the URIs were decrypted from. The selection can hold more (a restricted
+        // or undecryptable message), and pairing the URIs with it would pick the wrong type and drop the caption.
+        // Neither list survives process recreation; a restored dialog then has nothing safe to share.
+        List<AbstractMessageModel> messages = pendingCaptionShareMessages;
+        pendingCaptionShareMessages = null;
+        if (uris == null || messages == null || messages.size() != uris.size()) {
+            logger.warn("Caption share dropped: the decrypted files are no longer paired with their messages");
+            return;
+        }
         dependencies.getMessageService().shareMediaMessages(this,
-            new ArrayList<>(mediaGalleryAdapter.getCheckedItems()),
+            new ArrayList<>(messages),
             new ArrayList<>(uris), text);
     }
 
@@ -712,8 +726,22 @@ public class MediaGalleryActivity extends ThreemaToolbarActivity implements
                 @Override
                 protected Void doInBackground(Void params) {
                     try {
-                        var uris = dependencies.getFileService().decryptMessageFilesForSharing(mediaGalleryAdapter.getCheckedItems());
-                        shareMediaMessages(uris);
+                        // F1-PATCH: one slot per selected message, so captions stay with their own file when a message
+                        // in the selection is restricted or fails to decrypt.
+                        List<AbstractMessageModel> checkedItems = new ArrayList<>(mediaGalleryAdapter.getCheckedItems());
+                        var slots = dependencies.getFileService().decryptMessageFilesForSharingPositional(checkedItems);
+                        List<AbstractMessageModel> sharedMessages = new ArrayList<>();
+                        List<Uri> uris = new ArrayList<>();
+                        for (int i = 0; i < slots.size(); i++) {
+                            if (slots.get(i) != null) {
+                                sharedMessages.add(checkedItems.get(i));
+                                uris.add(slots.get(i));
+                            }
+                        }
+                        if (uris.isEmpty()) {
+                            throw new FileNotFoundException("No selected file could be shared");
+                        }
+                        shareMediaMessages(sharedMessages, uris);
                     } catch (Exception e) {
                         logger.error("Failed to decrypt files for sharing", e);
                         showToast(MediaGalleryActivity.this, R.string.media_file_not_found, ToastDuration.LONG);
@@ -729,9 +757,9 @@ public class MediaGalleryActivity extends ThreemaToolbarActivity implements
             }.execute(MediaGalleryActivity.this, null);
         }
 
-        private void shareMediaMessages(List<? extends @NotNull Uri> uris) {
-            List<AbstractMessageModel> selectedMessages = mediaGalleryAdapter.getCheckedItems();
+        private void shareMediaMessages(List<AbstractMessageModel> selectedMessages, List<? extends @NotNull Uri> uris) {
             if (uris.size() == 1) {
+                pendingCaptionShareMessages = new ArrayList<>(selectedMessages);
                 ExpandableTextEntryDialog alertDialog = ExpandableTextEntryDialog.newInstance(
                     getString(R.string.share_media),
                     R.string.add_caption_hint, selectedMessages.get(0).getCaption(),

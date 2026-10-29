@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ F1Whisper: generalized reply-quote header rendered ABOVE non-text bubbles (photo / video / file /
+  ~ voice) when the message carries a "qi" reply-quote reference (Signal-style "reply with any type").
+  ~ Mirrors the text-quote card in conversation_list_item_quote.xml but with FRESH ids so it does not
+  ~ collide with the File/Location/Ballot decorators' reuse of secondary_text_view / tertiaryTextView.
+  ~ Bound by ChatAdapterDecorator.configure; "gone" by default so non-quote media bubbles reserve no
+  ~ space. Included once into the shared conversation_bubble_header.xml, so every user-message bubble
+  ~ gets it without per-layout duplication. No directional glyph -> no RTL mirroring hazard.
+  -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/quote_header_container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="2dp"
+    android:layout_marginTop="2dp"
+    android:layout_marginBottom="2dp"
+    android:visibility="gone"
+    app:cardBackgroundColor="#10000000"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="0dp"
+    app:cardPreventCornerOverlap="true"
+    app:cardUseCompatPadding="false"
+    app:strokeWidth="0dp"
+    tools:visibility="visible">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/quote_header_bar"
+            android:layout_width="6dp"
+            android:layout_height="0dp"
+            android:background="?attr/colorPrimary"
+            android:contentDescription="@string/quote_subj"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/quote_header_text_wrapper"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.7"
+            android:orientation="vertical"
+            android:paddingTop="2dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="2dp"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintStart_toEndOf="@id/quote_header_bar"
+            app:layout_constraintEnd_toStartOf="@+id/quote_header_thumbnail"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ch.threema.app.emojis.EmojiConversationTextView
+                android:id="@+id/quote_header_sender"
+                style="@style/Threema.Bubble.Text.Body.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="@color/bubble_text_quote_colorstatelist"
+                android:textStyle="bold"
+                tools:text="Sender Name" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/quote_header_type_image"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="7dp"
+                    android:layout_marginTop="3dp"
+                    android:layout_marginEnd="-2.5dp"
+                    android:layout_marginBottom="3dp"
+                    android:contentDescription="@null"
+                    app:tint="@color/bubble_send_text_colorstatelist"
+                    tools:background="@drawable/ic_file_outline" />
+
+                <ch.threema.app.emojis.EmojiConversationTextView
+                    android:id="@+id/quote_header_snippet"
+                    style="@style/Threema.Bubble.Text.Body.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:ellipsize="end"
+                    android:linksClickable="false"
+                    android:maxLength="@integer/max_quote_text_length"
+                    android:maxLines="2"
+                    android:textColor="@color/bubble_text_quote_colorstatelist"
+                    android:textSize="?attr/font_status" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/quote_header_thumbnail"
+            android:layout_width="@dimen/avatar_size_small"
+            android:layout_height="@dimen/avatar_size_small"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/quote_header_text_wrapper"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

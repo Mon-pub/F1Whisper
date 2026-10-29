@@ -11,12 +11,12 @@
         android:id="@+id/permission_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@id/media_grid_recycler"
-        app:layout_constraintLeft_toLeftOf="@id/media_grid_recycler"
-        app:layout_constraintRight_toRightOf="@id/media_grid_recycler"
+        app:layout_constraintStart_toStartOf="@id/media_grid_recycler"
+        app:layout_constraintEnd_toEndOf="@id/media_grid_recycler"
         app:layout_constraintTop_toTopOf="@id/media_grid_recycler">
 
         <TextView
@@ -34,8 +34,8 @@
             android:textAppearance="@style/Threema.TextAppearance.EmptyView"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toTopOf="@+id/permission_button"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
@@ -47,8 +47,8 @@
             android:gravity="center"
             android:text="@string/take_me_there"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/permission_text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -82,8 +82,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:importantForAccessibility="no"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <include
@@ -91,14 +91,14 @@
                     layout="@layout/notice_select_media_permission"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginTop="@dimen/notice_views_vertical_margin"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginEnd="8dp"
                     android:layout_marginBottom="@dimen/notice_views_vertical_margin"
                     android:visibility="gone"
                     app:layout_constraintBottom_toTopOf="@id/media_grid_recycler"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/drag_handle" />
 
                 <ch.threema.app.ui.EmptyRecyclerView
@@ -109,8 +109,8 @@
                     android:paddingHorizontal="@dimen/grid_unit_x1"
                     android:paddingTop="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/select_media_permission_notice_container" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -223,9 +223,9 @@
                         android:id="@+id/check_box"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
-                        android:layout_gravity="top|right"
+                        android:layout_gravity="top|end"
                         android:layout_marginTop="12dp"
-                        android:layout_marginRight="16dp"
+                        android:layout_marginEnd="16dp"
                         android:background="@drawable/selector_grid_checkbox" />
 
                 </com.google.android.material.appbar.MaterialToolbar>

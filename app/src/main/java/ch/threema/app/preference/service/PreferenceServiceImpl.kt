@@ -36,6 +36,7 @@ import ch.threema.data.datatypes.ConversationIdObfuscated
 import ch.threema.domain.protocol.api.work.WorkDirectoryCategory
 import ch.threema.domain.protocol.api.work.WorkOrganization
 import java.time.Instant
+import java.util.LinkedList
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.seconds
@@ -133,6 +134,17 @@ class PreferenceServiceImpl(
 
     override fun setRecentEmojis(list: List<String>) {
         preferenceStore.save(getKeyName(R.string.preferences__recent_emojis), list.toTypedArray<String>())
+    }
+
+    override fun getRecentEmojiReactions(): LinkedList<String> =
+        LinkedList(
+            preferenceStore.getStringArray(getKeyName(R.string.preferences__recent_emoji_reactions))
+                ?.toList()
+                ?: emptyList(),
+        )
+
+    override fun setRecentEmojiReactions(list: LinkedList<String>) {
+        preferenceStore.save(getKeyName(R.string.preferences__recent_emoji_reactions), list.toTypedArray<String>())
     }
 
     override fun getEmojiSearchIndexVersion(): Int =
@@ -258,6 +270,17 @@ class PreferenceServiceImpl(
     override fun setTransmittedFeatureMask(transmittedFeatureMask: Long) {
         preferenceStore.save(getKeyName(R.string.preferences__transmitted_feature_mask), transmittedFeatureMask)
     }
+
+    override fun getTrustedClockOffsetMs(): Long =
+        preferenceStore.getLong(getKeyName(R.string.preferences__trusted_clock_offset_ms), defaultValue = 0L)
+
+    override fun setTrustedClockOffsetMs(offsetMs: Long) {
+        preferenceStore.save(getKeyName(R.string.preferences__trusted_clock_offset_ms), offsetMs)
+        preferenceStore.save(getKeyName(R.string.preferences__trusted_clock_synced), true)
+    }
+
+    override fun hasTrustedClockSynced(): Boolean =
+        preferenceStore.getBoolean(getKeyName(R.string.preferences__trusted_clock_synced), false)
 
     override fun getLastFeatureMaskTransmission(): Instant? =
         preferenceStore.getInstant(getKeyName(R.string.preferences__last_feature_mask_transmission))
@@ -452,6 +475,11 @@ class PreferenceServiceImpl(
     override fun isShowImageAttachPreviewsEnabled(): Boolean =
         preferenceStore.getBoolean(getKeyName(R.string.preferences__image_attach_previews))
 
+    // F1Whisper: default true even before the Chats settings screen is first opened (matches Signal's
+    // default-on), so the 2-arg getBoolean supplies the default when the key is still absent.
+    override fun isLinkPreviewsEnabled(): Boolean =
+        preferenceStore.getBoolean(getKeyName(R.string.preferences__link_previews), true)
+
     override fun isDirectShare(): Boolean =
         preferenceStore.getBoolean(getKeyName(R.string.preferences__direct_share))
 
@@ -505,7 +533,13 @@ class PreferenceServiceImpl(
     }
 
     override fun isWebClientEnabled(): Boolean =
-        preferenceStore.getBoolean(getKeyName(R.string.preferences__web_client_enabled))
+        // F1Whisper (second follow-up S2-04): the legacy Threema Web client is DISABLED in the
+        // onprem build — this fleet deploys no SaltyRTC broker, and the Web wire protocol's
+        // ID-only page cursor cannot express the tuple pagination contract. SessionServiceImpl
+        // gates every session start on this, so no session can start regardless of the stored
+        // preference; the UI entry points are hidden separately.
+        !ConfigUtils.isOnPremBuild() &&
+            preferenceStore.getBoolean(getKeyName(R.string.preferences__web_client_enabled))
 
     override fun setWebClientEnabled(enabled: Boolean) =
         preferenceStore.save(getKeyName(R.string.preferences__web_client_enabled), enabled)

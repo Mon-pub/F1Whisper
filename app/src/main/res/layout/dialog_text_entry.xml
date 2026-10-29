@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:endIconMode="clear_text"
-        android:paddingLeft="@dimen/edittext_padding"
-        android:paddingRight="@dimen/edittext_padding">
+        android:paddingStart="@dimen/edittext_padding"
+        android:paddingEnd="@dimen/edittext_padding">
 
         <ch.threema.app.emojis.EmojiEditText
             android:id="@+id/edit_text"

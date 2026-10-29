@@ -33,9 +33,12 @@ import ch.threema.app.protocolsteps.ValidContactsLookupSteps
 import ch.threema.app.restrictions.AppRestrictions
 import ch.threema.app.services.ApiService
 import ch.threema.app.services.ApiServiceImpl
+import ch.threema.app.services.AutoResendService
 import ch.threema.app.services.BlockedIdentitiesService
 import ch.threema.app.services.BlockedIdentitiesServiceImpl
 import ch.threema.app.services.CacheService
+import ch.threema.app.services.ChatFolderService
+import ch.threema.app.services.ChatFolderServiceImpl
 import ch.threema.app.services.ContactService
 import ch.threema.app.services.ContactServiceImpl
 import ch.threema.app.services.ConversationCategoryService
@@ -147,11 +150,16 @@ import ch.threema.domain.taskmanager.TaskManagerProvider
 import ch.threema.storage.DatabaseNonceStore
 import ch.threema.storage.DatabaseProvider
 import ch.threema.storage.DatabaseService
+import ch.threema.storage.factories.ChatFolderFactory
 import ch.threema.storage.factories.ContactModelFactory
 import ch.threema.storage.factories.ConversationTagFactory
+import ch.threema.storage.factories.GroupMessageModelFactory
+import ch.threema.storage.factories.MessageModelFactory
 import ch.threema.storage.factories.WebClientSessionModelFactory
+import ch.threema.storage.models.AbstractMessageModel
 import java.security.SecureRandom
 import java.util.Locale
+import java.util.concurrent.Executors
 import java.util.function.Supplier
 import kotlin.reflect.KProperty
 import okhttp3.OkHttpClient
@@ -491,6 +499,43 @@ class SessionScopeContainer(
         )
     }
 
+    val chatFolderService: ChatFolderService by lazyWithClosedCheck {
+        ChatFolderServiceImpl(
+            get<ChatFolderFactory>(),
+            get<GlobalEventBuses>(),
+        )
+    }
+
+    /**
+     * F1Whisper auto-resend: the orchestrator that silently re-sends unsent outgoing messages once
+     * connectivity returns. Backed by the two message tables (candidate query) and the message
+     * service (per-message resend). Trigger it via [AutoResendService.scheduleScan] on every CSP
+     * `LOGGED_IN` transition and once at app start.
+     */
+    val autoResendService: AutoResendService by lazyWithClosedCheck {
+        val messageModelFactory = get<MessageModelFactory>()
+        val groupMessageModelFactory = get<GroupMessageModelFactory>()
+        val candidateSource = object : AutoResendService.CandidateSource {
+            override fun findAutoResendCandidates(minCreatedAtMillis: Long): List<AbstractMessageModel> =
+                messageModelFactory.getAutoResendCandidates(minCreatedAtMillis) +
+                    groupMessageModelFactory.getAutoResendCandidates(minCreatedAtMillis)
+
+            override fun findAgedOutUnsentMessages(maxCreatedAtMillis: Long): List<AbstractMessageModel> =
+                messageModelFactory.getAgedOutUnsentMessages(maxCreatedAtMillis) +
+                    groupMessageModelFactory.getAgedOutUnsentMessages(maxCreatedAtMillis)
+        }
+        val resender = object : AutoResendService.Resender {
+            override fun autoResend(messageModel: AbstractMessageModel) {
+                messageService.autoResendMessage(messageModel, AutoResendService.TRIGGER_SOURCE)
+            }
+
+            override fun markAgedOutFailed(messageModel: AbstractMessageModel) {
+                messageService.markAgedOutUnsentFailed(messageModel)
+            }
+        }
+        AutoResendService(candidateSource, resender, Executors.newSingleThreadScheduledExecutor())
+    }
+
     val distributionListService: DistributionListService by lazyWithClosedCheck {
         DistributionListServiceImpl(
             appContext,
@@ -554,7 +599,6 @@ class SessionScopeContainer(
             contactService,
             groupService,
             distributionListService,
-            localeService,
             get<FileService>(),
             blockedIdentitiesService,
             excludedSyncIdentitiesService,

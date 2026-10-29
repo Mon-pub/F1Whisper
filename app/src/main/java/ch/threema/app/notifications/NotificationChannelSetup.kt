@@ -19,6 +19,7 @@ import ch.threema.app.notifications.NotificationChannels.NOTIFICATION_CHANNEL_AL
 import ch.threema.app.notifications.NotificationChannels.NOTIFICATION_CHANNEL_BACKUP_RESTORE_IN_PROGRESS
 import ch.threema.app.notifications.NotificationChannels.NOTIFICATION_CHANNEL_CHATS_DEFAULT
 import ch.threema.app.notifications.NotificationChannels.NOTIFICATION_CHANNEL_CHAT_UPDATE
+import ch.threema.app.notifications.NotificationChannels.NOTIFICATION_CHANNEL_EMOJI_REACTIONS
 import ch.threema.app.notifications.NotificationChannels.NOTIFICATION_CHANNEL_FORWARD_SECURITY
 import ch.threema.app.notifications.NotificationChannels.NOTIFICATION_CHANNEL_GROUP_CHATS_DEFAULT
 import ch.threema.app.notifications.NotificationChannels.NOTIFICATION_CHANNEL_INCOMING_CALLS
@@ -35,6 +36,7 @@ import ch.threema.app.notifications.migrations.NotificationChannelMigration
 import ch.threema.app.notifications.migrations.Version1Migration
 import ch.threema.app.notifications.migrations.Version2Migration
 import ch.threema.app.notifications.migrations.Version3Migration
+import ch.threema.app.notifications.migrations.Version4Migration
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.utils.RingtoneUtil
 import ch.threema.base.utils.getThreemaLogger
@@ -247,6 +249,18 @@ class NotificationChannelSetup(
             setSound(null, null)
         }
 
+        // F1Whisper: notifications for incoming emoji reactions to your own messages
+        createChannel(
+            channelId = NOTIFICATION_CHANNEL_EMOJI_REACTIONS,
+            channelName = getString(R.string.notification_channel_emoji_reactions),
+            channelImportance = NotificationManagerCompat.IMPORTANCE_DEFAULT,
+        ) {
+            setLightsEnabled(true)
+            setVibrationEnabled(true)
+            setShowBadge(false)
+            setSound(Settings.System.DEFAULT_NOTIFICATION_URI, AudioAttributes.USAGE_NOTIFICATION)
+        }
+
         // work sync notification
         if (ConfigUtils.isWorkBuild()) {
             createChannel(
@@ -276,6 +290,7 @@ class NotificationChannelSetup(
         ::Version1Migration,
         ::Version2Migration,
         ::Version3Migration,
+        ::Version4Migration,
     )
 
     private fun getString(@StringRes resId: Int): String =
@@ -331,6 +346,7 @@ class NotificationChannelSetup(
             safelyDeleteChannel(NOTIFICATION_CHANNEL_NOTICE)
             safelyDeleteChannel(NOTIFICATION_CHANNEL_NEW_SYNCED_CONTACTS)
             safelyDeleteChannel(NOTIFICATION_CHANNEL_FORWARD_SECURITY)
+            safelyDeleteChannel(NOTIFICATION_CHANNEL_EMOJI_REACTIONS)
             safelyDeleteChannel(NOTIFICATION_CHANNEL_CHAT_UPDATE)
 
             // get rid of foreground service channels
@@ -354,7 +370,7 @@ class NotificationChannelSetup(
     }
 
     companion object {
-        private const val NOTIFICATION_CHANNELS_VERSION = 3
+        private const val NOTIFICATION_CHANNELS_VERSION = 4
 
         private const val NO_VERSION = 0
     }

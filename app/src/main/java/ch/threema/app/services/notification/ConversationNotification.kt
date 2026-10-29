@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.annotation.WorkerThread
 import androidx.core.app.Person
 import ch.threema.app.emojis.EmojiMarkupUtil
+import ch.threema.app.emojis.MarkupParser
 import ch.threema.app.services.MessageService.MessageString
 import ch.threema.app.services.notification.NotificationService.FetchCacheUri
 import ch.threema.storage.models.MessageType
@@ -22,12 +23,16 @@ class ConversationNotification(
     val isMessageEdited: Boolean,
     val isMessageDeleted: Boolean,
 ) {
+    // F1Whisper: obscure ||spoiler|| content before it reaches the notification (there is no
+    // tap-to-reveal there), so the hidden text never leaks into a notification preview.
     val message: CharSequence =
         messageString.message
+            ?.let(MarkupParser::obscureSpoilersForPreview)
             ?.let(EmojiMarkupUtil.getInstance()::addTextSpans)
             ?: ""
 
     val rawMessage: CharSequence = messageString.rawMessage
+        ?.let(MarkupParser::obscureSpoilersForPreview)
         ?: ""
 
     val senderPerson: Person? =

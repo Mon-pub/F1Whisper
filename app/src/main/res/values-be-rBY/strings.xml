@@ -610,6 +610,8 @@
     <string name="prefs_sendlog_summary">Адправіць лог-файл у ${company_name} для далейшага аналізу ў выпадку ўзнікнення праблем</string>
     <string name="prefs_exportlog">Журнал экспарту</string>
     <string name="prefs_exportlog_summary">Абагуліць файл журнала з іншай праграмай</string>
+    <string name="prefs_connection_diagnostics">Дыягностыка злучэння &amp; апавяшчэнняў</string>
+    <string name="prefs_connection_diagnostics_summary">Экспартаваць справаздачу пра стан злучэння, push, апавяшчэнняў і батарэі, каб дапамагчы дыягнаставаць прапушчаныя апавяшчэнні</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Каб адпраўляць медыя, дазвольце ${app_name} доступ да сховішча.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -947,7 +949,7 @@
     <string name="safe_learn_more_button">Даведацца больш</string>
     <string name="safe_enable_explain">Усё, што вам трэба для чата, захоўваецца на вашай прыладзе. У нас няма вашага ўліковага запісу, і мы не зможам дапамагчы вам, калі вы страціце тэлефон або выпадкова выдаліце даныя.\n\n ${app_name_short} Safe стварае аўтаматычныя рэзервовыя копіі ўсіх важных даных, у тым ліку вашых ключоў, вашага спісу кантактаў і суполак (але не кантэнту паведамленняў). Даныя ў ананімным выглядзе захоўваюцца на абраным вамі абароненым серверы.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Вы хочаце працягнуць без уключэння ${app_name_short} Safe? З ${app_name_short} Safe вы зможаце аднавіць свой ${app_name_short} ID, кантакты і суполкі, калі страціце доступ да прылады.</string>
+    <string name="safe_disable_confirm">Вы хочаце працягнуць без уключэння ${app_name_short} Safe? З ${app_name_short} Safe вы зможаце аднавіць свой ${app_name_short} ID і суполкі, калі страціце доступ да прылады.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Калі ласка, прыдумайце моцны пароль. Гэты пароль спатрэбіцца вам для аднаўлення рэзервовай копіі ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -964,14 +966,10 @@
     <string name="safe_threema_id">Ваш ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Увядзіце ${app_name_short} ID, які вы хочаце аднавіць</string>
-    <string name="safe_search_id_title">Увядзіце нумар мабільнага тэлефона або адрас электроннай пошты, прывязаны да вашага ${app_name_short}-ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Пошук ID ${app_name_short}</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">ID ${app_name_short} не знойдзены</string>
     <string name="safe_no_backup_found">На серверы не знойдзена рэзервовая копія. Праверце ID і пароль.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Знойдзена некалькі ID ${app_name_short}. Абярыце ID для выкарыстання:</string>
     <string name="safe_backup_now">Стварыць копію зараз</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Уключыце ${app_name_short} Safe для аўтаматычнага стварэння абароненых ананімных рэзервовых копій усіх вашых важных даных.</string>
@@ -1009,7 +1007,6 @@
     <string name="safe_restore">Аднавіць ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Выконваецца рэзервовае капіяванне або аднаўленне. Глядзіце звесткі аб статусе ў апавяшчэннях.</string>
     <string name="restore_error_body">Не ўдалося выканаць аднаўленне</string>
-    <string name="forgot_your_id">Забыліся ID?</string>
     <string name="restore_success_body">Аднаўленне даных паспяхова завершана</string>
     <string name="work_data_sync">Сінхр. даных</string>
     <string name="private_contact">Прыватны кантакт</string>
@@ -1380,6 +1377,10 @@
     <string name="forward_security_notification_rejected_text_group">Адно або некалькі паведамленняў не могуць быць адпраўленыя на «%1$s».</string>
     <string name="forward_security_notification_rejected_text_generic">Немагчыма адправіць адно або некалькі паведамленняў.</string>
     <string name="self_updater_installation_failed">Не ўдалося спампаваць абнаўленне. Калі ласка, спампуйце і ўсталюйце яго ўручную з <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a>.</string>
+    <string name="self_updater_downloading_background">Спампоўванне абнаўлення ў фонавым рэжыме…</string>
+    <string name="self_updater_update_ready_title">Абнаўленне спампавана</string>
+    <string name="self_updater_update_ready_text">Націсніце, каб усталяваць абнаўленне</string>
+    <string name="self_updater_download_failed">Не ўдалося спампаваць абнаўленне. Націсніце, каб спампаваць яго ўручную.</string>
     <string name="spam_first_contact">Гэты чат ад невядомага кантакту</string>
     <string name="spam_report">Паведаміць пра спам</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1559,6 +1560,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Праграме не дазволена падтрымліваць пастаяннае злучэнне з серверамі, якое неабходна для працы ${app_name_short} Push. Вы не будзеце атрымліваць апавяшчэнні аб новых паведамленнях, калі праграма знаходзіцца ў фонавым рэжыме. Каб выправіць гэта, націсніце «Выкарыстанне батарэі праграмай» і выберыце «Без абмежаванняў».</string>
     <string name="problemsolver_to_settings">Да налад</string>
+    <string name="problemsolver_title_oem_autostart">Дазволіць працу ў фоне</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Прылады %1$s могуць спыняць F1Whisper ад працы ў фоне, што блакуе апавяшчэнні пра паведамленні нават калі аптымізацыя батарэі ўжо адключаная. Адкрыйце інструкцыю і дазвольце F1Whisper аўтазапуск і працу ў фоне.</string>
+    <string name="problemsolver_oem_autostart_action">Адкрыць інструкцыю</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Адхіліць</string>
     <string name="prefs_advanced_options">Дадатковыя параметры</string>
@@ -1926,4 +1931,148 @@
         <item quantity="many">%d удзельнікаў суполкі</item>
         <item quantity="other">%d удзельнікаў суполкі</item>
     </plurals>
+    <string name="change_server_dialog_title">Змяніць сервер</string>
+    <string name="change_server_dialog_hint">Дамен сервера</string>
+    <string name="change_server_warning_title">Змяніць сервер?</string>
+    <string name="change_server_warning_message">Змена сервера, хутчэй за ўсё, адлучыць ваш бягучы ідэнтыфікатар. Рабіце гэта толькі тады, калі ваш правайдар пацвердзіў новы дамен. Калі дамен няправільны, праграма перастане працаваць.</string>
+    <string name="use_different_key">Выкарыстаць іншы ключ</string>
+    <string name="activation_key_already_redeemed">Гэты ключ актывацыі ўжо быў выкарыстаны. Калі ласка, увядзіце іншы ключ.</string>
+    <string name="safe_password_complexity_unmet">Пароль павінен быць даўжэйшым за 10 сімвалаў і змяшчаць малыя і вялікія літары, лічбу і сімвал</string>
+    <string name="notification_channel_emoji_reactions">Рэакцыі</string>
+    <string name="reaction_notification_text">%1$s адрэагаваў %2$s на ваша паведамленне</string>
+    <string name="prefs_title_reaction_notifications">Апавяшчэнні пра рэакцыі</string>
+    <string name="prefs_sum_reaction_notifications">Апавяшчаць мяне, калі хтосьці рэагуе на адно з маіх паведамленняў</string>
+    <string name="chat_background_choose">Фоны</string>
+    <string name="chat_background_random">Выпадковы (розны для кожнага чату)</string>
+    <string name="chat_background_numbered">Фон %1$d</string>
+    <string name="listen_once_enabled">Праслухаць адзін раз: укл.</string>
+    <string name="listen_once_disabled">Праслухаць адзін раз: выкл.</string>
+    <string name="listen_once_badge_content_description">Галасавое паведамленне для аднаразовага праслухоўвання</string>
+    <string name="forwarded_message_label">Пераслана</string>
+    <string name="listen_once_already_listened">Праслухана</string>
+    <string name="listen_once_sent">Галасавое паведамленне для аднаразовага праслухоўвання</string>
+    <string name="listen_once_cannot_forward">Паведамленні з аднаразовым праслухоўваннем нельга пераслаць</string>
+    <string name="listen_once_expired">Тэрмін дзеяння галасавога паведамлення скончыўся</string>
+    <string name="group_one_typing">%s друкуе…</string>
+    <string name="group_two_typing">%1$s і %2$s друкуюць…</string>
+    <string name="group_many_typing">%1$s і яшчэ %2$d іншых друкуюць…</string>
+    <string name="message_details_read_by">Прачытана</string>
+    <string name="message_details_delivered_to">Дастаўлена</string>
+    <string name="message_details_sent_to">Адпраўлена</string>
+    <string name="markup_monospace">Монашырынны</string>
+    <string name="markup_spoiler">Схаваны тэкст</string>
+    <string name="spoiler_hidden_content_description">Схаваны тэкст, націсніце двойчы, каб паказаць</string>
+    <string name="media_spoiler">Схаваныя медыя</string>
+    <string name="media_spoiler_reveal">Націсніце, каб паказаць</string>
+    <string name="media_spoiler_badge_content_description">Схаваныя медыя. Націсніце двойчы, каб паказаць.</string>
+    <string name="chat_folders">Папкі чатаў</string>
+    <string name="manage_folders">Кіраванне папкамі</string>
+    <string name="add_to_folder">Дадаць у папку</string>
+    <string name="folder_all">Усе</string>
+    <string name="new_folder">Новая папка</string>
+    <string name="create_folder">Стварыць папку</string>
+    <string name="rename_folder">Перайменаваць папку</string>
+    <string name="delete_folder">Выдаліць папку</string>
+    <string name="delete_folder_confirm">Выдаліць гэтую папку? Вашы чаты не будуць выдалены.</string>
+    <string name="folder_name_hint">Назва папкі</string>
+    <string name="folder_name_empty">Калі ласка, увядзіце назву папкі</string>
+    <string name="no_chat_folders">Вы яшчэ не стварылі ніводнай папкі</string>
+    <string name="folder_created">Папка створана</string>
+    <string name="folder_deleted">Папка выдалена</string>
+    <string name="add_to_folder_title">Дадаць чат у папкі</string>
+    <string name="folder_empty">У гэтай папцы няма чатаў</string>
+    <string name="prefs_refresh_onprem_config">Абнавіць канфігурацыю сервера</string>
+    <string name="prefs_refresh_onprem_config_summary">Зноў спампаваць канфігурацыю сервера зараз. Карысна пасля таго, як сервер дадасць новыя функцыі, напрыклад прывязку камп’ютара.</string>
+    <string name="onprem_config_refreshed">Канфігурацыя сервера абноўлена</string>
+    <string name="prefs_title_link_previews">Ствараць папярэдні прагляд спасылак</string>
+    <string name="prefs_sum_link_previews">Атрымліваць папярэдні прагляд спасылак у паведамленнях, якія вы адпраўляеце. Папярэдні прагляд адпраўляецца са скразным шыфраваннем; прылада атрымальніка ніколі не звязваецца з сайтам.</string>
+    <string name="link_preview_remove">Выдаліць папярэдні прагляд спасылкі</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Перацягніце маркеры для абрэзкі</string>
+    <string name="audio_trim_action">Абрэзаць</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Згарнуць</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Спіс задач</string>
+    <string name="checklist_create_as">Стварыць як спіс задач</string>
+    <string name="checklist_fork_only">Спісы задач працуюць толькі паміж карыстальнікамі F1Whisper.</string>
+    <string name="checklist_toggle_item">Пераключыць пункт спіса</string>
+    <string name="checklist_checked_by">Адзначана %1$s</string>
+    <string name="checklist_created_successfully">Спіс задач створаны</string>
+    <string name="checklist_placeholder">Спіс задач</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Замацаваць паведамленне</string>
+    <string name="unpin_message">Адмацаваць</string>
+    <string name="pinned_message_banner_label">Замацаванае паведамленне</string>
+    <string name="pinned_message_banner_dismiss">Схаваць банер замацаванага паведамлення</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Увядзіце назву спіса спраў</string>
+    <string name="checklist_wizard0_explain">Стварыце агульны спіс спраў. Кожны ў чаце можа ў любы момант адзначаць і здымаць адзнакі з пунктаў, а адзначаныя пункты перамяшчаюцца ўніз.</string>
+    <string name="checklist_add_items">Дадаць пункты</string>
+    <string name="checklist_item_add">Дадаць пункт</string>
+    <string name="checklist_item_count_error">Калі ласка, дадайце хаця б адзін пункт</string>
+    <string name="checklist_add_item_title">Дадаць пункт</string>
+    <string name="checklist_add_item_hint">Назва новага пункта</string>
+    <string name="checklist_add_item_button">Дадаць</string>
+    <string name="checklist_delete_item_title">Выдаліць пункт?</string>
+    <string name="checklist_delete_item_message">Сапраўды выдаліць \"%1$s\"?</string>
+    <string name="checklist_delete_button">Выдаліць</string>
+    <string name="checklist_reorder_item">Перамясціць пункт спіса</string>
+    <string name="checklist_cannot_reorder">Гэты пункт нельга перамясціць</string>
+    <string name="checklist_edit_title">Рэдагаваць спіс</string>
+    <string name="checklist_edit_apply">Ужыць</string>
+    <string name="checklist_rename_item_title">Перайменаваць элемент</string>
+    <string name="audio_trim_not_supported">Абрэзка не падтрымліваецца для гэтага аўдыяфармату. Выдаліце абрэзку, каб адправіць поўны файл.</string>
+    <string name="audio_trim_failed">Не ўдалося абрэзаць гэта аўдыя. Нічога не адпраўлена. Паспрабуйце зноў або выдаліце абрэзку.</string>
+    <string name="pinned_message_banner_label_counter">Замацаванае паведамленне %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Знікаючыя паведамленні</string>
+    <string name="disappearing_messages_summary">Новыя паведамленні ў гэтым чаце знікнуць праз выбраны час пасля прачытання.</string>
+    <string name="disappearing_off">Адкл.</string>
+    <string name="disappearing_duration_picker_title">Таймер знікнення</string>
+    <string name="status_disappearing_set">%1$s усталяваў(ла) таймер знікаючых паведамленняў: %2$s</string>
+    <string name="status_disappearing_set_you">Вы ўсталявалі таймер знікаючых паведамленняў: %1$s</string>
+    <string name="status_disappearing_off">%1$s адключыў(ла) знікаючыя паведамленні</string>
+    <string name="status_disappearing_off_you">Вы адключылі знікаючыя паведамленні</string>
+    <string name="disappearing_messages_unsupported">Знікаючыя паведамленні працуюць толькі паміж карыстальнікамі F1Whisper і не з\'яўляюцца гарантыяй бяспекі.</string>
+    <string name="disappearing_duration_30s">30 секунд</string>
+    <string name="disappearing_duration_5m">5 хвілін</string>
+    <string name="disappearing_duration_1h">1 гадзіна</string>
+    <string name="disappearing_duration_8h">8 гадзін</string>
+    <string name="disappearing_duration_1d">1 дзень</string>
+    <string name="disappearing_duration_1w">1 тыдзень</string>
+    <string name="disappearing_duration_4w">4 тыдні</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Знікне</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s пасля прачытання</string>
+    <string name="connectivity_probe_dialog_title">Дыягностыка злучэння</string>
+    <string name="connectivity_probe_running">Выкананне праверак…</string>
+    <string name="connectivity_probe_done">Праверкі завершаны</string>
+    <string name="connectivity_probe_send_btn">Адправіць дыягностыку</string>
+    <string name="connectivity_probe_close_btn">Закрыць</string>
+    <string name="connectivity_probe_verdict_all_ok">Сервер даступны. Праверце налады ўліковага запісу або прылады.</string>
+    <string name="connectivity_probe_verdict_no_internet">У гэтай сетцы няма працоўнага інтэрнэту.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Магчыма атручэнне DNS: сістэмны DNS вяртае іншыя IP.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Магчыма блакіроўка TLS на аснове SNI: наша імя хаста заблакіравана.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">IP-адрас сервера заблакіраваны ў гэтай сетцы.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Порт чата (5222) заблакіраваны. HTTPS усё яшчэ працуе.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Сервер даступны, але сетка вельмі павольная або абмежаваная — злучэнні могуць перарывацца па тайм-аўце. Паспрабуйце яшчэ раз або пераключыцеся паміж Wi-Fi і мабільным інтэрнэтам.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Некаторыя праверкі не прайшлі. Падзяліцеся справаздачай для аналізу.</string>
+    <string name="connectivity_probe_label_dns">DNS-серверы</string>
+    <string name="connectivity_probe_label_tcp443">Порт TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Канчатковы пункт канфігурацыі</string>
+    <string name="connectivity_probe_label_chat">Порт чата (5222)</string>
+    <string name="connectivity_probe_label_control">Інтэрнэт (кантроль)</string>
+    <string name="connectivity_probe_label_hints">Дадатковыя сігналы</string>
+    <string name="connectivity_probe_hint_middlebox">Хуткае злучэнне, але павольнае шыфраванае поціск рукі — магчыма, гэтае злучэнне перахоплівае празрысты проксі-сервер ці прылада фарміравання трафіку.</string>
+    <string name="connectivity_probe_hint_port53">DNS прылады адказаў падазрона хутка, тады як усё астатняе было павольным — магчыма, гэтая сетка перахоплівае DNS-запыты.</string>
+    <string name="prefs_about">Пра праграму</string>
+    <string name="prefs_advanced">Дадаткова</string>
+    <string name="prefs_community_and_sharing">Супольнасць і абмен</string>
+    <string name="prefs_title_sum_message_log_forced_on">Сістэмная актыўнасць запісваецца. Выдаліце файл \"%1$s\", каб адключыць запіс. (%2$s)</string>
+    <string name="prefs_title_sum_message_log_on_since">Запіс сістэмнай актыўнасці вядзецца з %1$s (%2$s)</string>
+    <string name="restore_id_string_label">Тэкставы радок экспарту ID</string>
+    <string name="search_list">Пошук па спісе</string>
+    <string name="startup_error_details">Не атрымалася адкрыць ${app_name_short} з-за нечаканай памылкі. Экспартуйце файл журнала ніжэй і звярніцеся ў нашу службу падтрымкі, каб мы маглі даследаваць праблему. Прабачце за нязручнасці.</string>
 </resources>

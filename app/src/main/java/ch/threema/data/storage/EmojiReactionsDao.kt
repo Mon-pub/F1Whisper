@@ -7,15 +7,26 @@ import ch.threema.storage.models.AbstractMessageModel
 
 interface EmojiReactionsDao {
     /**
-     * Insert a new emoji reaction
+     * Insert a new emoji reaction, leaving an identical one that is already there untouched.
+     *
+     * F1Whisper: applying the same reaction twice used to raise. The table declares
+     * `UNIQUE(messageId, senderIdentity, emojiSequence) ON CONFLICT REPLACE`, but the insert overrode that with an
+     * explicit `CONFLICT_ROLLBACK`, and a per-statement conflict algorithm wins over the table-level clause. Reapplying
+     * a reaction is not an error - a redelivered message, two linked devices reacting, or a repeated ACK all produce
+     * it - so the duplicate is ignored rather than raised. It is ignored rather than REPLACEd because REPLACE deletes
+     * and reinserts with a fresh [DbEmojiReaction.reactedAt], and that timestamp orders the reaction UI, the web
+     * reaction buckets and the backup export.
      *
      * @param entry The entry to add for the reaction
      * @param messageModel The message referenced by the reaction entry
      *
-     * @throws SQLiteException if insertion fails due to a conflict
+     * @return the reaction as it is now STORED: [entry] when the row was inserted, the row that was already there when
+     * the insert was ignored, and `null` when the message cannot hold reactions or the row could not be read back.
+     *
+     * @throws SQLiteException if the insert fails for any reason other than the unique constraint
      * @throws ch.threema.data.repositories.EmojiReactionEntryCreateException if inserting the [DbEmojiReaction] in the database failed
      */
-    fun create(entry: DbEmojiReaction, messageModel: AbstractMessageModel)
+    fun create(entry: DbEmojiReaction, messageModel: AbstractMessageModel): DbEmojiReaction?
 
     /**
      * Remove an emoji reaction from the database

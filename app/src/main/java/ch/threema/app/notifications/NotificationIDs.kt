@@ -45,6 +45,9 @@ object NotificationIDs {
     const val WEB_RESUME_FAILED_NOTIFICATION_ID = -23
     const val WORK_SYNC_NOTIFICATION_ID = -24
 
+    /** F1Whisper: id for "someone reacted to your message" notifications (per-conversation via tag) */
+    const val REACTION_NOTIFICATION_ID = -25
+
     private const val CONVERSATION_NOTIFICATION_BASE = 1000
     private const val CONVERSATION_NOTIFICATION_SPACING = NotificationRequestCodes.ConversationNotificationAction.RESERVED_RANGE
     private const val CONTACT_CONVERSATION_RANGE_SIZE = 100_000_000

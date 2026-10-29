@@ -7,7 +7,9 @@ import ch.threema.app.preference.service.SynchronizedSettingsService
 import ch.threema.app.profilepicture.GroupProfilePictureUploader
 import ch.threema.app.protocolsteps.IdentityBlockedSteps
 import ch.threema.app.services.ApiService
+import ch.threema.app.services.AutoResendService
 import ch.threema.app.services.BlockedIdentitiesService
+import ch.threema.app.services.ChatFolderService
 import ch.threema.app.services.ContactService
 import ch.threema.app.services.ConversationCategoryService
 import ch.threema.app.services.ConversationService
@@ -104,6 +106,19 @@ class ServiceManager : KoinComponent {
 
     @Deprecated("Use Koin instead")
     val messageService: MessageService
+        get() = get()
+
+    /**
+     * F1Whisper auto-resend: the orchestrator that silently re-sends unsent outgoing messages once
+     * connectivity returns. Trigger it via [AutoResendService.scheduleScan] on every CSP
+     * `LOGGED_IN` transition and once at app start.
+     */
+    @Deprecated("Use Koin instead")
+    val autoResendService: AutoResendService
+        get() = get()
+
+    @Deprecated("Use Koin instead")
+    val chatFolderService: ChatFolderService
         get() = get()
 
     @Deprecated("Use Koin instead")

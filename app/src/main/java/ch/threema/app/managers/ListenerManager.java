@@ -8,6 +8,7 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import ch.threema.app.listeners.ContactSettingsListener;
+import ch.threema.app.listeners.GroupTypingListener;
 import ch.threema.app.listeners.NewSyncedContactsListener;
 import ch.threema.app.listeners.SMSVerificationListener;
 import ch.threema.app.listeners.SynchronizeContactsListener;
@@ -72,6 +73,8 @@ public class ListenerManager {
         }
     }
 
+    // F1Whisper: group typing indicators
+    public static final TypedListenerManager<GroupTypingListener> groupTypingListeners = new TypedListenerManager<>();
     // TODO(ANDR-4436): Remove this listener.
     public static final TypedListenerManager<SynchronizeContactsListener> synchronizeContactsListeners = new TypedListenerManager<>();
     public static final TypedListenerManager<ContactSettingsListener> contactSettingsListeners = new TypedListenerManager<>();

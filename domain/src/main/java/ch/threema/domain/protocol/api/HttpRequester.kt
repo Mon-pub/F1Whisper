@@ -55,7 +55,15 @@ internal class HttpRequester(
         }
 
         okHttpClient.execute(request).use { response ->
+            // F1Whisper: harvest server UTC from the standard `Date:` response header on every
+            // successful response from our cert-pinned OnPrem API. This is the single trustworthy
+            // time source (do NOT harvest from the unpinned link-preview fetcher). Feeds the
+            // app-side TrustedClock so outgoing message timestamps are cross-device-comparable even
+            // when the phone's own clock is wrong.
             if (response.isSuccessful) {
+                response.headers.getDate("Date")?.let { serverDate ->
+                    ServerTimeReporter.report(serverDate.time, System.currentTimeMillis())
+                }
                 return HttpRequesterResult.Success(response.getSuccessBodyOrThrow().string())
             }
             return HttpRequesterResult.Error(response.code)

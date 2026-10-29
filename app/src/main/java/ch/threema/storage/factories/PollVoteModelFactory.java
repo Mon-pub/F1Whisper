@@ -240,6 +240,20 @@ public class PollVoteModelFactory extends ModelFactory {
         );
     }
 
+    /**
+     * Delete all votes that referenced a now-removed poll choice (used by the F1Whisper checklist
+     * editor so deleting an item never leaves orphan votes pointing at a missing choice).
+     */
+    public int deleteByPollChoiceId(int pollChoiceId) {
+        return getWritableDatabase().delete(
+            this.getTableName(),
+            PollVoteModel.COLUMN_POLL_CHOICE_ID + "=?",
+            new String[]{
+                String.valueOf(pollChoiceId)
+            }
+        );
+    }
+
     public int deleteByPollIdAndVotingIdentity(int pollId, String identity) {
         return getWritableDatabase().delete(
             this.getTableName(),

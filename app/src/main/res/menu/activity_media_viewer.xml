@@ -40,4 +40,13 @@
         android:title="@string/show_in_chat"
         app:showAsAction="never" />
 
+    <!-- F1Whisper: picture-in-picture minimize (video only, API 26+, hidden for images) -->
+    <item
+        android:id="@+id/menu_pip"
+        android:icon="@drawable/ic_picture_in_picture"
+        android:orderInCategory="5"
+        android:title="@string/pip_minimize"
+        android:visible="false"
+        app:showAsAction="always" />
+
 </menu>

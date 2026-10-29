@@ -135,8 +135,17 @@ class EmojiReactionsRepositoryTest {
         groupMessage.assertEmojiReactionSize(0)
     }
 
+    /**
+     * F1Whisper: reapplying a reaction is a no-op, not an error.
+     *
+     * This test used to assert the opposite - that the second insert raises - which is the behaviour the field logs
+     * caught: six `EmojiReactionEntryCreateException`s from a `UNIQUE constraint failed` on a device with a linked
+     * desktop. The table declares `ON CONFLICT REPLACE`; the insert overrode it with `CONFLICT_ROLLBACK`. A duplicate
+     * arrives without any repeated user action, so it is now ignored - and specifically ignored rather than REPLACEd,
+     * because the stored `reactedAt` orders the reaction UI, the web buckets and the backup export.
+     */
     @Test
-    fun testEmojiReactionUniqueness() {
+    fun testDuplicateEmojiReactionIsIgnoredAndKeepsTheOriginalTimestamp() {
         val message = MessageModel().enrich()
         messageModelFactory.create(message)
 
@@ -152,23 +161,33 @@ class EmojiReactionsRepositoryTest {
         messageModelFactory.update(message)
 
         message.assertEmojiReactionSize(1)
+        val originalReactedAt = emojiReactionDao.findAllByMessage(message).single().reactedAt
 
-        assertFailsWith<EmojiReactionEntryCreateException> {
-            emojiReactionsRepository.createEntry(
-                targetMessage = message,
-                senderIdentity = "ABCDEFGH",
-                emojiSequence = "⚽",
-                reactedAt = reactedAt,
-            )
-        }
+        // Two linked devices applying the same emoji, or a redelivered message, land here.
+        emojiReactionsRepository.createEntry(
+            targetMessage = message,
+            senderIdentity = "ABCDEFGH",
+            emojiSequence = "⚽",
+            reactedAt = reactedAt,
+        )
 
         message.assertEmojiReactionSize(1)
+        assertEquals(
+            originalReactedAt,
+            emojiReactionDao.findAllByMessage(message).single().reactedAt,
+            "the persisted reaction must keep the timestamp of the FIRST apply",
+        )
 
         val reactions = emojiReactionsRepository.getReactionsByMessage(message)
         assertNotNull(reactions)
 
-        val reaction = reactions.data!![0]
+        val reaction = reactions.data!!.single()
         assertEquals("⚽", reaction.emojiSequence)
+        assertEquals(
+            originalReactedAt,
+            reaction.reactedAt,
+            "and the cache must publish that same timestamp, not the one the second attempt invented",
+        )
 
         messageModelFactory.delete(message)
     }

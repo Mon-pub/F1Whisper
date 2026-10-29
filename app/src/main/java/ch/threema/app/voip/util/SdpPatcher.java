@@ -504,6 +504,13 @@ public class SdpPatcher {
             paramUpdates.add("stereo");
             paramUpdates.add("sprop-stereo");
             paramUpdates.add("cbr");
+            // Bandwidth/quality tuning: cap the bitrate at 16 kbps (sufficient for wideband
+            // speech), restrict playback/capture to the wideband (8 kHz) range and enable
+            // in-band forward error correction to improve resilience against packet loss.
+            paramUpdates.add("maxaveragebitrate");
+            paramUpdates.add("maxplaybackrate");
+            paramUpdates.add("sprop-maxcapturerate");
+            paramUpdates.add("useinbandfec");
 
             // Write unchanged params
             StringBuilder builder = new StringBuilder();
@@ -519,7 +526,7 @@ public class SdpPatcher {
             }
 
             // Write our custom params
-            builder.append("stereo=0;sprop-stereo=0;cbr=1");
+            builder.append("stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1");
 
             return line.rewrite(builder);
         }

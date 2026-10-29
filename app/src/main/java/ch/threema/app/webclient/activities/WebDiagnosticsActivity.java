@@ -156,6 +156,13 @@ public class WebDiagnosticsActivity extends ThreemaToolbarActivity implements Te
         super.onCreate(savedInstanceState);
         logScreenVisibility(this, logger);
 
+        // F1Whisper (second follow-up S2-04): Threema Web is disabled in the onprem build —
+        // finish early so intents cannot open the diagnostics screen either.
+        if (ConfigUtils.isOnPremBuild()) {
+            finish();
+            return;
+        }
+
         final ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);

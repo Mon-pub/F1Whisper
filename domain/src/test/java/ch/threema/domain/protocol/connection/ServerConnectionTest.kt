@@ -16,6 +16,7 @@ import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.runTest
 
@@ -73,7 +74,11 @@ internal abstract class ServerConnectionTest {
     fun testChatServerConnection() = runTest(timeout = 1.seconds) {
         prepareServerKeys(skPublicPrimary, skSecretPrimary)
 
+        // F1Whisper: no inbound activity has been recorded before the connection reaches LOGGED_IN.
         val connection = createChatServerConnection()
+        assertEquals(0L, connection.getLastInboundActivityAtMillis())
+        val loginsBefore = connection.watchLoginCount().value
+        val beforeHandshake = System.currentTimeMillis()
 
         connection.watchConnectionState().test {
             expectItem(ConnectionState.DISCONNECTED)
@@ -84,10 +89,33 @@ internal abstract class ServerConnectionTest {
             expectItem(ConnectionState.CONNECTED)
             assertHandshake()
 
+            expectItem(ConnectionState.LOGGED_IN)
+
+            // F1Whisper: reaching LOGGED_IN seeds the last-inbound-activity timestamp with a recent
+            // wall-clock value, so the foreground staleness gate never falsely flags a fresh login.
+            // The stamp is written before the state flips, so it must be visible once LOGGED_IN has
+            // been observed.
+            assertEquals(loginsBefore + 1, connection.watchLoginCount().value, "the login is counted by the time LOGGED_IN is seen")
+
+            val lastInboundActivity = connection.getLastInboundActivityAtMillis()
+            assertTrue(
+                lastInboundActivity >= beforeHandshake,
+                "Expected last inbound activity ($lastInboundActivity) to be seeded at/after login start ($beforeHandshake)",
+            )
+            assertTrue(
+                lastInboundActivity <= System.currentTimeMillis(),
+                "Expected last inbound activity ($lastInboundActivity) not to be in the future",
+            )
+
             connection.stop()
 
-            expectItem(ConnectionState.LOGGED_IN)
             expectItem(ConnectionState.DISCONNECTED)
+            assertEquals(loginsBefore + 1, connection.watchLoginCount().value, "a disconnect does not reset the count")
+            assertEquals(
+                loginsBefore + 1,
+                createChatServerConnection().watchLoginCount().value,
+                "a replacement connection continues the count instead of starting again",
+            )
             assertEquals(1, serverAddressProvider.keyFetchCount)
             assertEquals(0, serverAddressProvider.altKeyFetchCount)
 

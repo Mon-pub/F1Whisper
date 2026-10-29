@@ -468,7 +468,9 @@ internal class ConversationTextPreviewProviderMarkup : PreviewParameterProvider<
         "*bold*",
         "_italic_",
         "~strikethrough~",
-        "word word *bold* word _italic_ word ~strikethrough~",
+        "`monospace`",
+        "||spoiler||",
+        "word word *bold* word _italic_ word ~strikethrough~ word `monospace` word ||spoiler||",
 
         // Combinations
         "word *_bold-italic_* word",

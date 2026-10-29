@@ -86,7 +86,9 @@ public class DistributionListMessageReceiver implements MessageReceiver<Distribu
         m.setType(type);
         m.setMessageContentsType(messageContentsType);
         m.setPostedAt(postedAt);
-        m.setCreatedAt(Instant.now());
+        // F1Whisper: stamp outgoing createdAt from the server-corrected, monotonic TrustedClock so
+        // timestamps are cross-device-comparable even when the phone's own clock is wrong.
+        m.setCreatedAt(Instant.ofEpochMilli(ch.threema.app.services.TrustedClock.stampNowMillis()));
         m.setSaved(false);
         m.setUid(UUID.randomUUID().toString());
 
@@ -111,8 +113,8 @@ public class DistributionListMessageReceiver implements MessageReceiver<Distribu
     }
 
     @Override
-    public void saveLocalModel(final DistributionListMessageModel save) {
-        this.databaseService.getDistributionListMessageModelFactory().createOrUpdate(save);
+    public boolean saveLocalModel(final DistributionListMessageModel save) {
+        return this.databaseService.getDistributionListMessageModelFactory().createOrUpdate(save);
     }
 
     private void unarchiveDistributionListModel() {
@@ -134,7 +136,7 @@ public class DistributionListMessageReceiver implements MessageReceiver<Distribu
     }
 
     @Override
-    public void createAndSendFileMessage(
+    public boolean createAndSendFileMessage(
         @Nullable byte[] thumbnailBlobId,
         @Nullable byte[] fileBlobId,
         @Nullable SymmetricEncryptionResult encryptionResult,
@@ -152,6 +154,11 @@ public class DistributionListMessageReceiver implements MessageReceiver<Distribu
 
         // Note that lastUpdate must not be bumped, as it is bumped by message service when the
         // file message is created
+
+        // F1Whisper (eighth fork review, H8-01): nothing to refuse. This handoff hands the blob parameters to the
+        // per-contact receivers, each of which persists and refuses on its own row; the distribution-list row itself is
+        // neither enriched here nor scheduled as a task.
+        return true;
     }
 
     @Override
@@ -248,6 +255,16 @@ public class DistributionListMessageReceiver implements MessageReceiver<Distribu
 
     @Override
     public boolean offerRetry() {
+        return false;
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-02): a distribution-list row is a local record of a fan-out, not a message with a
+     * recipient of its own. No task reports a terminal state for it, so the pipeline's own completion is the boundary -
+     * which is what it already was.
+     */
+    @Override
+    public boolean hasPendingRemoteCompletion() {
         return false;
     }
 

@@ -234,6 +234,14 @@
     <string name="threema_version_code">Versions-Code</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Server-Konfiguration</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Server ändere</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Server-Domäne</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Server ändere?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_message">Wenn Sie de Server ändered, wird Ihri aktuelli Identität wahrschiinlich trennt. Mached Sie das nur, wenn Ihre Aabieter die neui Domäne bestätigt hät. Wenn d’Domäne falsch isch, hört d’App uf z’funktioniere.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Kei Internetverbindig, ungültigi ID-Export-Zeichefolg oder falsches Passwort</string>
     <string name="prefs_header_other">Wiiteri</string>
     <string name="an_error_occurred">Es isch en Fehler ufträtte</string>
@@ -259,6 +267,9 @@
     <string name="enter_serial_title">${app_name} freischalte</string>
     <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
     <string name="serial_required_want_exit">De Lizänzschlüssel isch ungültig. Wänd Sie’s nomal versueche oder ${app_name} verlaa?</string>
+    <!-- Action label (e.g. TA001 'Use a different key' activation-key action). -->
+    <string name="use_different_key">En andere Schlüssel bruuche</string>
+    <string name="activation_key_already_redeemed">Dä Aktivierigschlüssel isch scho bruucht wore. Bitte gib en andere Schlüssel ii.</string>
     <!-- Message shown on progress dialog that shows while checking whether the user has a valid license -->
     <string name="checking_serial">Lizänz wird überprüeft</string>
     <!-- Message shown on progress dialog that shows while the credentials that the user entered are being checked for their validity -->
@@ -617,6 +628,8 @@
     <string name="prefs_sendlog_summary">Logdatei für Problemanalyse a ${company_name} schicke</string>
     <string name="prefs_exportlog">Logdatei exportiere</string>
     <string name="prefs_exportlog_summary">Logdatei über e anderi App teile</string>
+    <string name="prefs_connection_diagnostics">Verbindigs- &amp; Mäldigsdiagnose</string>
+    <string name="prefs_connection_diagnostics_summary">Exportier en Bricht über Verbindig, Push, Mäldige und Batteriestatus, zum fählendi Mäldige z\'diagnostiziere</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Aktiviered Sie d’Speicher-Berächtigung für ${app_name}, zum Medie z’sichere oder z’schicke.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -946,7 +959,7 @@
     <string name="safe_learn_more_button">Meh erfahre</string>
     <string name="safe_enable_explain">Alles, was Sie zum chatte bruched, isch nume uf Ihrem Grät gspeicheret. Es git keis zentrals Benutzerkonto, und falls Sie Ihres Handy verlüred oder us Versehe Ihri Date lösched, chönd mir die Date nüme wiederherstelle.\n\n${app_name_short} Safe erstellt regelmässig es verschlüsslets, anonyms Backup vo wichtige Date wie Schlüssel, Kontäkt und Gruppezueghörigkeite (aber nöd vo Nachrichteinhält) ufeme Server Ihrer Wahl.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Wänd Sie wiitermache, ohni ${app_name_short} Safe z’aktiviere? ${app_name_short} Safe erlaubt, Ihri ${app_name_short}-ID, Kontäkt und Gruppe wiederherzstelle, falls Sie Ihres Grät verlüüred.</string>
+    <string name="safe_disable_confirm">Wänd Sie wiitermache, ohni ${app_name_short} Safe z’aktiviere? ${app_name_short} Safe erlaubt, Ihri ${app_name_short}-ID und Gruppe wiederherzstelle, falls Sie Ihres Grät verlüüred.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Wähled Sie es sichers Passwort. Sie benötiged das Passwort, zum Ihres ${app_name_short} Safe-Backup wiederherzstelle.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -963,14 +976,10 @@
     <string name="safe_threema_id">Ihri ${app_name_short}-ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Bitte gebed Sie d’${app_name_short}-ID ii, wo Sie wiederherstelle wänd</string>
-    <string name="safe_search_id_title">Bitte gebed Sie die mit Ihrere ${app_name_short}-ID verchnüpfti Handynummere oder E-Mail-Adrässe ii</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short}-ID wird gsuecht</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Kei ${app_name_short}-ID gfunde</string>
     <string name="safe_no_backup_found">Keis Backup ufem Server gfunde. Überprüefed Sie d’ID und s’Passwort.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Mehreri ${app_name_short}-IDs gfunde. Wähled Sie die gwünschti ID:</string>
     <string name="safe_backup_now">Jetzt sichere</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Aktiviered Sie ${app_name_short} Safe für automatischi, sicheri und anonymi Backups vo Ihrne wichtigste Date.</string>
@@ -1008,7 +1017,6 @@
     <string name="safe_restore">${app_name_short} Safe wiederherstelle</string>
     <string name="backup_restore_in_progress">Backup oder Wiederherstelle im Gang. Überprüefed Sie d’Benachrichtigung für wiiteri Informatione.</string>
     <string name="restore_error_body">Wiederherstellig fehlgschlage</string>
-    <string name="forgot_your_id">ID vergässe?</string>
     <string name="restore_success_body">Wiederherstelle erfolgriich abgschlosse.</string>
     <string name="work_data_sync">Datesynchronisation</string>
     <string name="private_contact">Private Kontakt</string>
@@ -1043,6 +1051,8 @@
     <string name="password_bad_explain">S’gwählte ${app_name_short} Safe-Passwort isch sehr unsicher und cha drum liecht vo Agriifer errate werde. Bitte wähled Sie es sichers Passwort. Tipp: Nutzed Sie es zämegsetzts Wort us mehrere Begriff.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">S’${app_name_short} Safe-Passwort isch aktualisiert worde.</string>
+    <!-- Safe-password complexity validation error. -->
+    <string name="safe_password_complexity_unmet">S’Passwort mues länger als 10 Zeiche sii und Chliibuechstabe, Grossbuechstabe, e Ziffere und es Symbol enthalte</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_activated">${app_name_short} Safe isch aktiviert worde.</string>
     <string name="push_token_cleared">S’Push-Token isch entfernt worde</string>
@@ -1377,6 +1387,10 @@
     <string name="forward_security_notification_rejected_text_group">Es händ nöd all Nachrichte a «%1$s» chöne verschickt werde.</string>
     <string name="forward_security_notification_rejected_text_generic">Es händ nöd all Nachrichte chöne verschickt werde.</string>
     <string name="self_updater_installation_failed">De Download vom Update isch fehlgschlage. Bitte ladet Sie s’Update vode Websiite <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> abe und installiered Sie’s manuell.</string>
+    <string name="self_updater_downloading_background">S’Update wird im Hintergrund abeglade…</string>
+    <string name="self_updater_update_ready_title">Update abeglade</string>
+    <string name="self_updater_update_ready_text">Tippet zum s’Update installiere</string>
+    <string name="self_updater_download_failed">De Download vom Update isch fehlgschlage. Tippet zum s’manuell abelade.</string>
     <string name="spam_first_contact">De Chat stammt vomene unbekannte Kontakt</string>
     <string name="spam_report">Spam mälde</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1553,6 +1567,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">D’App cha kei permanenti Verbindig zude Server ufrächterhalte, was für d’Funktion vo ${app_name_short} Push aber erforderlich isch. Befindet sich d’App im Hindergrund, werded Sie nöd über neui Nachrichte informiert. Zum das z’behebe, tipped Sie uf «Akkunutzung der App» und wähled Sie «Uneingeschränkt».</string>
     <string name="problemsolver_to_settings">Zude Iistellige</string>
+    <string name="problemsolver_title_oem_autostart">Hintergrundbetrieb erlaube</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s-Grät chönd F1Whisper am Laufe im Hintergrund hindere, wodür Nachrichtebenachrichtigunge sogar denn blockiert werded, wenn d Akkuoptimierig scho usgschaltet isch. Mach d Aaleitig uf und erlaub F1Whisper s automatische Starte und s Laufe im Hintergrund.</string>
+    <string name="problemsolver_oem_autostart_action">Aaleitig öffne</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Usblände</string>
     <string name="prefs_advanced_options">Erwiitereti Istellige</string>
@@ -1871,4 +1889,133 @@
         <item quantity="one">%d Gruppemitglied</item>
         <item quantity="other">%d Gruppemitglieder</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Reaktione</string>
+    <string name="reaction_notification_text">%1$s het %2$s uf dini Nachricht reagiert</string>
+    <string name="prefs_title_reaction_notifications">Reaktions-Benachrichtigunge</string>
+    <string name="prefs_sum_reaction_notifications">Mich benachrichtige, wenn öpper uf eini vo mine Nachrichte reagiert</string>
+    <string name="chat_background_choose">Hintergründ</string>
+    <string name="chat_background_random">Zuefällig (pro Chat verschiede)</string>
+    <string name="chat_background_numbered">Hintergrund %1$d</string>
+    <string name="listen_once_enabled">Eimal aalose: ii</string>
+    <string name="listen_once_disabled">Eimal aalose: us</string>
+    <string name="listen_once_badge_content_description">Sprachnachricht zum eimal Aalose</string>
+    <string name="forwarded_message_label">Wytergleitet</string>
+    <string name="listen_once_already_listened">Aaglost</string>
+    <string name="listen_once_sent">Sprachnachricht zum eimal Aalose</string>
+    <string name="listen_once_cannot_forward">Einisch-aalose-Nachrichte chönd nöd witergleitet werde</string>
+    <string name="listen_once_expired">Sprachnachricht abgloffe</string>
+    <string name="group_one_typing">%s schriibt grad…</string>
+    <string name="group_two_typing">%1$s und %2$s schriibed grad…</string>
+    <string name="group_many_typing">%1$s und %2$d anderi schriibed grad…</string>
+    <string name="message_details_read_by">Gläse vo</string>
+    <string name="message_details_delivered_to">Zuegstellt a</string>
+    <string name="message_details_sent_to">Gschickt a</string>
+    <string name="markup_monospace">Monospace</string>
+    <string name="markup_spoiler">Versteckte Text</string>
+    <string name="spoiler_hidden_content_description">Versteckte Text, zweimal tippe zum Aazeige</string>
+    <string name="media_spoiler">Versteckti Medie</string>
+    <string name="media_spoiler_reveal">Tippe zum Aazeige</string>
+    <string name="media_spoiler_badge_content_description">Versteckti Medie. Zweimal tippe zum Aazeige.</string>
+    <string name="chat_folders">Chat-Ordner</string>
+    <string name="manage_folders">Ordner verwalte</string>
+    <string name="add_to_folder">Zum Ordner dezue tue</string>
+    <string name="folder_all">Alli</string>
+    <string name="new_folder">Neue Ordner</string>
+    <string name="create_folder">Ordner erstelle</string>
+    <string name="rename_folder">Ordner umbenenne</string>
+    <string name="delete_folder">Ordner lösche</string>
+    <string name="delete_folder_confirm">De Ordner entferne? Dini Chats werded nöd glöscht.</string>
+    <string name="folder_name_hint">Ordnername</string>
+    <string name="folder_name_empty">Bitte gib en Ordnername ii</string>
+    <string name="no_chat_folders">Du hesch no kei Ordner erstellt</string>
+    <string name="folder_created">Ordner erstellt</string>
+    <string name="folder_deleted">Ordner glöscht</string>
+    <string name="add_to_folder_title">Chat zu Ordner dezue tue</string>
+    <string name="folder_empty">Kei Chats i dem Ordner</string>
+    <string name="prefs_refresh_onprem_config">Server-Konfiguration aktualisiere</string>
+    <string name="prefs_refresh_onprem_config_summary">D Server-Konfiguration jetz nomol abelade. Nützlich, wenn de Server neui Funktione wie d Desktop-Verbindig dezuegfüegt het.</string>
+    <string name="onprem_config_refreshed">Server-Konfiguration aktualisiert</string>
+    <string name="prefs_title_link_previews">Link-Vorschaue erstelle</string>
+    <string name="prefs_sum_link_previews">Vorschaue für Links i Nachrichte, wo du verschicksch, abruefe. Vorschaue werded Änd-zu-Änd-verschlüsslet gschickt; s Grät vom Empfänger kontaktiert d Website nie.</string>
+    <string name="link_preview_remove">Link-Vorschau entferne</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Griffe ziehe zum Zuschnitte</string>
+    <string name="audio_trim_action">Zuschnitte</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimiere</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Checkliste</string>
+    <string name="checklist_create_as">Als Checkliste erstelle</string>
+    <string name="checklist_fork_only">Checkliste funktioniere nur zwische F1Whisper-Nutzer.</string>
+    <string name="checklist_toggle_item">Checklisteelement umschalte</string>
+    <string name="checklist_checked_by">Abghakt vo %1$s</string>
+    <string name="checklist_created_successfully">Checkliste erstellt</string>
+    <string name="checklist_placeholder">Checkliste</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Nachricht apinne</string>
+    <string name="unpin_message">Apinne ufhebe</string>
+    <string name="pinned_message_banner_label">Aghefte Nachricht</string>
+    <string name="pinned_message_banner_dismiss">Banner vo aghefte Nachricht verstecke</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Titel vo dr Checkliste igäh</string>
+    <string name="checklist_wizard0_explain">Mach e gmeinsami To-do-Lischte. Alli im Chat chönd Iiträg jederziit abhäkle und wider lö, und abghäkti Iiträg wandered nab.</string>
+    <string name="checklist_add_items">Iiträg zuefüege</string>
+    <string name="checklist_item_add">Iitrag zuefüege</string>
+    <string name="checklist_item_count_error">Bitte füeg mindeschtens ei Iitrag zue</string>
+    <string name="checklist_add_item_title">Iitrag hinzuefüege</string>
+    <string name="checklist_add_item_hint">Name vom neue Iitrag</string>
+    <string name="checklist_add_item_button">Hinzuefüege</string>
+    <string name="checklist_delete_item_title">Iitrag lösche?</string>
+    <string name="checklist_delete_item_message">Wotsch \"%1$s\" würkli lösche?</string>
+    <string name="checklist_delete_button">Lösche</string>
+    <string name="checklist_reorder_item">Checklischte-Iitrag verschiebe</string>
+    <string name="checklist_cannot_reorder">Dä Iitrag cha nöd verschobe werde</string>
+    <string name="checklist_edit_title">Checkliste bearbeite</string>
+    <string name="checklist_edit_apply">Aawände</string>
+    <string name="checklist_rename_item_title">Element umbenenne</string>
+    <string name="audio_trim_not_supported">S Zueschniide wird für das Audioformat nöd unterstützt. Nimm s Zueschniide ewägg, zum di ganzi Datei z schicke.</string>
+    <string name="audio_trim_failed">Das Audio het mer nöd chönne zueschniide. S isch nüt gschickt worde. Probier s nomal oder nimm s Zueschniide ewägg.</string>
+    <string name="pinned_message_banner_label_counter">Aagpinnti Nachricht %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Verschwindendi Nachrichte</string>
+    <string name="disappearing_messages_summary">Neui Nachrichte in däm Chat verschwindet nach em Läse nach de gwählte Ziit.</string>
+    <string name="disappearing_off">Us</string>
+    <string name="disappearing_duration_picker_title">Ablauftimer</string>
+    <string name="status_disappearing_set">%1$s het verschwindendi Nachrichte uf %2$s gsetzt</string>
+    <string name="status_disappearing_set_you">Du hesch verschwindendi Nachrichte uf %1$s gsetzt</string>
+    <string name="status_disappearing_off">%1$s het verschwindendi Nachrichte deaktiviert</string>
+    <string name="status_disappearing_off_you">Du hesch verschwindendi Nachrichte deaktiviert</string>
+    <string name="disappearing_messages_unsupported">Verschwindendi Nachrichte funktioniere nur zwüsche F1Whisper-Nutzer und sind kei Sicherheitsgarantie.</string>
+    <string name="disappearing_duration_30s">30 Sekunde</string>
+    <string name="disappearing_duration_5m">5 Minute</string>
+    <string name="disappearing_duration_1h">1 Stund</string>
+    <string name="disappearing_duration_8h">8 Stunde</string>
+    <string name="disappearing_duration_1d">1 Tag</string>
+    <string name="disappearing_duration_1w">1 Wuche</string>
+    <string name="disappearing_duration_4w">4 Wuche</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Verschwindet</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s nach em Läse</string>
+    <string name="connectivity_probe_dialog_title">Verbindigsdiagnose</string>
+    <string name="connectivity_probe_running">Prüefige laufe…</string>
+    <string name="connectivity_probe_done">Prüefige abgschlosse</string>
+    <string name="connectivity_probe_send_btn">Diagnose schicke</string>
+    <string name="connectivity_probe_close_btn">Zumache</string>
+    <string name="connectivity_probe_verdict_all_ok">Server isch erreichbar. Überprüef dini Konto- oder Grätiischtellige.</string>
+    <string name="connectivity_probe_verdict_no_internet">I däm Netzwärk gaht s Internet nöd.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS-Vergiftig vermuetet: S System-DNS git anderi IPs zrugg.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-basierti TLS-Blockierig vermuetet: Üse Hostname wird blockiert.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">D Server-IP isch i däm Netzwärk blockiert.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chat-Port (5222) isch blockiert. HTTPS gaht na.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server isch erreichbar, aber s Nätzwärk isch extrem langsam oder wird ussbremst — Verbindige chönd abbräche. Probiers nomol, oder wächsle zwüsche WLAN und Mobilfunk.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Es paar Prüefige sind fählgschlage. Teil de Bricht zur Analyse.</string>
+    <string name="connectivity_probe_label_dns">DNS-Resolver</string>
+    <string name="connectivity_probe_label_tcp443">TCP-Port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Konfigurations-Ändpunkt</string>
+    <string name="connectivity_probe_label_chat">Chat-Port (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (Kontrolle)</string>
+    <string name="connectivity_probe_label_hints">Witeri Hiwiis</string>
+    <string name="connectivity_probe_hint_middlebox">Schnälli Verbindig, aber langsamer verschlüsselte Handshake — mögli, dass es en transparänte Proxy oder es Traffic-Shaping-Gerät git, wo die Verbindig abfangt.</string>
+    <string name="connectivity_probe_hint_port53">S Gerät sini DNS-Afroog isch verdächtig schnäll beantwortet worde, während alles ander langsam gsi isch — das dütet druf hi, dass i däm Nätzwärk DNS-Afroge abgfangt wärded.</string>
 </resources>

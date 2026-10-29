@@ -6,9 +6,33 @@ import ch.threema.android.ResolvableString
 import ch.threema.android.ResourceIdString
 import ch.threema.app.R
 import ch.threema.app.logging.DebugLogHelper.Companion.FORCE_ENABLE_FILE_NAME
+import ch.threema.app.utils.OemAutostartUtil
+
+/** Dismiss key for [Problem.OEM_AUTOSTART_RESTRICTED] (the only dismissable problem). */
+private const val OEM_AUTOSTART_DISMISS_KEY = "oem_autostart"
 
 /**
- * @param dismissKey If defined, the user can dismiss this problem to keep it from being reported. The key is used to persist this decision.
+ * F1Whisper: ALL problems are NON-dismissable. F1Whisper delivers every background notification
+ * solely via F1Push (a persistent foreground service), so any of these conditions (battery usage
+ * optimized, full-screen notifications off, background usage/data restricted, debug log left on)
+ * can silently break notification delivery while the app is in the background. Users who dismissed
+ * a warning then forgot and complained notifications "don't work" -> we no longer set a
+ * {@code dismissKey} on any problem, so the warning stays visible until the underlying issue is
+ * actually fixed, at which point it auto-clears (the problem list is recomputed each time).
+ *
+ * The {@code dismissKey} parameter is kept (null for all auto-detectable problems) because
+ * {@code GetProblemsUseCase} and {@code ProblemSolverActivity} still read it: a null key both keeps
+ * the problem from ever being filtered out by a past dismissal and hides the per-problem dismiss
+ * button.
+ *
+ * EXCEPTION: {@code OEM_AUTOSTART_RESTRICTED} carries a non-null {@code dismissKey}. Unlike every
+ * other problem, its resolved state is NOT queryable (there is no Android API to read an OEM's
+ * "App launch" / auto-start whitelist), so it cannot auto-clear. It is therefore user-dismissable
+ * with a timed re-surface (see {@code GetProblemsUseCase}) instead of auto-clearing, so it can both
+ * be acknowledged and re-nudge after an OEM update resets the setting.
+ *
+ * @param dismissKey Null for auto-detectable problems (not dismissable). Non-null only for
+ * {@code OEM_AUTOSTART_RESTRICTED} (not auto-detectable -> dismissable + timed re-surface).
  * @param solutionType The type of action the user can take to solve the problem, or null if it is not a solveable problem but a problem the user
  * needs to be made aware of.
  */
@@ -23,25 +47,21 @@ enum class Problem(
     BACKGROUND_USAGE_RESTRICTED(
         titleRes = R.string.problemsolver_title_background,
         explanation = ResourceIdString(R.string.problemsolver_explain_background),
-        dismissKey = "background_usage",
     ),
     BACKGROUND_DATA_RESTRICTED(
         titleRes = R.string.problemsolver_title_background_data,
         explanation = ResourceIdString(R.string.problemsolver_explain_background_data),
-        dismissKey = "background_data",
     ),
     DEBUG_LOG_FORCE_ENABLED(
         titleRes = R.string.problemsolver_title_debug_log_enabled,
         explanation = ResolvableString { context ->
             context.getString(R.string.problemsolver_explain_debug_log_force_enabled, FORCE_ENABLE_FILE_NAME)
         },
-        dismissKey = "forced_debug_log",
         solutionType = null,
     ),
     DEBUG_LOG_STILL_ENABLED(
         titleRes = R.string.problemsolver_title_debug_log_enabled,
         explanation = ResourceIdString(R.string.problemsolver_explain_debug_log_enabled),
-        dismissKey = "debug_log",
         solutionType = SolutionType.InstantAction(R.string.disable),
     ),
     NOTIFICATIONS_DISABLED(
@@ -51,12 +71,10 @@ enum class Problem(
     FULLSCREEN_NOTIFICATIONS_DISABLED(
         titleRes = R.string.problemsolver_title_fullscreen_notifications,
         explanation = ResourceIdString(R.string.problemsolver_explain_fullscreen_notifications),
-        dismissKey = "fullscreen_notifications",
     ),
     THREEMA_PUSH_BATTERY_OPTIMIZATION(
         titleRes = R.string.problemsolver_title_app_battery_usgae_optimized,
         explanation = ResourceIdString(R.string.problemsolver_explain_app_battery_usgae_optimized),
-        dismissKey = "threema_push_battery_optimization",
     ),
     WEBCLIENT_BATTERY_OPTIMIZATION(
         titleRes = R.string.problemsolver_title_app_battery_usgae_optimized,
@@ -67,7 +85,6 @@ enum class Problem(
                 context.getString(R.string.app_name),
             )
         },
-        dismissKey = "webclient_battery_optimization",
     ),
     REMOTE_SECRET_BATTERY_OPTIMIZATION(
         titleRes = R.string.problemsolver_title_app_battery_usgae_optimized,
@@ -78,6 +95,23 @@ enum class Problem(
                 context.getString(R.string.app_name),
             )
         },
-        dismissKey = "remote_secret_battery_optimization",
+    ),
+
+    /**
+     * F1Whisper: shown on Doze-hostile OEMs (HONOR/Huawei/Xiaomi/Oppo/Vivo/...) whose separate
+     * "App launch" / auto-start whitelist freezes the background socket even when the AOSP battery
+     * optimization is already disabled. The action opens the per-OEM dontkillmyapp.com guide in a
+     * browser. Dismissable with timed re-surface (its state is not queryable -> cannot auto-clear).
+     */
+    OEM_AUTOSTART_RESTRICTED(
+        titleRes = R.string.problemsolver_title_oem_autostart,
+        explanation = ResolvableString { context ->
+            context.getString(
+                R.string.problemsolver_explain_oem_autostart,
+                OemAutostartUtil.manufacturerDisplayName(),
+            )
+        },
+        dismissKey = OEM_AUTOSTART_DISMISS_KEY,
+        solutionType = SolutionType.ToExternalGuide(R.string.problemsolver_oem_autostart_action),
     ),
 }

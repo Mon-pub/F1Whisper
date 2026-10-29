@@ -33,4 +33,11 @@
             android:orderInCategory="5"
             android:title="@string/send_as_files" />
     </group>
+    <group android:checkableBehavior="all">
+        <item
+            android:id="@+id/spoiler_item"
+            android:orderInCategory="10"
+            android:icon="@drawable/ic_spoiler"
+            android:title="@string/media_spoiler" />
+    </group>
 </menu>

@@ -15,7 +15,6 @@ import ch.threema.domain.protocol.connection.ServerConnection
 import ch.threema.domain.protocol.connection.ServerConnectionException
 import ch.threema.domain.protocol.connection.csp.CspConnectionConfiguration
 import ch.threema.domain.protocol.connection.csp.DeviceCookieManager
-import ch.threema.domain.protocol.connection.csp.socket.HostResolver
 import ch.threema.domain.protocol.connection.csp.socket.ProxyAwareSocketFactory
 import ch.threema.domain.protocol.connection.d2m.D2mConnectionConfiguration
 import ch.threema.domain.protocol.connection.util.ConnectionLoggingUtil
@@ -129,7 +128,8 @@ class CspD2mDualConnectionSupplier(
             deviceCookieManager = deviceCookieManager,
             incomingMessageProcessor = incomingMessageProcessor,
             taskManager = taskManager,
-            hostResolver = HostResolver(),
+            // F1Whisper: chat server resolution with a DNS fallback (see CachingHostResolver).
+            hostResolver = CachingHostResolver(),
             socketFactory = ProxyAwareSocketFactory::makeSocket,
         )
     }

@@ -71,6 +71,8 @@ class MessageViewElementFactory(
         MessageType.FORWARD_SECURITY_STATUS -> getViewElementForForwardSecurityMessage(
             messageBody = messageBody ?: return null,
         )
+        // F1Whisper: the disappearing-timer status row has no conversation list preview
+        MessageType.DISAPPEARING_STATUS,
         MessageType.STATUS,
         MessageType.DATE_SEPARATOR,
         -> null

@@ -27,6 +27,7 @@ import ch.threema.app.monitors.MonitorController
 import ch.threema.app.notifications.NotificationIDs
 import ch.threema.app.restrictions.AppRestrictionService
 import ch.threema.app.services.ThreemaPushService
+import ch.threema.app.services.TrustedClock
 import ch.threema.app.services.avatarcache.AvatarCacheService
 import ch.threema.app.startup.AppProcessLifecycleObserver
 import ch.threema.app.startup.AppStartupError
@@ -38,6 +39,7 @@ import ch.threema.app.systemupdates.SystemUpdateProvider
 import ch.threema.app.systemupdates.SystemUpdater
 import ch.threema.app.threemasafe.ThreemaSafeService
 import ch.threema.app.ui.DynamicColorsHelper
+import ch.threema.app.utils.AppVersionProvider.appVersion
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.utils.FileUtil
 import ch.threema.app.utils.LinuxSecureRandom
@@ -46,6 +48,7 @@ import ch.threema.app.webclient.services.SessionWakeUpService
 import ch.threema.app.workers.WorkerStartupScheduler
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.common.DispatcherProvider
+import ch.threema.domain.protocol.setUserAgentVersion
 import ch.threema.domain.stores.DHSessionStore
 import ch.threema.libthreema.LogLevel
 import ch.threema.libthreema.initialize as initLibthreema
@@ -114,6 +117,15 @@ class ThreemaApplication : Application() {
         setUpDayNightMode(this)
 
         initDependencyInjection(this)
+
+        // F1Whisper: register the server-time consumer so the pinned OnPrem API's `Date:` header
+        // feeds TrustedClock (cross-device-comparable outgoing message timestamps).
+        TrustedClock.register()
+
+        // F1Whisper: thread the app version into the domain-module UserAgent helper so the
+        // version-less provisioning/Safe HTTP paths (the no-argument getUserAgent()) emit a
+        // versioned User-Agent instead of a bare product token.
+        setUserAgentVersion(appVersion)
 
         with(get<AppVersionLogger>()) {
             logAppVersionInfo()
@@ -287,6 +299,15 @@ class ThreemaApplication : Application() {
                     appStartupMonitor.awaitSystem(AppSystem.DATABASE_UPDATES)
 
                     markUploadingFilesAsFailed(databaseService = get())
+                    // F1Whisper auto-resend: after the DB is ready (and the mark-failed pass above
+                    // has run), schedule one scan so a message left unsent by the previous process
+                    // (in flight or connectivity-SENDFAILED, <24h, non-terminal) is re-sent silently
+                    // once the connection comes up. Debounced/single-in-flight inside the service.
+                    try {
+                        sessionScopeContainer.serviceManager.autoResendService.scheduleScan("app-start")
+                    } catch (e: Exception) {
+                        logger.debug("Could not schedule auto-resend at app start", e)
+                    }
                     get<SessionWakeUpService>().processPendingWakeupsAsync()
                     get<ThreemaSafeService>().schedulePeriodicUpload()
                     get<WorkerStartupScheduler>().scheduleWorkers()

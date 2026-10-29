@@ -1,0 +1,111 @@
+<resources>
+    <string name="voip_title">Threema کال</string>
+    <string name="voip_hangup">کال ختم کریں</string>
+    <string name="voip_toggle_mic">مائیکروفون آن/آف کریں</string>
+    <string name="voip_toggle_speaker">اسپیکر آن/آف کریں</string>
+    <string name="voip_switch_cam">کیمرہ تبدیل کریں</string>
+    <string name="voip_switch_cam_front">سامنے والے کیمرے پر تبدیل ہو گیا</string>
+    <string name="voip_switch_cam_rear">پچھلے کیمرے پر تبدیل ہو گیا</string>
+    <string name="voip_toggle_video">ویڈیو موڈ آن/آف کریں</string>
+    <string name="voip_call_confirm">کیا آپ %1$s کو کال کرنا چاہتے ہیں؟</string>
+    <string name="voip_error_call">Threema کال کے دوران خرابی</string>
+    <string name="voip_error_init_call">کال شروع کرتے وقت خرابی</string>
+    <string name="voip_notification_title">آنے والی Threema کال</string>
+    <string name="voip_notification_text">%1$s کال کر رہا ہے</string>
+    <!-- Shown when starting a call, before the peer device is ringing -->
+    <string name="voip_status_initializing">شروع کیا جا رہا ہے</string>
+    <!-- Shown when the callee has accepted the call and the connection is being established -->
+    <string name="voip_status_connecting">منسلک ہو رہا ہے</string>
+    <!-- Shown when a call is being disconnected -->
+    <string name="voip_status_disconnecting">منقطع ہو رہا ہے</string>
+    <!-- Shown when the device of the callee is ringing -->
+    <string name="voip_status_ringing">گھنٹی بج رہی ہے</string>
+    <string name="voip_mic_enable">مائیکروفون فعال کریں</string>
+    <string name="voip_mic_disable">مائیکروفون غیر فعال کریں</string>
+    <string name="voip_checking_compatibility">جانچ ہو رہی ہے کہ آیا یہ رابطہ Threema کالیں وصول کر سکتا ہے</string>
+    <string name="voip_incompatible">یہ رابطہ ابھی Threema کالیں وصول کرنے کے قابل نہیں ہے۔</string>
+    <string name="voip_call_status_unavailable">کال وصول کنندہ دستیاب نہیں ہے</string>
+    <string name="voip_call_status_rejected">کال مسترد کر دی گئی</string>
+    <string name="voip_call_status_busy">کال وصول کنندہ مصروف ہے</string>
+    <string name="voip_call_status_busy_short">مصروف</string>
+    <string name="voip_call_status_disabled">وصول کنندہ نے Threema کالیں غیر فعال کر رکھی ہیں</string>
+    <string name="voip_call_status_missed">چھوٹی ہوئی کال</string>
+    <string name="voip_call_finished_outbox">باہر جانے والی کال</string>
+    <string name="voip_call_finished_inbox">آنے والی کال</string>
+    <string name="voip_call_status_aborted">کال منسوخ ہو گئی</string>
+    <string name="voip_return_call">واپس کال کریں</string>
+    <string name="voip_accept">قبول کریں</string>
+    <string name="voip_reject">مسترد کریں</string>
+    <string name="voip_speakerphone">اسپیکر فون</string>
+    <string name="voip_wired_headset">ہیڈسیٹ</string>
+    <string name="voip_earpiece">فون</string>
+    <string name="voip_bluetooth">بلوٹوتھ</string>
+    <string name="voip_none">دستیاب نہیں</string>
+    <string name="voip_call_finished">Threema کال ختم ہو گئی</string>
+    <string name="voip_another_call">منسلک نہیں ہو سکا۔ ایک اور Threema کال اس وقت فعال ہے۔</string>
+    <string name="voip_prefs_title_aec">ایکو منسوخی</string>
+    <string name="voip_prefs_aec_sw">سافٹ ویئر ایکو منسوخی</string>
+    <string name="voip_prefs_aec_hw">ہارڈ ویئر ایکو منسوخی</string>
+    <string name="voip_prefs_title_video_codec">ویڈیو کوڈیکس</string>
+    <string name="voip_prefs_video_aec_hw">ہارڈ ویئر سے تیز کردہ</string>
+    <string name="voip_prefs_video_codec_no_vp8">VP8 غیر فعال کریں</string>
+    <string name="voip_prefs_video_codec_no_h264hip">H264-HiP غیر فعال کریں</string>
+    <string name="voip_prefs_video_codec_sw">سافٹ ویئر کوڈیکس</string>
+    <string name="voip_connection_failed">کنکشن قائم نہیں کیا جا سکا</string>
+    <string name="voip_call_disconnected">کال منقطع ہو گئی</string>
+    <string name="prefs_voip_reject_incoming_calls_title">موبائل کالیں مسترد کریں</string>
+    <string name="prefs_voip_reject_incoming_calls_summary">Threema کال فعال ہونے کے دوران آنے والی موبائل کالیں مسترد کریں۔</string>
+    <string name="voip_contact_not_found">اس نمبر کے لیے کوئی Threema رابطہ نہیں ملا۔</string>
+    <string name="voip_another_pstn_call">کال شروع نہیں کی جا سکی۔ ایک عام فون کال ابھی فعال ہے۔</string>
+    <string name="voip_call_status_off_hours">کام کے اوقات سے باہر کال</string>
+    <string name="voip_peer_video_disabled">دوسرے فریق نے ویڈیو کالیں غیر فعال کر رکھی ہیں۔</string>
+
+    <string name="voip_error_processing_call_anser">کال کے جواب پر کارروائی کرتے وقت ایک خرابی پیش آئی</string>
+    <string name="voip_error_peer_connection">پیئر کنکشن کی خرابی</string>
+    <string name="voip_error_determine_common_video_quality_profile">مشترکہ ویڈیو معیار پروفائل کا تعین نہیں کیا جا سکا</string>
+
+    <string name="voip_audio_focus_lost">آڈیو فوکس ضائع ہو گیا</string>
+
+    <string name="voip_could_not_initialize">کال شروع نہیں کی جا سکی</string>
+
+    <!-- WebRTC debugger -->
+    <string name="voip_prefs_webrtc_debug">WebRTC تشخیص</string>
+    <string name="voip_prefs_webrtc_debug_summary">صوتی کال کنکشن قائم کرنے میں مسائل کی تشخیص کے لیے یہ ٹول شروع کریں</string>
+    <string name="voip_webrtc_debug">WebRTC تشخیص</string>
+    <string name="voip_webrtc_debug_intro">ٹیسٹ شروع کرنے کے لیے “شروع کریں“ بٹن دبائیں۔</string>
+    <string name="voip_webrtc_debug_start">شروع کریں</string>
+    <string name="voip_webrtc_debug_done">مکمل ہو گیا۔ اگر آپ کو کال کنکشن قائم کرنے میں مسائل پیش آتے ہیں، تو براہ کرم یہ آؤٹ پٹ Threema سپورٹ کو بھیجیں۔</string>
+    <string name="voip_webrtc_debug_copied">کلپ بورڈ پر کاپی مکمل ہو گئی۔</string>
+    <string name="voip_webrtc_debug_copy_clipboard">کلپ بورڈ پر کاپی کریں</string>
+
+    <!-- Group Calls -->
+    <string name="voip_gc_notification_call_started">%1$s نے %2$s میں گروپ کال شروع کی</string>
+    <string name="voip_gc_notification_call_started_generic">%1$s نے گروپ کال شروع کی</string>
+    <string name="voip_gc_notification_call_started_generic_outbox">آپ نے گروپ کال شروع کی</string>
+    <string name="voip_gc_join_call">شامل ہوں</string>
+    <string name="voip_gc_ongoing_call">جاری گروپ کال</string>
+    <string name="voip_gc_waiting_for_participants">شرکاء کا انتظار ہے</string>
+    <string name="voip_gc_participant_avatar_description">شریک کی پروفائل تصویر</string>
+    <string name="voip_gc_participant_mute_status_description">شریک کی خاموشی کی حالت</string>
+    <string name="voip_gc_participant_screen_share_status_description">شریک اسکرین شیئر کر رہا ہے</string>
+    <string name="voip_gc_notification_new_call_public">ایک نئی گروپ کال شروع ہو گئی ہے</string>
+    <string name="voip_gc_open_call">کھولیں</string>
+    <string name="voip_gc_call_started">گروپ کال شروع ہو گئی</string>
+    <string name="voip_gc_call_ended">گروپ کال ختم ہو گئی</string>
+    <string name="voip_gc_in_call">گروپ کال میں</string>
+    <string name="voip_gc_sfu_not_available">سرور دستیاب نہیں، بعد میں دوبارہ کوشش کریں</string>
+    <string name="voip_gc_call_error">خرابی کی وجہ سے کال رک گئی</string>
+    <string name="voip_gc_call_start_error">گروپ کال شروع نہیں کی جا سکی</string>
+    <string name="voip_gc_call_already_ended">گروپ کال پہلے ہی ختم ہو چکی ہے</string>
+    <string name="voip_gc_screen_sharing_not_supported">اسکرین شیئرنگ اس وقت صرف ڈیسک ٹاپ آلات تک محدود ہے۔</string>
+    <string name="voip_gc_call_full_generic">زیادہ سے زیادہ حد پہنچ گئی: اس گروپ کال میں مزید شرکاء شامل نہیں ہو سکتے۔</string>
+    <string name="voip_gc_call_full_n">زیادہ سے زیادہ %1$d شرکاء کی حد پہنچ گئی، آپ اس گروپ کال میں شامل نہیں ہو سکتے۔</string>
+    <plurals name="n_participants_in_call">
+        <item quantity="one">%d شریک</item>
+        <item quantity="other">%d شرکاء</item>
+    </plurals>
+    <plurals name="n_members_dont_support_group_calls">
+        <item quantity="one">نوٹ: ایک رکن گروپ کالوں میں شریک نہیں ہو سکتا۔</item>
+        <item quantity="other">نوٹ: %d ارکان گروپ کالوں میں شریک نہیں ہو سکتے۔</item>
+    </plurals>
+</resources>

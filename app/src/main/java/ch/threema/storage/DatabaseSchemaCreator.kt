@@ -1,6 +1,7 @@
 package ch.threema.storage
 
 import ch.threema.storage.factories.AppTaskPersistenceFactory
+import ch.threema.storage.factories.ChatFolderFactory
 import ch.threema.storage.factories.ContactAvailabilityStatusModelFactory
 import ch.threema.storage.factories.ContactEditHistoryEntryModelFactory
 import ch.threema.storage.factories.ContactEmojiReactionModelFactory
@@ -57,6 +58,7 @@ object DatabaseSchemaCreator {
             GroupPollModelFactory.Creator(),
             WebClientSessionModelFactory.Creator(),
             ConversationTagFactory.Creator(),
+            ChatFolderFactory.Creator,
             GroupCallModelFactory.Creator(),
             ServerMessageModelFactory.Creator,
             TaskArchiveFactory.Creator,

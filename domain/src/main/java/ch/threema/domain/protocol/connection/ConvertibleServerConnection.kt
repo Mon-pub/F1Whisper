@@ -25,6 +25,7 @@ open class ConvertibleServerConnection(
     private var connection: ServerConnection? = null
         set(value) {
             connectionStateFlow.delegate = value?.watchConnectionState() ?: stateFlowOf(ConnectionState.DISCONNECTED)
+            loginCountFlow.delegate = value?.watchLoginCount() ?: stateFlowOf(0L)
             field = value
         }
 
@@ -35,11 +36,28 @@ open class ConvertibleServerConnection(
 
     override fun watchConnectionState(): StateFlow<ConnectionState> = connectionStateFlow
 
+    // F1Whisper: delegate to the wrapped connection like the state flow. Connections share one process-wide count, so a
+    // swap never repeats a value a collector has already seen.
+    private val loginCountFlow = DelegateStateFlow(stateFlowOf(0L))
+
+    override fun watchLoginCount(): StateFlow<Long> = loginCountFlow
+
     override val connectionState: ConnectionState
         get() = connectionStateFlow.value
 
     override val isNewConnectionSession: Boolean
         get() = connection?.isNewConnectionSession ?: true
+
+    // F1Whisper: delegate both last-inbound-activity reads to the currently wrapped connection (0L if
+    // none is active yet). getConnection() returns this wrapper, so the delegation is required for the
+    // liveness verdict to see the real BaseServerConnection values. These overrides must never be
+    // dropped in favour of the ServerConnection interface defaults: the wrapper would then report 0L
+    // forever while a perfectly healthy connection ran underneath it.
+    override fun getLastInboundActivityAtMillis(): Long =
+        connection?.getLastInboundActivityAtMillis() ?: 0L
+
+    override fun getLastInboundActivityAtAwakeMillis(): Long =
+        connection?.getLastInboundActivityAtAwakeMillis() ?: 0L
 
     override fun disableReconnect() {
         connection?.disableReconnect()

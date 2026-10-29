@@ -5,5 +5,11 @@
         path="share/" />
     <external-path
         name="ext_files"
-        path="ThreemaOnPrem/" />
+        path="F1WhisperOnPrem/" />
+    <!-- F1Whisper: the in-app self-updater (ApkUpdateDownloadService) downloads the APK into the
+         app-private external files dir (getExternalFilesDir("Download")); expose it so the downloaded
+         apk can be handed to the system package installer via a FileProvider content:// uri. -->
+    <external-files-path
+        name="onprem_update_apk"
+        path="Download/" />
 </paths>

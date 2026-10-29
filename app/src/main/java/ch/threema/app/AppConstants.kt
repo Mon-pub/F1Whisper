@@ -27,7 +27,8 @@ object AppConstants {
     const val EMAIL_LINKED_PLACEHOLDER = "***@***"
     const val ACTIVITY_CONNECTION_TAG = "threemaApplication"
 
-    const val MAX_BLOB_SIZE_MB = 100
+    // F1Whisper: our blob server accepts larger uploads than the upstream 100 MB.
+    const val MAX_BLOB_SIZE_MB = 220
     const val MAX_BLOB_SIZE = MAX_BLOB_SIZE_MB * 1024 * 1024
     const val MIN_PIN_LENGTH = 4
     const val MAX_PIN_LENGTH = 8

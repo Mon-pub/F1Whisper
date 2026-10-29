@@ -1,0 +1,111 @@
+<resources>
+    <string name="voip_title">تماس Threema</string>
+    <string name="voip_hangup">قطع تماس</string>
+    <string name="voip_toggle_mic">تغییر وضعیت میکروفون</string>
+    <string name="voip_toggle_speaker">تغییر وضعیت بلندگو</string>
+    <string name="voip_switch_cam">تعویض دوربین</string>
+    <string name="voip_switch_cam_front">به دوربین جلو تغییر یافت</string>
+    <string name="voip_switch_cam_rear">به دوربین عقب تغییر یافت</string>
+    <string name="voip_toggle_video">تغییر حالت ویدیو</string>
+    <string name="voip_call_confirm">آیا می‌خواهید با %1$s تماس بگیرید؟</string>
+    <string name="voip_error_call">خطا در حین تماس Threema</string>
+    <string name="voip_error_init_call">خطا هنگام راه‌اندازی تماس</string>
+    <string name="voip_notification_title">تماس ورودی Threema</string>
+    <string name="voip_notification_text">%1$s در حال تماس است</string>
+    <!-- Shown when starting a call, before the peer device is ringing -->
+    <string name="voip_status_initializing">در حال راه‌اندازی</string>
+    <!-- Shown when the callee has accepted the call and the connection is being established -->
+    <string name="voip_status_connecting">در حال اتصال</string>
+    <!-- Shown when a call is being disconnected -->
+    <string name="voip_status_disconnecting">در حال قطع اتصال</string>
+    <!-- Shown when the device of the callee is ringing -->
+    <string name="voip_status_ringing">در حال زنگ خوردن</string>
+    <string name="voip_mic_enable">فعال‌سازی میکروفون</string>
+    <string name="voip_mic_disable">غیرفعال‌سازی میکروفون</string>
+    <string name="voip_checking_compatibility">در حال بررسی اینکه آیا این مخاطب می‌تواند تماس‌های Threema را دریافت کند</string>
+    <string name="voip_incompatible">این مخاطب هنوز قادر به دریافت تماس‌های Threema نیست.</string>
+    <string name="voip_call_status_unavailable">گیرنده تماس در دسترس نیست</string>
+    <string name="voip_call_status_rejected">تماس رد شد</string>
+    <string name="voip_call_status_busy">گیرنده تماس مشغول است</string>
+    <string name="voip_call_status_busy_short">مشغول</string>
+    <string name="voip_call_status_disabled">تماس‌های Threema توسط گیرنده غیرفعال شده‌اند</string>
+    <string name="voip_call_status_missed">تماس از‌دست‌رفته</string>
+    <string name="voip_call_finished_outbox">تماس خروجی</string>
+    <string name="voip_call_finished_inbox">تماس ورودی</string>
+    <string name="voip_call_status_aborted">تماس لغو شد</string>
+    <string name="voip_return_call">تماس مجدد</string>
+    <string name="voip_accept">پذیرفتن</string>
+    <string name="voip_reject">رد کردن</string>
+    <string name="voip_speakerphone">بلندگو</string>
+    <string name="voip_wired_headset">هدست</string>
+    <string name="voip_earpiece">تلفن</string>
+    <string name="voip_bluetooth">بلوتوث</string>
+    <string name="voip_none">در دسترس نیست</string>
+    <string name="voip_call_finished">تماس Threema پایان یافت</string>
+    <string name="voip_another_call">اتصال ممکن نیست. یک تماس Threema دیگر در حال حاضر فعال است.</string>
+    <string name="voip_prefs_title_aec">حذف پژواک</string>
+    <string name="voip_prefs_aec_sw">حذف پژواک نرم‌افزاری</string>
+    <string name="voip_prefs_aec_hw">حذف پژواک سخت‌افزاری</string>
+    <string name="voip_prefs_title_video_codec">کدک‌های ویدیو</string>
+    <string name="voip_prefs_video_aec_hw">شتاب‌دهی سخت‌افزاری</string>
+    <string name="voip_prefs_video_codec_no_vp8">غیرفعال‌سازی VP8</string>
+    <string name="voip_prefs_video_codec_no_h264hip">غیرفعال‌سازی H264-HiP</string>
+    <string name="voip_prefs_video_codec_sw">کدک‌های نرم‌افزاری</string>
+    <string name="voip_connection_failed">اتصال برقرار نشد</string>
+    <string name="voip_call_disconnected">تماس قطع شد</string>
+    <string name="prefs_voip_reject_incoming_calls_title">رد تماس‌های تلفنی</string>
+    <string name="prefs_voip_reject_incoming_calls_summary">رد تماس‌های تلفنی ورودی هنگامی که یک تماس Threema فعال است.</string>
+    <string name="voip_contact_not_found">مخاطب Threema برای این شماره یافت نشد.</string>
+    <string name="voip_another_pstn_call">شروع تماس ممکن نیست. یک تماس تلفنی معمولی هنوز فعال است.</string>
+    <string name="voip_call_status_off_hours">تماس خارج از ساعت کاری</string>
+    <string name="voip_peer_video_disabled">تماس‌های ویدیویی توسط طرف مقابل غیرفعال شده‌اند.</string>
+
+    <string name="voip_error_processing_call_anser">خطایی هنگام پردازش پاسخ تماس رخ داد</string>
+    <string name="voip_error_peer_connection">خطای اتصال همتا</string>
+    <string name="voip_error_determine_common_video_quality_profile">نمی‌توان نمایه مشترک کیفیت ویدیو را تعیین کرد</string>
+
+    <string name="voip_audio_focus_lost">تمرکز صوتی از دست رفت</string>
+
+    <string name="voip_could_not_initialize">راه‌اندازی تماس ممکن نشد</string>
+
+    <!-- WebRTC debugger -->
+    <string name="voip_prefs_webrtc_debug">عیب‌یابی WebRTC</string>
+    <string name="voip_prefs_webrtc_debug_summary">این ابزار را برای رفع اشکال مشکلات مربوط به برقراری اتصال تماس صوتی اجرا کنید</string>
+    <string name="voip_webrtc_debug">عیب‌یابی WebRTC</string>
+    <string name="voip_webrtc_debug_intro">برای شروع آزمایش دکمه «شروع» را فشار دهید.</string>
+    <string name="voip_webrtc_debug_start">شروع</string>
+    <string name="voip_webrtc_debug_done">انجام شد. اگر در برقراری اتصال تماس مشکل دارید، لطفاً این خروجی را به پشتیبانی Threema ارسال کنید.</string>
+    <string name="voip_webrtc_debug_copied">رونوشت در بریده‌دان انجام شد.</string>
+    <string name="voip_webrtc_debug_copy_clipboard">رونوشت در بریده‌دان</string>
+
+    <!-- Group Calls -->
+    <string name="voip_gc_notification_call_started">%1$s یک تماس گروهی در %2$s آغاز کرد</string>
+    <string name="voip_gc_notification_call_started_generic">%1$s یک تماس گروهی آغاز کرد</string>
+    <string name="voip_gc_notification_call_started_generic_outbox">شما یک تماس گروهی آغاز کردید</string>
+    <string name="voip_gc_join_call">پیوستن</string>
+    <string name="voip_gc_ongoing_call">تماس گروهی در حال انجام</string>
+    <string name="voip_gc_waiting_for_participants">در انتظار شرکت‌کنندگان</string>
+    <string name="voip_gc_participant_avatar_description">تصویر نمایه شرکت‌کننده</string>
+    <string name="voip_gc_participant_mute_status_description">وضعیت بی‌صدای شرکت‌کننده</string>
+    <string name="voip_gc_participant_screen_share_status_description">شرکت‌کننده در حال اشتراک‌گذاری صفحه است</string>
+    <string name="voip_gc_notification_new_call_public">یک تماس گروهی جدید آغاز شده است</string>
+    <string name="voip_gc_open_call">باز کردن</string>
+    <string name="voip_gc_call_started">تماس گروهی آغاز شد</string>
+    <string name="voip_gc_call_ended">تماس گروهی پایان یافت</string>
+    <string name="voip_gc_in_call">در تماس گروهی</string>
+    <string name="voip_gc_sfu_not_available">سرور در دسترس نیست، بعداً دوباره تلاش کنید</string>
+    <string name="voip_gc_call_error">تماس به دلیل خطا متوقف شد</string>
+    <string name="voip_gc_call_start_error">شروع تماس گروهی ممکن نشد</string>
+    <string name="voip_gc_call_already_ended">تماس گروهی از قبل پایان یافته است</string>
+    <string name="voip_gc_screen_sharing_not_supported">اشتراک‌گذاری صفحه در حال حاضر محدود به دستگاه‌های دسکتاپ است.</string>
+    <string name="voip_gc_call_full_generic">به حداکثر رسید: شرکت‌کننده دیگری نمی‌تواند به این تماس گروهی بپیوندد.</string>
+    <string name="voip_gc_call_full_n">به حداکثر %1$d شرکت‌کننده رسید، نمی‌توانید به این تماس گروهی بپیوندید.</string>
+    <plurals name="n_participants_in_call">
+        <item quantity="one">%d شرکت‌کننده</item>
+        <item quantity="other">%d شرکت‌کننده</item>
+    </plurals>
+    <plurals name="n_members_dont_support_group_calls">
+        <item quantity="one">توجه: یک عضو نمی‌تواند در تماس‌های گروهی شرکت کند.</item>
+        <item quantity="other">توجه: %d عضو نمی‌توانند در تماس‌های گروهی شرکت کنند.</item>
+    </plurals>
+</resources>

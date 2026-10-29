@@ -10,6 +10,7 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.core.app.NotificationCompat
@@ -20,6 +21,7 @@ import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.content.LocusIdCompat
 import androidx.core.graphics.drawable.IconCompat
+import androidx.preference.PreferenceManager
 import ch.threema.android.buildNotification
 import ch.threema.android.buildNotificationAction
 import ch.threema.android.buildPerson
@@ -1027,6 +1029,79 @@ class NotificationServiceImpl(
 
     override fun showForwardSecurityMessageRejectedNotification(messageReceiver: MessageReceiver<*>) {
         fsNotificationManager.showForwardSecurityNotification(messageReceiver)
+    }
+
+    override fun showReactionNotification(
+        messageReceiver: MessageReceiver<*>,
+        targetMessage: AbstractMessageModel,
+        reactorIdentity: String,
+        emojiSequence: String,
+    ) {
+        // global toggle (default on)
+        val reactionNotificationsEnabled = PreferenceManager.getDefaultSharedPreferences(appContext)
+            .getBoolean(appContext.getString(R.string.preferences__reaction_notifications), true)
+        if (!reactionNotificationsEnabled) {
+            return
+        }
+
+        // respect per-conversation mute (do-not-disturb)
+        val notificationTriggerPolicyOverride = messageReceiver.getNotificationTriggerPolicyOverrideOrNull()
+        if (notificationTriggerPolicyOverride != null && notificationTriggerPolicyOverride.muteAppliesAt(timeProvider.get())) {
+            return
+        }
+
+        // do not notify for the conversation that is currently on screen
+        val conversationId = messageReceiver.conversationId
+        if (conversationId == visibleConversationId) {
+            return
+        }
+
+        // do not reveal content while the app is locked
+        if (lockAppService.isLocked) {
+            return
+        }
+
+        // OrNickname: a contact with only a nickname (no first/last name) must show the nickname, not fall back to the raw Threema ID
+        val reactorName = contactService?.getByIdentity(reactorIdentity)
+            ?.let { reactor ->
+                NameUtil.getContactDisplayNameOrNickname(reactor, true, preferenceService.getContactNameFormat())
+            }
+            ?: reactorIdentity
+        val title = messageReceiver.getDisplayName(preferenceService.getContactNameFormat())
+        val content = appContext.getString(R.string.reaction_notification_text, reactorName, emojiSequence)
+
+        // Namespaces the notification per conversation, so that reactions in different chats don't overwrite each other
+        val notificationTag = "reaction:$conversationId"
+
+        try {
+            // The data uri keeps the pending intents of different conversations apart, as only extras differ between them
+            val intent = ComposeMessageActivity.createIntentJumpToMessage(appContext, targetMessage)
+                .setData(Uri.parse("reaction://${Uri.encode(conversationId.toString())}"))
+                .setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                        Intent.FLAG_ACTIVITY_NO_USER_ACTION,
+                )
+            val notification = buildNotification(appContext, NotificationChannels.NOTIFICATION_CHANNEL_EMOJI_REACTIONS) {
+                setSmallIcon(R.drawable.ic_notification_small)
+                setContentTitle(title)
+                setContentText(content)
+                setContentIntent(createPendingIntentWithTaskStack(intent, NotificationIDs.REACTION_NOTIFICATION_ID))
+                setStyle(NotificationCompat.BigTextStyle().bigText(content))
+                setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                setCategory(NotificationCompat.CATEGORY_SOCIAL)
+                setAutoCancel(true)
+            }
+            notify(
+                notificationId = NotificationIDs.REACTION_NOTIFICATION_ID,
+                notification = notification,
+                channelId = NotificationChannels.NOTIFICATION_CHANNEL_EMOJI_REACTIONS,
+                tag = notificationTag,
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to show reaction notification", e)
+        }
     }
 
     override fun showSafeBackupFailed(fullDaysSinceLastBackup: Int) {

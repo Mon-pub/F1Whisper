@@ -19,6 +19,7 @@ import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.multidevice.MultiDeviceManager;
 import ch.threema.app.services.GroupService;
 import ch.threema.app.services.MessageService;
+import ch.threema.app.services.OutgoingSendBoundaryDecision;
 import ch.threema.app.services.UserService;
 import ch.threema.app.tasks.OutboundIncomingGroupMessageUpdateReadTask;
 import ch.threema.app.tasks.OutgoingFileMessageTask;
@@ -33,6 +34,7 @@ import ch.threema.app.tasks.OutgoingTextMessageTask;
 import ch.threema.app.utils.GroupFeatureSupport;
 import ch.threema.app.utils.GroupUtil;
 import ch.threema.app.utils.NameUtil;
+import ch.threema.app.utils.PollUtil;
 import ch.threema.base.ThreemaException;
 import ch.threema.base.crypto.SymmetricEncryptionResult;
 
@@ -128,9 +130,18 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
         m.setMessageContentsType(messageContentsType);
         m.setGroupId(group.getId());
         m.setPostedAt(postedAt);
-        m.setCreatedAt(Instant.now());
+        // F1Whisper: stamp outgoing createdAt from the server-corrected, monotonic TrustedClock so
+        // timestamps are cross-device-comparable even when the phone's own clock is wrong.
+        m.setCreatedAt(Instant.ofEpochMilli(ch.threema.app.services.TrustedClock.stampNowMillis()));
         m.setSaved(false);
         m.setUid(UUID.randomUUID().toString());
+        // F1Whisper: stamp the shared group disappearing timer on every model this receiver builds.
+        // Authoritative for an OUTGOING group message (it is what gets advertised on the wire and what
+        // the sender's own countdown uses); only a provisional placeholder for an INBOUND one, which
+        // MessageServiceImpl.applyIncomingFreeze overwrites with the timer the SENDING MEMBER
+        // advertised. See ContactMessageReceiver.createLocalModel for the full rationale.
+        ch.threema.app.services.DisappearingMessageService.stampOutgoing(
+            m, group.getDisappearingMessagesTimerSeconds());
         return m;
     }
 
@@ -152,20 +163,31 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
 
 
     @Override
-    public void saveLocalModel(GroupMessageModel save) {
-        databaseService.getGroupMessageModelFactory().createOrUpdate(save);
+    public boolean saveLocalModel(GroupMessageModel save) {
+        return databaseService.getGroupMessageModelFactory().createOrUpdate(save);
     }
 
     @Override
     public void createAndSendTextMessage(@NonNull GroupMessageModel messageModel) {
         Set<String> otherMembers = groupService.getMembersWithoutUser(group);
 
-        if (otherMembers.isEmpty()) {
+        final boolean completesLocally = OutgoingSendBoundaryDecision.completesLocally(
+            otherMembers.isEmpty(), hasPendingRemoteCompletion());
+        if (completesLocally) {
             // In case the recipients set is empty, we are sending the message in a notes group. In
             // this case we directly set the message state to sent to prevent confusion when the
             // user is offline and therefore the task has not yet been run.
             messageModel.setState(MessageState.SENT);
         }
+
+        // The message id was assigned when the local model was created.
+        if (!saveLocalModel(messageModel)) {
+            // F1Whisper (seventh fork review, F7-01): the row has gone since this send began. Scheduling now would
+            // archive a persistent task whose payload the user has already deleted.
+            logger.info("Not scheduling a group text send for {}: its row is gone", messageModel.getId());
+            return;
+        }
+        startNotesGroupCountdown(messageModel, completesLocally);
 
         bumpLastUpdate();
 
@@ -175,6 +197,41 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
             Type_GROUP,
             otherMembers
         ));
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-02 / F5-06): make a notes-group message's LOCAL completion a durable boundary.
+     *
+     * <p>The two callers above set {@code SENT} directly before the insert, so a notes-group message is written as
+     * terminal to spare the user a spinner for a send that has no recipient. That is the message's completion, but it
+     * carried no countdown: the disappearing clock was only started later, by the CSP task, which does not run until the
+     * device has a chat-server connection. A notes-group message composed offline was therefore terminal and untimed for
+     * as long as the device stayed offline, and the startup repair pass deliberately refuses to fix outgoing rows with no
+     * start - so a process death in that window kept it forever.</p>
+     *
+     * <p>Running the one clock-aware transition here closes it. It is idempotent and column-scoped, and it derives the
+     * start from the boundary timestamp, so the later task completion neither repeats nor extends it.</p>
+     *
+     * <p>F1Whisper (sixth fork review, F6-04): only when the creation really IS the completion. With multi-device active
+     * the message still has to be reflected, and the group task stores its completion after that reflection is
+     * acknowledged; starting a clock here would race the linked device for the payload, and could win. See
+     * {@link OutgoingSendBoundaryDecision#completesLocally}.</p>
+     */
+    private void startNotesGroupCountdown(@NonNull GroupMessageModel messageModel, boolean completesLocally) {
+        if (!completesLocally || messageModel.getState() != MessageState.SENT) {
+            return;
+        }
+        try {
+            serviceManager.getMessageService().applyOutgoingStateTransition(
+                messageModel,
+                MessageState.SENT,
+                Instant.now(),
+                null,
+                true
+            );
+        } catch (Exception e) {
+            logger.warn("Could not make the notes-group completion durable for {}", messageModel.getApiMessageId(), e);
+        }
     }
 
     public void resendTextMessage(@NonNull GroupMessageModel messageModel, @NonNull Collection<String> recipientIdentities) {
@@ -189,12 +246,22 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
     public void createAndSendLocationMessage(@NonNull GroupMessageModel messageModel) {
         Set<String> otherMembers = groupService.getMembersWithoutUser(group);
 
-        if (otherMembers.isEmpty()) {
+        final boolean completesLocally = OutgoingSendBoundaryDecision.completesLocally(
+            otherMembers.isEmpty(), hasPendingRemoteCompletion());
+        if (completesLocally) {
             // In case the recipients set is empty, we are sending the message in a notes group. In
             // this case we directly set the message state to sent to prevent confusion when the
             // user is offline and therefore the task has not yet been run.
             messageModel.setState(MessageState.SENT);
         }
+
+        // The message id was assigned when the local model was created.
+        if (!saveLocalModel(messageModel)) {
+            // F1Whisper (seventh fork review, F7-01): see createAndSendTextMessage.
+            logger.info("Not scheduling a group location send for {}: its row is gone", messageModel.getId());
+            return;
+        }
+        startNotesGroupCountdown(messageModel, completesLocally);
 
         bumpLastUpdate();
 
@@ -219,7 +286,7 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
     }
 
     @Override
-    public void createAndSendFileMessage(
+    public boolean createAndSendFileMessage(
         @Nullable final byte[] thumbnailBlobId,
         @Nullable final byte[] fileBlobId,
         @Nullable SymmetricEncryptionResult encryptionResult,
@@ -236,7 +303,15 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
         // Set file data model again explicitly to enforce that the body of the message is rewritten
         // and therefore updated.
         messageModel.setFileData(modelFileData);
-        saveLocalModel(messageModel);
+        if (!saveLocalModel(messageModel)) {
+            // F1Whisper (seventh fork review, F7-01): see createAndSendTextMessage. This is the deterministic case the
+            // review reproduces: the blob is already uploaded, so the archived task would carry a live blob id and key.
+            //
+            // F1Whisper (eighth fork review, H8-01): and the row deleted for everyone mid-upload refuses the same way.
+            // See ContactMessageReceiver#createAndSendFileMessage.
+            logger.info("Not scheduling a group file send for {}: its row is gone or was deleted", messageModel.getId());
+            return false;
+        }
 
         // Note that lastUpdate lastUpdate was bumped when the file message was created
 
@@ -247,6 +322,7 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
             getRecipientIdentities(recipientIdentities),
             thumbnailBlobId
         ));
+        return true;
     }
 
     @Override
@@ -258,6 +334,13 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
         @NonNull TriggerSource triggerSource
     ) throws ThreemaException {
         final PollId pollId = new PollId(hexToByteArray(pollModel.getApiPollId()));
+
+        // The message id was assigned when the local model was created.
+        if (!saveLocalModel(messageModel)) {
+            // F1Whisper (seventh fork review, F7-01): see createAndSendTextMessage.
+            logger.info("Not scheduling a group poll setup send for {}: its row is gone", messageModel.getId());
+            return;
+        }
 
         bumpLastUpdate();
 
@@ -284,6 +367,14 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
 
         final PollId pollId = new PollId(hexToByteArray(pollModel.getApiPollId()));
 
+        // F1Whisper CHECKLIST: a checklist always shows everyone's checks live, so its votes must
+        // reach ALL members, never just the creator. Pass INTERMEDIATE for checklists so the task's
+        // RESULT_ON_CLOSE "send only to creator" branch is bypassed (covers any pre-fix checklist
+        // still stored as RESULT_ON_CLOSE). Real polls keep their stored type unchanged.
+        final PollModel.Type effectiveType = PollUtil.isChecklist(pollModel)
+            ? PollModel.Type.INTERMEDIATE
+            : pollModel.getType();
+
         // Schedule outgoing text message task
         taskManager.schedule(new OutgoingPollVoteGroupMessageTask(
             messageId,
@@ -291,7 +382,7 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
             pollId,
             pollModel.getCreatorIdentity(),
             votes,
-            pollModel.getType(),
+            effectiveType,
             group.getApiGroupId(),
             group.getCreatorIdentity()
         ));
@@ -314,12 +405,15 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
         }
     }
 
-    public void sendEditMessage(int messageModelId, @NonNull String body, @NonNull Instant editedAt) {
+    /**
+     * F1Whisper (seventh fork review, F7-03): the edit text is no longer passed. See
+     * {@link ContactMessageReceiver#sendEditMessage(int, Instant)}.
+     */
+    public void sendEditMessage(int messageModelId, @NonNull Instant editedAt) {
         taskManager.schedule(
             new OutgoingGroupEditMessageTask(
                 messageModelId,
                 MessageId.random(),
-                body,
                 editedAt,
                 GroupUtil.getRecipientIdentitiesByFeatureSupport(
                     getFeatureSupport(ThreemaFeature.EDIT_MESSAGES)
@@ -409,6 +503,22 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
                 identities
             )
         );
+    }
+
+    /**
+     * F1Whisper: send a group delivery/read receipt for {@code messageModel} to the given identities
+     * (used to report "delivered"/"read" back to the message sender for the group message-details
+     * screen). Gating by the "send read receipts" preference happens at the call site.
+     */
+    public void sendGroupDeliveryReceipt(
+        int receiptType,
+        @NonNull GroupMessageModel messageModel,
+        @NonNull Set<String> toIdentities
+    ) {
+        if (toIdentities.isEmpty()) {
+            return;
+        }
+        sendGroupDeliveryReceiptWithoutReflection(toIdentities, messageModel, receiptType);
     }
 
     @Override
@@ -517,6 +627,22 @@ public class GroupMessageReceiver implements MessageReceiver<GroupMessageModel> 
     @Override
     public boolean offerRetry() {
         return false;
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-02): a group message's terminal state comes from the CSP task, unless this is a
+     * local-only notes group.
+     *
+     * <p>Deliberately the same condition as {@link #shouldSendMediaData()}, and not a re-derivation of it: that method
+     * already answers "is there a remote recipient, or a multi-device reflection, that this send has to reach?", which is
+     * exactly the question of whether some later acknowledgement is the authoritative completion. When it is,
+     * {@code OutgoingCspMessageTask.sendGroupMessage} writes the terminal state after the server ack (or, for a
+     * multi-device notes group, after the reflect ack). When it is not, there is nothing to wait for and the pipeline's
+     * own local completion is the boundary.</p>
+     */
+    @Override
+    public boolean hasPendingRemoteCompletion() {
+        return shouldSendMediaData();
     }
 
     @NonNull

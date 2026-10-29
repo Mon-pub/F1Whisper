@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteException
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.common.DispatcherProvider
 import ch.threema.storage.databaseupdate.DatabaseUpdate
+import ch.threema.storage.databaseupdate.fieldExists
 import ch.threema.storage.databaseupdate.fullDescription
 import java.io.File
 import kotlin.collections.forEach
@@ -88,6 +89,14 @@ class DatabaseOpenHelper(
         DatabaseUpdater(appContext, sqLiteDatabase)
             .getUpdates(oldVersion)
             .forEach(::runDatabaseUpdate)
+
+        // F1-PATCH: refuse to record the new version for a schema the app cannot work with. This runs inside the
+        // upgrade transaction, so throwing rolls every update back and leaves the stored version where it was.
+        val missing = ForkSchemaPostcondition.missing(sqLiteDatabase::fieldExists)
+        if (missing.isNotEmpty()) {
+            logger.error("Database schema incomplete after the upgrade from version {}, missing {}", oldVersion, missing)
+            throw DatabaseUpdateException(ForkSchemaPostcondition.FAILURE_MARKER)
+        }
     }
 
     override fun onDowngrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

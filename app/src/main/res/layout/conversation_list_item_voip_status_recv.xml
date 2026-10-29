@@ -7,8 +7,8 @@
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants"
     android:paddingBottom="@dimen/chat_bubble_container_padding_bottom"
-    android:paddingLeft="@dimen/chat_bubble_container_padding_left_right"
-    android:paddingRight="@dimen/chat_bubble_container_padding_left_right">
+    android:paddingStart="@dimen/chat_bubble_container_padding_left_right"
+    android:paddingEnd="@dimen/chat_bubble_container_padding_left_right">
 
     <include layout="@layout/conversation_bubble_start_recv" />
 
@@ -29,8 +29,8 @@
                 android:minHeight="@dimen/chat_bubble_minheight"
                 android:minWidth="150dp"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/chat_bubble_margin_start"
-                android:paddingRight="@dimen/chat_bubble_margin_end">
+                android:paddingStart="@dimen/chat_bubble_margin_start"
+                android:paddingEnd="@dimen/chat_bubble_margin_end">
 
                 <include layout="@layout/conversation_list_item_voip_status" />
 

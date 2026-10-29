@@ -26,7 +26,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.media3.session.MediaController;
 import ch.threema.app.R;
@@ -36,6 +38,7 @@ import ch.threema.app.adapters.decorators.PollChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.ChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.ChatAdapterDecoratorListener;
 import ch.threema.app.adapters.decorators.DateSeparatorChatAdapterDecorator;
+import ch.threema.app.adapters.decorators.DisappearingStatusChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.DeletedChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.FileChatAdapterDecorator;
 import ch.threema.app.adapters.decorators.FirstUnreadChatAdapterDecorator;
@@ -54,6 +57,7 @@ import ch.threema.app.emojis.EmojiMarkupUtil;
 import ch.threema.app.messagereceiver.MessageReceiver;
 import ch.threema.app.preference.service.PreferenceService;
 import ch.threema.app.services.ContactService;
+import ch.threema.app.services.DisappearingMessageService;
 import ch.threema.app.services.DownloadService;
 import ch.threema.app.services.FileService;
 import ch.threema.app.services.MessageService;
@@ -188,6 +192,9 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
 
     public interface OnClickListener {
         void click(View view, int position, AbstractMessageModel messageModel);
+
+        // F1Whisper: dedicated tap on the media reply-quote header (jump to the quoted message).
+        void quoteClick(View view, int position, AbstractMessageModel messageModel);
 
         void longClick(View view, int position, AbstractMessageModel messageModel);
 
@@ -357,7 +364,7 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
     public @ItemLayoutType int getItemViewType(int position) {
         if (position < values.size()) {
             final AbstractMessageModel m = this.getItem(position);
-            return this.getItemType(m);
+            return getItemType(m);
         }
         return TYPE_STATUS;
     }
@@ -373,7 +380,8 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
         return null;
     }
 
-    private @ItemLayoutType int getItemType(AbstractMessageModel m) {
+    @VisibleForTesting
+    static @ItemLayoutType int getItemType(AbstractMessageModel m) {
         if (m != null) {
             if (m.isStatusMessage()) {
                 // Special handling for data status messages
@@ -390,7 +398,18 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 }
             } else {
                 boolean o = m.isOutbox();
-                if (m.isDeleted()) {
+                // F1Whisper (eleventh fork review, F11-07): an overdue disappearing message routes
+                // to the SAME payload-free tombstone as a deleted one, decided here because this is
+                // the single point that feeds BOTH getItemViewType (the ListView's recycling key,
+                // so a recycled holder whose itemType no longer matches is re-inflated from the
+                // deleted layout instead of keeping its payload views) AND getView's layout +
+                // decorator selection (the deleted branch binds DeletedChatAdapterDecorator: date
+                // only, no payload, no media, no thumbnail, no quote, neutral click).
+                // enforceIfExpired answers synchronously from the model and schedules the durable,
+                // conditional removal on a worker (deduplicated), so a row whose deletion is
+                // delayed or has failed can no longer bind its content - the review's trigger.
+                // Only presentation is decided here; nothing is deleted on this thread.
+                if (m.isDeleted() || DisappearingMessageService.enforceIfExpired(m)) {
                     return o ? TYPE_DELETED_SEND : TYPE_DELETED_RECV;
                 }
                 switch (m.getType()) {
@@ -494,9 +513,18 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
         View itemView = convertView;
         ComposeMessageHolder holder = itemView != null ? (ComposeMessageHolder) itemView.getTag() : null;
         final AbstractMessageModel messageModel = values.get(position);
+
+        // F1Whisper (eleventh fork review, F11-07): the disappearing-expiry decision moved INTO
+        // getItemType below, where its result routes the row to the deleted tombstone instead of
+        // being ignored. The old standalone enforcement call here checked and then rendered the
+        // payload anyway ("Render the about-to-be-removed row normally" - written when deletion
+        // was a posted main-looper hop, invalidated by F10-06 moving it to a worker that can be
+        // delayed or fail). Do NOT reintroduce a call here: ExpiredRowPresentationTest pins
+        // getItemType as the single adapter-side decision point. Still nothing is deleted during
+        // the layout pass: the decision is pure and the durable removal stays on the worker.
         MessageType messageType = messageModel.getType();
 
-        @ItemLayoutType int itemType = this.getItemType(messageModel);
+        @ItemLayoutType int itemType = getItemType(messageModel);
 
         if (messageModel.isStatusMessage() && messageModel instanceof FirstUnreadMessageModel) {
             firstUnreadPos = position;
@@ -518,6 +546,13 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 if (isUserMessage(itemType)) {
                     holder.senderView = itemView.findViewById(R.id.group_sender_view);
                     holder.senderName = itemView.findViewById(R.id.group_sender_name);
+                    holder.forwardedLabelView = itemView.findViewById(R.id.forwarded_label_view);
+                    // F1Whisper: link-preview card views (present only in the media item layouts;
+                    // findViewById returns null elsewhere, which the decorator null-checks).
+                    holder.linkPreviewInfo = itemView.findViewById(R.id.link_preview_info);
+                    holder.linkPreviewTitle = itemView.findViewById(R.id.link_preview_title);
+                    holder.linkPreviewDescription = itemView.findViewById(R.id.link_preview_description);
+                    holder.linkPreviewDomain = itemView.findViewById(R.id.link_preview_domain);
                     holder.deliveredIndicator = itemView.findViewById(R.id.delivered_indicator);
                     holder.attachmentImage = itemView.findViewById(R.id.attachment_image_view);
                     holder.avatarView = itemView.findViewById(R.id.avatar_view);
@@ -530,12 +565,21 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                     holder.quoteBar = itemView.findViewById(R.id.quote_bar);
                     holder.quoteThumbnail = itemView.findViewById(R.id.quote_thumbnail);
                     holder.quoteTypeImage = itemView.findViewById(R.id.quote_type_image);
+                    // F1Whisper: generalized reply-quote header views (present in every user-message
+                    // layout via the shared conversation_bubble_header include; toggled by the decorator).
+                    holder.quoteHeaderContainer = itemView.findViewById(R.id.quote_header_container);
+                    holder.quoteHeaderBar = itemView.findViewById(R.id.quote_header_bar);
+                    holder.quoteHeaderSender = itemView.findViewById(R.id.quote_header_sender);
+                    holder.quoteHeaderSnippet = itemView.findViewById(R.id.quote_header_snippet);
+                    holder.quoteHeaderTypeImage = itemView.findViewById(R.id.quote_header_type_image);
+                    holder.quoteHeaderThumbnail = itemView.findViewById(R.id.quote_header_thumbnail);
                     holder.transcoderView = itemView.findViewById(R.id.transcoder_view);
                     holder.readOnContainer = itemView.findViewById(R.id.read_on_container);
                     holder.readOnButton = itemView.findViewById(R.id.read_on_button);
                     holder.audioMessageIcon = itemView.findViewById(R.id.audio_message_icon);
                     holder.tapToResend = itemView.findViewById(R.id.tap_to_resend);
                     holder.starredIcon = itemView.findViewById(R.id.star_icon);
+                    holder.disappearingIcon = itemView.findViewById(R.id.disappearing_icon);
                     holder.editedText = itemView.findViewById(R.id.edited_text);
                     holder.emojiReactionGroup = itemView.findViewById(R.id.emoji_reactions);
                 }
@@ -590,6 +634,9 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 final View v = holder.messageBlockView;
 
                 decorator.setOnClickElement(messageModel12 -> onClickListener.click(v, position, messageModel12));
+
+                // F1Whisper: dedicated media quote-header tap -> jump to the quoted message.
+                decorator.setOnClickQuoteElement(quotedMessageModel -> onClickListener.quoteClick(v, position, quotedMessageModel));
 
                 decorator.setOnLongClickElement(messageModel13 -> onClickListener.longClick(v, position, messageModel13));
 
@@ -665,6 +712,9 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 return new ForwardSecurityStatusChatAdapterDecorator(messageModel, chatAdapterDecoratorListener, linkifyListener, decoratorHelper);
             case GROUP_STATUS:
                 return new GroupStatusAdapterDecorator(messageModel, chatAdapterDecoratorListener, linkifyListener, decoratorHelper);
+            case DISAPPEARING_STATUS:
+                // F1Whisper: centered "X set disappearing messages to Y" / "...turned off" system message
+                return new DisappearingStatusChatAdapterDecorator(messageModel, chatAdapterDecoratorListener, linkifyListener, decoratorHelper);
             // Fallback to text chat adapter
             default:
                 if (messageModel.isStatusMessage()) {
@@ -691,10 +741,18 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
     private boolean adjustMarginsForMessageGrouping(ComposeMessageHolder holder, View itemView, @ItemLayoutType int itemType, @NonNull AbstractMessageModel currentItem) {
         boolean isFirstItemInGroup = true, hasPreviousItem = false, hasNextItem = false;
 
+        // F1Whisper: defensive bounds guard. A deferred disappearing-message delete can shrink
+        // `values` between layout passes, leaving a recycled holder with a stale position. Bail the
+        // grouping calc if the holder position is no longer valid so the neighbor reads below can
+        // never IndexOutOfBounds.
+        if (holder.position < 0 || holder.position >= values.size()) {
+            return isFirstItemInGroup;
+        }
+
         if (itemView != null) {
             int paddingBottom = bubblePaddingBottom;
             if (isUserMessage(itemType)) {
-                if (values.size() > holder.position + 1) {
+                if (holder.position + 1 < values.size()) {
                     AbstractMessageModel nextItem = values.get(holder.position + 1);
 
                     if (isUserMessage(getItemType(nextItem))) {
@@ -705,7 +763,7 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                     }
                 }
 
-                if (holder.position > 0) {
+                if (holder.position - 1 >= 0 && holder.position - 1 < values.size()) {
                     AbstractMessageModel previousItem = values.get(holder.position - 1);
 
                     if (isUserMessage(getItemType(previousItem))) {
@@ -720,7 +778,7 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
             holder.messageBlockView.setShapeAppearanceModel(getShapeAppearanceForBubble(currentItem.isOutbox(), hasPreviousItem, hasNextItem));
 
             if (itemView.getPaddingBottom() != paddingBottom) {
-                itemView.setPadding(bubblePaddingLeftRight, 0, bubblePaddingLeftRight, paddingBottom);
+                ViewCompat.setPaddingRelative(itemView, bubblePaddingLeftRight, 0, bubblePaddingLeftRight, paddingBottom);
             }
         }
         return isFirstItemInGroup;
@@ -1152,6 +1210,13 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
                 nextMessage != null &&
                     nextMessage.getId() != messageModel.getId() &&
                     nextMessage.isDownloadedVoiceMessage() &&
+                    // F1Whisper: a "listen once" voice message must NEVER be auto-played by the
+                    // consecutive-voice auto-play chain. Auto-playing it would consume + burn it
+                    // without the user ever choosing to listen (the chain plays the next voice when
+                    // the previous one ends). This is especially visible in groups, where many
+                    // consecutive voice messages make the chain reach a listen-once and expire it
+                    // instantly. Stop the chain here so a listen-once only burns on an explicit tap.
+                    !(nextMessage.getFileData() != null && nextMessage.getFileData().isListenOnce()) &&
                     messageModel.isOutbox() == nextMessage.isOutbox() &&
                     messageModel.isAvailable()
             ) {
@@ -1169,6 +1234,20 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
     }
 
     /**
+     * F1Whisper: the highest position {@link ListView#getItemAtPosition(int)} may safely be asked for,
+     * given the list's last visible position and the wrapped adapter's current item count. Returns a value
+     * below the caller's start position when there is nothing left to sweep, which ends the loop.
+     *
+     * @param lastVisiblePosition what the ListView reports, which counts children and so can name a
+     *                            position the adapter no longer has
+     * @param itemCount           the adapter's live count, headers and footers included
+     */
+    @VisibleForTesting
+    static int lastSweepablePosition(int lastVisiblePosition, int itemCount) {
+        return Math.min(lastVisiblePosition, itemCount - 1);
+    }
+
+    /**
      * Refresh only items in this adapter that contain the specified AbstractMessageModels
      *
      * @param targetMessageModels List of affected AbstractMessageModels
@@ -1179,13 +1258,30 @@ public class ComposeMessageAdapter extends ArrayAdapter<AbstractMessageModel> im
             if (listView != null) {
                 int n = 0;
                 final int targetSize = targetMessageModels.size();
-                final int firstVisiblePosition = listView.getFirstVisiblePosition();
-                // The visible positions are based on the last layout pass and may point beyond the
-                // current item count if the list has shrunk since (e.g. after emptying the chat).
-                // Accessing such a position would throw an IndexOutOfBoundsException, so clamp the
-                // range to the current count.
-                final int lastValidPosition = Math.min(listView.getLastVisiblePosition(), listView.getCount() - 1);
-                for (int i = firstVisiblePosition; i <= lastValidPosition; i++) {
+                final int firstVisiblePosition = Math.max(listView.getFirstVisiblePosition(), 0);
+                // F1Whisper: bound the sweep by the adapter's LIVE item count, never by the visible-position
+                // range alone. The two are different quantities and they do drift apart:
+                // getLastVisiblePosition() is mFirstPosition + getChildCount() - 1, a property of the CHILD
+                // VIEWS, whereas the count is a property of the adapter. The adapter's count updates
+                // synchronously; the attached children can still reflect an earlier state, because a data
+                // change only requestLayout()s and a stopped window runs no layout at all. So the gap
+                // persists for as long as the chat sits in the background.
+                // On 2026-09-13 that gap froze the app for 5m43s. The chat was backgrounded with the peer's
+                // typing footer attached; the peer's next message cleared the typing state, removing the
+                // footer from the adapter but NOT the child view, so the list reported one more position than
+                // the adapter had. A delivery receipt for an unrelated chat then swept this one (onModified
+                // does not filter by receiver), reached that last position, and HeaderViewListAdapter.getItem
+                // fell past the items into an empty footer list: IndexOutOfBoundsException on the MAIN thread,
+                // posted there from a background message-state update, so it escaped the looper.
+                // The count must come from getAdapter().getCount(): that is the SAME quantity
+                // HeaderViewListAdapter.getItem consults, so the loop cannot disagree with the method it
+                // calls. (listView.getCount() is not stale here, but it is a different number, and it is 0
+                // after notifyDataSetInvalidated() while the adapter still holds rows, which would silently
+                // skip refreshes instead.)
+                final int lastSweepablePosition = lastSweepablePosition(
+                    listView.getLastVisiblePosition(),
+                    listView.getAdapter() != null ? listView.getAdapter().getCount() : 0);
+                for (int i = firstVisiblePosition, j = lastSweepablePosition; i <= j; i++) {
                     AbstractMessageModel messageModel = (AbstractMessageModel) listView.getItemAtPosition(i);
                     if (messageModel != null) {
                         for (AbstractMessageModel targetMessageModel : targetMessageModels) {

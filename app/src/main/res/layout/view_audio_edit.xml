@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F1Whisper: audio trim editor shown for attached audio files in the send/preview flow.
+     Mirrors the VideoEditView role: a waveform + dual start/end handles plus a clipped preview
+     player, all using Material 3 theme attributes (no hardcoded colors). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/audio_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp">
+
+        <ImageView
+            android:id="@+id/audio_icon"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_doc_audio"
+            app:tint="?attr/colorPrimary" />
+
+        <TextView
+            android:id="@+id/audio_filename"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:ellipsize="middle"
+            android:gravity="center_horizontal"
+            android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurface"
+            tools:text="recording.mp3" />
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/audio_player_view"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            app:artwork_display_mode="off"
+            app:shutter_background_color="@android:color/transparent"
+            app:surface_type="none"
+            app:use_controller="true" />
+
+        <ch.threema.app.ui.AudioTrimView
+            android:id="@+id/audio_trim_view"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:contentDescription="@string/audio_trim_action" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/audio_start_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="0:00" />
+
+            <TextView
+                android:id="@+id/audio_duration_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="2:30" />
+
+            <TextView
+                android:id="@+id/audio_end_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                tools:text="2:30" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

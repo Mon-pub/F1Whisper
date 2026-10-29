@@ -23,10 +23,8 @@
         tools:node="remove" />
 
     <!-- DANGEROUS PERMISSIONS -->
-    <!-- android.permission-group.CONTACTS -->
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <!-- Device address-book access has been removed for privacy reasons (no contact sync,
+    no attach-contact, no tap-to-chat). Contacts are managed in-app only (add by ID / QR / share). -->
 
     <!-- android.permission-group.STORAGE -->
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
@@ -58,16 +56,10 @@
     <!-- PROTECTION_NORMAL - granted automatically -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-
-    <!-- Access to address book -->
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
 
     <!-- Access to audio settings and bluetooth for voice calls -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -190,7 +182,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher"
-        android:supportsRtl="false"
+        android:supportsRtl="true"
         android:theme="@style/AppBaseTheme"
         android:usesCleartextTraffic="false"
         tools:replace="android:supportsRtl,android:allowBackup,android:dataExtractionRules">
@@ -199,9 +191,6 @@
         <meta-data
             android:name="android.max_aspect"
             android:value="2.5" />
-        <meta-data
-            android:name="android.provider.CONTACTS_STRUCTURE"
-            android:resource="@xml/contacts" />
 
         <activity
             android:name=".activities.MainActivity"
@@ -234,15 +223,9 @@
             android:launchMode="singleTop"
             android:parentActivityName=".home.HomeActivity"
             android:theme="@style/Theme.Threema.WithToolbar"
-            android:windowSoftInputMode="stateUnchanged">
-            <intent-filter
-                android:label="@string/threema_contact"
-                tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="@string/contacts_mime_type" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="stateUnchanged" />
+        <!-- The device address-book "open chat" intent-filter (contacts_mime_type) was removed
+        together with the device contacts integration. -->
         <activity
             android:name=".conversation.ConversationActivity"
             android:exported="true"
@@ -282,8 +265,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="sms" />
-                <data android:scheme="smsto" />
+                <!-- F1Whisper: the sms:/smsto: schemes were removed. They drove an
+                     address-book lookup (ContactLookupUtil) that, on this no-contacts
+                     build with READ_CONTACTS removed, threw an uncaught SecurityException,
+                     so any app or an <a href="smsto:..."> web link could force-crash the
+                     recipient picker. The own-scheme "compose" deep link below is kept. -->
                 <data
                     android:host="compose"
                     android:scheme="${uriScheme}" />
@@ -507,9 +493,11 @@
         <activity
             android:name=".activities.AddAccountActivity"
             android:theme="@android:style/Theme.NoDisplay" />
+        <!-- F1Whisper: smallestScreenSize|screenSize added for PiP resize; supportsPictureInPicture for API 26+ video minimize -->
         <activity
             android:name=".activities.MediaViewerActivity"
-            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
+            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:supportsPictureInPicture="true"
             android:theme="@style/Theme.Threema.WithToolbar" />
         <activity
             android:name=".mediagallery.MediaGalleryActivity"
@@ -807,6 +795,11 @@
             android:theme="@style/Theme.Threema.WithToolbar"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".activities.ChatFoldersActivity"
+            android:configChanges="touchscreen|keyboard|keyboardHidden|orientation|screenLayout|screenSize|uiMode"
+            android:theme="@style/Theme.Threema.WithToolbar"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".activities.referral.ReferralActivity"
             android:configChanges="touchscreen|orientation|screenLayout|screenSize|uiMode"
             android:theme="@style/Theme.Threema.WithToolbar" />
@@ -915,33 +908,7 @@
         </activity>
 
         <!-- services -->
-        <service
-            android:name=".services.AccountAuthenticatorService"
-            android:exported="true"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
-        <service
-            android:name=".services.ContactsSyncAdapterService"
-            android:exported="true"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/sync_contacts" />
-            <meta-data
-                android:name="android.provider.CONTACTS_STRUCTURE"
-                android:resource="@xml/contacts" />
-        </service>
+        <!-- The device contact-sync account authenticator and sync adapter were removed for privacy. -->
         <service
             android:name=".services.PassphraseService"
             android:enabled="true"
@@ -1053,6 +1020,15 @@
         </receiver>
         <receiver
             android:name=".receivers.AlarmManagerBroadcastReceiver"
+            android:exported="false" />
+        <!-- F1Whisper: alarm-driven self-heal that revives the persistent push foreground service
+             after it (or its process) is reaped in the background (no-GMS / work-profile builds). -->
+        <receiver
+            android:name=".receivers.ThreemaPushReviveReceiver"
+            android:exported="false" />
+        <!-- F1Whisper: fires when the next disappearing-message timer expires. -->
+        <receiver
+            android:name=".receivers.DisappearingMessageAlarmReceiver"
             android:exported="false" />
         <receiver
             android:name=".receivers.WidgetProvider"

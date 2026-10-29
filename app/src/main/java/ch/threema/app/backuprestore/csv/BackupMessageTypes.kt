@@ -12,6 +12,10 @@ object BackupMessageTypes {
     const val GROUP_CALL_STATUS = "GROUP_CALL_STATUS"
     const val GROUP_STATUS = "GROUP_STATUS"
 
+    // F1-PATCH: F1Whisper disappearing-timer status rows. Earlier F1Whisper backups already wrote this exact string (the
+    // enum name), so it must not change.
+    const val DISAPPEARING_STATUS = "DISAPPEARING_STATUS"
+
     const val DEPRECATED_CONTACT = "CONTACT"
     const val DEPRECATED_IMAGE = "IMAGE"
     const val DEPRECATED_VIDEO = "VIDEO"
@@ -28,6 +32,7 @@ object BackupMessageTypes {
             MessageType.VOIP_STATUS -> VOIP_STATUS
             MessageType.GROUP_CALL_STATUS -> GROUP_CALL_STATUS
             MessageType.GROUP_STATUS -> GROUP_STATUS
+            MessageType.DISAPPEARING_STATUS -> DISAPPEARING_STATUS
             MessageType.DATE_SEPARATOR,
             MessageType.FORWARD_SECURITY_STATUS,
             -> {

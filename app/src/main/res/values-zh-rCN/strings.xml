@@ -636,6 +636,8 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="prefs_sendlog_summary">将日志发送给 ${company_name}，以便在出现问题时进行进一步分析</string>
     <string name="prefs_exportlog">导出日志文件</string>
     <string name="prefs_exportlog_summary">与其他应用分享日志文件</string>
+    <string name="prefs_connection_diagnostics">连接&amp;通知诊断</string>
+    <string name="prefs_connection_diagnostics_summary">导出连接、推送、通知和电池状态报告，帮助诊断通知丢失问题</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">如要保存或发送媒体，请允许 ${app_name} 访问存储权限。</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -974,7 +976,7 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="safe_learn_more_button">了解更多</string>
     <string name="safe_enable_explain">您会话关连的所有数据只存储在您的设备上。因为我们没有保存您的帐户，所以如果您丢失了手机或意外删除了数据，我们将无法为您提供帮助。\n\n${app_name_short} Safe 在您选择的安全服务器上，以匿名方式创建所有重要数据的自动备份，包括您的密钥，联系人列表和群组成员身份（但不包含消息内容）。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">您真的要在不启用 ${app_name_short} Safe 的情况下继续吗？当使用 ${app_name_short} Safe 时，您可以恢复您的 ${app_name_short} ID、联系人和群组，以防您失去设备的访问权。</string>
+    <string name="safe_disable_confirm">您真的要在不启用 ${app_name_short} Safe 的情况下继续吗？当使用 ${app_name_short} Safe 时，您可以恢复您的 ${app_name_short} ID 和群组，以防您失去设备的访问权。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">请选择一个强密码。您将需要此密码来恢复 ${app_name_short} Safe 备份。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -991,14 +993,10 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="safe_threema_id">您的 ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">请输入您想恢复的 ${app_name_short} ID</string>
-    <string name="safe_search_id_title">请输入与您的 ${app_name_short} ID相关联的手机号码或电子邮件地址</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">查找 ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">找不到 ${app_name_short} ID</string>
     <string name="safe_no_backup_found">在服务器上找不到备份。请检查 ID 和密码。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">找到多个 ${app_name_short} ID。请选择要使用的 ID：</string>
     <string name="safe_backup_now">立即备份</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">启用 ${app_name_short} Safe 可以自动为所有重要数据创建安全和匿名的备份。</string>
@@ -1036,7 +1034,6 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="safe_restore">恢复 ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">正在进行备份或恢复。检查通知以获取状态消息。</string>
     <string name="restore_error_body">恢复未成功完成</string>
-    <string name="forgot_your_id">忘记您的ID？</string>
     <string name="restore_success_body">恢复成功完成</string>
     <string name="work_data_sync">数据同步</string>
     <string name="private_contact">私密联系人</string>
@@ -1069,6 +1066,7 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="safe_configure_choose_password_title">选择密码</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="password_bad_explain">${app_name_short} Safe 所选的密码不安全，容易被攻击者猜中，请选择其他密码。提示：使用由多个单词组成的密码。</string>
+    <string name="safe_password_complexity_unmet">密码长度必须超过 10 个字符，并且包含小写字母、大写字母、数字和符号。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_password_updated">${app_name_short} Safe 密码已更新。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1406,6 +1404,10 @@ ${app_name_short} 支持的所有表情符号。</string>
     <string name="forward_security_notification_rejected_text_group">一条或多条消息无法发送到 “%1$s”。</string>
     <string name="forward_security_notification_rejected_text_generic">一条或多条消息无法发送。</string>
     <string name="self_updater_installation_failed">下载更新失败。请手动从 <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> 下载并安装更新。</string>
+    <string name="self_updater_downloading_background">正在后台下载更新…</string>
+    <string name="self_updater_update_ready_title">更新已下载</string>
+    <string name="self_updater_update_ready_text">点击以安装更新</string>
+    <string name="self_updater_download_failed">更新下载失败。点击以手动下载。</string>
     <string name="spam_first_contact">此会话来自一个未知联系人</string>
     <string name="spam_report">举报垃圾消息</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1582,6 +1584,10 @@ ${app_name_short} 支持的所有表情符号。</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">此应用被禁止与服务器永久保持连接，以至 ${app_name_short} Push 无法正常运行。当此应用在后台运行时，您将不会收到新消息的通知。如要解决问题，请先点击 “应用程序电池使用量” ，然后选择 “无限制”。</string>
     <string name="problemsolver_to_settings">前往设置</string>
+    <string name="problemsolver_title_oem_autostart">允许后台运行</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s 设备可能会阻止 F1Whisper 在后台运行，即使已关闭电池优化，也会导致消息通知被拦截。请打开指南，允许 F1Whisper 自动启动并在后台运行。</string>
+    <string name="problemsolver_oem_autostart_action">打开设置指南</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">忽略</string>
     <string name="prefs_advanced_options">高级选项</string>
@@ -1876,4 +1882,139 @@ ${app_name_short} 支持的所有表情符号。</string>
     <plurals name="number_of_group_members">
         <item quantity="other">%d个群组成员</item>
     </plurals>
+    <string name="change_server_dialog_title">更改服务器</string>
+    <string name="change_server_dialog_hint">服务器域名</string>
+    <string name="change_server_warning_title">更改服务器？</string>
+    <string name="change_server_warning_message">更改服务器很可能会断开您当前身份的连接。请仅在您的提供商已确认新域名的情况下执行此操作。如果域名错误，应用将无法正常工作。</string>
+    <string name="use_different_key">使用其他密钥</string>
+    <string name="activation_key_already_redeemed">此激活密钥已被使用。请输入其他密钥。</string>
+    <string name="notification_channel_emoji_reactions">回应</string>
+    <string name="reaction_notification_text">%1$s 对您的消息回应了 %2$s</string>
+    <string name="prefs_title_reaction_notifications">回应通知</string>
+    <string name="prefs_sum_reaction_notifications">当有人回应我的消息时通知我</string>
+    <string name="chat_background_choose">背景</string>
+    <string name="chat_background_random">随机（每个会话各异）</string>
+    <string name="chat_background_numbered">背景 %1$d</string>
+    <string name="listen_once_enabled">仅播放一次：开</string>
+    <string name="listen_once_disabled">仅播放一次：关</string>
+    <string name="listen_once_badge_content_description">仅播放一次的语音消息</string>
+    <string name="forwarded_message_label">已转发</string>
+    <string name="listen_once_already_listened">已播放</string>
+    <string name="listen_once_sent">仅播放一次的语音消息</string>
+    <string name="listen_once_cannot_forward">仅听一次的消息无法转发</string>
+    <string name="listen_once_expired">语音消息已过期</string>
+    <string name="group_one_typing">%s 正在输入…</string>
+    <string name="group_two_typing">%1$s 和 %2$s 正在输入…</string>
+    <string name="group_many_typing">%1$s 和另外 %2$d 人正在输入…</string>
+    <string name="message_details_read_by">已读</string>
+    <string name="message_details_delivered_to">已送达</string>
+    <string name="message_details_sent_to">已发送</string>
+    <string name="markup_monospace">等宽字体</string>
+    <string name="markup_spoiler">隐藏文本</string>
+    <string name="spoiler_hidden_content_description">隐藏的文本，双击显示</string>
+    <string name="media_spoiler">隐藏</string>
+    <string name="media_spoiler_reveal">点击显示</string>
+    <string name="media_spoiler_badge_content_description">隐藏的媒体。双击显示。</string>
+    <string name="chat_folders">会话文件夹</string>
+    <string name="manage_folders">管理文件夹</string>
+    <string name="add_to_folder">添加到文件夹</string>
+    <string name="folder_all">全部</string>
+    <string name="new_folder">新建文件夹</string>
+    <string name="create_folder">创建文件夹</string>
+    <string name="rename_folder">重命名文件夹</string>
+    <string name="delete_folder">删除文件夹</string>
+    <string name="delete_folder_confirm">移除此文件夹？您的会话不会被删除。</string>
+    <string name="folder_name_hint">文件夹名称</string>
+    <string name="folder_name_empty">请输入文件夹名称</string>
+    <string name="no_chat_folders">您还没有创建任何文件夹</string>
+    <string name="folder_created">文件夹已创建</string>
+    <string name="folder_deleted">文件夹已删除</string>
+    <string name="add_to_folder_title">将会话添加到文件夹</string>
+    <string name="folder_empty">此文件夹中没有会话</string>
+    <string name="prefs_refresh_onprem_config">刷新服务器配置</string>
+    <string name="prefs_refresh_onprem_config_summary">立即重新下载服务器配置。在服务器添加桌面关联等新功能后很有用。</string>
+    <string name="onprem_config_refreshed">服务器配置已刷新</string>
+    <string name="prefs_title_link_previews">生成链接预览</string>
+    <string name="prefs_sum_link_previews">为您发送的消息中的链接获取预览。预览以端到端加密方式发送；收件人的设备绝不会联系该网站。</string>
+    <string name="link_preview_remove">移除链接预览</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">拖动手柄进行裁剪</string>
+    <string name="audio_trim_action">裁剪</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">最小化</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">待办清单</string>
+    <string name="checklist_create_as">创建为待办清单</string>
+    <string name="checklist_fork_only">待办清单功能仅在F1Whisper用户之间有效。</string>
+    <string name="checklist_toggle_item">切换待办清单项目</string>
+    <string name="checklist_checked_by">%1$s已勾选</string>
+    <string name="checklist_created_successfully">待办清单已创建</string>
+    <string name="checklist_placeholder">待办清单</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">置顶消息</string>
+    <string name="unpin_message">取消置顶</string>
+    <string name="pinned_message_banner_label">已置顶消息</string>
+    <string name="pinned_message_banner_dismiss">隐藏置顶消息横幅</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">输入待办清单标题</string>
+    <string name="checklist_wizard0_explain">创建共享待办清单。聊天中的所有人都可以随时勾选和取消勾选项目，已勾选的项目会移到底部。</string>
+    <string name="checklist_add_items">添加项目</string>
+    <string name="checklist_item_add">添加一个项目</string>
+    <string name="checklist_item_count_error">请至少添加一个项目</string>
+    <string name="checklist_add_item_title">添加项目</string>
+    <string name="checklist_add_item_hint">新项目名称</string>
+    <string name="checklist_add_item_button">添加</string>
+    <string name="checklist_delete_item_title">删除项目？</string>
+    <string name="checklist_delete_item_message">确定要删除 \"%1$s\" 吗？</string>
+    <string name="checklist_delete_button">删除</string>
+    <string name="checklist_reorder_item">移动待办清单项目</string>
+    <string name="checklist_cannot_reorder">此项目无法移动</string>
+    <string name="checklist_edit_title">编辑待办清单</string>
+    <string name="checklist_edit_apply">应用</string>
+    <string name="checklist_rename_item_title">重命名项目</string>
+    <string name="audio_trim_not_supported">此音频格式不支持裁剪。移除裁剪即可发送完整文件。</string>
+    <string name="audio_trim_failed">无法裁剪此音频。未发送任何内容。请重试或移除裁剪。</string>
+    <string name="pinned_message_banner_label_counter">置顶消息 %1$d/%2$d</string>
+    <string name="disappearing_messages_title">阅后即焚消息</string>
+    <string name="disappearing_messages_summary">此对话中的新消息在阅读后将于所选时间后消失。</string>
+    <string name="disappearing_off">关闭</string>
+    <string name="disappearing_duration_picker_title">消息自动删除计时器</string>
+    <string name="status_disappearing_set">%1$s 将阅后即焚时间设置为 %2$s</string>
+    <string name="status_disappearing_set_you">您将阅后即焚时间设置为 %1$s</string>
+    <string name="status_disappearing_off">%1$s 关闭了阅后即焚消息</string>
+    <string name="status_disappearing_off_you">您关闭了阅后即焚消息</string>
+    <string name="disappearing_messages_unsupported">阅后即焚消息仅在 F1Whisper 用户之间有效，不提供安全保证。</string>
+    <string name="disappearing_duration_30s">30 秒</string>
+    <string name="disappearing_duration_5m">5 分钟</string>
+    <string name="disappearing_duration_1h">1 小时</string>
+    <string name="disappearing_duration_8h">8 小时</string>
+    <string name="disappearing_duration_1d">1 天</string>
+    <string name="disappearing_duration_1w">1 周</string>
+    <string name="disappearing_duration_4w">4 周</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">即焚时间</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">阅读后 %1$s</string>
+    <string name="connectivity_probe_dialog_title">连接诊断</string>
+    <string name="connectivity_probe_running">正在运行检查…</string>
+    <string name="connectivity_probe_done">检查完成</string>
+    <string name="connectivity_probe_send_btn">发送诊断</string>
+    <string name="connectivity_probe_close_btn">关闭</string>
+    <string name="connectivity_probe_verdict_all_ok">服务器可访问。请检查您的账户或设备设置。</string>
+    <string name="connectivity_probe_verdict_no_internet">此网络上没有可用的互联网连接。</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">疑似 DNS 投毒：系统 DNS 返回了不同的 IP。</string>
+    <string name="connectivity_probe_verdict_sni_blocking">疑似基于 SNI 的 TLS 封锁：我们的主机名被封锁。</string>
+    <string name="connectivity_probe_verdict_ip_blocked">服务器 IP 在此网络上被封锁。</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">聊天端口 (5222) 被封锁。HTTPS 仍可正常使用。</string>
+    <string name="connectivity_probe_verdict_slow_throttled">服务器可以访问，但当前网络严重缓慢或被限速，连接可能会超时。请重试，或在 Wi-Fi 和移动数据之间切换。</string>
+    <string name="connectivity_probe_verdict_partial_failure">部分检查失败。请分享报告以供分析。</string>
+    <string name="connectivity_probe_label_dns">DNS 解析器</string>
+    <string name="connectivity_probe_label_tcp443">TCP 端口 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">配置端点</string>
+    <string name="connectivity_probe_label_chat">聊天端口 (5222)</string>
+    <string name="connectivity_probe_label_control">互联网（对照）</string>
+    <string name="connectivity_probe_label_hints">其他信号</string>
+    <string name="connectivity_probe_hint_middlebox">连接速度很快，但加密握手较慢——这可能表明有透明代理或流量整形设备正在拦截此连接。</string>
+    <string name="connectivity_probe_hint_port53">在其他一切都很慢的情况下，设备的 DNS 响应速度快得可疑——这可能表明该网络正在拦截 DNS 查询。</string>
 </resources>

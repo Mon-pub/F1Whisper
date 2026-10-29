@@ -10,6 +10,17 @@ public class ProtocolDefines {
 
     public static final int READ_TIMEOUT = 20;
     public static final int WRITE_TIMEOUT = 20;
+    // Post-auth (logged-in) socket read timeout. Must exceed ECHO_REQUEST_INTERVAL_CSP (60) +
+    // ECHO_RESPONSE_TIMEOUT (10) so a healthy idle link is never falsely timed out, but bounds a
+    // dead/half-open read instead of parking forever (the previous value was 0 = infinite).
+    //
+    // What it does NOT do, corrected against measurement: this bounds the read only WHILE THE DEVICE
+    // IS AWAKE. SO_TIMEOUT rides CLOCK_MONOTONIC, which halts during suspend-to-RAM, so across a Doze
+    // window arbitrary wall-clock time can pass without consuming any of this budget. Measured on the
+    // reporting device: 62 windows each exceeded 90s of wall-clock time with no inbound data, and
+    // zero SocketTimeoutException were raised. Treat this as "bounded while awake, unbounded across
+    // suspend", and do not rely on it as a half-open detector.
+    public static final int POST_AUTH_READ_TIMEOUT = 90;
     public static final int BLOB_CONNECT_TIMEOUT = 30;
     public static final int BLOB_LOAD_TIMEOUT = 100;
     public static final int API_REQUEST_TIMEOUT = 20;
@@ -117,6 +128,14 @@ public class ProtocolDefines {
     public static final int MSGTYPE_GROUP_DELETE_MESSAGE = 0x94;
     public static final int MSGTYPE_REACTION = 0x82;
     public static final int MSGTYPE_GROUP_REACTION = 0x83;
+    // F1Whisper: group typing indicator (group variant of MSGTYPE_TYPING_INDICATOR 0x90).
+    // Decoded purely in Kotlin (MessageCoder); no libthreema/proto change needed.
+    public static final int MSGTYPE_GROUP_TYPING_INDICATOR = 0x84;
+    // F1Whisper: disappearing-messages timer control (Signal-style per-conversation short timer;
+    // distinct from the upstream keep-messages-N-days purge). Durable + queued; decoded purely in
+    // Kotlin (MessageCoder), no libthreema/proto change needed.
+    public static final int MSGTYPE_DISAPPEARING_TIMER = 0x85;
+    public static final int MSGTYPE_GROUP_DISAPPEARING_TIMER = 0x95;
     public static final int MSGTYPE_WORK_SYNC_DELTA = 0xfd;
 
     /* message flags */

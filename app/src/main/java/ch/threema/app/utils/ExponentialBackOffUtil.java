@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import androidx.annotation.Nullable;
+
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 
 public class ExponentialBackOffUtil {
@@ -47,7 +49,7 @@ public class ExponentialBackOffUtil {
                         logger.warn("Exponential back-off failed", e);
                         if (n >= exponentialBackOffCount - 1) {
                             //last
-                            runnable.failed();
+                            runnable.failed(e);
                         } else {
                             Thread.sleep((2L << n) * 1000L + random.nextInt(1001));
                         }
@@ -55,7 +57,7 @@ public class ExponentialBackOffUtil {
                 }
             } catch (InterruptedException ex) {
                 logger.debug("{} Exponential backoff aborted by user", messageUid);
-                runnable.failed();
+                runnable.failed(null);
             }
         });
     }
@@ -65,6 +67,11 @@ public class ExponentialBackOffUtil {
 
         void finished(int currentRetry);
 
-        void failed();
+        /**
+         * F1Whisper auto-resend: called once when the last attempt failed or the run was aborted.
+         *
+         * @param cause the exception of the last attempt, or {@code null} if the run was aborted
+         */
+        void failed(@Nullable Exception cause);
     }
 }

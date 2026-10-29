@@ -4,40 +4,55 @@
     android:installLocation="internalOnly"
     android:testOnly="false">
 
+    <!-- F1Whisper: the onprem build is sideloaded (not via Google Play), so it may request the
+         direct Doze exemption. This lets the battery-optimization warning open the one-tap system
+         "allow" dialog (Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS) instead of dropping
+         the user on the App Info page. The libre/hms/blue flavors declare this for the same reason. -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- F1Whisper: the sideloaded onprem build ships the in-app self-updater (DownloadApkActivity),
+         which downloads the latest signed APK from GitHub releases and hands it to the system
+         installer. This permission lets it trigger the install flow. The store_threema flavor that
+         self-updates declares it for the same reason. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+    <!-- F1Whisper: disappearing messages use an exact AlarmManager alarm so a message is removed at
+         its deadline rather than whenever the system next wakes the app. Android 12 (API 31)
+         requires SCHEDULE_EXACT_ALARM for setExactAndAllowWhileIdle; on Android 13+ USE_EXACT_ALARM
+         is granted to alarm-clock-class apps. The service degrades to an inexact alarm if neither is
+         available (canScheduleExactAlarms() == false). -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
+    <!--
+      F1Whisper: onprem is FCM-free. The Firebase MESSAGING_EVENT <service> and the
+      gms/firebase metadata were removed because the onprem flavor now compiles against the
+      FOSS (FCM-free) push source set (see app/build.gradle.kts onprem source set) and no longer
+      depends on play-services-base / firebase-messaging. The @integer/google_play_services_version
+      resource (provided by play-services-base) is therefore intentionally not referenced here.
+      Push at runtime uses the persistent "Threema Push" foreground socket (BuildFlavor.forceThreemaPush).
+      To re-enable FCM: restore the gms/firebase metadata and the
+      <service android:name="ch.threema.app.push.PushService"> MESSAGING_EVENT filter (see
+      src/store_google/AndroidManifest.xml for the reference), and revert the onprem source set +
+      dependencies in app/build.gradle.kts.
+    -->
     <application
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:hasFragileUserData"
         android:hasFragileUserData="false">
 
         <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
-        <meta-data
-            android:name="firebase_analytics_collection_deactivated"
-            android:value="true" />
-        <meta-data
-            android:name="google_analytics_adid_collection_enabled"
-            android:value="false" />
-        <meta-data
-            android:name="google_analytics_ssaid_collection_enabled"
-            android:value="false" />
-        <meta-data
-            android:name="firebase_messaging_auto_init_enabled"
-            android:value="false" />
-        <meta-data
             android:name="android.content.APP_RESTRICTIONS"
             android:resource="@xml/app_restrictions" />
 
+        <!-- F1Whisper: downloads the in-app self-update APK itself (OkHttp) instead of via the system
+             DownloadManager, which is silently broken on locked-down OEMs (Xiaomi/MIUI freezes the
+             downloads provider: enqueue succeeds but nothing downloads). dataSync foreground type +
+             FOREGROUND_SERVICE_DATA_SYNC permission are already declared in the main manifest. -->
         <service
-            android:name="ch.threema.app.push.PushService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+            android:name="ch.threema.app.services.ApkUpdateDownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
     </application>
 

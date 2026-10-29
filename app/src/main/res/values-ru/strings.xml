@@ -234,6 +234,14 @@
     <string name="threema_version_code">Код версии</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Конфигурация сервера</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Сменить сервер</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Домен сервера</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Сменить сервер?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">Смена сервера, скорее всего, отключит вашу текущую учётную запись. Делайте это только в том случае, если ваш провайдер подтвердил новый домен. Если домен указан неверно, приложение перестанет работать.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Отсутствует подключение к интернету, неправильные данные экспорта ID или пароль</string>
     <string name="prefs_header_other">Другое</string>
     <string name="an_error_occurred">Произошла ошибка</string>
@@ -619,6 +627,8 @@
     <string name="prefs_sendlog_summary">Отправить файл журнала в ${company_name} для дальнейшего анализа в случае возникновения проблем</string>
     <string name="prefs_exportlog">Экспорт журнала</string>
     <string name="prefs_exportlog_summary">Поделиться файлом журнала с другим приложением</string>
+    <string name="prefs_connection_diagnostics">Диагностика соединения &amp; уведомлений</string>
+    <string name="prefs_connection_diagnostics_summary">Экспортировать отчёт о состоянии соединения, push, уведомлений и батареи, чтобы помочь диагностировать пропавшие уведомления</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Чтобы отправлять медиа, разрешите ${app_name} доступ к хранилищу.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -783,6 +793,8 @@
     <string name="reset_ringtones_confirm">Настройки звуковых уведомлений были сброшены.</string>
     <string name="prefs_language_override">Язык</string>
     <!-- ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
+    <string name="use_different_key">Использовать другой ключ</string>
+    <string name="activation_key_already_redeemed">Этот ключ активации уже был использован. Пожалуйста, введите другой ключ.</string>
     <string name="threema_channel_intro">Канал ${app_name_short} предоставляет вам новости обо всех событиях ${app_name_short}. Подписаться на канал ${app_name_short} и добавить его в список контактов? Это бесплатно и вы можете отписаться в любое время.</string>
     <!-- Name of action in context menu for a chat message, which lets the user write a reply to that message -->
     <string name="reply_to_message">Ответить</string>
@@ -938,6 +950,7 @@
     <string name="quote_not_found">Цитируемое сообщение не найдено</string>
     <string name="ballot_secret">секретным</string>
     <string name="password_too_short_generic">Слишком короткий пароль</string>
+    <string name="safe_password_complexity_unmet">Пароль должен быть длиннее 10 символов и содержать строчные и заглавные буквы, цифру и символ</string>
     <string name="passwords_dont_match">Пароли не совпадают</string>
     <!-- Error message shown when setting up a custom server for the Threema Safe feature. %s is a placeholder for the details of the error. -->
     <string name="threema_safe_test_unsuccessful">Тест не пройден: %s</string>
@@ -949,7 +962,7 @@
     <string name="safe_learn_more_button">Узнать больше</string>
     <string name="safe_enable_explain">Всё, что вам нужно для общения, хранится на вашем устройстве. У нас нет вашей учётной записи и мы не сможем помочь вам, если вы потеряете телефон или случайно удалите данные.\n\n${app_name_short} Safe создаёт автоматические резервные копии всех важных данных, в том числе ваших ключей, вашего списка контактов и групп (но не содержимого сообщений). Данные в анонимном виде хранятся на выбранном вами защищённом сервере.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Продолжить без включения ${app_name_short} Safe? При использовании ${app_name_short} Safe вы сможете восстановить ${app_name_short} ID, контакты и группы в случае потери доступа к устройству.</string>
+    <string name="safe_disable_confirm">Продолжить без включения ${app_name_short} Safe? При использовании ${app_name_short} Safe вы сможете восстановить ${app_name_short} ID и группы в случае потери доступа к устройству.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Выберите пароль. Этот пароль понадобится вам для восстановления данных из резервной копии ${app_name_short} Safe.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -966,14 +979,10 @@
     <string name="safe_threema_id">Ваш ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Введите ${app_name_short} ID, который вы хотите восстановить</string>
-    <string name="safe_search_id_title">Введите номер телефона или эл. почту, связанную с вашим ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Поиск ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">${app_name_short} ID не найден</string>
     <string name="safe_no_backup_found">На сервере не найдена резервная копия. Проверьте ID и пароль.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Найдено несколько ${app_name_short} ID. Выберите ID для использования:</string>
     <string name="safe_backup_now">Создать копию</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Включите ${app_name_short} Safe для автоматического создания защищённых анонимных резервных копий всех ваших важных данных.</string>
@@ -1011,7 +1020,6 @@
     <string name="safe_restore">Восстановить ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Выполняется резервное копирование или восстановление. Смотрите сведения о статусе в уведомлениях.</string>
     <string name="restore_error_body">Невозможно выполнить восстановление</string>
-    <string name="forgot_your_id">Забыли свой ID?</string>
     <string name="restore_success_body">Восстановление данных успешно завершено</string>
     <string name="work_data_sync">Синхронизация данных</string>
     <string name="private_contact">Приватный контакт</string>
@@ -1317,7 +1325,7 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="threema_push_service_description">Постоянное уведомление, отображаемое, когда функция ${app_name_short} Push активна</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="threema_push_activated">Функция ${app_name_short} Safe активирована.</string>
+    <string name="threema_push_activated">Функция ${app_name_short} Push активирована.</string>
     <string name="add_shortcut_error">Ошибка добавления ярлыка на экран средства запуска.</string>
     <string name="web_link">Ссылка</string>
     <string name="link_copied">%s: скопировано</string>
@@ -1381,6 +1389,10 @@
     <string name="forward_security_notification_rejected_text_group">Одно или несколько сообщений невозможно отправить группе «%1$s».</string>
     <string name="forward_security_notification_rejected_text_generic">Одно или несколько сообщений невозможно отправить.</string>
     <string name="self_updater_installation_failed">Невозможно загрузить обновление. Загрузите и установите обновление с сайта <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> вручную.</string>
+    <string name="self_updater_downloading_background">Загрузка обновления в фоновом режиме…</string>
+    <string name="self_updater_update_ready_title">Обновление загружено</string>
+    <string name="self_updater_update_ready_text">Нажмите, чтобы установить обновление</string>
+    <string name="self_updater_download_failed">Не удалось загрузить обновление. Нажмите, чтобы загрузить его вручную.</string>
     <string name="spam_first_contact">Этот чат инициирован неизвестным контактом</string>
     <string name="spam_report">Сообщить о спаме</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1557,6 +1569,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">Приложению не разрешено поддерживать постоянное подключение к серверам, которое требуется для работы ${app_name_short} Push. Вы не будете получать уведомления о новых сообщениях, когда приложение работает в фоновом режиме. Чтобы это исправить, нажмите «Использование батареи приложением» и выберите «Неограниченно».</string>
     <string name="problemsolver_to_settings">К настройкам</string>
+    <string name="problemsolver_title_oem_autostart">Разрешить работу в фоне</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">Устройства %1$s могут останавливать работу F1Whisper в фоновом режиме, из-за чего уведомления о сообщениях не приходят, даже если оптимизация батареи уже отключена. Откройте инструкцию и разрешите F1Whisper автозапуск и работу в фоне.</string>
+    <string name="problemsolver_oem_autostart_action">Открыть инструкцию по настройке</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Скрыть</string>
     <string name="prefs_advanced_options">Дополнительные настройки</string>
@@ -1925,4 +1941,133 @@
         <item quantity="many">%d участников группы</item>
         <item quantity="other">%d участников группы</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Реакции</string>
+    <string name="reaction_notification_text">%1$s отреагировал %2$s на ваше сообщение</string>
+    <string name="prefs_title_reaction_notifications">Уведомления о реакциях</string>
+    <string name="prefs_sum_reaction_notifications">Уведомлять, когда кто-то реагирует на одно из моих сообщений</string>
+    <string name="chat_background_choose">Фоны</string>
+    <string name="chat_background_random">Случайный (свой для каждого чата)</string>
+    <string name="chat_background_numbered">Фон %1$d</string>
+    <string name="listen_once_enabled">Прослушать один раз: вкл.</string>
+    <string name="listen_once_disabled">Прослушать один раз: выкл.</string>
+    <string name="listen_once_badge_content_description">Голосовое сообщение для однократного прослушивания</string>
+    <string name="forwarded_message_label">Переслано</string>
+    <string name="listen_once_already_listened">Прослушано</string>
+    <string name="listen_once_sent">Одноразовое голосовое сообщение</string>
+    <string name="listen_once_cannot_forward">Сообщения для однократного прослушивания нельзя переслать</string>
+    <string name="listen_once_expired">Срок действия голосового сообщения истёк</string>
+    <string name="group_one_typing">%s печатает…</string>
+    <string name="group_two_typing">%1$s и %2$s печатают…</string>
+    <string name="group_many_typing">%1$s и ещё %2$d печатают…</string>
+    <string name="message_details_read_by">Прочитано</string>
+    <string name="message_details_delivered_to">Доставлено</string>
+    <string name="message_details_sent_to">Отправлено</string>
+    <string name="markup_monospace">Моноширинный</string>
+    <string name="markup_spoiler">Скрытый текст</string>
+    <string name="spoiler_hidden_content_description">Скрытый текст, дважды коснитесь, чтобы показать</string>
+    <string name="media_spoiler">Скрытое медиа</string>
+    <string name="media_spoiler_reveal">Коснитесь, чтобы показать</string>
+    <string name="media_spoiler_badge_content_description">Скрытое медиа. Дважды коснитесь, чтобы показать.</string>
+    <string name="chat_folders">Папки чатов</string>
+    <string name="manage_folders">Управление папками</string>
+    <string name="add_to_folder">Добавить в папку</string>
+    <string name="folder_all">Все</string>
+    <string name="new_folder">Новая папка</string>
+    <string name="create_folder">Создать папку</string>
+    <string name="rename_folder">Переименовать папку</string>
+    <string name="delete_folder">Удалить папку</string>
+    <string name="delete_folder_confirm">Удалить эту папку? Ваши чаты не будут удалены.</string>
+    <string name="folder_name_hint">Название папки</string>
+    <string name="folder_name_empty">Введите название папки</string>
+    <string name="no_chat_folders">Вы ещё не создали ни одной папки</string>
+    <string name="folder_created">Папка создана</string>
+    <string name="folder_deleted">Папка удалена</string>
+    <string name="add_to_folder_title">Добавить чат в папки</string>
+    <string name="folder_empty">В этой папке нет чатов</string>
+    <string name="prefs_refresh_onprem_config">Обновить конфигурацию сервера</string>
+    <string name="prefs_refresh_onprem_config_summary">Повторно загрузить конфигурацию сервера сейчас. Полезно после того, как сервер добавит новые функции, например привязку компьютера.</string>
+    <string name="onprem_config_refreshed">Конфигурация сервера обновлена</string>
+    <string name="prefs_title_link_previews">Создавать предпросмотр ссылок</string>
+    <string name="prefs_sum_link_previews">Получать предпросмотр ссылок в отправляемых сообщениях. Предпросмотр отправляется со сквозным шифрованием; устройство получателя никогда не обращается к сайту.</string>
+    <string name="link_preview_remove">Удалить предпросмотр ссылки</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Перетащите маркеры для обрезки</string>
+    <string name="audio_trim_action">Обрезать</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Свернуть</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Список задач</string>
+    <string name="checklist_create_as">Создать как список задач</string>
+    <string name="checklist_fork_only">Списки задач работают только между пользователями F1Whisper.</string>
+    <string name="checklist_toggle_item">Переключить элемент списка</string>
+    <string name="checklist_checked_by">Отмечено %1$s</string>
+    <string name="checklist_created_successfully">Список задач создан</string>
+    <string name="checklist_placeholder">Список задач</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Закрепить сообщение</string>
+    <string name="unpin_message">Открепить</string>
+    <string name="pinned_message_banner_label">Закреплённое сообщение</string>
+    <string name="pinned_message_banner_dismiss">Скрыть баннер закреплённого сообщения</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Введите название списка задач</string>
+    <string name="checklist_wizard0_explain">Создайте общий список задач. Любой участник чата может в любой момент отмечать и снимать отметки с пунктов, а отмеченные пункты перемещаются вниз.</string>
+    <string name="checklist_add_items">Добавить пункты</string>
+    <string name="checklist_item_add">Добавить пункт</string>
+    <string name="checklist_item_count_error">Добавьте хотя бы один пункт</string>
+    <string name="checklist_add_item_title">Добавить пункт</string>
+    <string name="checklist_add_item_hint">Название нового пункта</string>
+    <string name="checklist_add_item_button">Добавить</string>
+    <string name="checklist_delete_item_title">Удалить пункт?</string>
+    <string name="checklist_delete_item_message">Вы уверены, что хотите удалить \"%1$s\"?</string>
+    <string name="checklist_delete_button">Удалить</string>
+    <string name="checklist_reorder_item">Переместить пункт списка</string>
+    <string name="checklist_cannot_reorder">Этот пункт нельзя переместить</string>
+    <string name="checklist_edit_title">Редактировать список</string>
+    <string name="checklist_edit_apply">Применить</string>
+    <string name="checklist_rename_item_title">Переименовать элемент</string>
+    <string name="audio_trim_not_supported">Обрезка не поддерживается для этого аудиоформата. Удалите обрезку, чтобы отправить файл целиком.</string>
+    <string name="audio_trim_failed">Не удалось обрезать это аудио. Ничего не отправлено. Повторите попытку или удалите обрезку.</string>
+    <string name="pinned_message_banner_label_counter">Закреплённое сообщение %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Исчезающие сообщения</string>
+    <string name="disappearing_messages_summary">Новые сообщения в этом чате исчезнут по истечении выбранного времени после прочтения.</string>
+    <string name="disappearing_off">Выкл.</string>
+    <string name="disappearing_duration_picker_title">Таймер исчезновения</string>
+    <string name="status_disappearing_set">%1$s установил(а) таймер исчезающих сообщений: %2$s</string>
+    <string name="status_disappearing_set_you">Вы установили таймер исчезающих сообщений: %1$s</string>
+    <string name="status_disappearing_off">%1$s отключил(а) исчезающие сообщения</string>
+    <string name="status_disappearing_off_you">Вы отключили исчезающие сообщения</string>
+    <string name="disappearing_messages_unsupported">Исчезающие сообщения работают только между пользователями F1Whisper и не являются гарантией безопасности.</string>
+    <string name="disappearing_duration_30s">30 секунд</string>
+    <string name="disappearing_duration_5m">5 минут</string>
+    <string name="disappearing_duration_1h">1 час</string>
+    <string name="disappearing_duration_8h">8 часов</string>
+    <string name="disappearing_duration_1d">1 день</string>
+    <string name="disappearing_duration_1w">1 неделя</string>
+    <string name="disappearing_duration_4w">4 недели</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Исчезает</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s после прочтения</string>
+    <string name="connectivity_probe_dialog_title">Диагностика подключения</string>
+    <string name="connectivity_probe_running">Выполнение проверок…</string>
+    <string name="connectivity_probe_done">Проверки завершены</string>
+    <string name="connectivity_probe_send_btn">Отправить диагностику</string>
+    <string name="connectivity_probe_close_btn">Закрыть</string>
+    <string name="connectivity_probe_verdict_all_ok">Сервер доступен. Проверьте настройки учётной записи или устройства.</string>
+    <string name="connectivity_probe_verdict_no_internet">В этой сети нет работающего интернета.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Подозрение на отравление DNS: системный DNS возвращает другие IP-адреса.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Подозрение на блокировку TLS по SNI: наше имя хоста заблокировано.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">IP-адрес сервера заблокирован в этой сети.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Порт чата (5222) заблокирован. HTTPS всё ещё работает.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Сервер доступен, но сеть сильно перегружена или ограничена по скорости — соединения могут прерываться по тайм-ауту. Попробуйте ещё раз или переключитесь между Wi-Fi и мобильным интернетом.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Некоторые проверки не пройдены. Поделитесь отчётом для анализа.</string>
+    <string name="connectivity_probe_label_dns">DNS-резолверы</string>
+    <string name="connectivity_probe_label_tcp443">Порт TCP 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Конечная точка конфигурации</string>
+    <string name="connectivity_probe_label_chat">Порт чата (5222)</string>
+    <string name="connectivity_probe_label_control">Интернет (контроль)</string>
+    <string name="connectivity_probe_label_hints">Дополнительные признаки</string>
+    <string name="connectivity_probe_hint_middlebox">Соединение быстрое, но зашифрованное рукопожатие медленное — это может означать, что соединение перехватывает прозрачный прокси или устройство формирования трафика.</string>
+    <string name="connectivity_probe_hint_port53">DNS устройства ответил подозрительно быстро, хотя всё остальное работало медленно — это может означать, что сеть перехватывает DNS-запросы.</string>
 </resources>

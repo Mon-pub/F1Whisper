@@ -10,9 +10,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.PorterDuff
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Choreographer
@@ -25,6 +27,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.getSystemService
+import androidx.core.net.toUri
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -41,6 +44,7 @@ import ch.threema.app.dialogs.GenericAlertDialog.DialogClickListener
 import ch.threema.app.messagereceiver.MessageReceiver
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.services.ActivityService
+import ch.threema.app.ui.AudioTrimView
 import ch.threema.app.utils.ConfigUtils
 import ch.threema.app.utils.IntentDataUtil
 import ch.threema.app.utils.logScreenVisibility
@@ -83,7 +87,13 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
     private lateinit var recordingPauseResumeButton: ImageView
     private lateinit var recordingOrPlayingIndicator: ImageView
     private lateinit var bluetoothToggle: ImageView
+    private lateinit var listenOnceToggle: ImageView
     private lateinit var seekBar: SeekBar
+    private lateinit var audioTrimView: AudioTrimView
+
+    // F1Whisper: track whether the trim widget has loaded the current recording's waveform, so we
+    // only kick off the (one-shot) waveform extraction once per finished recording.
+    private var trimWaveformLoadedForUri: Uri? = null
 
     private var hasAudioFocus = false
 
@@ -112,6 +122,11 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
                     val currentProgress = mediaPlayer.currentPosition
                     seekBar.progress = currentProgress
                     timerText.text = currentProgress.milliseconds.toHMMSS()
+                    // F1Whisper: drive the moving playback cursor on the trim timeline so it tracks
+                    // the current preview position, mirroring the video trimmer's playhead
+                    // (AudioTrimEditView.updatePlayhead). The widget only draws the cursor inside the
+                    // selected trim window, so the absolute clip position is what we push here.
+                    audioTrimView.setPlayheadPosition(currentProgress.toLong())
                 }
             }
             Choreographer.getInstance().postFrameCallback(this)
@@ -141,19 +156,17 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
 
         wasRecreated = savedInstanceState != null
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (
-                !ConfigUtils.requestBluetoothConnectPermissions(
-                    this,
-                    null,
-                    PERMISSION_REQUEST_CODE_BLUETOOTH_CONNECT,
-                    ActivityCompat.shouldShowRequestPermissionRationale(this, permission.BLUETOOTH_CONNECT),
-                )
-            ) {
-                return
-            }
-        }
+        // F1Whisper: when the recorder was launched as a reply to a quoted message, forward the quoted
+        // apiMessageId to the view model so the sent voice note carries the reply-quote (via "qi").
+        viewModel.replyQuoteApiMessageId = IntentDataUtil.getQuotedApiMessageIdFromIntent(intent)
 
+        // F1Whisper: do NOT prompt for BLUETOOTH_CONNECT (the "Nearby devices" permission) just to
+        // record a voice message. It is only needed to route recording through a connected Bluetooth
+        // headset (SCO); recording works fine with the built-in mic without it. Signal records voice
+        // notes the same way - no BLUETOOTH_CONNECT request, no SCO. The Bluetooth toggle / SCO path
+        // here is already gated on checkSelfPermission(BLUETOOTH_CONNECT) (see checkIsBluetoothEnabled
+        // / hasBluetoothConnectPermission), so a user who has granted the permission manually still
+        // gets the toggle; everyone else just records on the phone mic with no annoying prompt.
         postPermissionOnCreate(wasRecreated = wasRecreated)
     }
 
@@ -186,6 +199,11 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
 
         recordingPauseResumeButton = findViewById(R.id.recording_pause_resume_button)
 
+        listenOnceToggle = findViewById(R.id.listen_once_toggle)
+        listenOnceToggle.setOnClickListener {
+            viewModel.toggleListenOnce()
+        }
+
         seekBar = findViewById(R.id.seekbar)
         seekBar.setOnSeekBarChangeListener(
             object : OnSeekBarChangeListener {
@@ -213,6 +231,13 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
         )
 
         recordingOrPlayingIndicator = findViewById(R.id.recording_or_playing_indicator)
+
+        // F1Whisper: dual-handle waveform trim widget. The chosen window is forwarded to the view
+        // model, which losslessly crops the clip on send.
+        audioTrimView = findViewById(R.id.audio_trim_view)
+        audioTrimView.setOnTrimChangedListener { startMs, endMs ->
+            viewModel.setTrimWindow(startMs, endMs)
+        }
 
         val isBluetoothEnabled: Boolean = checkIsBluetoothEnabled()
         bluetoothToggle = findViewById(R.id.bluetooth_toggle)
@@ -275,12 +300,20 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
             }
             is VoiceRecorderViewModelEvent.PlaybackFinished -> {
                 seekBar.progress = event.endProgress
+                // F1Whisper: playback ended -> hide the moving playback cursor on the trim timeline.
+                audioTrimView.clearPlayhead()
             }
             VoiceRecorderViewModelEvent.Sent -> {
                 finish()
             }
             VoiceRecorderViewModelEvent.FailedToDetermineDuration -> {
                 showToast(R.string.unable_to_determine_recording_length, ToastDuration.LONG)
+            }
+            is VoiceRecorderViewModelEvent.TrimFailedSendAborted -> {
+                // F1Whisper fail-safe: the user asked to trim, the crop could not be performed, so
+                // NOTHING was sent. Surface a clear error and keep the recorder open so the user can
+                // retry, remove the trim, or discard - we never silently send the untrimmed original.
+                showToast(event.messageRes, ToastDuration.LONG)
             }
             VoiceRecorderViewModelEvent.ConfirmationRequiredToDiscard -> {
                 showDiscardConfirmationDialog()
@@ -381,6 +414,25 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
             },
         )
 
+        // F1Whisper: dual-handle trim widget. Visible once recording is finished (and during
+        // playback), hidden while recording. The waveform is loaded once per finished recording.
+        val recordingUri: Uri? = when (mediaState) {
+            is MediaState.FinishedRecording -> mediaState.file.toUri()
+            is MediaState.Playback -> mediaState.file.toUri()
+            is MediaState.Record -> null
+        }
+        if (recordingUri != null) {
+            audioTrimView.isVisible = true
+            if (trimWaveformLoadedForUri != recordingUri) {
+                trimWaveformLoadedForUri = recordingUri
+                audioTrimView.load(recordingUri)
+                // Announce how to use the trim handles for accessibility the first time it appears.
+                audioTrimView.announceForAccessibility(getString(R.string.audio_trim_hint))
+            }
+        } else {
+            audioTrimView.isVisible = false
+        }
+
         // Seekbar while playback
         seekBar.isVisible = mediaState is MediaState.Playback
         if (mediaState is MediaState.Playback) {
@@ -391,7 +443,13 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
                 Choreographer.getInstance().postFrameCallback(updateSeekbarCallback)
             } else {
                 Choreographer.getInstance().removeFrameCallback(updateSeekbarCallback)
+                // F1Whisper: paused -> hide the moving playback cursor (the trim handles stay).
+                audioTrimView.clearPlayhead()
             }
+        } else {
+            // F1Whisper: not in playback (recording / finished) -> stop driving and hide the cursor.
+            Choreographer.getInstance().removeFrameCallback(updateSeekbarCallback)
+            audioTrimView.clearPlayhead()
         }
 
         setInhibitAppLock(
@@ -420,6 +478,32 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
                 AudioManager.SCO_AUDIO_STATE_CONNECTING -> R.drawable.ic_bluetooth_searching_outline
                 else -> R.drawable.ic_bluetooth_searching_outline
             },
+        )
+
+        // F1Whisper: reflect the "listen once" toggle state. When ACTIVE the toggle becomes a solid
+        // primary-colored filled circle with a contrasting "1" (colorOnPrimary), an unmistakable
+        // highlighted-chip look; when inactive it is the plain borderless button with a colorOnSurface
+        // "1". The previous active state only swapped the tint (primary vs onSurface), which was barely
+        // distinguishable on most themes.
+        if (screenState.listenOnce) {
+            listenOnceToggle.setBackgroundResource(R.drawable.bg_listen_once_active)
+            listenOnceToggle.backgroundTintList = ColorStateList.valueOf(
+                ConfigUtils.getColorFromAttribute(this, R.attr.colorPrimary),
+            )
+            listenOnceToggle.setColorFilter(
+                ConfigUtils.getColorFromAttribute(this, R.attr.colorOnPrimary),
+                PorterDuff.Mode.SRC_IN,
+            )
+        } else {
+            listenOnceToggle.setBackgroundResource(R.drawable.selector_compose_button)
+            listenOnceToggle.backgroundTintList = null
+            listenOnceToggle.setColorFilter(
+                ConfigUtils.getColorFromAttribute(this, R.attr.colorOnSurface),
+                PorterDuff.Mode.SRC_IN,
+            )
+        }
+        listenOnceToggle.contentDescription = getString(
+            if (screenState.listenOnce) R.string.listen_once_enabled else R.string.listen_once_disabled,
         )
     }
 
@@ -601,6 +685,7 @@ class VoiceRecorderActivity : ThreemaAppCompatActivity(), OnAudioFocusChangeList
     override fun onDestroy() {
         logger.debug("onDestroy - isChangingConfigurations: {}", isChangingConfigurations)
         Choreographer.getInstance().removeFrameCallback(updateSeekbarCallback)
+        audioTrimView.clearPlayhead()
         if (checkIsBluetoothEnabled()) {
             // Keep bluetooth sco connection and audio focus during an activity recreate
             if (!isChangingConfigurations) {

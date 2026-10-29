@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import ch.threema.app.BuildConfig
 import ch.threema.app.R
+import ch.threema.app.utils.ConfigUtils
 import ch.threema.domain.types.IdentityString
 
 class ShareIdentityUseCase(
@@ -12,7 +13,14 @@ class ShareIdentityUseCase(
 ) {
     fun call(identity: IdentityString, name: String): Result =
         try {
-            shareText("$name https://${BuildConfig.contactActionUrl}/$identity")
+            // On the onprem build, share just the bare 8-char Threema ID (no URL prefix) to avoid the
+            // Android 12+ "open supported links" verification issue with the contact action URL.
+            val text = if (ConfigUtils.isOnPremBuild()) {
+                identity
+            } else {
+                "$name https://${BuildConfig.contactActionUrl}/$identity"
+            }
+            shareText(text)
             Result.Success
         } catch (_: ActivityNotFoundException) {
             Result.Error

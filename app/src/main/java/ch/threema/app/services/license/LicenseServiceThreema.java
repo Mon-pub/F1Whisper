@@ -21,6 +21,9 @@ abstract public class LicenseServiceThreema<T extends LicenseCredentials> implem
     private String updateUrl;
     private boolean updateMessageShown;     /* not the best place to track this... */
     private boolean isLicensed;
+    // F1Whisper: mandatory-update gate state (null => no gate). Set on each successful validate().
+    @Nullable private Long mandatoryMinIteration;
+    @Nullable private Long mandatoryUpdateDeadline;
 
     public LicenseServiceThreema(APIConnector apiConnector, PreferenceService preferenceService, String deviceId) {
         this.apiConnector = apiConnector;
@@ -69,6 +72,9 @@ abstract public class LicenseServiceThreema<T extends LicenseCredentials> implem
                 logger.info("Validating credentials successful");
                 this.updateMessage = result.updateMessage;
                 this.updateUrl = result.updateUrl;
+                // F1Whisper: capture mandatory-update gate (both null when absent => no gate).
+                this.mandatoryMinIteration = result.mandatoryMinIteration;
+                this.mandatoryUpdateDeadline = result.mandatoryUpdateDeadline;
 
                 //save in preferences
                 this.saveCredentials(credentials);
@@ -122,6 +128,22 @@ abstract public class LicenseServiceThreema<T extends LicenseCredentials> implem
 
     public String getUpdateUrl() {
         return updateUrl;
+    }
+
+    /** F1Whisper: non-null iff the server gated this client (iteration below floor). */
+    @Nullable
+    public Long getMandatoryMinIteration() {
+        return mandatoryMinIteration;
+    }
+
+    /**
+     * F1Whisper: grace deadline as unix epoch seconds.
+     * Null when mandatoryMinIteration is absent (no gate), or when the server sent the floor
+     * without a deadline (=> treat as immediate forced update).
+     */
+    @Nullable
+    public Long getMandatoryUpdateDeadline() {
+        return mandatoryUpdateDeadline;
     }
 
     public boolean isUpdateMessageShown() {

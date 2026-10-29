@@ -1,5 +1,6 @@
 package ch.threema.domain.protocol.connection.layer
 
+import ch.threema.domain.protocol.connection.BaseServerConnection
 import ch.threema.domain.protocol.connection.ConnectionLock
 import ch.threema.domain.protocol.connection.ConnectionLockProvider
 import ch.threema.domain.protocol.connection.InputPipe
@@ -41,7 +42,10 @@ internal class EndToEndLayer(
     private val isCspConnection = connection is CspConnection
 
     init {
-        CoroutineScope(connectionController.dispatcher.coroutineContext).launch {
+        // F1Whisper (tenth fork review, F10-02): owned by the attempt. This collector is the longest-lived coroutine
+        // in the graph - it awaits authentication and then collects until cancelled - so with no owner it, its channel
+        // and the executor thread underneath it survived every reconnect. That is the leak ANDR-3579 asks about.
+        connectionController.dispatcher.scope.launch {
             // TODO(ANDR-3579): How does cancellation work here? Will the content of inboundMessageChannel linger
             //  indefinitely if a reconnection/exception happens? In that case, we somehow need to release all ConnectionLocks
 
@@ -81,12 +85,36 @@ internal class EndToEndLayer(
     }
 
     override fun restartConnection(delayMs: Long) {
-        CoroutineScope(connectionController.dispatcher.coroutineContext).launch {
+        // F1Whisper (eleventh fork review, F11-01): the delay is attempt-owned, the stop is not, and the split is the
+        // whole fix.
+        //
+        // The tenth review's version ran BOTH halves on the attempt's single-thread dispatcher (unowned, so disposal
+        // would drop it by rejected dispatch). That deadlocked the connection worker: after the delay the coroutine
+        // resumed on the attempt's only thread and called the blocking `connection.stop()` there, and socket close
+        // dispatches `closeInbound` back onto that same thread from inside a `runBlocking` - the thread ends up
+        // waiting for work that only it can run, with the connection's start/stop lock held. Messaging stayed dead
+        // until the process was killed. Reachable from any task that throws `ProtocolException`
+        // (`TaskRunner.restartConnection`), for CSP and D2M alike.
+        //
+        // Owning the delay in `dispatcher.scope` is deliberate and safe precisely BECAUSE nothing here blocks: a
+        // member of the attempt scope must never wait on the connection job (disposal joins this scope), and this one
+        // only sleeps, checks, and hands off. Cancellation on disposal is now structured rather than relying on the
+        // closed executor rejecting the resumption, which is what makes the request unable to outlive its attempt.
+        // The blocking stop+start runs on the connection-level coordinator - see
+        // [BaseServerConnection.requestRestart] for its own gate against superseded attempts and external stops.
+        connectionController.dispatcher.scope.launch {
             delay(delayMs)
-            if (!connectionController.connectionClosed.isCompleted) {
-                connection.stop()
-                connection.start()
+            if (connectionController.connectionClosed.isCompleted) {
+                // The attempt already ended; the reconnect loop is producing the replacement itself.
+                return@launch
             }
+            val restartable = connection as? BaseServerConnection
+            if (restartable == null) {
+                // Only reachable with a ServerConnection implementation this module did not build.
+                logger.error("Cannot request a connection restart on {}", connection::class.simpleName)
+                return@launch
+            }
+            restartable.requestRestart(connectionController.connectionClosed)
         }
     }
 
@@ -116,7 +144,9 @@ internal class EndToEndLayer(
 
     private fun handleInboundClose(closeReason: ServerSocketCloseReason) {
         logger.debug("Handle inbound close: Pausing task manager because of {}", closeReason)
-        CoroutineScope(connectionController.dispatcher.coroutineContext).launch {
+        // F1Whisper (tenth fork review, F10-02): owned by the attempt. It runs while the socket is closing, well
+        // before the attempt is disposed at the end of the loop iteration.
+        connectionController.dispatcher.scope.launch {
             taskManager.pauseRunningTasks(closeReason)
         }
     }

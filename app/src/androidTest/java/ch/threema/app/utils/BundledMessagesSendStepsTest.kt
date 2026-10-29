@@ -48,7 +48,7 @@ class BundledMessagesSendStepsTest : MessageProcessorProvider() {
                     createdAt,
                     contactA.identity,
                 ) { TextMessage().apply { text = "Test" } },
-                { hasBeenMarkedAsSent = true },
+                { _, _ -> hasBeenMarkedAsSent = true },
                 { stateMap -> forwardSecurityModes = stateMap },
             )
 
@@ -87,7 +87,7 @@ class BundledMessagesSendStepsTest : MessageProcessorProvider() {
                     createdAt,
                     group.groupModel,
                 ) { GroupTextMessage().apply { text = "Test" } },
-                { hasBeenMarkedAsSent = true },
+                { _, _ -> hasBeenMarkedAsSent = true },
                 { stateMap -> forwardSecurityModes = stateMap },
             )
 
@@ -125,7 +125,7 @@ class BundledMessagesSendStepsTest : MessageProcessorProvider() {
                 ) {
                     TextMessage().apply { text = "Test" }
                 },
-                { sentAt -> sentDates.add(sentAt) },
+                { sentAt, _ -> sentDates.add(sentAt) },
             ),
             OutgoingCspMessageHandle(
                 contactB.toBasicContact(),
@@ -136,7 +136,7 @@ class BundledMessagesSendStepsTest : MessageProcessorProvider() {
                 ) {
                     TextMessage().apply { text = "Test" }
                 },
-                { sentAt -> sentDates.add(sentAt) },
+                { sentAt, _ -> sentDates.add(sentAt) },
             ),
             OutgoingCspMessageHandle(
                 groupAB.members.map { it.toBasicContact() }.toSet(),
@@ -147,7 +147,7 @@ class BundledMessagesSendStepsTest : MessageProcessorProvider() {
                 ) {
                     GroupTextMessage().apply { text = "Test" }
                 },
-                { sentAt -> sentDates.add(sentAt) },
+                { sentAt, _ -> sentDates.add(sentAt) },
             ),
         )
 

@@ -1,7 +1,5 @@
 package ch.threema.app.fragments.wizard;
 
-import static ch.threema.app.AppConstants.EMAIL_LINKED_PLACEHOLDER;
-import static ch.threema.app.AppConstants.PHONE_LINKED_PLACEHOLDER;
 import static ch.threema.app.utils.ActiveScreenLoggerKt.logScreenVisibility;
 
 import android.annotation.SuppressLint;
@@ -10,7 +8,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,21 +18,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import ch.threema.app.R;
 import ch.threema.app.ui.interop.ButtonPrimaryXml;
-import ch.threema.app.dialogs.WizardDialog;
 import ch.threema.app.threemasafe.ThreemaSafeServerInfo;
-import ch.threema.app.utils.ConfigUtils;
-
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 import static ch.threema.common.JavaCompat.isNullOrEmpty;
 
-public class WizardFragment4 extends WizardFragment implements View.OnClickListener {
+public class WizardFragment4 extends WizardFragment {
     private static final Logger logger = getThreemaLogger("WizardFragment4");
-    private TextView nicknameText, phoneText, emailText, syncContactsText, phoneWarnText, emailWarnText, safeText;
-    private ImageView phoneWarn, emailWarn;
-    private ProgressBar phoneProgress, emailProgress, syncContactsProgress, safeProgress;
+    private TextView nicknameText, safeText;
+    private ProgressBar safeProgress;
     private ButtonPrimaryXml finishButtonCompose;
     private SettingsInterface callback;
-    public static final int PAGE_ID = 4;
+    public static final int PAGE_ID = 3;
 
     private static final String BUNDLE_FINISH_BUTTON_ENABLED = "finishButtonEnabled";
     private boolean isFinishButtonEnabled = true;
@@ -55,31 +48,11 @@ public class WizardFragment4 extends WizardFragment implements View.OnClickListe
         View rootView = inflater.inflate(R.layout.fragment_wizard4, container, false);
 
         nicknameText = rootView.findViewById(R.id.wizard_nickname_preset);
-        phoneText = rootView.findViewById(R.id.wizard_phone_preset);
-        emailText = rootView.findViewById(R.id.wizard_email_preset);
-        syncContactsText = rootView.findViewById(R.id.sync_contacts_preset);
-        syncContactsProgress = rootView.findViewById(R.id.wizard_contact_sync_progress);
-        phoneProgress = rootView.findViewById(R.id.wizard_phone_progress);
-        emailProgress = rootView.findViewById(R.id.wizard_email_progress);
-        phoneWarn = rootView.findViewById(R.id.wizard_phone_warn);
-        emailWarn = rootView.findViewById(R.id.wizard_email_warn);
-        phoneWarnText = rootView.findViewById(R.id.wizard_phone_error_text);
-        emailWarnText = rootView.findViewById(R.id.wizard_email_error_text);
         safeText = rootView.findViewById(R.id.threema_safe_preset);
         safeProgress = rootView.findViewById(R.id.threema_safe_progress);
 
         finishButtonCompose = rootView.findViewById(R.id.wizard_finish_compose);
         finishButtonCompose.setOnClickListener(v -> onClickFinish());
-
-        emailText.setOnClickListener(this);
-        phoneText.setOnClickListener(this);
-        emailWarnText.setOnClickListener(this);
-        phoneWarnText.setOnClickListener(this);
-
-        if (!ConfigUtils.isWorkBuild()) {
-            rootView.findViewById(R.id.wizard_email_layout).setVisibility(View.GONE);
-            rootView.findViewById(R.id.wizard_email_error_layout).setVisibility(View.GONE);
-        }
 
         return rootView;
     }
@@ -99,29 +72,7 @@ public class WizardFragment4 extends WizardFragment implements View.OnClickListe
         if (!isResumed()) {
             return;
         }
-        final @Nullable String email = isNullOrEmpty(callback.getEmail())
-            ? callback.getPresetEmail()
-            : callback.getEmail();
-        final @Nullable String phone = isNullOrEmpty(callback.getPhone())
-            ? callback.getPresetPhone()
-            : callback.getPhone();
-
         nicknameText.setText(callback.getNickname());
-        emailText.setText(
-            isNullOrEmpty(email)
-                ? getString(R.string.not_linked)
-                : (EMAIL_LINKED_PLACEHOLDER.equals(email) ? getString(R.string.unchanged) : email)
-        );
-        phoneText.setText(
-            isNullOrEmpty(phone)
-                ? getString(R.string.not_linked)
-                : (PHONE_LINKED_PLACEHOLDER.equals(phone) ? getString(R.string.unchanged) : phone)
-        );
-        syncContactsText.setText(
-            callback.getSyncContacts()
-                ? R.string.on
-                : R.string.off
-        );
         setThreemaSafeInProgress(false, null);
         setFinishButtonEnabled(isFinishButtonEnabled);
     }
@@ -152,63 +103,8 @@ public class WizardFragment4 extends WizardFragment implements View.OnClickListe
     }
 
     private void onClickFinish() {
-        phoneText.setClickable(false);
-        emailText.setClickable(false);
         setFinishButtonEnabled(false);
         callback.onWizardFinished();
-        phoneText.setClickable(true);
-        emailText.setClickable(true);
-    }
-
-    @Override
-    public void onClick(@NonNull View v) {
-        int id = v.getId();
-        if (id == R.id.wizard_phone_error_text) {
-            WizardDialog.newInstance(phoneWarnText.getText().toString(), R.string.ok).show(getFragmentManager(), "ph");
-        } else if (id == R.id.wizard_email_error_text) {
-            WizardDialog.newInstance(emailWarnText.getText().toString(), R.string.ok).show(getFragmentManager(), "em");
-        } else if (id == R.id.wizard_email_preset || id == R.id.wizard_phone_preset) {
-            setPage(2);
-        }
-    }
-
-    public void setMobileLinkingInProgress(boolean inProgress) {
-        phoneWarn.setVisibility(View.GONE);
-        phoneProgress.setVisibility(inProgress ? View.VISIBLE : View.GONE);
-        phoneWarnText.setVisibility(View.GONE);
-        phoneText.setVisibility(inProgress ? View.GONE : View.VISIBLE);
-    }
-
-    public void setEmailLinkingInProgress(boolean inProgress) {
-        emailWarn.setVisibility(View.GONE);
-        emailProgress.setVisibility(inProgress ? View.VISIBLE : View.GONE);
-        emailWarnText.setVisibility(View.GONE);
-        emailText.setVisibility(inProgress ? View.GONE : View.VISIBLE);
-    }
-
-    public void setMobileLinkingAlert(String message) {
-        phoneWarn.setVisibility(View.VISIBLE);
-        phoneWarnText.setText(message);
-        phoneWarnText.setVisibility(View.VISIBLE);
-        phoneProgress.setVisibility(View.GONE);
-        phoneText.setVisibility(View.VISIBLE);
-    }
-
-    public void setEmailLinkingAlert(String message) {
-        emailWarn.setVisibility(View.VISIBLE);
-        emailWarnText.setText(message);
-        emailWarnText.setVisibility(View.VISIBLE);
-        emailProgress.setVisibility(View.GONE);
-        emailText.setVisibility(View.VISIBLE);
-    }
-
-    public void setContactsSyncInProgress(boolean inProgress, String text) {
-        syncContactsProgress.setVisibility(inProgress ? View.VISIBLE : View.GONE);
-        if (isNullOrEmpty(text)) {
-            syncContactsText.setText(callback.getSyncContacts() ? R.string.on : R.string.off);
-        } else {
-            syncContactsText.setText(text);
-        }
     }
 
     public void setThreemaSafeInProgress(boolean inProgress, String text) {
@@ -233,24 +129,6 @@ public class WizardFragment4 extends WizardFragment implements View.OnClickListe
         @Nullable
         String getNickname();
 
-        @Nullable
-        String getPhone();
-
-        @Nullable
-        String getPrefix();
-
-        @Nullable
-        String getNumber();
-
-        @NonNull
-        String getEmail();
-
-        @Nullable
-        String getPresetPhone();
-
-        @Nullable
-        String getPresetEmail();
-
         boolean getSafeForcePasswordEntry();
 
         boolean getSafeSkipBackupPasswordEntry();
@@ -264,8 +142,6 @@ public class WizardFragment4 extends WizardFragment implements View.OnClickListe
 
         @NonNull
         ThreemaSafeServerInfo getSafeServerInfo();
-
-        boolean getSyncContacts();
 
         boolean isReadOnlyProfile();
 

@@ -23,6 +23,7 @@ import ch.threema.app.utils.FileUtil;
 import ch.threema.app.utils.GeoLocationUtil;
 import ch.threema.app.utils.NameUtil;
 import ch.threema.app.utils.ElapsedTimeFormatter;
+import ch.threema.app.utils.RestrictedMediaOutput;
 
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
 import static ch.threema.common.JavaCompat.isNullOrEmpty;
@@ -125,6 +126,15 @@ public class ExportConversationServiceImpl implements ExportConversationService 
                         }
                         break;
                     default:
+                }
+
+                // F1Whisper (fourth fork review, F4-09): a chat export decrypts every downloaded attachment into a zip
+                // the user keeps. That is a permanent clear copy, so an incoming listen-once voice message is written
+                // out as its message line only, with no attachment.
+                if (saveMedia && RestrictedMediaOutput.isRestricted(messageModel)) {
+                    logger.info("Excluding restricted media {} from the chat export", messageModel.getUid());
+                    saveMedia = false;
+                    filename = null;
                 }
 
                 if (saveMedia) {

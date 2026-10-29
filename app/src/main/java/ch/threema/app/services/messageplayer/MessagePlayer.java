@@ -38,6 +38,12 @@ import ch.threema.storage.models.data.media.MediaMessageDataInterface;
 public abstract class MessagePlayer {
     private static final Logger logger = getThreemaLogger("MessagePlayer");
 
+    // F1Whisper: shared listener key used by the chat-message decorator. Centralised here so the
+    // background-voice teardown can drop exactly the decorator's listeners (which capture the chat's
+    // view holder) without touching the internal "service" listener. Must match the value the
+    // decorator registers its listeners under (see AudioChatAdapterDecorator.LISTENER_TAG).
+    public static final String LISTENER_TAG_DECORATOR = "decorator";
+
     public static final int SOURCE_UNDEFINED = 0;
     public static final int SOURCE_UI_TOGGLE = 1;
     public static final int SOURCE_LIFECYCLE = 2;
@@ -181,7 +187,8 @@ public abstract class MessagePlayer {
             logger.debug("decrypt doInBackground {}", messageModel.getId());
 
             try {
-                file = fileService.decryptMessageFileToShareableTempFile(messageModel);
+                // F1-PATCH: a fresh name per playback (see FileService.decryptMessageFileToPlaybackTempFile).
+                file = fileService.decryptMessageFileToPlaybackTempFile(messageModel);
             } catch (Exception e) {
                 logger.error("Failed to decrypt message", e);
             }
@@ -364,9 +371,11 @@ public abstract class MessagePlayer {
         } else {
             download(ok -> {
                 if (ok) {
-                    data.setDownloaded(true);
-                    messageService.save(setData(data));
-
+                    // F1Whisper: the download's own completion already recorded this, through a conditional
+                    // write against the CURRENT row. Repeating it here as a full-row save from the player's
+                    // RETAINED model was the last insert-capable write on the media path: it could recreate a
+                    // message deleted during the download, and it wrote back download-era values for every
+                    // other column, undoing a first read or a burn that had landed in between.
                     if (autoPlay ||
                         getMessageModel().getFileData().getRenderingType() != RENDERING_MEDIA ||
                         FileUtil.isAudioFile(getMessageModel().getFileData())) {
@@ -484,6 +493,29 @@ public abstract class MessagePlayer {
         }
     }
 
+    /**
+     * F1Whisper: remove every listener registered under {@code key} from all listener maps. Used to
+     * drop the chat decorator's listeners (which hold the chat's view holder) from a player that is
+     * kept alive for background playback after its chat is gone, without disturbing other listeners.
+     */
+    public void removeListeners(String key) {
+        synchronized (this.playbackListeners) {
+            this.playbackListeners.remove(key);
+        }
+        synchronized (this.playerListeners) {
+            this.playerListeners.remove(key);
+        }
+        synchronized (this.downloadListeners) {
+            this.downloadListeners.remove(key);
+        }
+        synchronized (this.decryptingListeners) {
+            this.decryptingListeners.remove(key);
+        }
+        synchronized (this.transcodeListeners) {
+            this.transcodeListeners.remove(key);
+        }
+    }
+
     abstract protected MediaMessageDataInterface getData();
 
     abstract protected AbstractMessageModel setData(MediaMessageDataInterface data);
@@ -569,11 +601,11 @@ public abstract class MessagePlayer {
             @Override
             public void run() {
                 try {
-                    // TODO(ANDR-5276) Mark a message as read when the user manually starts the download.
-                    //   This serves as a workaround for the problem that the message model instance
-                    //   may be stale by the time the download completes. A stale message model
-                    //   might have outdated data, in particular an outdated 'read' flag.
-                    messageModel.setRead(true);
+                    // F1Whisper: deliberately NOT marking the retained model as read here. The download
+                    // completion records its metadata through a conditional write against the current row and
+                    // never persists a read flag, so flipping it on this detached instance would only make the
+                    // in-memory row claim a first read that never reached storage (and skip the real one,
+                    // which starts the disappearing countdown).
                     boolean success = messageService.downloadMediaMessage(messageModel, new ProgressListener() {
                         @Override
                         public void updateProgress(final int progress) {

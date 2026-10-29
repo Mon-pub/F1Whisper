@@ -32,8 +32,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ch.threema.app.ui.OngoingCallNoticeView
@@ -44,8 +44,8 @@
                 android:background="@android:color/transparent"
                 android:clipToPadding="false"
                 android:visibility="gone"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/availability_status_banner_view"
                 tools:visibility="visible" />
 
@@ -57,8 +57,8 @@
                 android:paddingTop="@dimen/notice_views_vertical_margin"
                 android:paddingBottom="@dimen/notice_views_vertical_margin"
                 android:visibility="gone"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/ongoing_call_notice"
                 tools:visibility="visible" />
 
@@ -70,10 +70,21 @@
                 android:paddingTop="@dimen/notice_views_vertical_margin"
                 android:paddingBottom="@dimen/notice_views_vertical_margin"
                 android:visibility="gone"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/open_polls_layout"
                 tools:visibility="visible" />
+
+            <!-- F1Whisper: pinned-message banner (local-only; displayTags bitmask; no wire change) -->
+            <include
+                android:id="@+id/pinned_banner_container"
+                layout="@layout/conversation_pinned_banner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/report_spam_layout" />
 
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/ptr_layout"
@@ -81,17 +92,22 @@
                 android:layout_height="0dp"
                 android:layout_weight="1.0"
                 app:layout_constraintBottom_toTopOf="@id/bottom_container"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/report_spam_layout">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/pinned_banner_container">
 
                 <FrameLayout
                     android:id="@+id/history_parent"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
+                    <!-- F1Whisper: force the message list to LTR so conversation bubbles keep the
+                         same sides as English (own messages right, incoming left) even in RTL
+                         locales. Per-message text still renders RTL via the text views' own
+                         bidi/text-direction; only the bubble column layout is fixed to LTR. -->
                     <ch.threema.app.ui.ConversationListView
                         android:id="@+id/history"
+                        android:layoutDirection="ltr"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:animateLayoutChanges="true"
@@ -115,23 +131,24 @@
                         android:layout_height="wrap_content"
                         android:clipToPadding="false"
                         android:gravity="top|center_horizontal"
-                        android:paddingLeft="3dp"
+                        android:paddingStart="3dp"
                         android:paddingTop="5dp"
-                        android:paddingRight="3dp"
+                        android:paddingEnd="3dp"
                         android:paddingBottom="3dp"
                         android:visibility="gone">
 
                         <include layout="@layout/date_separator_elevated" />
                     </FrameLayout>
 
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/quickscroll_top"
                         style="@style/Threema.MaterialButton.Icon.Circle.Filled"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right|top"
+                        android:layout_gravity="end|top"
                         android:layout_marginTop="8dp"
-                        android:layout_marginRight="8dp"
+                        android:layout_marginEnd="8dp"
                         android:contentDescription="@string/scroll_to_top"
                         android:visibility="gone"
                         app:backgroundTint="?attr/colorPrimary"
@@ -144,7 +161,7 @@
                         android:id="@+id/quickscroll_bottom_container"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right|bottom"
+                        android:layout_gravity="end|bottom"
                         android:clickable="false"
                         android:focusable="false"
                         android:visibility="gone">
@@ -154,9 +171,9 @@
                             style="@style/Threema.MaterialButton.Icon.Circle.Filled"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="24dp"
+                            android:layout_marginStart="24dp"
                             android:layout_marginTop="4dp"
-                            android:layout_marginRight="8dp"
+                            android:layout_marginEnd="8dp"
                             android:layout_marginBottom="8dp"
                             android:contentDescription="@string/scroll_to_bottom"
                             app:backgroundTint="?attr/colorPrimary"
@@ -177,8 +194,8 @@
                 android:background="@color/transparent_activity_overlay_darker"
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.core.widget.NestedScrollView
@@ -188,8 +205,8 @@
                 android:fillViewport="true"
                 android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@id/bottom_container"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -200,14 +217,14 @@
                         android:id="@+id/edit_message_bubble_compose_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/chat_bubble_container_padding_left_right"
+                        android:layout_marginStart="@dimen/chat_bubble_container_padding_left_right"
                         android:layout_marginTop="@dimen/chat_bubble_container_padding_bottom"
-                        android:layout_marginRight="@dimen/chat_bubble_container_padding_left_right"
+                        android:layout_marginEnd="@dimen/chat_bubble_container_padding_left_right"
                         android:layout_marginBottom="@dimen/chat_bubble_container_padding_bottom"
                         app:layout_constrainedHeight="true"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="1" />
 
@@ -221,8 +238,10 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent">
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <include layout="@layout/compose_link_preview_chip" />
 
                 <FrameLayout
                     android:id="@+id/bottom_panel"
@@ -239,7 +258,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
-                        android:layout_marginRight="56dp">
+                        android:layout_marginEnd="56dp">
 
                         <ch.threema.app.ui.ContentCommitComposeEditText
                             android:id="@+id/embedded_text_editor"
@@ -253,9 +272,9 @@
                             android:minHeight="@dimen/input_text_height"
                             android:nextFocusLeft="@+id/emoji_button"
                             android:nextFocusRight="@+id/camera_button"
-                            android:paddingLeft="@dimen/emoji_button_width"
+                            android:paddingStart="@dimen/emoji_button_width"
                             android:paddingTop="3dp"
-                            android:paddingRight="@dimen/emoji_and_photo_button_width"
+                            android:paddingEnd="@dimen/emoji_and_photo_button_width"
                             android:paddingBottom="4dp"
                             android:scrollbars="none"
                             android:scrollHorizontally="false"
@@ -271,8 +290,8 @@
                         style="?android:attr/borderlessButtonStyle"
                         android:layout_width="@dimen/emoji_button_width"
                         android:layout_height="@dimen/emoji_button_width"
-                        android:layout_gravity="left|bottom"
-                        android:layout_marginLeft="2dp"
+                        android:layout_gravity="start|bottom"
+                        android:layout_marginStart="2dp"
                         android:layout_marginBottom="5dp"
                         android:background="@drawable/selector_compose_button"
                         android:contentDescription="@string/select_emoji"
@@ -284,8 +303,8 @@
                     <FrameLayout
                         android:layout_width="@dimen/emoji_button_width"
                         android:layout_height="@dimen/emoji_button_width"
-                        android:layout_gravity="bottom|right"
-                        android:layout_marginRight="94dp"
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginEnd="94dp"
                         android:layout_marginBottom="5dp">
 
                         <ImageButton
@@ -307,8 +326,8 @@
                     <FrameLayout
                         android:layout_width="@dimen/emoji_button_width"
                         android:layout_height="@dimen/emoji_button_width"
-                        android:layout_gravity="bottom|right"
-                        android:layout_marginRight="58dp"
+                        android:layout_gravity="bottom|end"
+                        android:layout_marginEnd="58dp"
                         android:layout_marginBottom="5dp">
 
                         <ImageButton
@@ -330,7 +349,7 @@
                         android:id="@+id/send_button"
                         android:layout_width="@dimen/input_text_height"
                         android:layout_height="@dimen/input_text_height"
-                        android:layout_gravity="bottom|right"
+                        android:layout_gravity="bottom|end"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="@drawable/selector_avatar"
@@ -341,7 +360,7 @@
                         android:id="@+id/confirm_edit_button"
                         android:layout_width="@dimen/input_text_height"
                         android:layout_height="@dimen/input_text_height"
-                        android:layout_gravity="bottom|right"
+                        android:layout_gravity="bottom|end"
                         android:background="@drawable/ic_circle_send"
                         android:contentDescription="@string/confirm_edit_desc"
                         android:scaleType="center"

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SdpPatcherTest {
     /**
@@ -21,11 +22,41 @@ public class SdpPatcherTest {
         final String expected = "v=0\r\n" +
             "m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n" +
             "a=rtpmap:111 opus/48000/2\r\n" +
-            "a=fmtp:111 minptime=10;useinbandfec=1;stereo=0;sprop-stereo=0;cbr=1\r\n";
+            "a=fmtp:111 minptime=10;stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1\r\n";
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.LOCAL_OFFER, sdp));
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.LOCAL_ANSWER, sdp));
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.REMOTE_OFFER, sdp));
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.REMOTE_ANSWER, sdp));
+    }
+
+    /**
+     * Ensure the forced Opus fmtp parameters (bitrate cap, wideband range and in-band FEC)
+     * are always present, and that any pre-existing values for these parameters are replaced
+     * rather than duplicated.
+     */
+    @Test
+    public void testPatchForceBitrateAndFecParams() throws IOException, SdpPatcher.InvalidSdpException {
+        final String sdp = "v=0\r\n" +
+            "m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n" +
+            "a=rtpmap:111 opus/48000/2\r\n" +
+            "a=fmtp:111 minptime=10;maxaveragebitrate=32000;maxplaybackrate=48000;sprop-maxcapturerate=48000;useinbandfec=0\r\n";
+        final String expected = "v=0\r\n" +
+            "m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n" +
+            "a=rtpmap:111 opus/48000/2\r\n" +
+            "a=fmtp:111 minptime=10;stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1\r\n";
+        assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.LOCAL_OFFER, sdp));
+        assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.LOCAL_ANSWER, sdp));
+        assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.REMOTE_OFFER, sdp));
+        assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.REMOTE_ANSWER, sdp));
+
+        // Also verify presence of each forced param individually, and that the deliberate
+        // anti-traffic-analysis params (stereo=0;sprop-stereo=0;cbr=1) remain intact.
+        final String patched = new SdpPatcher().patch(SdpPatcher.Type.LOCAL_OFFER, sdp);
+        assertTrue(patched.contains("stereo=0;sprop-stereo=0;cbr=1"));
+        assertTrue(patched.contains("maxaveragebitrate=16000"));
+        assertTrue(patched.contains("maxplaybackrate=8000"));
+        assertTrue(patched.contains("sprop-maxcapturerate=8000"));
+        assertTrue(patched.contains("useinbandfec=1"));
     }
 
     /**
@@ -41,7 +72,7 @@ public class SdpPatcherTest {
         final String expected = "v=0\r\n" +
             "m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n" +
             "a=rtpmap:111 opus/48000/2\r\n" +
-            "a=fmtp:111 minptime=10;cbr0;useinbandfec=1;stereo=0;sprop-stereo=0;cbr=1\r\n";
+            "a=fmtp:111 minptime=10;cbr0;stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1\r\n";
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.LOCAL_OFFER, sdp));
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.LOCAL_ANSWER, sdp));
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.REMOTE_OFFER, sdp));
@@ -61,7 +92,7 @@ public class SdpPatcherTest {
         final String expected = "v=0\r\n" +
             "m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n" +
             "a=rtpmap:111 opus/48000/2\r\n" +
-            "a=fmtp:111 minptime=10;useinbandfec=1;stereo=0;sprop-stereo=0;cbr=1\r\n";
+            "a=fmtp:111 minptime=10;stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1\r\n";
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.LOCAL_OFFER, sdp));
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.LOCAL_ANSWER, sdp));
         assertEquals(expected, new SdpPatcher().patch(SdpPatcher.Type.REMOTE_OFFER, sdp));
@@ -708,7 +739,7 @@ public class SdpPatcherTest {
             "a=rtcp-mux\r\n" +
             "a=rtpmap:111 opus/48000/2\r\n" +
             "a=rtcp-fb:111 transport-cc\r\n" +
-            "a=fmtp:111 minptime=10;useinbandfec=1;stereo=0;sprop-stereo=0;cbr=1\r\n" +
+            "a=fmtp:111 minptime=10;stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1\r\n" +
             "a=ssrc:2080079676 cname:Jb5aR24iJnFDp6OS\r\n" +
             "a=ssrc:2080079676 msid:3MACALL 3MACALLa0\r\n" +
             "a=ssrc:2080079676 mslabel:3MACALL\r\n" +
@@ -750,7 +781,7 @@ public class SdpPatcherTest {
                 "a=rtcp-mux\r\n" +
                 "a=rtpmap:111 opus/48000/2\r\n" +
                 "a=rtcp-fb:111 transport-cc\r\n" +
-                "a=fmtp:111 minptime=10;useinbandfec=1;stereo=0;sprop-stereo=0;cbr=1\r\n" +
+                "a=fmtp:111 minptime=10;stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1\r\n" +
                 "a=ssrc:2080079676 cname:Jb5aR24iJnFDp6OS\r\n" +
                 "a=ssrc:2080079676 msid:3MACALL 3MACALLa0\r\n" +
                 "a=ssrc:2080079676 mslabel:3MACALL\r\n" +
@@ -925,7 +956,7 @@ public class SdpPatcherTest {
             "a=rtcp-mux\r\n" +
             "a=rtpmap:111 opus/48000/2\r\n" +
             "a=rtcp-fb:111 transport-cc\r\n" +
-            "a=fmtp:111 minptime=10;useinbandfec=1;stereo=0;sprop-stereo=0;cbr=1\r\n" +
+            "a=fmtp:111 minptime=10;stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1\r\n" +
             "a=ssrc:3148626149 cname:xmp2nT2LrKeffKAn\r\n" +
             "a=ssrc:3148626149 msid:3MACALL 3MACALLa0\r\n" +
             "a=ssrc:3148626149 mslabel:3MACALL\r\n" +
@@ -1047,7 +1078,7 @@ public class SdpPatcherTest {
                 "a=rtcp-mux\r\n" +
                 "a=rtpmap:111 opus/48000/2\r\n" +
                 "a=rtcp-fb:111 transport-cc\r\n" +
-                "a=fmtp:111 minptime=10;useinbandfec=1;stereo=0;sprop-stereo=0;cbr=1\r\n" +
+                "a=fmtp:111 minptime=10;stereo=0;sprop-stereo=0;cbr=1;maxaveragebitrate=16000;maxplaybackrate=8000;sprop-maxcapturerate=8000;useinbandfec=1\r\n" +
                 "a=ssrc:3148626149 cname:xmp2nT2LrKeffKAn\r\n" +
                 "a=ssrc:3148626149 msid:3MACALL 3MACALLa0\r\n" +
                 "a=ssrc:3148626149 mslabel:3MACALL\r\n" +

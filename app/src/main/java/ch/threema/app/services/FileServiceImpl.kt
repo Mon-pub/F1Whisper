@@ -26,6 +26,7 @@ import ch.threema.app.utils.FileProviderUtil
 import ch.threema.app.utils.FileUtil
 import ch.threema.app.utils.MimeUtil
 import ch.threema.app.utils.ResettableInputStream
+import ch.threema.app.utils.RestrictedMediaOutput
 import ch.threema.app.utils.RingtoneChecker
 import ch.threema.app.utils.RingtoneUtil
 import ch.threema.base.utils.getThreemaLogger
@@ -159,6 +160,13 @@ class FileServiceImpl(
         return success
     }
 
+    override fun hasPersistedMessageMedia(messageModel: AbstractMessageModel?): Boolean {
+        // F1Whisper: the fact the listen-once settlement decides from (see the interface doc). A model without a UID never
+        // had a stored media file.
+        val messageUid = messageModel?.uid ?: return false
+        return messageFileHandleProvider.get(messageUid).exists()
+    }
+
     @WorkerThread
     @Throws(IOException::class)
     override fun decryptMessageFileToTempFile(message: AbstractMessageModel): File? =
@@ -171,10 +179,20 @@ class FileServiceImpl(
 
     @WorkerThread
     @Throws(IOException::class)
-    private fun decryptMessageFileToTempFile(message: AbstractMessageModel, targetDirectory: File): File? {
+    override fun decryptMessageFileToPlaybackTempFile(message: AbstractMessageModel): File? =
+        decryptMessageFileToTempFile(message, targetDirectory = appDirectoryProvider.shareDirectory, uniqueName = true)
+
+    @WorkerThread
+    @Throws(IOException::class)
+    private fun decryptMessageFileToTempFile(
+        message: AbstractMessageModel,
+        targetDirectory: File,
+        uniqueName: Boolean = false,
+    ): File? {
         val messageUid = message.uid ?: return null
         val fileName = message.getFileName()
-        val decryptedFile = if (fileName != null) {
+        val useDeterministicName = fileName != null && !uniqueName
+        val decryptedFile = if (useDeterministicName) {
             File(targetDirectory, "${message.id}-$fileName")
         } else {
             createTempFile(
@@ -183,12 +201,29 @@ class FileServiceImpl(
                 targetDirectory = targetDirectory,
             )
         }
-        val inputStream = decryptMessageFileToStream(messageUid)
-            ?: return null
-        inputStream.use {
-            FileOutputStream(decryptedFile).use { outputStream ->
-                inputStream.copyTo(outputStream)
+        // F1Whisper: a file this call created or truncated is never left behind (no source, a broken source, a failed
+        // copy); a deterministic path this call never opened for writing may be an earlier export and is not touched.
+        var outputOpened = false
+        val ownsFile = { !useDeterministicName || outputOpened }
+        try {
+            val inputStream = decryptMessageFileToStream(messageUid)
+            if (inputStream == null) {
+                if (ownsFile()) {
+                    decryptedFile.delete()
+                }
+                return null
             }
+            inputStream.use {
+                FileOutputStream(decryptedFile).use { outputStream ->
+                    outputOpened = true
+                    inputStream.copyTo(outputStream)
+                }
+            }
+        } catch (e: Exception) {
+            if (ownsFile()) {
+                decryptedFile.delete()
+            }
+            throw e
         }
         return decryptedFile
     }
@@ -315,6 +350,13 @@ class FileServiceImpl(
     override fun copyMediaFileToGallery(message: AbstractMessageModel) {
         if (message.type != MessageType.FILE) {
             return
+        }
+        // F1Whisper: saving writes a permanent clear copy into the device gallery, which is exactly what an incoming
+        // listen-once voice message must never produce. The claim/burn owner in the chat player is the only consumer allowed
+        // to see that plaintext. Thrown rather than skipped silently so that no caller reports the message as saved.
+        if (RestrictedMediaOutput.isRestricted(message)) {
+            logger.info("Refusing to save restricted media {}", message.uid)
+            throw IOException("Restricted media may not be saved")
         }
         val mediaFilename = constructGalleryMediaFilename(message)
         val messageUid = message.uid
@@ -626,6 +668,12 @@ class FileServiceImpl(
 
     @WorkerThread
     override fun copyDecryptedMessageFileToShareDirectory(message: AbstractMessageModel, decryptedFile: File): Uri? {
+        // F1Whisper: the media viewer's share menu reaches this directly rather than through the multi-select share route, so
+        // the same restriction has to be enforced here too.
+        if (RestrictedMediaOutput.isRestricted(message)) {
+            logger.info("Refusing to copy restricted media to a share file")
+            return null
+        }
         if (!decryptedFile.exists()) {
             return null
         }
@@ -648,56 +696,66 @@ class FileServiceImpl(
     }
 
     @WorkerThread
-    override fun decryptMessageFiles(messages: List<AbstractMessageModel>): List<File> {
-        val files = mutableListOf<File>()
-        var exception: Exception? = null
-
-        for (message in messages) {
-            try {
-                val file = decryptMessageFileToShareableTempFile(message)
-                if (file != null) {
-                    files.add(file)
-                } else {
-                    exception = FileNotFoundException()
-                }
-            } catch (e: Exception) {
-                exception = e
-            }
-        }
-
-        // If at least one file could be decrypted, we consider it a success
-        if (files.isEmpty() && exception != null) {
-            throw exception
-        } else {
-            return files
-        }
-    }
+    override fun decryptMessageFiles(messages: List<AbstractMessageModel>): List<File> =
+        decryptMessageFilesPositional(messages).filterNotNull()
 
     @WorkerThread
-    override fun decryptMessageFilesForSharing(messages: List<AbstractMessageModel>): List<Uri> {
-        val shareFileUris = mutableListOf<Uri>()
+    override fun decryptMessageFilesPositional(messages: List<AbstractMessageModel>): List<File?> =
+        decryptForSharing(messages) { _, file -> file }
+
+    @WorkerThread
+    override fun decryptMessageFilesForSharing(messages: List<AbstractMessageModel>): List<Uri> =
+        decryptMessageFilesForSharingPositional(messages).filterNotNull()
+
+    @WorkerThread
+    override fun decryptMessageFilesForSharingPositional(messages: List<AbstractMessageModel>): List<Uri?> =
+        decryptForSharing(messages) { message, file ->
+            FileProviderUtil.getUriForFile(appContext, file, message.getFileName())
+        }
+
+    /**
+     * Decrypts every message into the 'share' directory and maps each decrypted file with [transform].
+     *
+     * The result has one slot per message, in order: `null` where the message is restricted or its file could not be
+     * decrypted. If not a single slot could be filled, the last failure is thrown.
+     */
+    @WorkerThread
+    private fun <T : Any> decryptForSharing(
+        messages: List<AbstractMessageModel>,
+        transform: (message: AbstractMessageModel, file: File) -> T,
+    ): List<T?> {
+        val results = mutableListOf<T?>()
         var exception: Exception? = null
 
         for (message in messages) {
+            // F1Whisper: sharing or forwarding hands another app (or chat) a decrypted copy that outlives this one. The slot
+            // stays null and counts as a failure, so a mixed selection still shares everything else and the caller can tell
+            // that something was left out, rather than silently receiving a short list.
+            if (RestrictedMediaOutput.isRestricted(message)) {
+                logger.info("Refusing to share restricted media {}", message.uid)
+                exception = FileNotFoundException()
+                results.add(null)
+                continue
+            }
             try {
-                val fileName = message.getFileName()
                 val file = decryptMessageFileToShareableTempFile(message)
                 if (file != null) {
-                    shareFileUris.add(FileProviderUtil.getUriForFile(appContext, file, fileName))
+                    results.add(transform(message, file))
                 } else {
                     exception = FileNotFoundException()
+                    results.add(null)
                 }
             } catch (e: Exception) {
                 exception = e
+                results.add(null)
             }
         }
 
         // If at least one file could be decrypted, we consider it a success
-        if (shareFileUris.isEmpty() && exception != null) {
+        if (results.all { it == null } && exception != null) {
             throw exception
-        } else {
-            return shareFileUris
         }
+        return results
     }
 
     @WorkerThread

@@ -9,7 +9,6 @@ import static ch.threema.app.asynctasks.ContactSyncPolicy.INCLUDE;
 import static ch.threema.common.JavaCompat.isNullOrEmpty;
 import static kotlinx.coroutines.flow.FlowKt.drop;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -144,7 +143,6 @@ public class ContactsSectionFragment
     GenericAlertDialog.DialogClickListener {
     private static final Logger logger = getThreemaLogger("ContactsSectionFragment");
 
-    private static final int PERMISSION_REQUEST_REFRESH_CONTACTS = 1;
     private static final String DIALOG_TAG_SHARE_WITH = "wsw";
     private static final String DIALOG_TAG_RECENTLY_ADDED_SELECTOR = "ras";
     private static final String DIALOG_TAG_REALLY_DELETE_CONTACTS = "rdc";
@@ -1060,13 +1058,7 @@ public class ContactsSectionFragment
         ContactUpdateWorker.Scheduler contactUpdateWorkerScheduler = KoinJavaComponent.get(ContactUpdateWorker.Scheduler.class);
         contactUpdateWorkerScheduler.performOneTimeSync();
 
-        if (this.synchronizedSettingsService.isSyncContacts() && ConfigUtils.requestContactPermissions(getActivity(), this, PERMISSION_REQUEST_REFRESH_CONTACTS)) {
-            if (this.synchronizeContactsService != null) {
-                // we force a contact sync even if the grace time has not yet been reached
-                preferenceService.setTimeOfLastContactSync(null);
-                synchronizeContactsService.instantiateSynchronizationAndRun();
-            }
-        }
+        // Device address-book contact sync has been removed for privacy reasons.
 
         if (ConfigUtils.isWorkBuild()) {
             try {
@@ -1219,17 +1211,6 @@ public class ContactsSectionFragment
         selectorDialog.setData(contactModel);
         selectorDialog.setTargetFragment(this, 0);
         selectorDialog.show(getParentFragmentManager(), DIALOG_TAG_RECENTLY_ADDED_SELECTOR);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_REFRESH_CONTACTS) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                this.onRefresh();
-            } else if (!shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)) {
-                ConfigUtils.showPermissionRationale(getContext(), getView(), R.string.permission_contacts_sync_required);
-            }
-        }
     }
 
     private void setupListeners() {

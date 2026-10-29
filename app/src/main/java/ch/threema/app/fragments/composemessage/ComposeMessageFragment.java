@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Vibrator;
 import android.text.Editable;
@@ -43,10 +44,12 @@ import android.view.animation.LinearInterpolator;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AbsListView;
 import android.widget.Filter;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +60,7 @@ import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.badge.ExperimentalBadgeUtils;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
@@ -175,6 +179,7 @@ import ch.threema.app.emojis.EmojiButton;
 import ch.threema.app.emojis.EmojiMarkupUtil;
 import ch.threema.app.emojis.EmojiPicker;
 import ch.threema.app.emojis.EmojiTextView;
+import ch.threema.app.emojis.MarkupParser;
 import ch.threema.app.eventbus.GlobalEventBuses;
 import ch.threema.app.eventbus.GlobalEventFlows;
 import ch.threema.app.eventbus.events.ActionEvent;
@@ -185,6 +190,8 @@ import ch.threema.app.eventbus.events.PollEvent;
 import ch.threema.app.eventbus.events.VoipCallEvent;
 import ch.threema.app.glide.AvatarOptions;
 import ch.threema.app.home.HomeActivity;
+import ch.threema.app.listeners.GroupTypingListener;
+import ch.threema.app.managers.ListenerManager;
 import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.mediaattacher.MediaAttachActivity;
 import ch.threema.app.mediaattacher.MediaFilterQuery;
@@ -212,6 +219,7 @@ import ch.threema.app.services.GroupService;
 import ch.threema.app.eventbus.events.MessageEvent;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.services.RingtoneService;
+import ch.threema.app.services.DisappearingMessageService;
 import ch.threema.app.services.UserService;
 import ch.threema.app.services.VoiceMessagePlayerService;
 import ch.threema.app.services.WallpaperService;
@@ -219,6 +227,7 @@ import ch.threema.app.services.poll.PollService;
 import ch.threema.app.services.license.LicenseService;
 import ch.threema.app.services.messageplayer.MessagePlayer;
 import ch.threema.app.services.messageplayer.MessagePlayerService;
+import ch.threema.app.services.messageplayer.VoiceMessagePlaybackHolder;
 import ch.threema.app.services.notification.NotificationService;
 import ch.threema.app.typingindicator.TypingIndicatorProvider;
 import ch.threema.app.ui.AvatarView;
@@ -226,6 +235,9 @@ import ch.threema.app.ui.BottomSheetItem;
 import ch.threema.app.ui.ContentCommitComposeEditText;
 import ch.threema.app.ui.ConversationListView;
 import ch.threema.app.ui.DebouncedOnClickListener;
+import ch.threema.app.linkpreview.ComposeLinkPreviewController;
+import ch.threema.app.linkpreview.LinkPreviewImageFactory;
+import ch.threema.app.linkpreview.LinkPreviewResult;
 import ch.threema.app.ui.ListViewTouchSwipeListener;
 import ch.threema.app.ui.LongToast;
 import ch.threema.app.ui.MediaItem;
@@ -260,10 +272,16 @@ import ch.threema.app.utils.GroupFeatureSupport;
 import ch.threema.app.utils.IntentDataUtil;
 import ch.threema.app.utils.LinkifyUtil;
 import ch.threema.app.utils.LocaleUtil;
+import ch.threema.app.utils.MediaSpoilerUtil;
 import ch.threema.app.utils.MessageUtil;
+import ch.threema.app.utils.DisappearingMessageUtil;
+import ch.threema.app.utils.NameUtil;
 import ch.threema.app.utils.MessageUtilKt;
 import ch.threema.app.utils.NavigationUtil;
+import ch.threema.app.utils.PageDispatch;
+import ch.threema.app.utils.PageRequestGuard;
 import ch.threema.app.utils.QuoteUtil;
+import ch.threema.app.utils.MimeUtil;
 import ch.threema.app.utils.RuntimeUtil;
 import ch.threema.app.utils.ShortcutUtil;
 import ch.threema.app.utils.SoundEffectPlayer;
@@ -304,6 +322,7 @@ import ch.threema.domain.protocol.csp.ProtocolDefines;
 import ch.threema.domain.taskmanager.TriggerSource;
 import ch.threema.storage.DatabaseService;
 import ch.threema.storage.factories.RejectedGroupMessageFactory;
+import ch.threema.storage.PageCursor;
 import ch.threema.storage.models.AbstractMessageModel;
 import ch.threema.storage.models.ContactModel;
 import ch.threema.storage.models.DateSeparatorMessageModel;
@@ -345,6 +364,7 @@ import static ch.threema.common.JavaCompat.areEqual;
 import static ch.threema.common.JavaCompat.isNullOrBlank;
 import static ch.threema.common.JavaCompat.isNullOrEmpty;
 import static ch.threema.common.TimeExtensionsKt.isSameDayAs;
+import static ch.threema.storage.models.data.DisplayTag.DISPLAY_TAG_PINNED;
 import static ch.threema.storage.models.data.DisplayTag.DISPLAY_TAG_STARRED;
 
 public class ComposeMessageFragment extends Fragment implements
@@ -373,6 +393,9 @@ public class ComposeMessageFragment extends Fragment implements
     private static final String DIALOG_TAG_EMPTY_CHAT = "ccc";
     private static final String DIALOG_TAG_CONFIRM_BLOCK = "block";
     private static final String DIALOG_TAG_DECRYPTING_MESSAGES = "dcr";
+    // F1Whisper (twelfth fork review, F12-04): the share caption dialog used to be shown with a null tag, so
+    // nothing could ever find it again to dismiss it when its message expired or was removed.
+    private static final String DIALOG_TAG_SHARE_CAPTION = "shareCaption";
     private static final String DIALOG_TAG_SEARCHING = "src";
     private static final String DIALOG_TAG_LOADING_MESSAGES = "loadm";
     private static final String DIALOG_TAG_MESSAGE_DETAIL = "messageLog";
@@ -386,6 +409,11 @@ public class ComposeMessageFragment extends Fragment implements
     public static final String EXTRA_OVERRIDE_BACK_TO_HOME_BEHAVIOR = "backOverride";
     public static final String EXTRA_LAST_MEDIA_SEARCH_QUERY = "searchMediaQuery";
     public static final String EXTRA_LAST_MEDIA_TYPE_QUERY = "searchMediaType";
+    // F1Whisper: result-extra set by MediaAttachActivity when it actually SENT media (so a reply-quote
+    // was consumed). Lets the fragment tell a genuine back-out (reopen the quote) from a completed send
+    // (don't reopen) without trusting the unreliable ATTACH_MEDIA result code (the two direct-send
+    // paths send media but still finish() with RESULT_CANCELED).
+    public static final String EXTRA_MEDIA_WAS_SENT = "mediaWasSent";
 
     private static final int PERMISSION_REQUEST_SAVE_MESSAGE = 2;
     private static final int PERMISSION_REQUEST_ATTACH_VOICE_MESSAGE = 7;
@@ -405,6 +433,8 @@ public class ComposeMessageFragment extends Fragment implements
     private static final String BUNDLE_LIST_CONVERSATION_ID_OBFUSCATED = "list_conversation_id_obfuscated";
     private static final String BUNDLE_LIST_TOP = "list_top";
     private static final String BUNDLE_LIST_LONG_CLICK_ITEM = "list_long_click_item";
+    // F1Whisper: persist the in-flight reply-quote id across process death during the attach detour.
+    private static final String BUNDLE_PENDING_QUOTE_API_MESSAGE_ID = "pending_quote_api_message_id";
 
     @NonNull
     private final DependencyContainer dependencies = KoinJavaComponent.get(DependencyContainer.class);
@@ -430,6 +460,7 @@ public class ComposeMessageFragment extends Fragment implements
     private MenuItem showOpenPollWindowMenuItem;
     private MenuItem showPollsMenuItem;
     private MenuItem showEmptyChatMenuItem;
+    private MenuItem disappearingMessagesMenuItem;
     private TextView dateTextView;
     private TextInputLayout textInputLayout;
     private ConstraintLayout conversationParent;
@@ -439,6 +470,7 @@ public class ComposeMessageFragment extends Fragment implements
     private ActionMode editMessageActionMode = null;
     private FrameLayout dateView = null;
     private FrameLayout bottomPanel = null;
+    private ComposeLinkPreviewController linkPreviewController = null; // F1Whisper: link-preview chip
     private String identity;
     private Long groupDatabaseId = 0L;
     private Long distributionListId = 0L;
@@ -525,7 +557,17 @@ public class ComposeMessageFragment extends Fragment implements
     private EmojiPicker emojiPicker;
     private EmojiButton emojiButton;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private Integer currentPageReferenceId = null;
+    // F1Whisper (follow-up review P0-6, second follow-up S2-05): the pagination boundary as ONE
+    // immutable (effective sort key, id) tuple in ONE volatile field — captured from the LOADED
+    // model, never reconstructed from a deletable database row, and impossible to observe torn
+    // from the worker threads that build page queries.
+    @Nullable
+    private volatile PageCursor pageCursor = null;
+    // S2-05: request-generation guard — page results dispatched before a cursor RESET
+    // (conversation switch, empty-chat reset) must not be applied after it. Package-private (not
+    // private): the guard is read from the fragment's inner async callbacks (refresh event, quote
+    // catch-up), so direct field access avoids a synthetic accessor (lint SyntheticAccessor).
+    final PageRequestGuard pageRequestGuard = new PageRequestGuard();
     private EmojiTextView actionBarTitleTextView;
     private TextView actionBarSubtitleTextView;
     private VerificationLevelImageView actionBarSubtitleImageView;
@@ -536,9 +578,59 @@ public class ComposeMessageFragment extends Fragment implements
     private TooltipPopup availabilityStatusTooltipPopup;
     private EmojiReactionsPopup emojiReactionsPopup;
     private QuotePopup quotePopup;
+    // F1Whisper: transient carrier for the quoted message's apiMessageId while a media/file/voice
+    // answer is being composed in a sub-activity (Signal-style "reply with any type"). Captured from
+    // the popup BEFORE it is dismissed (dismissQuotePopup nulls the popup, and the camera/voice launch
+    // helpers are also re-entered from the permission callback after the popup is gone), threaded into
+    // the sub-activity as an Intent extra, and cleared when the sub-activity returns.
+    private @Nullable String pendingQuoteApiMessageId;
+    // F1Whisper (twelfth fork review, F12-04): the share in flight behind the caption dialog (models, share
+    // URIs, decrypted temp copies), and the watches that kill an open share dialog / quote popup at the
+    // held message's deadline. Volatile: the decrypt callbacks record the share on their worker thread; the
+    // confirm, the watches and the removal listener consume it on the main thread.
+    private volatile @Nullable PendingMediaShare pendingMediaShare;
+    private final MessageExpiryWatch pendingShareExpiryWatch = new MessageExpiryWatch(
+        MessageExpiryWatch.onMainThread(),
+        DisappearingMessageService::enforceIfExpired,
+        System::currentTimeMillis);
+    private final MessageExpiryWatch quotePopupExpiryWatch = new MessageExpiryWatch(
+        MessageExpiryWatch.onMainThread(),
+        DisappearingMessageService::enforceIfExpired,
+        System::currentTimeMillis);
     private OpenPollNoticeView openPollNoticeView;
     private ReportSpamView reportSpamView;
     private AvailabilityStatusContactBannerView availabilityStatusBannerView;
+    // F1Whisper: pinned-message banner views + cycler state.
+    // The cycler is keyed by the message's globally-unique uid (Telegram-style jump-by-id), NEVER by
+    // text content or object identity: with several pins sharing the same body (e.g. two "Test"
+    // messages) the banner must jump to the EXACT pinned message, and successive taps must cycle
+    // through the distinct pinned messages in pin order. uid is stable across adapter rebuilds and a
+    // deleted message simply drops out of the recollected set.
+    private View pinnedBannerContainer;
+    private TextView pinnedBannerPreview;
+    private TextView pinnedBannerLabel;
+    // The banner is a single line; anything longer is elided by the central preview builder rather
+    // than by the TextView, so the string that reaches the view is already bounded.
+    private static final int PINNED_BANNER_PREVIEW_MAX_LENGTH = 120;
+    // uids of the currently-pinned messages, in pin (list) order; rebuilt on every banner refresh
+    private final List<String> pinnedMessageUids = new ArrayList<>();
+    // uid of the message currently shown in the banner (the next tap jumps to THIS one)
+    @Nullable
+    private String currentPinnedMessageUid = null;
+    private boolean pinnedBannerDismissed = false; // user hit X; hide for this session only
+    // transient jump-target highlight (Material 3): the row we briefly flash after a banner jump
+    @NonNull
+    private final Handler pinnedHighlightHandler = new Handler(Looper.getMainLooper());
+    @Nullable
+    private Runnable pinnedHighlightClear = null;
+    // F1Whisper: coalesce a burst of poll-vote callbacks (a busy group checklist can fire many in a
+    // row) into a single list re-bind ~200ms after the burst goes quiet, so the list does not jank or
+    // disturb scroll on every vote. A single pending runnable is reused per burst.
+    @NonNull
+    private final Handler pollRefreshHandler = new Handler(Looper.getMainLooper());
+    @Nullable
+    private Runnable pollRefreshRunnable = null;
+    private static final long POLL_REFRESH_DEBOUNCE_MS = 200L;
     private ComposeMessageActivity activity;
     private View fragmentView;
     private FrameLayout coordinatorLayout;
@@ -604,53 +696,6 @@ public class ComposeMessageFragment extends Fragment implements
     public boolean shouldHandleLinkClick() {
         return !isActionModeEnabled();
     }
-
-    private final MessageService.MessageFilter nextMessageFilter = new MessageService.MessageFilter() {
-        @Override
-        public long getPageSize() {
-            return MESSAGE_PAGE_SIZE;
-        }
-
-        @Override
-        public Integer getPageReferenceId() {
-            return getCurrentPageReferenceId();
-        }
-
-        @Override
-        public boolean withStatusMessages() {
-            return true;
-        }
-
-        @Override
-        public boolean withUnsaved() {
-            return false;
-        }
-
-        @Override
-        public boolean onlyUnread() {
-            return false;
-        }
-
-        @Override
-        public boolean onlyDownloaded() {
-            return false;
-        }
-
-        @Override
-        public MessageType[] types() {
-            return null;
-        }
-
-        @Override
-        public int[] contentTypes() {
-            return null;
-        }
-
-        @Override
-        public int[] displayTags() {
-            return null;
-        }
-    };
 
     // handler to remove dateview button after a certain time
     private final Handler dateViewHandler = new Handler();
@@ -727,12 +772,23 @@ public class ComposeMessageFragment extends Fragment implements
                 dismissEmojiReactionPopupIfMessageWasDeleted(modifiedMessageModel);
             }
         }
+        // F1Whisper: a message's displayTags may have changed (e.g., pin/unpin); keep banner in sync
+        updatePinnedBanner();
     }
 
     private void onMessageRemoved(final AbstractMessageModel removedMessageModel) {
         if (composeMessageAdapter != null && removedMessageModel != null) {
             composeMessageAdapter.remove(removedMessageModel);
         }
+        // F1Whisper (twelfth fork review, F12-04): removal used to only take the row out of the adapter;
+        // an in-flight share (open caption dialog, decrypted copy) or an open quote popup of the removed
+        // message survived it. They die with the message now.
+        if (removedMessageModel != null) {
+            abortInFlightOperationsFor(removedMessageModel);
+        }
+        // F1Whisper: a removed message may have been pinned; drop it from the banner set
+        // (no crash, no stale jump) and re-render / hide the banner accordingly.
+        updatePinnedBanner();
     }
 
     private boolean ensureMessageTypeIsCorrectForCurrentChat(final @NonNull AbstractMessageModel abstractMessageModel) {
@@ -827,6 +883,65 @@ public class ComposeMessageFragment extends Fragment implements
         }
     }
 
+    // F1Whisper: refresh the group header "... is typing" line when group typing state changes
+    private final GroupTypingListener groupTypingListener = new GroupTypingListener() {
+        @Override
+        public void onGroupTypingChanged(long groupDatabaseId, final @NonNull Set<String> typingIdentities) {
+            RuntimeUtil.runOnUiThread(() -> {
+                if (isGroupChat && groupModel != null
+                    && ComposeMessageFragment.this.groupDatabaseId != null
+                    && ComposeMessageFragment.this.groupDatabaseId == groupDatabaseId) {
+                    updateToolbarTitle();
+                }
+            });
+        }
+    };
+
+    /**
+     * Coalesce poll callbacks (vote changes AND checklist structure edits) into one re-bind
+     * ~200ms after the burst quiesces (a busy group checklist fires many in quick succession), and
+     * re-bind ONLY the affected poll's rows (notifyItemsChanged) when they can be resolved, falling
+     * back to a full notifyDataSetChanged only if the rows can't be found. Keeps the list from
+     * janking / losing scroll on every vote or item edit. This is what makes an interactive
+     * checklist's voter-names and sink-order update without waiting for a natural row recycle, and
+     * it is the reconcile half of the optimistic checklist toggle in PollChatAdapterDecorator.
+     */
+    private void refreshListForPoll(@Nullable PollModel pollModel) {
+        RuntimeUtil.runOnUiThread(() -> {
+            if (pollRefreshRunnable != null) {
+                pollRefreshHandler.removeCallbacks(pollRefreshRunnable);
+            }
+            pollRefreshRunnable = () -> rebindPollRows(pollModel);
+            pollRefreshHandler.postDelayed(pollRefreshRunnable, POLL_REFRESH_DEBOUNCE_MS);
+        });
+    }
+
+    /**
+     * Re-bind the chat rows carrying a given poll. Prefers the surgical
+     * {@link ComposeMessageAdapter#notifyItemsChanged} on just that poll's message models (resolved
+     * via the message service); falls back to a full {@code notifyDataSetChanged} when the rows can't
+     * be resolved or anything goes wrong. Must run on the UI thread.
+     */
+    @UiThread
+    private void rebindPollRows(@Nullable PollModel pollModel) {
+        if (composeMessageAdapter == null) {
+            return;
+        }
+        try {
+            if (pollModel != null && messageService != null) {
+                List<AbstractMessageModel> pollMessages = messageService.getMessageForPoll(pollModel);
+                if (pollMessages != null && !pollMessages.isEmpty()) {
+                    composeMessageAdapter.notifyItemsChanged(pollMessages);
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not resolve poll rows for surgical refresh", e);
+        }
+        // Fallback: the poll's rows could not be resolved -> full refresh.
+        composeMessageAdapter.notifyDataSetChanged();
+    }
+
     private final QuotePopup.QuotePopupListener quotePopupListener = new QuotePopup.QuotePopupListener() {
         @Override
         public void onHeightSet(int height) {
@@ -868,7 +983,24 @@ public class ComposeMessageFragment extends Fragment implements
             swipeRefreshLayout.setRefreshing(false);
             return;
         }
-        viewModel.loadNextRecords(messageReceiver, nextMessageFilter);
+        // T3-11: only one page load may be outstanding against the current cursor. If the
+        // quote-jump catch-up (or a prior refresh) already owns the slot, drop this refresh rather
+        // than racing it — both reading the same cursor would duplicate/reorder history.
+        final int token = pageRequestGuard.tryBeginLoad();
+        if (token == PageRequestGuard.NO_TOKEN) {
+            logger.info("A page load is already in flight; ignoring pull-to-refresh");
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+        // F1Whisper (fourth fork review, F4-11): hand the view model a frozen receiver and cursor rather than the live
+        // fragment state its worker would otherwise read. Same rule as the quote catch-up and the initial load.
+        final PageDispatch refreshDispatch = snapshotPageDispatch(token);
+        if (refreshDispatch == null) {
+            pageRequestGuard.endLoad(token);
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
+        viewModel.loadNextRecords(refreshDispatch.getReceiver(), snapshotMessageFilter(refreshDispatch), token);
     }
 
     @Override
@@ -901,12 +1033,15 @@ public class ComposeMessageFragment extends Fragment implements
         logger.info("onCreate");
         super.onCreate(savedInstanceState);
 
+        ListenerManager.groupTypingListeners.add(this.groupTypingListener);
         FlowJavaCompat.collect(this, Lifecycle.State.CREATED, globalEventFlows.getContacts(), this::handleContactEvent);
         FlowJavaCompat.collect(this, Lifecycle.State.CREATED, globalEventFlows.getMessages(), this::handleMessageEvent);
         FlowJavaCompat.collect(this, Lifecycle.State.CREATED, globalEventFlows.getGroups(), this::handleGroupEvent);
         FlowJavaCompat.collect(this, Lifecycle.State.CREATED, globalEventFlows.getConversations(), this::handleConversationEvent);
         FlowJavaCompat.collect(this, Lifecycle.State.CREATED, globalEventFlows.getActions(), this::handleActionEvent);
-        FlowJavaCompat.collect(this, Lifecycle.State.STARTED, globalEventFlows.getPolls(), this::handlePollEvent);
+        // F1-PATCH: CREATED like the other event flows (upstream: STARTED). Poll events are not replayed, so a checklist
+        // vote or edit that arrives while the chat is in the background would otherwise never refresh its rows.
+        FlowJavaCompat.collect(this, Lifecycle.State.CREATED, globalEventFlows.getPolls(), this::handlePollEvent);
         FlowJavaCompat.collect(this, Lifecycle.State.CREATED, globalEventFlows.getVoipCalls(), this::handleVoipCallEvent);
 
         FlowJavaCompat.collect(this, Lifecycle.State.CREATED, typingIndicatorProvider.watchTypingIdentityStrings(), (typingContacts) -> {
@@ -1116,7 +1251,9 @@ public class ComposeMessageFragment extends Fragment implements
     @UiThread
     private void handlePollEvent(@NonNull PollEvent event) {
         if (event instanceof PollEvent.NewPoll) {
-            if (userService.getIdentity().equals(event.getPoll().getCreatorIdentity())) {
+            // Opening the poll screen is UI navigation, so it keeps upstream's STARTED bound (see the collector above).
+            if (getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)
+                && userService.getIdentity().equals(event.getPoll().getCreatorIdentity())) {
                 PollUtil.openDefaultActivity(
                     getContext(),
                     getFragmentManager(),
@@ -1126,6 +1263,22 @@ public class ComposeMessageFragment extends Fragment implements
             }
         } else if (event instanceof PollEvent.PollClosed || event instanceof PollEvent.PollRemoved) {
             openPollNoticeView.update();
+            // F1Whisper: also re-bind the poll's rows so a closed or removed poll/checklist bubble updates promptly.
+            refreshListForPoll(event.getPoll());
+        } else if (event instanceof PollEvent.PollUpdated) {
+            // F1Whisper: a checklist STRUCTURE change (add / remove / reorder of items) arrives here --
+            // both on the creator's own re-broadcast and on a receiver after mergeChecklistUpdate()
+            // applies an incoming GroupPollSetup (0x52) modify. Re-render the open chat's checklist
+            // bubble promptly via the SAME debounced, targeted rebind used for vote changes so the new
+            // items/order show without waiting for a natural row recycle.
+            refreshListForPoll(event.getPoll());
+        }
+        if (event instanceof PollEvent.PollSelfVoted
+            || event instanceof PollEvent.PollVoted
+            || event instanceof PollEvent.PollVoteRemoved) {
+            // F1Whisper: refresh the message list when any poll vote changes (my own optimistic toggle
+            // being confirmed/reconciled, or a remote participant's check).
+            refreshListForPoll(event.getPoll());
         }
     }
 
@@ -1198,6 +1351,10 @@ public class ComposeMessageFragment extends Fragment implements
                 if (actionMode != null) {
                     actionMode.finish();
                 }
+                // F1Whisper: capture the active quote BEFORE dismissQuotePopup nulls the popup, so an
+                // in-chat camera answer carries the reply-quote. attachCamera() reads this field from
+                // both the direct call below and the permission-callback re-entry.
+                pendingQuoteApiMessageId = getActiveQuoteApiMessageId();
                 dismissQuotePopup();
                 if (!validateSendingPermission()) {
                     return;
@@ -1230,11 +1387,34 @@ public class ComposeMessageFragment extends Fragment implements
             this.dimBackground = this.fragmentView.findViewById(R.id.dim_background);
 
             this.bottomPanel = this.fragmentView.findViewById(R.id.bottom_panel);
+            // F1Whisper: Signal-style link-preview chip above the input (sender-only fetch).
+            final View linkPreviewChip = this.fragmentView.findViewById(R.id.compose_link_preview_chip);
+            if (linkPreviewChip != null && this.preferenceService != null) {
+                this.linkPreviewController = new ComposeLinkPreviewController(linkPreviewChip, this.preferenceService);
+            }
             this.openPollNoticeView = this.fragmentView.findViewById(R.id.open_polls_layout);
             this.reportSpamView = this.fragmentView.findViewById(R.id.report_spam_layout);
             this.reportSpamView.setListener(this);
 
             this.availabilityStatusBannerView = this.fragmentView.findViewById(R.id.availability_status_banner_view);
+
+            // F1Whisper: wire pinned-message banner
+            this.pinnedBannerContainer = this.fragmentView.findViewById(R.id.pinned_banner_container);
+            this.pinnedBannerPreview = this.fragmentView.findViewById(R.id.pinned_banner_preview);
+            this.pinnedBannerLabel = this.fragmentView.findViewById(R.id.pinned_banner_label);
+            final View pinnedTapArea = this.fragmentView.findViewById(R.id.pinned_banner_tap_area);
+            final View pinnedDismiss = this.fragmentView.findViewById(R.id.pinned_banner_dismiss);
+            if (pinnedTapArea != null) {
+                pinnedTapArea.setOnClickListener(v -> cyclePinnedMessageBanner());
+            }
+            if (pinnedDismiss != null) {
+                pinnedDismiss.setOnClickListener(v -> {
+                    pinnedBannerDismissed = true;
+                    if (pinnedBannerContainer != null) {
+                        pinnedBannerContainer.setVisibility(View.GONE);
+                    }
+                });
+            }
 
             quickscrollDownContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
@@ -1281,7 +1461,9 @@ public class ComposeMessageFragment extends Fragment implements
         if (!ConfigUtils.isDefaultEmojiStyle()) {
             // remove emoji button
             this.emojiButton.setVisibility(View.GONE);
-            this.messageText.setPadding(getResources().getDimensionPixelSize(R.dimen.no_emoji_button_padding_left), this.messageText.getPaddingTop(), this.messageText.getPaddingRight(), this.messageText.getPaddingBottom());
+            // Emoji button lives at the layout START; use the relative padding API so the reduced
+            // start inset mirrors correctly under RTL instead of being applied to the physical left.
+            this.messageText.setPaddingRelative(getResources().getDimensionPixelSize(R.dimen.no_emoji_button_padding_left), this.messageText.getPaddingTop(), this.messageText.getPaddingEnd(), this.messageText.getPaddingBottom());
         } else {
             try {
                 final EmojiPicker.EmojiKeyListener emojiKeyListener = new EmojiPicker.EmojiKeyListener() {
@@ -1331,6 +1513,25 @@ public class ComposeMessageFragment extends Fragment implements
     private void handleViewModelEvent(@NonNull ComposeMessageEvent event) {
         if (event instanceof ComposeMessageEvent.NextRecordsLoaded) {
             onNextRecordsLoadedEvent((ComposeMessageEvent.NextRecordsLoaded) event);
+        } else if (event instanceof ComposeMessageEvent.NextRecordsFailed) {
+            onNextRecordsFailedEvent((ComposeMessageEvent.NextRecordsFailed) event);
+        }
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-10): the other terminal outcome of a page load.
+     *
+     * <p>The fork's refresh acquires a single-load slot before dispatching, and released it only from the success event.
+     * A query that threw emitted nothing, so on a failure that left the process alive the slot stayed owned: the refresh
+     * indicator kept spinning and every later page request was rejected until the conversation was reset. Both outcomes
+     * now release the generation that acquired the slot, and both stop the indicator.</p>
+     */
+    @UiThread
+    private void onNextRecordsFailedEvent(@NonNull ComposeMessageEvent.NextRecordsFailed event) {
+        logger.info("Page load failed (generation {}); releasing the refresh slot", event.generation);
+        pageRequestGuard.endLoad(event.generation);
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -1386,6 +1587,19 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     private void onNextRecordsLoadedEvent(@NonNull ComposeMessageEvent.NextRecordsLoaded nextRecodsLoadedEvent) {
+        // T3-11: release the single-load latch this refresh acquired (generation-guarded, so a
+        // stale completion is a no-op and cannot free a newer load's slot). Called in EVERY branch.
+        final int generation = nextRecodsLoadedEvent.generation;
+        // S2-05: drop results computed against a cursor that has since been reset — applying
+        // them would insert rows for a stale boundary (duplicated or misplaced history).
+        if (!pageRequestGuard.isCurrent(generation)) {
+            logger.info("Dropping stale page-load result (generation {})", generation);
+            pageRequestGuard.endLoad(generation);
+            if (swipeRefreshLayout != null) {
+                swipeRefreshLayout.setRefreshing(false);
+            }
+            return;
+        }
         valuesLoaded(nextRecodsLoadedEvent.messageModels);
         if (composeMessageAdapter != null) {
             int numberOfInsertedRecords = insertToList(nextRecodsLoadedEvent.messageModels, false, true, true);
@@ -1397,6 +1611,9 @@ public class ComposeMessageFragment extends Fragment implements
             swipeRefreshLayout.setRefreshing(false);
             swipeRefreshLayout.setEnabled(nextRecodsLoadedEvent.hasMoreRecords);
         }
+        // F1Whisper: a batch of older messages may contain pinned ones; refresh the banner
+        updatePinnedBanner();
+        pageRequestGuard.endLoad(generation);
     }
 
     @AnyThread
@@ -1623,6 +1840,11 @@ public class ComposeMessageFragment extends Fragment implements
 
         isPaused = false;
 
+        // F1Whisper: on chat open, sweep any disappearing messages that expired while the chat was
+        // backgrounded (covers the case the alarm missed), then re-arm. Worker-thread; never throws.
+        new Thread(() -> DisappearingMessageService.getInstance().purgeOverdueAndRearm(),
+            "DisappearingChatOpenSweep").start();
+
         // mark all unread messages as read
         if (!unreadMessages.isEmpty()) {
             logger.debug("markAllRead");
@@ -1705,6 +1927,13 @@ public class ComposeMessageFragment extends Fragment implements
             this.typingIndicatorTextWatcher.stopSending();
         }
 
+        // F1Whisper: spoilers (media AND text) reveal strictly per chat-visit. Forget every revealed
+        // spoiler when leaving the conversation so re-entering shows them obscured again (tap-to-reveal
+        // each time). Bubbles re-bind on chat re-entry seeding each span's revealed flag from these
+        // stores, so clearing them is sufficient; no explicit adapter refresh is needed here.
+        MediaSpoilerUtil.clearRevealed();
+        ch.threema.app.emojis.SpoilerRevealState.getInstance().clear();
+
         preserveListInstanceValues();
     }
 
@@ -1742,6 +1971,15 @@ public class ComposeMessageFragment extends Fragment implements
     public void onDestroyView() {
         super.onDestroyView();
         removeGroupCallObserver();
+        if (linkPreviewController != null) {
+            linkPreviewController.destroy();
+            linkPreviewController = null;
+        }
+        // F1Whisper: cancel any pending pinned-jump highlight cleanup to avoid touching a torn-down view.
+        if (pinnedHighlightHandler != null && pinnedHighlightClear != null) {
+            pinnedHighlightHandler.removeCallbacks(pinnedHighlightClear);
+            pinnedHighlightClear = null;
+        }
     }
 
     @Override
@@ -1749,6 +1987,13 @@ public class ComposeMessageFragment extends Fragment implements
         logger.debug("onDestroy");
 
         try {
+            ListenerManager.groupTypingListeners.remove(this.groupTypingListener);
+            // F1Whisper: drop any pending coalesced poll re-bind so it can't fire on a torn-down view.
+            if (pollRefreshRunnable != null) {
+                pollRefreshHandler.removeCallbacks(pollRefreshRunnable);
+                pollRefreshRunnable = null;
+            }
+
             if (scrollButtonManager != null) {
                 scrollButtonManager.hideAllButtons();
             }
@@ -1763,6 +2008,11 @@ public class ComposeMessageFragment extends Fragment implements
 
             dismissMentionPopup();
             dismissQuotePopup();
+            // F1Whisper (twelfth fork review, F12-04): the share deadline watch must not outlive the fragment
+            // (dismissQuotePopup above already disarmed the quote watch). The pending share itself is left
+            // alone: on a configuration change the restored dialog's confirm finds no pending share and exports
+            // nothing, and the cache-directory temp goes with the cache.
+            pendingShareExpiryWatch.cancel();
 
             if (this.emojiButton != null) {
                 this.emojiButton.detach(this.emojiPicker);
@@ -1777,8 +2027,21 @@ public class ComposeMessageFragment extends Fragment implements
                 return;
             }
 
+            // F1Whisper: if a normal (non-listen-once) voice message is actively playing, keep it
+            // going in the background (see the "now playing" banner). We release the OTHER players
+            // (so nothing accumulates) but keep the playing one WITH its decrypted file (releasing it
+            // would delete the file the shared player is still reading) and mark it a detached
+            // background session so the holder cleans it up when it truly ends.
+            final VoiceMessagePlaybackHolder voicePlaybackHolder = VoiceMessagePlaybackHolder.getInstance(getAppContext());
+            final boolean keepVoicePlaying = voicePlaybackHolder.isPlayingContinuable();
+
             if (this.messagePlayerService != null) {
-                this.messagePlayerService.release();
+                if (keepVoicePlaying) {
+                    this.messagePlayerService.releaseExcept(voicePlaybackHolder.currentMessageId());
+                    voicePlaybackHolder.markDetached();
+                } else {
+                    this.messagePlayerService.release();
+                }
             }
 
             if (this.thumbnailCache != null) {
@@ -1819,7 +2082,7 @@ public class ComposeMessageFragment extends Fragment implements
                 draftUpdateTextWatcher.stop();
             }
 
-            releaseMedia3Controller();
+            releaseMedia3Controller(keepVoicePlaying);
         } catch (Exception x) {
             logger.error("Exception", x);
         }
@@ -2006,8 +2269,7 @@ public class ComposeMessageFragment extends Fragment implements
                     logger.info("Send button clicked");
                     sendMessage();
                 }
-            });
-        }
+            });        }
     }
 
     private void setupEditMessageButtonClickListener(@NonNull AbstractMessageModel messageModel) {
@@ -2036,10 +2298,14 @@ public class ComposeMessageFragment extends Fragment implements
                             actionMode.finish();
                         }
 
+                        // F1Whisper: capture the active quote before dismissing the popup, then thread
+                        // it into the attach flow so a media/file answer carries the reply-quote.
+                        pendingQuoteApiMessageId = getActiveQuoteApiMessageId();
                         dismissQuotePopup();
 
                         Intent intent = new Intent(activity, MediaAttachActivity.class);
                         IntentDataUtil.addMessageReceiverToIntent(intent, messageReceiver);
+                        IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
                         if (ComposeMessageFragment.this.lastMediaFilter != null) {
                             intent = IntentDataUtil.addLastMediaFilterToIntent(intent, ComposeMessageFragment.this.lastMediaFilter);
                         }
@@ -2080,6 +2346,12 @@ public class ComposeMessageFragment extends Fragment implements
             public void onTextChanged(@NonNull CharSequence text, int start, int before, int count) {
                 ActivityService.activityUserInteract(activity);
                 updateSendButton(text);
+                // F1Whisper: drive the link-preview chip (no chip while editing/quoting).
+                if (linkPreviewController != null && editMessageActionMode == null && !isQuotePopupShown()) {
+                    linkPreviewController.onTextChanged(text);
+                } else if (linkPreviewController != null) {
+                    linkPreviewController.reset();
+                }
             }
 
             @Override
@@ -2150,13 +2422,15 @@ public class ComposeMessageFragment extends Fragment implements
             }
         }
 
-        final int attachButtonVisibility = isQuotePopupShown() ?
-            View.GONE : View.VISIBLE;
+        // F1Whisper: keep the attach button visible while quoting so a media/file answer can be sent
+        // as a reply (the quote is threaded into the attach flow). Previously hidden while quoting.
+        final int attachButtonVisibility = View.VISIBLE;
 
+        // F1Whisper: keep the camera button visible while quoting (blank text) so a camera answer can
+        // be sent as a reply. Previously hidden while quoting.
         final int cameraButtonVisibility =
             (messageText.getText() == null ||
                 messageText.getText().length() == 0) &&
-                !isQuotePopupShown() &&
                 isCameraPermissionGranted ?
                 View.VISIBLE : View.GONE;
 
@@ -2164,7 +2438,7 @@ public class ComposeMessageFragment extends Fragment implements
         final boolean cameraButtonVisibilityChange = cameraButton.getVisibility() != cameraButtonVisibility;
 
         if (cameraButtonVisibilityChange) {
-            Transition cameraTransition = new Slide(Gravity.RIGHT);
+            Transition cameraTransition = new Slide(Gravity.END);
             cameraTransition.setStartDelay(cameraButtonVisibility == View.VISIBLE && attachButtonVisibilityChange ? 100 : 0);
             cameraTransition.setDuration(120);
             cameraTransition.setInterpolator(new LinearInterpolator());
@@ -2174,7 +2448,7 @@ public class ComposeMessageFragment extends Fragment implements
         }
 
         if (attachButtonVisibilityChange) {
-            Transition attachTransition = new Slide(Gravity.RIGHT);
+            Transition attachTransition = new Slide(Gravity.END);
             attachTransition.setStartDelay(attachButtonVisibility == View.VISIBLE ? 0 : 100);
             attachTransition.setDuration(120);
             attachTransition.setInterpolator(new LinearInterpolator());
@@ -2188,38 +2462,35 @@ public class ComposeMessageFragment extends Fragment implements
 
     private void fixMessageTextPadding(int cameraButtonVisibility, int attachButtonVisibility) {
         if (isAdded()) {
-            int marginRight = ThreemaApplication.getAppContext().getResources().getDimensionPixelSize(R.dimen.emoji_and_photo_button_width);
+            // This is the inline padding that reserves room for the camera/attach/send button
+            // cluster, which lives at the layout END (right in LTR, left in RTL). Use the
+            // relative (start/end) padding API so the reserved space mirrors correctly under RTL.
+            int endPadding = ThreemaApplication.getAppContext().getResources().getDimensionPixelSize(R.dimen.emoji_and_photo_button_width);
 
             if (cameraButtonVisibility != View.VISIBLE) {
-                marginRight -= getResources().getDimensionPixelSize(R.dimen.emoji_button_width);
+                endPadding -= getResources().getDimensionPixelSize(R.dimen.emoji_button_width);
             }
 
             if (attachButtonVisibility != View.VISIBLE) {
-                marginRight -= getResources().getDimensionPixelSize(R.dimen.emoji_button_width);
+                endPadding -= getResources().getDimensionPixelSize(R.dimen.emoji_button_width);
             }
 
-            marginRight = Math.max(marginRight, getResources().getDimensionPixelSize(R.dimen.no_emoji_button_padding_left));
+            endPadding = Math.max(endPadding, getResources().getDimensionPixelSize(R.dimen.no_emoji_button_padding_left));
 
-            messageText.setPadding(messageText.getPaddingLeft(), messageText.getPaddingTop(), marginRight, messageText.getPaddingBottom());
+            messageText.setPaddingRelative(messageText.getPaddingStart(), messageText.getPaddingTop(), endPadding, messageText.getPaddingBottom());
         }
     }
 
     private void updateSendButton(CharSequence text) {
-        if (isQuotePopupShown()) {
-            if (isNullOrBlank(text)) {
-                sendButton.setEnabled(false);
-            } else {
-                sendButton.setSend();
-                sendButton.setEnabled(true);
-            }
+        // F1Whisper: while quoting with blank text, show the mic (record) icon enabled so a voice-note
+        // answer is reachable as a reply (previously the send button was disabled while quoting). With
+        // non-blank text it stays a send button. Quote and non-quote states now behave identically.
+        if (isNullOrBlank(text)) {
+            sendButton.setRecord();
+            sendButton.setEnabled(true);
         } else {
-            if (isNullOrBlank(text)) {
-                sendButton.setRecord();
-                sendButton.setEnabled(true);
-            } else {
-                sendButton.setSend();
-                sendButton.setEnabled(true);
-            }
+            sendButton.setSend();
+            sendButton.setEnabled(true);
         }
         if (emojiButton != null) {
             emojiButton.setVisibility(ConfigUtils.isDefaultEmojiStyle() ? View.VISIBLE : View.GONE);
@@ -2308,6 +2579,7 @@ public class ComposeMessageFragment extends Fragment implements
                 : null;
             this.listInstanceTop = bundle.getInt(BUNDLE_LIST_TOP);
             this.longClickItem = bundle.getInt(BUNDLE_LIST_LONG_CLICK_ITEM);
+            this.pendingQuoteApiMessageId = bundle.getString(BUNDLE_PENDING_QUOTE_API_MESSAGE_ID);
         }
     }
 
@@ -2318,16 +2590,28 @@ public class ComposeMessageFragment extends Fragment implements
             return;
         }
 
+        // F1Whisper: switching to another chat (singleTop) — keep a normal voice message playing in
+        // the background if one is active. We release the OTHER players but keep the playing one with
+        // its decrypted file, and do NOT stop the controller; its "now playing" banner then shows in
+        // the new chat.
+        final VoiceMessagePlaybackHolder voicePlaybackHolder = VoiceMessagePlaybackHolder.getInstance(getAppContext());
+        final boolean keepVoicePlaying = voicePlaybackHolder.isPlayingContinuable();
+
         if (this.messagePlayerService != null) {
-            this.messagePlayerService.stopAll();
-            this.messagePlayerService.release();
+            if (keepVoicePlaying) {
+                this.messagePlayerService.releaseExcept(voicePlaybackHolder.currentMessageId());
+                voicePlaybackHolder.markDetached();
+            } else {
+                this.messagePlayerService.stopAll();
+                this.messagePlayerService.release();
+            }
         }
         if (thumbnailCache != null) {
             thumbnailCache.flush();
         }
 
         MediaController mediaController = getMedia3Controller();
-        if (mediaController != null) {
+        if (mediaController != null && !keepVoicePlaying) {
             mediaController.stop();
             mediaController.clearMediaItems();
         }
@@ -2503,7 +2787,7 @@ public class ComposeMessageFragment extends Fragment implements
         logger.debug("handleIntent");
         this.isGroupChat = false;
         this.isDistributionListChat = false;
-        setCurrentPageReferenceId(null);
+        clearCurrentPageReference();
         this.reportSpamView.hide();
 
         //remove old indicator every time!
@@ -2534,6 +2818,15 @@ public class ComposeMessageFragment extends Fragment implements
             }
 
             this.messageReceiver = this.groupService.createReceiver(this.groupModel);
+            // F1Whisper: send group typing indicators as the user types
+            final long typingGroupDatabaseId = this.groupModel.getDatabaseId();
+            this.typingIndicatorTextWatcher = new TypingIndicatorTextWatcher(
+                isTyping -> {
+                    groupService.sendTypingIndicator(typingGroupDatabaseId, isTyping);
+                    return Unit.INSTANCE;
+                },
+                this
+            );
 
             this.messageText.enableMentionPopup(
                 requireActivity(),
@@ -2569,13 +2862,7 @@ public class ComposeMessageFragment extends Fragment implements
                 this.identity = ((ContactConversationId) conversationId).identity;
             }
 
-            if (this.identity == null && intent.getData() != null) {
-                if (ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-                    this.identity = ContactUtil.getIdentityFromViewIntent(activity, intent);
-                } else {
-                    LongToast.makeText(activity, R.string.permission_contacts_required, Toast.LENGTH_LONG).show();
-                }
-            }
+            // Device address-book "open chat" (tap-to-chat) has been removed for privacy reasons.
 
             if (this.identity == null || this.identity.isEmpty() || this.identity.equals(this.userService.getIdentity())) {
                 logger.error("no identity found");
@@ -2715,7 +3002,8 @@ public class ComposeMessageFragment extends Fragment implements
 
         this.notificationService.setVisibleConversation(conversationId);
 
-        if (!this.isGroupChat && !this.isDistributionListChat) {
+        // F1Whisper: typing indicators for both 1:1 and group chats (not distribution lists)
+        if (!this.isDistributionListChat && this.typingIndicatorTextWatcher != null) {
             this.messageText.addTextChangedListener(this.typingIndicatorTextWatcher);
         }
 
@@ -3020,8 +3308,18 @@ public class ComposeMessageFragment extends Fragment implements
             openPollNoticeView.update();
         }
 
-        //check if the message already added
-        if (this.listInitializedAt != null && message.getCreatedAt().isBefore(this.listInitializedAt)) {
+        // check if the message already added
+        // F1Whisper: exempt outbox messages from the "already loaded" guard. This guard skips
+        // pre-existing history during async list loads by comparing createdAt against the raw-clock
+        // listInitializedAt watermark. Since v6.4.3-30 (TrustedClock), an outgoing message's
+        // createdAt is stamped on the server-corrected clock (system + offset); on a phone whose
+        // clock runs ahead of the OnPrem server the offset is negative, so a just-composed outgoing
+        // message's createdAt lands BEFORE the raw watermark and was silently dropped from the live
+        // list (it only appeared after closing+reopening the chat, which reloads from the DB). An
+        // outbox message reaching onNew was just created this session by fireOnCreatedMessage and can
+        // never be pre-load history, so the historical-dedup check must not apply to it. The incoming
+        // path (raw-clock createdAt vs raw-clock watermark) is left untouched.
+        if (!message.isOutbox() && this.listInitializedAt != null && message.getCreatedAt().isBefore(this.listInitializedAt)) {
             return false;
         }
 
@@ -3062,8 +3360,8 @@ public class ComposeMessageFragment extends Fragment implements
             scrollList(Integer.MAX_VALUE);
         }
 
-        if (!(message instanceof FirstUnreadMessageModel) && currentPageReferenceId == null) {
-            setCurrentPageReferenceId(message.getId());
+        if (!(message instanceof FirstUnreadMessageModel) && pageCursor == null) {
+            setCurrentPageReference(message);
         }
 
         logger.debug("addMessageToList: finished");
@@ -3120,17 +3418,175 @@ public class ComposeMessageFragment extends Fragment implements
     /**
      * Loading the next records for the listview
      */
+    /**
+     * F1Whisper (fourth fork review, F4-11): freeze everything this page load may look at.
+     *
+     * @return {@code null} when there is nothing to load from - the conversation reset sets
+     * {@code messageReceiver} to null before installing the next one, and a worker that resumed inside that window used
+     * to fail on it.
+     */
+    @Nullable
+    private PageDispatch snapshotPageDispatch(int generation) {
+        final MessageReceiver<?> receiver = this.messageReceiver;
+        if (receiver == null) {
+            return null;
+        }
+        // F1Whisper (fifth fork review, F5-03): ONE read of the cursor. This used to pass `this.pageCursor` and then call
+        // getCurrentPageReferenceId(), which reads it again - two live reads of a field a conversation switch replaces,
+        // so a snapshot could carry one conversation's sort key with another's row id.
+        final PageCursor cursor = this.pageCursor;
+        return new PageDispatch(
+            generation,
+            receiver,
+            cursor,
+            cursor != null ? cursor.getId() : null,
+            MESSAGE_PAGE_SIZE
+        );
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-03): the snapshot for a load that reads the WHOLE conversation - the pinned jump,
+     * the in-chat search, and the full pinned-set scan.
+     *
+     * <p>These three had no snapshot at all. They read the fragment's live {@code messageReceiver} on a worker thread and
+     * applied their result unconditionally, so switching conversation while one was running replaced the new
+     * conversation's timeline with the old one's rows, made the old conversation's oldest row the new conversation's
+     * pagination boundary, and could dereference null in the window where a reset has cleared the receiver but not yet
+     * installed the next one.</p>
+     */
+    @Nullable
+    private PageDispatch snapshotFullDispatch(int generation) {
+        final MessageReceiver<?> receiver = this.messageReceiver;
+        if (receiver == null) {
+            return null;
+        }
+        return new PageDispatch(generation, receiver, null, null, PageDispatch.WHOLE_CONVERSATION);
+    }
+
+    /**
+     * F1Whisper (fifth fork review, F5-03): the snapshot for the large-unread initial load.
+     *
+     * <p>It sized its query from the fragment's live {@code unreadCount} and read the live receiver, so a worker resuming
+     * after a switch queried the NEW conversation with the NEW conversation's count - or dereferenced a null receiver
+     * mid-reset. The count is part of what the load was dispatched with.</p>
+     */
+    @Nullable
+    private PageDispatch snapshotUnreadDispatch(int generation, long unreadPageSize) {
+        final MessageReceiver<?> receiver = this.messageReceiver;
+        if (receiver == null) {
+            return null;
+        }
+        return new PageDispatch(generation, receiver, null, null, unreadPageSize);
+    }
+
+    /**
+     * F1Whisper (fourth fork review, F4-11): the page filter built from a DISPATCH rather than from live fragment state.
+     *
+     * <p>This replaced a fragment-level filter field whose {@code getPageCursor()} and {@code getPageReferenceId()}
+     * read live fragment state, so a worker running after a conversation switch paginated the new conversation.</p>
+     */
+    @NonNull
+    private MessageService.MessageFilter snapshotMessageFilter(@NonNull PageDispatch dispatch) {
+        return new MessageService.MessageFilter() {
+            @Override
+            public long getPageSize() {
+                return dispatch.getPageSize();
+            }
+
+            @Override
+            public Integer getPageReferenceId() {
+                return dispatch.getPageReferenceId();
+            }
+
+            @Nullable
+            @Override
+            public PageCursor getPageCursor() {
+                return dispatch.getCursor();
+            }
+
+            @Override
+            public boolean withStatusMessages() {
+                return true;
+            }
+
+            @Override
+            public boolean withUnsaved() {
+                return false;
+            }
+
+            @Override
+            public boolean onlyUnread() {
+                return false;
+            }
+
+            @Override
+            public boolean onlyDownloaded() {
+                return false;
+            }
+
+            @Override
+            public MessageType[] types() {
+                return null;
+            }
+
+            @Override
+            public int[] contentTypes() {
+                return null;
+            }
+
+            @Override
+            public int[] displayTags() {
+                return null;
+            }
+        };
+    }
+
+    /**
+     * Loading the next records for the listview.
+     *
+     * <p>F1Whisper (fourth fork review, F4-11): queries ONLY what [dispatch] froze, and validates before the query as
+     * well as after it. Reading the fragment's live receiver and cursor here is what let a worker left over from the
+     * previous conversation query the newly opened one and advance ITS cursor, only for the rows to be discarded by the
+     * stale-token check in the completion - a page of history consumed and thrown away.</p>
+     */
     @WorkerThread
-    private List<AbstractMessageModel> getNextRecords() {
-        List<AbstractMessageModel> messageModels = this.messageService.getMessagesForReceiver(this.messageReceiver, this.nextMessageFilter);
-        this.valuesLoaded(messageModels);
+    @Nullable
+    private List<AbstractMessageModel> getNextRecords(@NonNull PageDispatch dispatch) {
+        if (!dispatch.isCurrentIn(pageRequestGuard)) {
+            logger.info("Not querying a page whose conversation was replaced before the load started");
+            return null;
+        }
+        List<AbstractMessageModel> messageModels =
+            this.messageService.getMessagesForReceiver(dispatch.getReceiver(), snapshotMessageFilter(dispatch));
+        // F1Whisper (fifth fork review, F5-03): the check and the cursor move are ONE step. Asking isCurrent and then
+        // calling valuesLoaded separately was a check-then-act: a conversation reset landing between them invalidated the
+        // generation and the worker restored this conversation's boundary over the new one anyway.
+        pageRequestGuard.runIfCurrent(dispatch.getGeneration(), () -> valuesLoaded(messageModels));
         return messageModels;
     }
 
+    /**
+     * Load the ENTIRE conversation named by [dispatch].
+     *
+     * <p>F1Whisper (fifth fork review, F5-03): takes a dispatch, like every other loader. It used to read the fragment's
+     * live {@code messageReceiver} on a worker thread and advance the cursor unconditionally, so a full load started for
+     * chat A and finishing after a switch to chat B queried B, replaced B's timeline with rows it had fetched for A, and
+     * made A's boundary B's cursor.</p>
+     *
+     * @return the rows, or {@code null} when the load no longer belongs to the open conversation.
+     */
     @WorkerThread
-    private List<AbstractMessageModel> getAllRecords() {
-        List<AbstractMessageModel> messageModels = this.messageService.getMessagesForReceiver(this.messageReceiver);
-        this.valuesLoaded(messageModels);
+    @Nullable
+    private List<AbstractMessageModel> getAllRecords(@NonNull PageDispatch dispatch) {
+        if (!dispatch.isCurrentIn(pageRequestGuard)) {
+            logger.info("Not querying a full conversation whose chat was replaced before the load started");
+            return null;
+        }
+        List<AbstractMessageModel> messageModels = this.messageService.getMessagesForReceiver(dispatch.getReceiver());
+        if (!pageRequestGuard.runIfCurrent(dispatch.getGeneration(), () -> valuesLoaded(messageModels))) {
+            logger.info("Dropping a full conversation load whose chat was replaced while it ran");
+            return null;
+        }
         return messageModels;
     }
 
@@ -3171,7 +3627,37 @@ public class ComposeMessageFragment extends Fragment implements
                 }
             }
 
+            // F1Whisper: enforce a single unread divider across initial load, pagination and
+            // quote-jump. markFirstUnread appends a FirstUnreadMessageModel to EVERY loaded page that
+            // contains an unread row, but only one divider may ever render. Drop an incoming divider
+            // when the list already carries one (initial-open still gets its single divider because
+            // clear() emptied the list first).
+            // F1Whisper (third follow-up T3-11): defense-in-depth against overlapping page loads
+            // (pull-to-refresh + quote-jump catch-up reading the same cursor page) inserting the
+            // same rows twice. Collect the message ids already shown and detect an existing unread
+            // divider in one pass; skip any incoming row whose id is already present.
+            boolean dividerAlreadyPresent = false;
+            final Set<Integer> presentMessageIds = new HashSet<>();
+            for (AbstractMessageModel existing : this.messageValues) {
+                if (existing instanceof FirstUnreadMessageModel) {
+                    dividerAlreadyPresent = true;
+                } else if (!(existing instanceof DateSeparatorMessageModel)) {
+                    presentMessageIds.add(existing.getId());
+                }
+            }
+
             for (AbstractMessageModel m : values) {
+                if (m instanceof FirstUnreadMessageModel) {
+                    if (dividerAlreadyPresent) {
+                        continue;
+                    }
+                    dividerAlreadyPresent = true;
+                } else if (!(m instanceof DateSeparatorMessageModel) && !presentMessageIds.add(m.getId())) {
+                    // T3-11: this row is already in the list (a concurrent page load inserted it) —
+                    // skip the duplicate rather than showing it twice / reordering history.
+                    continue;
+                }
+
                 Instant createdAt = m.getCreatedAt();
                 if (createdAt != null) {
                     if (!isSameDayAs(date, createdAt)) {
@@ -3223,7 +3709,7 @@ public class ComposeMessageFragment extends Fragment implements
             if (topMessageModel instanceof FirstUnreadMessageModel && values.size() > 1) {
                 topMessageModel = values.get(values.size() - 2);
             }
-            setCurrentPageReferenceId(topMessageModel.getId());
+            setCurrentPageReference(topMessageModel);
         }
     }
 
@@ -3235,6 +3721,18 @@ public class ComposeMessageFragment extends Fragment implements
     private void initConversationList(@Nullable Runnable runAfter) {
         this.unreadCount = (int) this.messageReceiver.getUnreadMessagesCount();
         if (this.unreadCount > MESSAGE_PAGE_SIZE) {
+            // S2-05: drop the initial-load result if the cursor was reset (conversation switched)
+            // while it was in flight — a newer initConversationList owns the list then.
+            final int initialLoadToken = pageRequestGuard.current();
+            // F1Whisper (fifth fork review, F5-03): the receiver AND the count are frozen here. The worker used to read
+            // both live, so one resuming after a switch queried the NEW conversation with the NEW conversation's unread
+            // count, or dereferenced null in the window where a reset has cleared the receiver but not yet installed the
+            // next one.
+            final PageDispatch initialUnreadDispatch = snapshotUnreadDispatch(initialLoadToken, this.unreadCount);
+            if (initialUnreadDispatch == null) {
+                logger.info("Initial conversation load abandoned: no conversation is open");
+                return;
+            }
             new LifecycleAwareAsyncTask<Void, List<AbstractMessageModel>>() {
                 @Override
                 protected void onPreExecute() {
@@ -3243,10 +3741,10 @@ public class ComposeMessageFragment extends Fragment implements
 
                 @Override
                 protected List<AbstractMessageModel> doInBackground(Void params) {
-                    return messageService.getMessagesForReceiver(messageReceiver, new MessageService.MessageFilter() {
+                    return messageService.getMessagesForReceiver(initialUnreadDispatch.getReceiver(), new MessageService.MessageFilter() {
                         @Override
                         public long getPageSize() {
-                            return unreadCount;
+                            return initialUnreadDispatch.getPageSize();
                         }
 
                         @Override
@@ -3293,16 +3791,24 @@ public class ComposeMessageFragment extends Fragment implements
 
                 @Override
                 protected void onPostExecute(List<AbstractMessageModel> values) {
-                    valuesLoaded(values);
-                    populateList(values);
+                    // F1Whisper (fifth fork review, F5-03): the check and both mutations are ONE step against a reset.
+                    final boolean applied = pageRequestGuard.runIfCurrent(initialLoadToken, () -> {
+                        valuesLoaded(values);
+                        populateList(values);
+                    });
                     DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_LOADING_MESSAGES, true);
+                    if (!applied) {
+                        logger.info("Dropping stale initial conversation load (cursor was reset)");
+                        return;
+                    }
                     if (runAfter != null) {
                         runAfter.run();
                     }
                 }
             }.execute(this, null);
         } else {
-            populateList(getNextRecords());
+            final PageDispatch initialDispatch = snapshotPageDispatch(pageRequestGuard.current());
+            populateList(initialDispatch == null ? null : getNextRecords(initialDispatch));
             if (runAfter != null) {
                 runAfter.run();
             }
@@ -3418,6 +3924,19 @@ public class ComposeMessageFragment extends Fragment implements
                     } else {
                         logger.info("Message clicked");
                         onListItemClick(view, position, messageModel);
+                    }
+                }
+
+                @Override
+                public void quoteClick(View view, int position, AbstractMessageModel messageModel) {
+                    // F1Whisper: the reply-quote header on a media bubble was tapped. While selecting,
+                    // toggle selection like any bubble tap; otherwise jump to the quoted message (the
+                    // whole-bubble tap opens the attachment, so the header is the sole jump affordance).
+                    if (actionMode != null) {
+                        onListItemClick(view, position, messageModel);
+                    } else {
+                        logger.info("Quote header clicked");
+                        jumpToQuotedMessage(messageModel);
                     }
                 }
 
@@ -3551,6 +4070,9 @@ public class ComposeMessageFragment extends Fragment implements
         setIdentityColors();
 
         removeIsTypingFooter();
+
+        // F1Whisper: refresh the pinned-message banner after the list is populated
+        updatePinnedBanner();
     }
 
     /**
@@ -3580,28 +4102,54 @@ public class ComposeMessageFragment extends Fragment implements
         keyboardAnimationInsetsCallback.setEnabled(false);
     }
 
+    // F1Whisper: bound the unread-anchor retries (see jumpToFirstUnreadMessage). ~6 x 120ms covers
+    // the async populate of a large unread list without a noticeable delay.
+    private static final int UNREAD_ANCHOR_MAX_RETRIES = 6;
+    private static final int UNREAD_ANCHOR_RETRY_DELAY_MS = 120;
+
     /**
      * Jump to first unread message keeping in account shift caused by date separators and other decorations
      * Currently depends on various globals...
      */
     @UiThread
     private void jumpToFirstUnreadMessage() {
+        jumpToFirstUnreadMessage(0);
+    }
+
+    /**
+     * F1Whisper: when opening a chat with unread messages, the unread divider
+     * ({@link FirstUnreadMessageModel}) may not be in the list yet because a large unread list
+     * (> MESSAGE_PAGE_SIZE) is populated on a background task while this anchor runs from onResume.
+     * Upstream fell straight through to {@link android.widget.ListView#setSelection(int)} with
+     * {@code Integer.MAX_VALUE} (the bottom) in that case, which randomly defeated the unread anchor.
+     * Instead we retry a bounded number of times until the divider appears, keeping {@code unreadCount}
+     * intact, and only as a last resort anchor on the arithmetic start of the unread region (never the
+     * bottom, never the very top).
+     */
+    @UiThread
+    private void jumpToFirstUnreadMessage(int attempt) {
         if (unreadCount > 0) {
             synchronized (this.messageValues) {
                 int entryCount = convListView.getCount();
-                int position = Math.min(entryCount - unreadCount, this.messageValues.size() - 1);
-                while (position >= 0) {
-                    if (this.messageValues.get(position) instanceof FirstUnreadMessageModel) {
+                int arithmeticPosition = Math.min(entryCount - unreadCount, this.messageValues.size() - 1);
+
+                // Locate the async-inserted divider by its unique sentinel type anywhere in the list.
+                // The old entryCount - unreadCount seed assumed the unread block is contiguous at the
+                // bottom; with an interleaved backlog the divider sits above the arithmetic guess, so
+                // we search the whole list instead. There is only ever one divider.
+                int position = -1;
+                for (int i = 0; i < this.messageValues.size(); i++) {
+                    if (this.messageValues.get(i) instanceof FirstUnreadMessageModel) {
+                        position = i;
                         break;
                     }
-                    position--;
-                }
-                final int finalUnreadCount = unreadCount;
-                if (!isHidden()) {
-                    unreadCount = 0;
                 }
 
                 if (position > 0) {
+                    final int finalUnreadCount = unreadCount;
+                    if (!isHidden()) {
+                        unreadCount = 0;
+                    }
                     final int finalPosition = position;
                     logger.debug("jump to initial position {}", finalPosition);
 
@@ -3617,6 +4165,21 @@ public class ComposeMessageFragment extends Fragment implements
 
                     return;
                 }
+
+                // Divider not in the (still-populating) list yet: retry instead of jumping to the
+                // bottom, and do NOT zero unreadCount so the retry can still find it.
+                if (attempt < UNREAD_ANCHOR_MAX_RETRIES) {
+                    convListView.postDelayed(() -> jumpToFirstUnreadMessage(attempt + 1), UNREAD_ANCHOR_RETRY_DELAY_MS);
+                    return;
+                }
+
+                // Last resort: the divider never materialized. Anchor on the arithmetic start of the
+                // unread region (an O(1) list index) rather than the bottom or the very top.
+                if (!isHidden()) {
+                    unreadCount = 0;
+                }
+                convListView.setSelection(Math.max(0, arithmeticPosition));
+                return;
             }
         }
         convListView.setSelection(Integer.MAX_VALUE);
@@ -3710,35 +4273,55 @@ public class ComposeMessageFragment extends Fragment implements
                         }
                     });
                 }
-            } else if (messageModel.getQuotedMessageId() != null) {
-                QuoteUtil.QuoteContent quoteContent = QuoteUtil.getQuoteContent(
-                    messageModel,
-                    messageReceiver,
-                    false,
-                    thumbnailCache,
-                    getContext(),
-                    this.messageService,
-                    this.userService,
-                    this.fileService,
-                    this.preferenceService.getContactNameFormat()
-                );
-                if (quoteContent != null) {
-                    if (searchActionMode != null) {
-                        searchActionMode.finish();
-                    }
-
-                    AbstractMessageModel quotedMessageModel = messageService.getMessageModelByApiMessageIdAndReceiver(messageModel.getQuotedMessageId(), messageReceiver);
-                    logger.info("Trying to jump to quoted message");
-                    if (quotedMessageModel != null) {
-                        ComposeMessageAdapter.ConversationListFilter filter = (ComposeMessageAdapter.ConversationListFilter) composeMessageAdapter.getQuoteFilter(quoteContent);
-                        searchV2Quote(quotedMessageModel.getApiMessageId(), filter);
-                    } else {
-                        Toast.makeText(getContext().getApplicationContext(), R.string.quoted_message_deleted, Toast.LENGTH_SHORT).show();
-                    }
-                }
+            } else if (messageModel.getQuotedMessageId() != null && messageModel.getType() == MessageType.TEXT) {
+                // F1Whisper: only a TEXT quote jumps on a whole-bubble tap. A media/file/voice reply
+                // also carries quotedMessageId now, but its body tap must OPEN the attachment - it jumps
+                // only via the dedicated quote-header tap (quoteClick -> jumpToQuotedMessage). Without
+                // this TEXT gate, every media-reply body tap would open the media AND scroll away.
+                jumpToQuotedMessage(messageModel);
             } else if ((messageModel.getType() == MessageType.TEXT && !messageModel.isStatusMessage()) || messageModel.isDeleted()) {
                 logger.info("Opening message details screen");
                 showMessageDetailScreen(messageModel);
+            }
+        }
+    }
+
+    /**
+     * F1Whisper: jump the conversation to the message quoted by {@code messageModel}. Shared by the
+     * whole-bubble tap on a TEXT quote and the dedicated quote-header tap on a media/file/voice reply
+     * (both resolve the same quotedMessageId column). Reuses the existing searchV2Quote paging search;
+     * shows the "message deleted" toast when the target is gone or overdue-disappearing.
+     */
+    @UiThread
+    private void jumpToQuotedMessage(@NonNull AbstractMessageModel messageModel) {
+        QuoteUtil.QuoteContent quoteContent = QuoteUtil.getQuoteContent(
+            messageModel,
+            messageReceiver,
+            false,
+            thumbnailCache,
+            getContext(),
+            this.messageService,
+            this.userService,
+            this.fileService,
+            this.preferenceService.getContactNameFormat()
+        );
+        if (quoteContent != null) {
+            if (searchActionMode != null) {
+                searchActionMode.finish();
+            }
+
+            AbstractMessageModel quotedMessageModel = messageService.getMessageModelByApiMessageIdAndReceiver(messageModel.getQuotedMessageId(), messageReceiver);
+            logger.info("Trying to jump to quoted message");
+            // A disappearing quoted message that is now overdue is removed here so the jump degrades to
+            // "message deleted" instead of reviving a gone message.
+            if (quotedMessageModel != null && DisappearingMessageService.enforceIfExpired(quotedMessageModel)) {
+                quotedMessageModel = null;
+            }
+            if (quotedMessageModel != null) {
+                ComposeMessageAdapter.ConversationListFilter filter = (ComposeMessageAdapter.ConversationListFilter) composeMessageAdapter.getQuoteFilter(quoteContent);
+                searchV2Quote(quotedMessageModel.getApiMessageId(), filter);
+            } else {
+                Toast.makeText(getContext().getApplicationContext(), R.string.quoted_message_deleted, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -3756,12 +4339,30 @@ public class ComposeMessageFragment extends Fragment implements
             @Override
             public void onFilterComplete(int count) {
                 if (count == 0) {
+                    // S2-05 + T3-11: the quote-search catch-up loop races the pull-to-refresh path.
+                    // Acquire the single page-load slot so the two can never read the same cursor
+                    // page; if refresh (or a prior iteration) already owns it, abort this catch-up.
+                    // The returned token doubles as the S2-05 generation for the stale-result check.
+                    final int quoteSearchToken = pageRequestGuard.tryBeginLoad();
+                    if (quoteSearchToken == PageRequestGuard.NO_TOKEN) {
+                        logger.info("A page load is already in flight; aborting quote-search catch-up");
+                        DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
+                        return;
+                    }
+                    // F1Whisper (fourth fork review, F4-11): freeze the conversation and cursor at dispatch, so this
+                    // catch-up can never query or advance whatever chat happens to be open when it runs.
+                    final PageDispatch quoteDispatch = snapshotPageDispatch(quoteSearchToken);
+                    if (quoteDispatch == null) {
+                        pageRequestGuard.endLoad(quoteSearchToken);
+                        DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
+                        return;
+                    }
                     new LifecycleAwareAsyncTask<Void, Integer>() {
                         List<AbstractMessageModel> messageModels;
 
                         @Override
                         protected Integer doInBackground(Void params) {
-                            messageModels = getNextRecords();
+                            messageModels = getNextRecords(quoteDispatch);
                             if (messageModels != null) {
                                 return messageModels.size();
                             }
@@ -3770,21 +4371,32 @@ public class ComposeMessageFragment extends Fragment implements
 
                         @Override
                         protected void onPostExecute(Integer result) {
-                            if (getContext() != null) {
-                                if (result != null && result > 0) {
-                                    insertToList(messageModels, false, false, true);
-
-                                    if (getFragmentManager() != null) {
-                                        if (getFragmentManager().findFragmentByTag(DIALOG_TAG_SEARCHING) == null) {
-                                            GenericProgressDialog.newInstance(R.string.searching, R.string.please_wait).show(getFragmentManager(), DIALOG_TAG_SEARCHING);
-                                        }
-                                        searchV2Quote(apiMessageId, filter);
+                            if (getContext() == null) {
+                                // Fragment detached mid-load: free the slot (generation-guarded).
+                                pageRequestGuard.endLoad(quoteSearchToken);
+                                return;
+                            }
+                            if (!pageRequestGuard.isCurrent(quoteSearchToken)) {
+                                logger.info("Dropping stale quote-search page (cursor was reset)");
+                                pageRequestGuard.endLoad(quoteSearchToken);
+                                DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
+                                return;
+                            }
+                            if (result != null && result > 0) {
+                                insertToList(messageModels, false, false, true);
+                                // Release BEFORE recursing so the next catch-up page can acquire.
+                                pageRequestGuard.endLoad(quoteSearchToken);
+                                if (getFragmentManager() != null) {
+                                    if (getFragmentManager().findFragmentByTag(DIALOG_TAG_SEARCHING) == null) {
+                                        GenericProgressDialog.newInstance(R.string.searching, R.string.please_wait).show(getFragmentManager(), DIALOG_TAG_SEARCHING);
                                     }
-                                } else {
-                                    SingleToast.getInstance().showShortText(getString(R.string.quote_not_found));
-                                    swipeRefreshLayout.setEnabled(false);
-                                    DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
+                                    searchV2Quote(apiMessageId, filter);
                                 }
+                            } else {
+                                pageRequestGuard.endLoad(quoteSearchToken);
+                                SingleToast.getInstance().showShortText(getString(R.string.quote_not_found));
+                                swipeRefreshLayout.setEnabled(false);
+                                DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SEARCHING, true);
                             }
                         }
                     }.execute(ComposeMessageFragment.this, null);
@@ -4010,6 +4622,11 @@ public class ComposeMessageFragment extends Fragment implements
         if (!isNullOrBlank(this.messageText.getText())) {
             prepareSendTextMessage();
         } else {
+            // F1Whisper: capture the active quote BEFORE requesting audio permission - the permission
+            // dialog can dismiss the popup before the callback re-enters attachVoiceMessage(), so a
+            // capture inside attachVoiceMessage() would be lost on the permission path. attachVoiceMessage()
+            // reads this field (never the popup) so both the direct and permission-callback paths carry it.
+            pendingQuoteApiMessageId = getActiveQuoteApiMessageId();
             if (ConfigUtils.requestAudioPermissions(requireActivity(), this, PERMISSION_REQUEST_ATTACH_VOICE_MESSAGE)) {
                 attachVoiceMessage();
             }
@@ -4018,8 +4635,9 @@ public class ComposeMessageFragment extends Fragment implements
 
     private void prepareSendTextMessage() {
         final CharSequence message;
+        final boolean isQuote = isQuotePopupShown();
 
-        if (isQuotePopupShown()) {
+        if (isQuote) {
             QuotePopup.QuoteInfo quoteInfo = quotePopup.getQuoteInfo();
             message = QuoteUtil.quote(
                 this.messageText.getText().toString(),
@@ -4034,11 +4652,122 @@ public class ComposeMessageFragment extends Fragment implements
         }
 
         if (!isNullOrBlank(message)) {
-            sendTextMessage(message);
+            // F1Whisper: if a link preview was prepared for this (non-quoted) text, send it as a
+            // Signal-style preview media message (og:image + caption + E2E metadata) instead of a
+            // plain text message. The preview was fetched on THIS device only.
+            final LinkPreviewResult preview = (linkPreviewController != null && !isQuote)
+                ? linkPreviewController.consume(message.toString())
+                : null;
+            if (preview != null) {
+                sendLinkPreviewMessage(preview, message.toString());
+            } else {
+                sendTextMessage(message);
+            }
         } else {
             logger.warn("Message text is empty");
         }
     }
+
+    /**
+     * F1Whisper: send a Signal-style link preview as an image media message. The og:image (or a
+     * generated placeholder when the page had none) becomes the image blob, the user's text becomes
+     * the caption, and the preview url/title/description ride in the E2E file metadata so a receiving
+     * F1Whisper client renders the card without ever contacting the URL.
+     */
+    private void sendLinkPreviewMessage(@NonNull LinkPreviewResult preview, @NonNull String text) {
+        // Clear the input immediately, like a normal text send.
+        this.messageText.setText("");
+        if (typingIndicatorTextWatcher != null) {
+            typingIndicatorTextWatcher.stopSending();
+        }
+        if (messageReceiver == null) {
+            return;
+        }
+
+        final MessageReceiver receiver = messageReceiver;
+        new Thread(() -> {
+            try {
+                byte[] imageBytes = preview.getImageBytes();
+                if (imageBytes == null || imageBytes.length == 0) {
+                    imageBytes = LinkPreviewImageFactory.createPlaceholder(getContext(), preview.getUrl());
+                }
+                if (imageBytes == null) {
+                    // No image at all -> fall back to a plain text message so we still send something.
+                    RuntimeUtil.runOnUiThread(() -> sendTextMessage(text));
+                    return;
+                }
+
+                final Uri uri = LinkPreviewImageFactory.writeTempImage(getContext(), imageBytes);
+                if (uri == null) {
+                    RuntimeUtil.runOnUiThread(() -> sendTextMessage(text));
+                    return;
+                }
+
+                final MediaItem mediaItem = new MediaItem(uri, MediaItem.TYPE_IMAGE, MimeUtil.MIME_TYPE_IMAGE_JPEG, text);
+                mediaItem.setFilename("preview.jpg");
+                mediaItem.setDeleteAfterUse(true);
+                mediaItem.setLinkPreview(preview.getUrl(), preview.getTitle(), preview.getDescription());
+
+                messageService.sendMediaAsync(
+                    Collections.singletonList(mediaItem),
+                    Collections.singletonList(receiver));
+            } catch (Exception e) {
+                logger.error("Failed to send link preview", e);
+                RuntimeUtil.runOnUiThread(() -> sendTextMessage(text));
+            }
+        }).start();
+    }
+
+    // region F1Whisper disappearing messages
+
+    /**
+     * F1Whisper: show the disappearing-messages duration picker (Signal-style fixed presets). On
+     * confirm the per-conversation timer is set via {@link DisappearingMessageService}, which persists
+     * it, sends the control message to the peer/members, and inserts the local status message.
+     */
+    private void showDisappearingMessagesPicker() {
+        final Context context = getContext();
+        if (messageReceiver == null || context == null) {
+            return;
+        }
+
+        // Current conversation timer (seconds; null/0 = off) used to pre-select the wheel.
+        Integer currentTimer = null;
+        if (messageReceiver instanceof ContactMessageReceiver) {
+            currentTimer = ((ContactMessageReceiver) messageReceiver).getContact().getDisappearingMessagesTimerSeconds();
+        } else if (messageReceiver instanceof GroupMessageReceiver) {
+            currentTimer = ((GroupMessageReceiver) messageReceiver).getGroup().getDisappearingMessagesTimerSeconds();
+        }
+
+        final BottomSheetDialog dialog = new BottomSheetDialog(context);
+        final View sheet = LayoutInflater.from(context)
+            .inflate(R.layout.bottom_sheet_disappearing_messages, null);
+        dialog.setContentView(sheet);
+
+        final NumberPicker durationPicker = sheet.findViewById(R.id.duration_picker);
+        final MaterialButton confirmButton = sheet.findViewById(R.id.disappearing_confirm_button);
+
+        final String[] labels = DisappearingMessageUtil.getPickerLabels(context);
+        durationPicker.setMinValue(0);
+        durationPicker.setMaxValue(labels.length - 1);
+        durationPicker.setDisplayedValues(labels);
+        durationPicker.setWrapSelectorWheel(false);
+        durationPicker.setValue(DisappearingMessageUtil.indexForSeconds(currentTimer));
+
+        confirmButton.setOnClickListener(v -> {
+            final int seconds = DisappearingMessageUtil.DURATIONS_SECONDS[durationPicker.getValue()];
+            dialog.dismiss();
+            final MessageReceiver<?> receiver = this.messageReceiver;
+            if (receiver != null) {
+                // Service persists the timer, sends the control message, and inserts the status row.
+                DisappearingMessageService.getInstance().setConversationTimer(receiver, seconds);
+            }
+        });
+
+        dialog.show();
+    }
+
+    // endregion
 
     private void sendTextMessage(CharSequence message) {
         // block send button to avoid double posting
@@ -4092,6 +4821,9 @@ public class ComposeMessageFragment extends Fragment implements
 
         Intent intent = new Intent(activity, VoiceRecorderActivity.class);
         IntentDataUtil.addMessageReceiverToIntent(intent, messageReceiver);
+        // F1Whisper: thread the reply-quote (captured in sendMessage() before the permission request)
+        // into the voice recorder so a voice-note answer carries it.
+        IntentDataUtil.addQuotedApiMessageIdToIntent(intent, pendingQuoteApiMessageId);
         activity.startActivityForResult(intent, ACTIVITY_ID_VOICE_RECORDER);
         activity.overridePendingTransition(R.anim.fast_fade_in, R.anim.fast_fade_out);
     }
@@ -4237,6 +4969,9 @@ public class ComposeMessageFragment extends Fragment implements
     @SuppressLint("StaticFieldLeak")
     private void shareMessages() {
         if (selectedMessages.size() > 1) {
+            // Snapshot: the selection can change while the files decrypt, and the decrypted files are paired with these
+            // models by position.
+            final List<AbstractMessageModel> messagesToShare = new ArrayList<>(selectedMessages);
             new LifecycleAwareAsyncTask<Void, Void>() {
                 @Override
                 protected void onPreExecute() {
@@ -4246,8 +4981,23 @@ public class ComposeMessageFragment extends Fragment implements
                 @Override
                 protected Void doInBackground(Void params) {
                     try {
-                        var uris = fileService.decryptMessageFilesForSharing(selectedMessages);
-                        shareMediaMessages(uris);
+                        final List<Uri> uris = fileService.decryptMessageFilesForSharingPositional(messagesToShare);
+                        // F1Whisper (twelfth fork review, F12-04): the decrypt outlives the selection-time
+                        // expiry check. Revalidate every member at this boundary: whatever expired mid-flight
+                        // is dropped and its decrypted copy deleted; the rest still shares. Nothing left ->
+                        // abort silently (logged) - the export of expired content is what must not happen.
+                        final PendingMediaShare share = PendingMediaShare.of(
+                            messagesToShare,
+                            uris,
+                            DisappearingMessageService::enforceIfExpired,
+                            shareUriDeleter());
+                        if (!share.revalidateForExport()) {
+                            logger.info("Every shareable message expired during decrypt; aborting the share");
+                            share.cancelAndCleanup();
+                            return null;
+                        }
+                        messageService.shareMediaMessages(activity, share.models(), share.uris(), null);
+                        share.discardAfterHandoff();
                     } catch (Exception e) {
                         logger.error("Failed to decrypt files for sharing", e);
                         showToast(activity, R.string.media_file_not_found, ToastDuration.LONG);
@@ -4267,12 +5017,28 @@ public class ComposeMessageFragment extends Fragment implements
                 new LoadDecryptedMessageFileAsyncTask(dependencies.getFileService()) {
                     @Override
                     public void onSuccess(File decryptedFile) {
+                        // F1Whisper (twelfth fork review, F12-04): the decrypt outlives the selection-time
+                        // expiry check. Revalidate at this boundary: expired -> the decrypted copy dies right
+                        // here and nothing is exported or offered a caption dialog.
+                        if (DisappearingMessageService.enforceIfExpired(messageModel)) {
+                            logger.info("Message expired during share decrypt; discarding the decrypted copy");
+                            if (decryptedFile != null && !decryptedFile.delete() && decryptedFile.exists()) {
+                                logger.warn("Could not delete the decrypted copy of an expired share");
+                            }
+                            return;
+                        }
                         if (decryptedFile != null) {
                             String filename = null;
                             if (messageModel.getType() == MessageType.FILE) {
                                 filename = messageModel.getFileData().getFileName();
                             }
-                            shareMediaMessages(Collections.singletonList(FileProviderUtil.getUriForFile(requireContext(), decryptedFile, filename)));
+                            showShareCaptionDialog(new PendingMediaShare(
+                                Collections.singletonList(new PendingMediaShare.Member(
+                                    messageModel,
+                                    FileProviderUtil.getUriForFile(requireContext(), decryptedFile, filename),
+                                    decryptedFile)),
+                                DisappearingMessageService::enforceIfExpired,
+                                shareUriDeleter()));
                         } else {
                             messageService.shareTextMessage(activity, messageModel);
                         }
@@ -4289,30 +5055,98 @@ public class ComposeMessageFragment extends Fragment implements
         }
     }
 
-    private void shareMediaMessages(List<Uri> uris) {
-        if (selectedMessages.size() == 1) {
-            logger.info("Showing share dialog for {} message(s)", selectedMessages.size());
-            ExpandableTextEntryDialog alertDialog = ExpandableTextEntryDialog.newInstance(
-                getString(R.string.share_media),
-                R.string.add_caption_hint, selectedMessages.get(0).getCaption(),
-                R.string.label_continue, R.string.cancel, true);
-            alertDialog.setData(uris);
-            alertDialog.setTargetFragment(this, 0);
-            alertDialog.show(getParentFragmentManager(), null);
-        } else {
-            messageService.shareMediaMessages(activity,
-                new ArrayList<>(selectedMessages),
-                new ArrayList<>(uris), null);
+    /**
+     * F1Whisper (twelfth fork review, F12-04): opens the caption dialog over a recorded pending share instead of
+     * loose URIs. The share is what the confirm exports (revalidated, see {@link #onYes(String, Object, String)}),
+     * the dialog carries a real tag so expiry or removal can dismiss it, and the expiry watch kills both at the
+     * message's deadline - the decrypted copy must not sit exportable behind an open dialog past it.
+     */
+    private void showShareCaptionDialog(@NonNull PendingMediaShare share) {
+        logger.info("Showing share dialog for 1 message(s)");
+        cancelPendingShare();
+        pendingMediaShare = share;
+        ExpandableTextEntryDialog alertDialog = ExpandableTextEntryDialog.newInstance(
+            getString(R.string.share_media),
+            R.string.add_caption_hint, share.models().get(0).getCaption(),
+            R.string.label_continue, R.string.cancel, true);
+        alertDialog.setData(share.uris());
+        alertDialog.setTargetFragment(this, 0);
+        alertDialog.show(getParentFragmentManager(), DIALOG_TAG_SHARE_CAPTION);
+        pendingShareExpiryWatch.watch(share.models().get(0), this::onPendingShareDeadline);
+    }
+
+    /** The pending share's message expired while the caption dialog was open: dialog and decrypted copy die now. */
+    private void onPendingShareDeadline() {
+        logger.info("The pending share's message expired; dismissing the dialog and deleting the decrypted copy");
+        cancelPendingShare();
+        if (isAdded()) {
+            DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SHARE_CAPTION, true);
         }
+    }
+
+    /** Abandons any pending share: watch disarmed, every decrypted temp copy deleted. */
+    private void cancelPendingShare() {
+        final PendingMediaShare share = pendingMediaShare;
+        pendingMediaShare = null;
+        pendingShareExpiryWatch.cancel();
+        if (share != null) {
+            share.cancelAndCleanup();
+        }
+    }
+
+    /**
+     * F1Whisper (twelfth fork review, F12-04): a removed message takes its in-flight operations with it - the
+     * pending share (caption dialog dismissed, decrypted copies deleted) and the quote popup quoting it.
+     */
+    @UiThread
+    private void abortInFlightOperationsFor(@NonNull AbstractMessageModel removedMessageModel) {
+        final PendingMediaShare share = pendingMediaShare;
+        if (share != null && share.contains(removedMessageModel)) {
+            cancelPendingShare();
+            if (isAdded()) {
+                DialogUtil.dismissDialog(getParentFragmentManager(), DIALOG_TAG_SHARE_CAPTION, true);
+            }
+        }
+        if (isQuotePopupShown()) {
+            final AbstractMessageModel quotedMessageModel = quotePopup.getQuoteInfo().getMessageModel();
+            if (quotedMessageModel != null && PendingMediaShare.isSameMessage(quotedMessageModel, removedMessageModel)) {
+                dismissQuotePopup();
+            }
+        }
+    }
+
+    /** Deletes the decrypted temp copy behind a share URI (androidx FileProvider delete removes the file). */
+    private java.util.function.Consumer<Uri> shareUriDeleter() {
+        return uri -> {
+            try {
+                final Context context = activity != null ? activity : ThreemaApplication.getAppContext();
+                context.getContentResolver().delete(uri, null, null);
+            } catch (Exception e) {
+                logger.warn("Could not delete the decrypted copy behind an expired share URI", e);
+            }
+        };
     }
 
     @Override
     public void onYes(String tag, Object data, String text) {
         logger.info("Sharing dialog confirmed");
-        List<Uri> uris = (List<Uri>) data;
-        messageService.shareMediaMessages(activity,
-            new ArrayList<>(selectedMessages),
-            new ArrayList<>(uris), text);
+        // F1Whisper (twelfth fork review, F12-04): the confirm exports the recorded pending share, revalidated -
+        // never whatever the selection list or the dialog payload holds by now. Expired between the dialog opening
+        // and the confirm -> nothing leaves the device and the decrypted copy is deleted.
+        final PendingMediaShare share = pendingMediaShare;
+        pendingMediaShare = null;
+        pendingShareExpiryWatch.cancel();
+        if (share == null) {
+            logger.info("Share confirmed with no pending share; nothing to export");
+            return;
+        }
+        if (!share.revalidateForExport()) {
+            logger.info("The pending share expired before it was confirmed; nothing leaves the device");
+            share.cancelAndCleanup();
+            return;
+        }
+        messageService.shareMediaMessages(activity, share.models(), share.uris(), text);
+        share.discardAfterHandoff();
     }
 
     @UiThread
@@ -4359,7 +5193,16 @@ public class ComposeMessageFragment extends Fragment implements
         final @NonNull ColorStateList barColorFinal = barColor;
         Runnable showPopup = () -> {
             if (isVisible()) {
+                // F1Whisper (twelfth fork review, F12-04): this runnable fires 150-550 ms after the decision to
+                // quote. Revalidate at the boundary - the composer must not (re)acquire content whose deadline
+                // passed in between - and, once shown, watch the deadline: the popup holds the quoted content and
+                // must die with it instead of outliving it for as long as the user leaves it open.
+                if (DisappearingMessageService.enforceIfExpired(quotedMessageModel)) {
+                    logger.info("Quoted message expired before the quote popup opened; not showing it");
+                    return;
+                }
                 quotePopup.show(activity, messageText, textInputLayout, quotedMessageModel, identity, barColorFinal, quotePopupListener);
+                quotePopupExpiryWatch.watch(quotedMessageModel, this::dismissQuotePopup);
             }
         };
 
@@ -4397,6 +5240,9 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     private void dismissQuotePopup(@Nullable Runnable runAfterQuotePopupClosed) {
+        // F1Whisper (twelfth fork review, F12-04): the deadline watch dies with the popup - or with the attempt
+        // to open one (showQuotePopup dismisses before re-showing, and the new show re-arms).
+        quotePopupExpiryWatch.cancel();
         if (isQuotePopupShown()) {
             try {
                 quotePopup.dismiss();
@@ -4413,6 +5259,36 @@ public class ComposeMessageFragment extends Fragment implements
 
     private boolean isQuotePopupShown() {
         return quotePopup != null && quotePopup.isShowing();
+    }
+
+    /**
+     * F1Whisper: the apiMessageId of the currently-quoted message, or {@code null} if no quote popup
+     * is showing. Read at each media/voice launch site (before dismissing the popup) so a non-text
+     * answer can carry the reply-quote.
+     */
+    private @Nullable String getActiveQuoteApiMessageId() {
+        if (isQuotePopupShown()) {
+            final QuotePopup.QuoteInfo quoteInfo = quotePopup.getQuoteInfo();
+            if (quoteInfo != null && quoteInfo.getMessageModel() != null) {
+                return quoteInfo.getMessageModel().getApiMessageId();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * F1Whisper: re-show the quote popup for the given apiMessageId (used to restore a reply-quote
+     * when the user backs out of a media/camera sub-activity without sending). No-op if the id is
+     * null or the target is no longer quoteable.
+     */
+    private void reopenQuotePopupById(@Nullable String apiMessageId) {
+        if (apiMessageId == null || messageReceiver == null) {
+            return;
+        }
+        final AbstractMessageModel quotedMessageModel = messageService.getMessageModelByApiMessageIdAndReceiver(apiMessageId, messageReceiver);
+        if (quotedMessageModel != null && QuoteUtil.isQuoteable(quotedMessageModel)) {
+            showQuotePopup(quotedMessageModel, false);
+        }
     }
 
     private void startForwardMessage() {
@@ -4450,13 +5326,777 @@ public class ComposeMessageFragment extends Fragment implements
      */
     private void toggleStar(@Nullable AbstractMessageModel messageModel) {
         if (messageModel != null && messageReceiver != null) {
-            messageModel.setDisplayTags(messageModel.getDisplayTags() ^ DISPLAY_TAG_STARRED);
-            messageModel.setSaved(true);
-            messageReceiver.saveLocalModel(messageModel);
+            // F1Whisper (sixth fork review, F6-01): one conditional column write, not a full-row save of a timeline
+            // instance loaded when the page was. See MessageService#toggleDisplayTag.
+            messageService.toggleDisplayTag(messageModel, DISPLAY_TAG_STARRED);
         }
     }
 
+    /**
+     * F1Whisper: toggle the DISPLAY_TAG_PINNED bit for the provided message and persist it.
+     * After the toggle, refresh the pinned banner so it reflects the new pinned set.
+     * Mirrors {@link #toggleStar(AbstractMessageModel)} exactly.
+     */
     @UiThread
+    private void togglePin(@Nullable AbstractMessageModel messageModel) {
+        if (messageModel != null && messageReceiver != null) {
+            // F1Whisper (sixth fork review, F6-01): one conditional column write, not a full-row save of a timeline
+            // instance loaded when the page was. See MessageService#toggleDisplayTag. The resulting bitmask is read back
+            // from the model, which the write mirrors, so a refused write leaves the banner state untouched too.
+            if (!messageService.toggleDisplayTag(messageModel, DISPLAY_TAG_PINNED)) {
+                return;
+            }
+            final boolean nowPinned = (messageModel.getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED;
+            // Keep the known full pin set in sync immediately so the banner counter is correct
+            // without waiting on the async full scan (which still runs to reconcile paged-out pins).
+            final String toggledUid = messageModel.getUid();
+            if (toggledUid != null) {
+                if (nowPinned) {
+                    if (!pinnedMessageUids.contains(toggledUid)) {
+                        pinnedMessageUids.add(toggledUid);
+                    }
+                    // Point the banner at the message the user just pinned.
+                    currentPinnedMessageUid = toggledUid;
+                } else {
+                    pinnedMessageUids.remove(toggledUid);
+                    if (toggledUid.equals(currentPinnedMessageUid)) {
+                        // Fall back to the first remaining pin (or null -> banner hides).
+                        currentPinnedMessageUid = pinnedMessageUids.isEmpty() ? null : pinnedMessageUids.get(0);
+                    }
+                }
+            }
+            pinnedBannerDismissed = false;
+            updatePinnedBanner();
+        }
+    }
+
+    /**
+     * F1Whisper: collect the uids of all currently-pinned messages from the loaded adapter, in
+     * list (pin) order. Uses the globally-unique {@code uid} (never text/object identity) so two
+     * pins that share the same body remain distinct. Messages with a null uid are skipped (they
+     * cannot be jumped-to reliably).
+     * <p>
+     * NOTE: this only sees the bounded page of messages currently held by the adapter. A pinned
+     * message that has been paged out of the loaded window will be missed here. The authoritative,
+     * window-independent set is discovered asynchronously by {@link #refreshFullPinnedSet()} which
+     * queries the whole conversation from the database; this fast adapter scan only seeds the banner
+     * label so it can render immediately without waiting on the background query.
+     */
+    @UiThread
+    private void collectPinnedUids(@NonNull List<String> out) {
+        out.clear();
+        if (composeMessageAdapter == null) {
+            return;
+        }
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null
+                && m.getUid() != null
+                && (m.getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED) {
+                out.add(m.getUid());
+            }
+        }
+    }
+
+    // F1Whisper: guards against running more than one full-conversation pin scan at a time.
+    private boolean pinnedFullScanInProgress = false;
+    /** F1Whisper (fifth fork review, F5-03): which conversation generation owns {@link #pinnedFullScanInProgress}. */
+    private int pinnedFullScanGeneration = PageRequestGuard.NO_TOKEN;
+
+    /**
+     * F1Whisper: discover the COMPLETE pinned set for this conversation — including pins that have
+     * been paged out of the loaded adapter window — by querying the whole conversation from the
+     * local database on a worker thread, then refresh the banner on the UI thread.
+     * <p>
+     * Without this, the cycler in {@link #cyclePinnedMessageBanner()} and the "N/M" counter in
+     * {@link #updatePinnedBanner()} would only ever know about pins that happen to be loaded, so the
+     * counter would be wrong and older pins would be unreachable. All data is local; this is a pure
+     * read, no wire change.
+     */
+    @UiThread
+    private void refreshFullPinnedSet() {
+        // F1Whisper (fifth fork review, F5-03): the scan owns a frozen conversation, and the in-progress flag is scoped
+        // to the generation that acquired it.
+        //
+        // Both halves were defects. The worker read the fragment's live messageReceiver, so a scan started for chat A and
+        // finishing after a switch queried B and then replaced B's pin set with what it had found. And the in-progress
+        // flag was a single unowned boolean: while A's scan was running, B's request was SUPPRESSED by it, and A's
+        // completion then cleared a flag it no longer owned - so B ended up with A's pins and no scan of its own.
+        final int scanGeneration = pageRequestGuard.current();
+        if (pinnedFullScanInProgress && pinnedFullScanGeneration == scanGeneration) {
+            return;
+        }
+        final PageDispatch scanDispatch = snapshotFullDispatch(scanGeneration);
+        if (scanDispatch == null) {
+            return;
+        }
+        pinnedFullScanInProgress = true;
+        pinnedFullScanGeneration = scanGeneration;
+        new LifecycleAwareAsyncTask<Void, List<String>>() {
+            @Override
+            protected List<String> doInBackground(Void params) {
+                final List<String> uids = new ArrayList<>();
+                try {
+                    // null filter => the entire conversation (same query the search action uses).
+                    final List<AbstractMessageModel> all = messageService.getMessagesForReceiver(scanDispatch.getReceiver());
+                    if (all != null) {
+                        // getMessagesForReceiver returns newest-first; reverse to oldest-first so the
+                        // pin order matches the loaded-adapter order used elsewhere.
+                        for (int i = all.size() - 1; i >= 0; i--) {
+                            final AbstractMessageModel m = all.get(i);
+                            if (m != null
+                                && m.getUid() != null
+                                && !m.isStatusMessage()
+                                && (m.getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED) {
+                                uids.add(m.getUid());
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.info("refreshFullPinnedSet failed", e);
+                }
+                return uids;
+            }
+
+            @Override
+            protected void onPostExecute(List<String> fullUids) {
+                // Releasing the slot and applying the result are one step against a reset, and a STALE completion
+                // releases nothing: the flag now belongs to whichever generation is scanning.
+                pageRequestGuard.runIfCurrent(scanGeneration, () -> {
+                    pinnedFullScanInProgress = false;
+                    if (!isAdded() || composeMessageAdapter == null || pinnedBannerContainer == null) {
+                        return;
+                    }
+                    if (pinnedBannerDismissed) {
+                        return;
+                    }
+                    if (!fullUids.isEmpty()) {
+                        pinnedMessageUids.clear();
+                        pinnedMessageUids.addAll(fullUids);
+                        // Repair the shown uid if the freshly-discovered set no longer contains it.
+                        if (currentPinnedMessageUid == null || !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+                            currentPinnedMessageUid = pinnedMessageUids.get(0);
+                        }
+                        renderPinnedBannerFromState();
+                    } else {
+                        // No pins anywhere in the conversation: drop stale state and hide.
+                        currentPinnedMessageUid = null;
+                        pinnedMessageUids.clear();
+                        pinnedBannerContainer.setVisibility(View.GONE);
+                    }
+                });
+            }
+        }.execute(this, null);
+    }
+
+    /**
+     * F1Whisper: (re-)render the pinned-message banner above the list.
+     * <p>
+     * Rebuilds the pinned-uid cycler from the live adapter, repairs {@link #currentPinnedMessageUid}
+     * if its message was deleted or unpinned (Telegram-style: the deleted id is dropped from the
+     * set and the banner advances to the first remaining pin), previews the message the next tap
+     * will jump to, and hides the banner when nothing is pinned.
+     */
+    @UiThread
+    private void updatePinnedBanner() {
+        if (pinnedBannerContainer == null || composeMessageAdapter == null) {
+            return;
+        }
+        if (pinnedBannerDismissed) {
+            pinnedBannerContainer.setVisibility(View.GONE);
+            return;
+        }
+        // Fast path: seed the cycler from the loaded adapter so the banner can render immediately.
+        // This may UNDERCOUNT pins that are paged out of the loaded window.
+        final List<String> loadedPins = new ArrayList<>();
+        collectPinnedUids(loadedPins);
+        // Merge the loaded pins into the known set without dropping paged-out pins discovered by a
+        // previous full scan. The authoritative, complete set is (re)established by the async
+        // refreshFullPinnedSet() kicked off below.
+        for (String uid : loadedPins) {
+            if (!pinnedMessageUids.contains(uid)) {
+                pinnedMessageUids.add(uid);
+            }
+        }
+        if (pinnedMessageUids.isEmpty() && loadedPins.isEmpty()) {
+            // Nothing pinned in the loaded window AND nothing known from a prior scan: provisionally
+            // hide, but still run the full scan in case a pin lives outside the loaded window.
+            currentPinnedMessageUid = null;
+            pinnedBannerContainer.setVisibility(View.GONE);
+            refreshFullPinnedSet();
+            return;
+        }
+        if (currentPinnedMessageUid == null || !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+            currentPinnedMessageUid = pinnedMessageUids.get(0);
+        }
+        renderPinnedBannerFromState();
+        // Reconcile against the whole conversation (discovers paged-out pins, prunes deleted ones).
+        refreshFullPinnedSet();
+    }
+
+    /**
+     * F1Whisper: render the banner label + preview from the current {@link #pinnedMessageUids} /
+     * {@link #currentPinnedMessageUid} state, WITHOUT re-collecting. The complete set is owned by
+     * {@link #refreshFullPinnedSet()}; this only paints what state already holds.
+     */
+    @UiThread
+    private void renderPinnedBannerFromState() {
+        if (pinnedBannerContainer == null) {
+            return;
+        }
+        if (pinnedMessageUids.isEmpty() || currentPinnedMessageUid == null) {
+            pinnedBannerContainer.setVisibility(View.GONE);
+            return;
+        }
+        final int shownIndex = Math.max(0, pinnedMessageUids.indexOf(currentPinnedMessageUid));
+        // The preview can only be sourced from a loaded message; a paged-out pin shows a generic
+        // label until it is loaded (e.g. on the first jump). Never blank out an existing preview.
+        final AbstractMessageModel shown = findMessageByUid(currentPinnedMessageUid);
+        if (pinnedBannerPreview != null) {
+            if (shown != null) {
+                pinnedBannerPreview.setText(pinnedBannerPreviewText(shown));
+            } else if (pinnedBannerPreview.length() == 0) {
+                pinnedBannerPreview.setText(R.string.pinned_message_banner_label);
+            }
+        }
+        // Counter label: plain "Pinned message" for a single pin, "Pinned message N/M" for several
+        // so the user understands successive taps cycle through them.
+        if (pinnedBannerLabel != null) {
+            if (pinnedMessageUids.size() > 1) {
+                pinnedBannerLabel.setText(getString(
+                    R.string.pinned_message_banner_label_counter,
+                    shownIndex + 1,
+                    pinnedMessageUids.size()));
+            } else {
+                pinnedBannerLabel.setText(R.string.pinned_message_banner_label);
+            }
+        }
+        pinnedBannerContainer.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * F1-PATCH: the pinned banner's preview line, built the same way every other preview in the app
+     * is built.
+     *
+     * <p>It used to print {@code getBody()} directly, which is wrong twice over. For a text message
+     * the body is the <em>raw</em> body, so a pinned message containing {@code ||a secret||} painted
+     * the secret across the top of the chat, permanently and with no tap-to-reveal - the banner is
+     * an output boundary and was honouring none of the restrictions the bubble honours. And for a
+     * file message the body is not text at all: it is the serialized {@code FileDataModel} JSON, and
+     * the empty-body fallback never fired because that JSON is not empty, so pinning any photo,
+     * voice message or document painted a line of raw JSON instead.</p>
+     *
+     * <p>{@link MessageService#getMessageString} is the app's central preview builder - it is what
+     * the notification path uses - so routing through it also inherits private-chat suppression,
+     * deleted-message handling and a proper placeholder for every media type. The spoiler pass on
+     * top mirrors {@code ConversationNotification}: same boundary problem, same answer.</p>
+     */
+    @NonNull
+    private CharSequence pinnedBannerPreviewText(@NonNull AbstractMessageModel messageModel) {
+        if (messageService == null) {
+            return getString(R.string.pinned_message_banner_label);
+        }
+        final String preview = messageService
+            .getMessageString(messageModel, PINNED_BANNER_PREVIEW_MAX_LENGTH, false)
+            .getMessage();
+        if (preview == null || preview.isEmpty()) {
+            return getString(R.string.pinned_message_banner_label);
+        }
+        return MarkupParser.obscureSpoilersForPreview(preview);
+    }
+
+    /**
+     * F1Whisper: locate the loaded adapter item whose globally-unique uid matches {@code uid}.
+     * Returns {@code null} if no loaded message carries that uid (e.g. it was deleted).
+     */
+    @UiThread
+    @Nullable
+    private AbstractMessageModel findMessageByUid(@Nullable String uid) {
+        if (uid == null || composeMessageAdapter == null) {
+            return null;
+        }
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null && uid.equals(m.getUid())) {
+                return m;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * F1Whisper: find the adapter position of the loaded message with the given uid, or -1.
+     */
+    @UiThread
+    private int findAdapterPositionByUid(@Nullable String uid) {
+        if (uid == null || composeMessageAdapter == null) {
+            return -1;
+        }
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null && uid.equals(m.getUid())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * F1Whisper: tap on the pinned banner — jump to the EXACT pinned message identified by
+     * {@link #currentPinnedMessageUid} (by unique id, never by text), briefly highlight it, then
+     * advance the cycler to the next pinned message in pin order so the next tap continues the
+     * cycle. Deleted/unpinned targets are handled by re-resolving against the live adapter.
+     */
+    @UiThread
+    private void cyclePinnedMessageBanner() {
+        if (composeMessageAdapter == null) {
+            logger.info("Pinned banner tapped but adapter is null; ignoring");
+            return;
+        }
+        // A full-conversation load is already running for a previous tap: ignore re-taps so we don't
+        // stack loads or scroll to a stale target mid-load.
+        if (pinnedJumpInProgress) {
+            logger.info("Pinned banner tapped while a jump-load is in progress; ignoring re-tap");
+            return;
+        }
+        // Reconcile the known pin set against the loaded window before cycling. We cannot do a
+        // synchronous full-DB scan on the UI thread, so we keep paged-out pins (those not present in
+        // the loaded window can't be judged here) but PRUNE any loaded message that is no longer
+        // pinned, and ADD any newly-pinned loaded message in its correct list position. This stops
+        // the cycler from ever advancing to a loaded-but-unpinned uid. A still-stale paged-out uid is
+        // a non-issue: the robust jumpToPinnedMessage() does a full load + reconcile and skips to the
+        // first surviving pin, so every tap still lands somewhere.
+        mergeLoadedPinsPreservingOrder();
+        if (pinnedMessageUids.isEmpty()) {
+            logger.info("Pinned banner tapped but no pins remain after reconcile; hiding banner");
+            updatePinnedBanner(); // hides the banner + kicks a full scan
+            return;
+        }
+        if (currentPinnedMessageUid == null || !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+            currentPinnedMessageUid = pinnedMessageUids.get(0);
+        }
+        logger.info("Pinned banner tapped: cycling to uid={} ({} pins total)",
+            currentPinnedMessageUid, pinnedMessageUids.size());
+        jumpToPinnedMessage(currentPinnedMessageUid);
+    }
+
+    /**
+     * F1Whisper: reconcile {@link #pinnedMessageUids} against the currently-loaded adapter window
+     * WITHOUT discarding paged-out pins discovered by a prior full scan.
+     * <p>
+     * For every uid currently known: if it is present in the loaded window we trust the live pinned
+     * flag (prune it if it has been unpinned); if it is NOT in the loaded window we keep it as-is
+     * (it may be a legitimately paged-out pin — only the async full scan, or a full-load jump, can
+     * judge it). Then we add any newly-pinned loaded message that is not yet tracked. Pin/list order
+     * is preserved: surviving known pins keep their relative order, then any brand-new loaded pins are
+     * appended in adapter order. Rebuilding into a fresh list (rather than mutating in place) keeps
+     * the ordering deterministic.
+     */
+    @UiThread
+    private void mergeLoadedPinsPreservingOrder() {
+        if (composeMessageAdapter == null) {
+            return;
+        }
+        // Snapshot which loaded uids are currently pinned.
+        final Set<String> loadedPinnedSet = new HashSet<>();
+        final List<String> loadedPinnedOrdered = new ArrayList<>();
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null
+                && m.getUid() != null
+                && (m.getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED) {
+                loadedPinnedSet.add(m.getUid());
+                loadedPinnedOrdered.add(m.getUid());
+            }
+        }
+        // Track which loaded uids exist at all (pinned or not) so we can distinguish "loaded and
+        // unpinned" (prune) from "not loaded / paged out" (keep).
+        final Set<String> loadedAnyUids = new HashSet<>();
+        for (int i = 0; i < composeMessageAdapter.getCount(); i++) {
+            final AbstractMessageModel m = composeMessageAdapter.getItem(i);
+            if (m != null && m.getUid() != null) {
+                loadedAnyUids.add(m.getUid());
+            }
+        }
+
+        final List<String> reconciled = new ArrayList<>();
+        final Set<String> seen = new HashSet<>();
+        for (final String uid : pinnedMessageUids) {
+            if (loadedAnyUids.contains(uid)) {
+                // It is loaded: keep it only if it is still pinned.
+                if (loadedPinnedSet.contains(uid) && seen.add(uid)) {
+                    reconciled.add(uid);
+                }
+                // else: loaded but no longer pinned -> drop it.
+            } else {
+                // Paged out: cannot judge here, keep it (full-load jump / async scan will reconcile).
+                if (seen.add(uid)) {
+                    reconciled.add(uid);
+                }
+            }
+        }
+        // Append any newly-pinned loaded message not already tracked, in adapter order.
+        for (final String uid : loadedPinnedOrdered) {
+            if (seen.add(uid)) {
+                reconciled.add(uid);
+            }
+        }
+
+        pinnedMessageUids.clear();
+        pinnedMessageUids.addAll(reconciled);
+    }
+
+    // F1Whisper: guards a single in-flight robust pinned jump (full-conversation load) so rapid
+    // re-taps don't stack background loads or race the scroll.
+    private boolean pinnedJumpInProgress = false;
+
+    /**
+     * F1Whisper: robustly jump to the pinned message with the given uid (Telegram-style
+     * "jump to message even if it isn't loaded"), then advance the cycler to the next pin.
+     * <p>
+     * If the target is already in the loaded adapter window, we scroll + highlight immediately. If
+     * it is paged out, we load the ENTIRE conversation into the adapter on a worker thread (the same
+     * proven path the in-chat search uses), then scroll + highlight once it is present. If, after a
+     * full load, the uid still does not resolve, the message was deleted from the database: we prune
+     * it from the pin set and advance to the next real pin so every tap always lands somewhere. All
+     * data is local; no wire change.
+     */
+    @UiThread
+    private void jumpToPinnedMessage(@NonNull final String jumpUid) {
+        final int targetPosition = findAdapterPositionByUid(jumpUid);
+        logger.info("Jumping to pinned uid={}, in-window lookup result={}", jumpUid, targetPosition);
+        if (targetPosition >= 0) {
+            logger.info("Pinned target in-window: scrolling to position={}, uid={}", targetPosition, jumpUid);
+            scrollToPinnedAndHighlight(targetPosition, jumpUid);
+            advancePinnedCycler(jumpUid);
+            return;
+        }
+        // Target not in the loaded window: load the full conversation, then jump. This is the same
+        // proven "load every record into the adapter, then resolve by uid" path the in-chat search /
+        // quote-jump uses to reach an off-window message (searchV2Quote -> getAllRecords). After the
+        // load the target uid is guaranteed present unless its message was deleted from the DB.
+        logger.info("Pinned target uid={} NOT in loaded window; loading full conversation to page it in", jumpUid);
+        // F1Whisper (fifth fork review, F5-03): the jump owns a frozen conversation, like every other loader.
+        final PageDispatch jumpDispatch = snapshotFullDispatch(pageRequestGuard.current());
+        if (jumpDispatch == null) {
+            logger.info("Pinned jump abandoned: no conversation is open");
+            return;
+        }
+        pinnedJumpInProgress = true;
+        new LifecycleAwareAsyncTask<Void, List<AbstractMessageModel>>() {
+            @Override
+            protected List<AbstractMessageModel> doInBackground(Void params) {
+                try {
+                    return getAllRecords(jumpDispatch);
+                } catch (Exception e) {
+                    logger.info("jumpToPinnedMessage: full conversation load failed", e);
+                    return null;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(@Nullable List<AbstractMessageModel> all) {
+                pinnedJumpInProgress = false;
+                if (!isAdded() || composeMessageAdapter == null || convListView == null) {
+                    logger.info("Pinned full-load completed but fragment/adapter detached; aborting jump");
+                    return;
+                }
+                if (!jumpDispatch.isCurrentIn(pageRequestGuard)) {
+                    logger.info("Dropping a pinned jump whose conversation was replaced while it loaded");
+                    return;
+                }
+                if (all != null) {
+                    // Replace the loaded window with the entire conversation (same as search load-all).
+                    insertToList(all, true, false, true);
+                    logger.info("Pinned full load complete: {} records now loaded; reconciling pins", all.size());
+                } else {
+                    logger.info("Pinned full load returned null; reconciling pins against current window");
+                }
+                // The entire conversation is now loaded, so the adapter is the authoritative source of
+                // truth for which pins still exist. Reconcile the pin set against it (in pin order),
+                // dropping any pin whose message was deleted/unpinned, BEFORE we attempt any scroll.
+                reconcilePinnedSetFromAdapter();
+                if (pinnedMessageUids.isEmpty()) {
+                    logger.info("No pins survived full-load reconcile; hiding banner");
+                    currentPinnedMessageUid = null;
+                    updatePinnedBanner(); // hides the banner
+                    return;
+                }
+
+                // Prefer the originally-requested target if it survived the reconcile.
+                final int positionAfterLoad = findAdapterPositionByUid(jumpUid);
+                if (positionAfterLoad >= 0 && pinnedMessageUids.contains(jumpUid)) {
+                    currentPinnedMessageUid = jumpUid;
+                    logger.info("Jump successful after full load: scrolled to pinned uid={}, position={}",
+                        jumpUid, positionAfterLoad);
+                    scrollToPinnedAndHighlight(positionAfterLoad, jumpUid);
+                    advancePinnedCycler(jumpUid);
+                    return;
+                }
+
+                // The requested target was deleted: jump to the first SURVIVING pin instead so the tap
+                // never "goes nowhere". Find the first pin that actually resolves to a real position
+                // (defensive: reconcile already pruned non-resolving pins, but guard regardless).
+                String nextUid = null;
+                int nextPosition = -1;
+                for (final String uid : pinnedMessageUids) {
+                    final int pos = findAdapterPositionByUid(uid);
+                    if (pos >= 0) {
+                        nextUid = uid;
+                        nextPosition = pos;
+                        break;
+                    }
+                }
+                if (nextUid == null || nextPosition < 0) {
+                    // No surviving pin resolves to a real row: hide the banner instead of scrolling
+                    // to an invalid (-1) position, which would silently no-op ("goes nowhere").
+                    logger.info("Target uid={} was deleted and no surviving pin resolves to a row; hiding banner", jumpUid);
+                    currentPinnedMessageUid = null;
+                    pinnedMessageUids.clear();
+                    updatePinnedBanner();
+                    return;
+                }
+                logger.info("Target uid={} was deleted; falling back to first surviving pin uid={}, position={}",
+                    jumpUid, nextUid, nextPosition);
+                currentPinnedMessageUid = nextUid;
+                scrollToPinnedAndHighlight(nextPosition, nextUid);
+                advancePinnedCycler(nextUid);
+            }
+        }.execute(this, null);
+    }
+
+    // F1Whisper: breathing-room gap (dp) left above the jumped-to row so it lands cleanly at the top
+    // of the conversation viewport, just under the pinned banner. The banner is a SIBLING above the
+    // list in the ConstraintLayout (the list's top is constrained below it), so it does NOT overlay
+    // the list — the list already starts beneath the banner. We therefore only need a small visual
+    // margin here, NOT the full banner height (which would leave a banner-height dead band above the
+    // target). When the banner is visible we add a couple of extra dp to clear its card elevation.
+    private static final int PINNED_JUMP_TOP_GAP_DP = 8;
+    private static final int PINNED_JUMP_TOP_GAP_WITH_BANNER_DP = 12;
+    // F1Whisper: delay (ms) before the second selection re-apply. The robust jump path runs straight
+    // after insertToList(clear=true) -> notifyDataSetInvalidated(), which forces AbsListView to throw
+    // away its layout and (with stackFromBottom=true) re-anchor at the BOTTOM on its next layout pass.
+    // A single selection request issued in the same frame gets clobbered by that relayout, which is
+    // exactly why far jumps used to "go nowhere". We therefore re-apply the selection once more after
+    // this short delay — the same proven double-apply the unread anchor uses — so it wins over the
+    // invalidate-driven relayout. Matches the search-quote path's 500ms settle window.
+    private static final int PINNED_JUMP_REAPPLY_DELAY_MS = 500;
+
+    /**
+     * F1Whisper: deterministic pinned jump — scroll the target row to land JUST BELOW the pinned
+     * banner and flash it, surviving the post-invalidate relayout for ANY scroll distance.
+     * <p>
+     * ROOT-CAUSE NOTE (this regressed three times): the robust jump path loads the whole conversation
+     * via {@link #insertToList(java.util.List, boolean, boolean, boolean)} with {@code clear=true},
+     * which calls {@link android.widget.ListView#getAdapter()}'s {@code notifyDataSetInvalidated()}.
+     * That discards the ListView's layout state, and because the list is {@code stackFromBottom="true"}
+     * it re-anchors at the BOTTOM on its very next layout pass. A selection requested in the SAME frame
+     * (a single {@code post(setSelectionFromTop)}) is then overwritten by that relayout, so the far jump
+     * silently parked at the bottom — "went nowhere". The fix is NOT a different scroller; it is to
+     * APPLY the selection immediately AND RE-APPLY it once after a short settle delay (the same proven
+     * double-apply the unread anchor and the search-quote jump use), so our selection wins the race with
+     * the invalidate-driven stack-from-bottom relayout. We then flash the row by re-resolving its
+     * position by uid (never a stale captured position), using the same native activated-state flash the
+     * search-quote jump uses ({@link android.widget.ListView#setItemChecked(int, boolean)}), which the
+     * bubble selectors render — no home-grown background mutation that could corrupt a recycled row.
+     *
+     * @param targetPosition resolved adapter position of the target row (negative is a no-op)
+     * @param uid            unique id of the message to flash once it is laid out
+     */
+    @UiThread
+    private void scrollToPinnedAndHighlight(final int targetPosition, @NonNull final String uid) {
+        if (targetPosition < 0 || convListView == null) {
+            logger.info("scrollToPinnedAndHighlight: skipping invalid position {} (uid={})", targetPosition, uid);
+            return;
+        }
+        // Top offset = a small breathing-room gap so the row lands cleanly at the top of the list
+        // viewport (which already sits BELOW the banner via the layout constraint — the banner is not
+        // an overlay). A touch more gap when the banner is showing, to clear its card elevation/shadow.
+        // This is deliberately NOT the full banner height (that would push the target a banner-height
+        // too far down, leaving dead space above it).
+        final boolean bannerShown = pinnedBannerContainer != null
+            && pinnedBannerContainer.getVisibility() == View.VISIBLE
+            && pinnedBannerContainer.getHeight() > 0;
+        final int gapDp = bannerShown ? PINNED_JUMP_TOP_GAP_WITH_BANNER_DP : PINNED_JUMP_TOP_GAP_DP;
+        final int offset = (int) (gapDp * getResources().getDisplayMetrics().density);
+        logger.info("scrollToPinnedAndHighlight: setSelectionFromTop position={} offset={}px (bannerShown={}) uid={}",
+            targetPosition, offset, bannerShown, uid);
+        // First application: issued now, after insertToList already ran on this same UI turn, so it is
+        // the last layout instruction queued for the current pass.
+        convListView.setSelectionFromTop(targetPosition, offset);
+        // Second application: after the invalidate-driven (stack-from-bottom) relayout has settled, so
+        // our selection is the one that sticks even for a far jump. Re-resolve the position by uid in
+        // case the adapter shifted between the two applications, then flash the now-stable row.
+        convListView.postDelayed(() -> {
+            if (convListView == null || !isAdded()) {
+                return;
+            }
+            final int livePosition = findAdapterPositionByUid(uid);
+            if (livePosition < 0) {
+                logger.info("Pinned re-apply: uid={} no longer resolves; skipping flash", uid);
+                return;
+            }
+            convListView.setSelectionFromTop(livePosition, offset);
+            // Flash on the next layout pass, once the re-applied selection has laid the row out.
+            convListView.post(() -> flashPinnedRow(uid));
+        }, PINNED_JUMP_REAPPLY_DELAY_MS);
+    }
+
+    /**
+     * F1Whisper: re-derive the complete pinned set from the CURRENTLY-LOADED adapter, in list (pin)
+     * order, and reconcile {@link #pinnedMessageUids} / {@link #currentPinnedMessageUid} against it.
+     * <p>
+     * This is only authoritative when the full conversation is loaded (it is called right after a
+     * full-conversation load in the robust jump path): at that point the adapter holds every message,
+     * so any pin that does not resolve to an adapter item has been deleted or unpinned and must be
+     * dropped. Rebuilding (rather than appending) guarantees the cycler can never advance to a stale
+     * uid that no longer exists, and preserves the true pin order from the conversation.
+     */
+    @UiThread
+    private void reconcilePinnedSetFromAdapter() {
+        final List<String> fresh = new ArrayList<>();
+        collectPinnedUids(fresh);
+        pinnedMessageUids.clear();
+        pinnedMessageUids.addAll(fresh);
+        if (currentPinnedMessageUid != null && !pinnedMessageUids.contains(currentPinnedMessageUid)) {
+            currentPinnedMessageUid = pinnedMessageUids.isEmpty() ? null : pinnedMessageUids.get(0);
+        }
+    }
+
+    /**
+     * F1Whisper: after a successful jump, advance {@link #currentPinnedMessageUid} to the next pin
+     * in the cycle and repaint the banner so the next tap continues to the following pin.
+     */
+    @UiThread
+    private void advancePinnedCycler(@NonNull String jumpedUid) {
+        final int currentIndex = pinnedMessageUids.indexOf(jumpedUid);
+        if (currentIndex < 0 || pinnedMessageUids.isEmpty()) {
+            logger.info("advancePinnedCycler: jumped uid={} no longer in pin set; refreshing banner", jumpedUid);
+            updatePinnedBanner();
+            return;
+        }
+        // Advance to the NEXT pin in cycle order. The cycler MUST always move to a DIFFERENT pin when
+        // more than one is pinned — even when the other pins are paged out of the loaded window. We
+        // prefer the first sibling that already resolves to a loaded row (so the FOLLOWING tap lands
+        // instantly), but if NONE of the siblings is loaded we still advance to the arithmetic-next pin
+        // so the cycle progresses; jumpToPinnedMessage() pages that pin in via a full-conversation load
+        // on the next tap. We deliberately scan siblings ONLY (steps 1..size-1) and never wrap back onto
+        // the just-jumped uid: wrapping-to-self is correct ONLY for a genuine single pin. (The old loop
+        // wrapped to self whenever the siblings were merely paged out, which stranded every tap on the
+        // one loaded pin — the "every tap targets the same uid" bug — so the paged-out pins were
+        // unreachable.)
+        final int size = pinnedMessageUids.size();
+        String chosen;
+        if (size == 1) {
+            // Genuinely a single pin: stay on it.
+            chosen = jumpedUid;
+        } else {
+            final String arithmeticNext = pinnedMessageUids.get((currentIndex + 1) % size);
+            chosen = null;
+            for (int step = 1; step < size; step++) {
+                final String candidate = pinnedMessageUids.get((currentIndex + step) % size);
+                if (findAdapterPositionByUid(candidate) >= 0) {
+                    // First resolving sibling: cycle to it.
+                    chosen = candidate;
+                    break;
+                }
+                // candidate does not resolve in the loaded window: skip it, keep scanning siblings.
+            }
+            if (chosen == null) {
+                // No sibling is loaded (all other pins are paged out): advance to the next pin anyway so
+                // the cycle reaches a DIFFERENT message; the full-load jump pages it in on the next tap.
+                chosen = arithmeticNext;
+                logger.info("advancePinnedCycler: no sibling pin resolves in window; advancing to arithmetic next uid={}", chosen);
+            }
+        }
+        currentPinnedMessageUid = chosen;
+        logger.info("advancePinnedCycler: next tap will target uid={}", currentPinnedMessageUid);
+        renderPinnedBannerFromState();
+    }
+
+    // Duration the jumped-to row stays highlighted before we clear the activated state, in ms.
+    private static final long PINNED_HIGHLIGHT_DURATION_MS = 1400L;
+
+    /**
+     * F1Whisper: flash the jumped-to pinned row using the SAME native, recycle-safe mechanism the
+     * upstream search-quote jump uses — {@link android.widget.ListView#setItemChecked(int, boolean)}.
+     * <p>
+     * The list is in {@code choiceMode="singleChoice"}; activating an item drives the bubble's
+     * {@code state_activated} selector (e.g. {@code bubble_fade_send_selector}), which the bubble
+     * MaterialCardView renders as a brief tint — no home-grown background mutation on the row root
+     * (the previous approach called {@code row.setBackground(null)}, which fought the choice-mode /
+     * activated selector and could clear a recycled row's real background). The position is re-resolved
+     * by uid at apply-time (Telegram-style scrollToMessageId), so a message that shifted or was deleted
+     * never flashes a wrong row. The activated state is cleared after {@link #PINNED_HIGHLIGHT_DURATION_MS}
+     * by re-resolving the position by uid again (the row may have recycled by then).
+     */
+    @UiThread
+    private void flashPinnedRow(@Nullable final String uid) {
+        if (convListView == null || uid == null) {
+            return;
+        }
+        final int position = findAdapterPositionByUid(uid);
+        if (position < 0) {
+            logger.info("Pinned highlight: uid={} no longer resolves; skipping flash", uid);
+            return;
+        }
+        // Cancel any in-flight highlight clear so rapid taps don't leave a stuck activated row.
+        if (pinnedHighlightClear != null) {
+            pinnedHighlightHandler.removeCallbacks(pinnedHighlightClear);
+            pinnedHighlightClear = null;
+        }
+        logger.info("Pinned highlight: flashing row at position={} for uid={}", position, uid);
+        convListView.setItemChecked(position, true);
+        // Clear by re-resolving the position by uid (the row may have recycled/shifted by now), so we
+        // never leave a stale activated row and never un-check an unrelated message.
+        pinnedHighlightClear = () -> {
+            if (convListView == null) {
+                return;
+            }
+            final int livePosition = findAdapterPositionByUid(uid);
+            if (livePosition >= 0) {
+                convListView.setItemChecked(livePosition, false);
+            } else {
+                convListView.clearChoices();
+                convListView.requestLayout();
+            }
+        };
+        pinnedHighlightHandler.postDelayed(pinnedHighlightClear, PINNED_HIGHLIGHT_DURATION_MS);
+    }
+
+    @UiThread
+    /**
+     * F1Whisper: build the "&lt;names&gt; is/are typing…" subtitle for a group chat, or {@code null}
+     * if no member is currently typing.
+     */
+    @Nullable
+    private CharSequence buildGroupTypingText() {
+        if (!isGroupChat || groupModel == null) {
+            return null;
+        }
+        final Set<String> typingIdentities = groupService.getTypingMembers(groupModel.getDatabaseId());
+        if (typingIdentities.isEmpty()) {
+            return null;
+        }
+        final List<String> names = new ArrayList<>(typingIdentities.size());
+        for (String identity : typingIdentities) {
+            names.add(NameUtil.getShortName(
+                contactService.getByIdentity(identity),
+                preferenceService.getContactNameFormat()
+            ));
+        }
+        // stable, deterministic ordering for a steady subtitle
+        Collections.sort(names);
+        switch (names.size()) {
+            case 1:
+                return getString(R.string.group_one_typing, names.get(0));
+            case 2:
+                return getString(R.string.group_two_typing, names.get(0), names.get(1));
+            default:
+                return getString(R.string.group_many_typing, names.get(0), names.size() - 1);
+        }
+    }
+
     private void updateToolbarTitle() {
         if (
             actionBar == null
@@ -4485,7 +6125,12 @@ public class ComposeMessageFragment extends Fragment implements
             if (groupModel != null && !groupModel.isMember()) {
                 this.actionBarTitleTextView.setPaintFlags(this.actionBarTitleTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             }
-            actionBarSubtitleTextView.setText(groupService.getMembersString(groupModel));
+            // F1Whisper: show "... is typing" when group members are typing, otherwise the member list
+            CharSequence groupSubtitle = buildGroupTypingText();
+            if (groupSubtitle == null) {
+                groupSubtitle = groupService.getMembersString(groupModel);
+            }
+            actionBarSubtitleTextView.setText(groupSubtitle);
             actionBarSubtitleTextView.setVisibility(View.VISIBLE);
             if (actionBarAvatarView.getAvatarView().isAttachedToWindow()) {
                 groupService.loadAvatarIntoImageView(
@@ -4568,6 +6213,7 @@ public class ComposeMessageFragment extends Fragment implements
         this.showOpenPollWindowMenuItem = menu.findItem(R.id.menu_poll_window_show);
         this.showPollsMenuItem = menu.findItem(R.id.menu_poll_show_all);
         this.showEmptyChatMenuItem = menu.findItem(R.id.menu_empty_chat);
+        this.disappearingMessagesMenuItem = menu.findItem(R.id.menu_disappearing_messages);
 
         // initialize menus
         updateMenus();
@@ -4596,6 +6242,16 @@ public class ComposeMessageFragment extends Fragment implements
         this.deleteDistributionListItem.setVisible(this.isDistributionListChat);
         this.mutedMenuItem.setVisible(!this.isDistributionListChat && !isNotesGroupChat());
         updateMuteMenu();
+
+        // F1Whisper: disappearing-messages timer only applies to real conversations with a peer.
+        // Distribution lists are local-only (no E2E peer) and notes groups have no recipient, so the
+        // timer would have nothing to sync to; group chats need the user to still be a member.
+        if (this.disappearingMessagesMenuItem != null) {
+            final boolean canDisappear = !this.isDistributionListChat
+                && !isNotesGroupChat()
+                && !isGroupChatWhereUserIsNotMemberOf();
+            this.disappearingMessagesMenuItem.setVisible(canDisappear);
+        }
 
         if (contactModel != null) {
             this.blockMenuItem.setVisible(true);
@@ -4770,6 +6426,9 @@ public class ComposeMessageFragment extends Fragment implements
             previewIntent.putExtra(AppConstants.INTENT_DATA_TEXT, this.actionBarTitleTextView.getText().toString());
         }
         previewIntent.putExtra(AppConstants.INTENT_DATA_PICK_FROM_CAMERA, true);
+        // F1Whisper: carry the reply-quote (captured in the camera button listener / permission
+        // callback) so an in-chat camera answer renders the quote header for the recipient.
+        IntentDataUtil.addQuotedApiMessageIdToIntent(previewIntent, pendingQuoteApiMessageId);
         activity.startActivityForResult(previewIntent, ThreemaActivity.ACTIVITY_ID_SEND_MEDIA);
     }
 
@@ -4819,6 +6478,9 @@ public class ComposeMessageFragment extends Fragment implements
                 this.conversationId,
                 () -> RuntimeUtil.runOnUiThread(this::setBackgroundWallpaper)
             );
+        } else if (id == R.id.menu_disappearing_messages) {
+            logger.info("Disappearing messages button clicked");
+            showDisappearingMessagesPicker();
         } else if (id == R.id.menu_muted) {
             logger.info("Muting button clicked");
             if (!isDistributionListChat) {
@@ -4932,7 +6594,7 @@ public class ComposeMessageFragment extends Fragment implements
                     draftManager.remove(messageReceiver.getConversationId());
                     messageText.setText(null);
 
-                    setCurrentPageReferenceId(null);
+                    clearCurrentPageReference();
                     onRefresh();
 
                     if (!isGroupChat) {
@@ -4974,12 +6636,47 @@ public class ComposeMessageFragment extends Fragment implements
                 logger.info("Voice recording received for attaching");
                 this.messagePlayerService.resumeAll(getActivity(), messageReceiver, SOURCE_AUDIORECORDER);
             }
+            // F1Whisper: the voice recorder always finishes with RESULT_CANCELED (send and back are
+            // indistinguishable) and only launches with blank compose text (so no draft quote was
+            // persisted), so we do not reopen the quote popup here - a reply-quote, if any, already
+            // rode the send via the "qi" metadata. Just drop the transient pending id.
+            pendingQuoteApiMessageId = null;
+        }
+        if (requestCode == ThreemaActivity.ACTIVITY_ID_SEND_MEDIA) {
+            // F1Whisper: the in-chat camera answer returns here (attachCamera -> SendMediaActivity).
+            // SendMediaActivity's result codes are reliable: RESULT_OK on send (it also removed the
+            // draft), RESULT_CANCELED on back. Reopen the quote popup if the user backed out so the
+            // reply is not lost; otherwise it already rode the send via "qi".
+            if (resultCode != Activity.RESULT_OK) {
+                reopenQuotePopupById(pendingQuoteApiMessageId);
+            }
+            pendingQuoteApiMessageId = null;
         }
         if (requestCode == ThreemaActivity.ACTIVITY_ID_ATTACH_MEDIA) {
+            // F1Whisper: the reply-quote is NOT carried by the draft across the attach detour - the
+            // attach click's dismissQuotePopup() runs before onPause()'s updateMessageDraft(), which
+            // rewrites the draft with a null quote. So we carry it in pendingQuoteApiMessageId and
+            // reopen the popup here on a genuine back-out. "Media was sent" is signalled explicitly by
+            // MediaAttachActivity (EXTRA_MEDIA_WAS_SENT) because its result code is unreliable (the two
+            // direct-send paths, gallery quick-send + drawing, send media but still finish() CANCELED).
+            final boolean mediaWasSent = intent != null && intent.getBooleanExtra(EXTRA_MEDIA_WAS_SENT, false);
             restoreMessageDraft(true);
+            if (!mediaWasSent) {
+                // Genuine back-out, or a deferred location/ballot answer that did not consume the quote:
+                // restore the reply-quote. (Works for blank compose text too, unlike a draft-based reopen.)
+                reopenQuotePopupById(pendingQuoteApiMessageId);
+            }
+            pendingQuoteApiMessageId = null;
             if (resultCode == Activity.RESULT_OK) {
                 logger.info("Media file(s) received for attaching");
-                this.lastMediaFilter = IntentDataUtil.getLastMediaFilterFromIntent(intent);
+                // F1Whisper: only overwrite the remembered filter when the result actually carries one.
+                // Upstream never delivered a filter-less RESULT_OK here; the EXTRA_MEDIA_WAS_SENT
+                // signalling introduced RESULT_OK intents without filter extras, which must not wipe
+                // the filter memory.
+                final MediaFilterQuery lastFilterFromResult = IntentDataUtil.getLastMediaFilterFromIntent(intent);
+                if (lastFilterFromResult != null) {
+                    this.lastMediaFilter = lastFilterFromResult;
+                }
             }
         }
     }
@@ -5016,6 +6713,11 @@ public class ComposeMessageFragment extends Fragment implements
 
     @Override
     public void onNo(String tag) {
+        // F1Whisper (twelfth fork review, F12-04): cancelling the share caption dialog abandons the share; the
+        // decrypted copy must not linger exportable in the cache directory.
+        if (DIALOG_TAG_SHARE_CAPTION.equals(tag)) {
+            cancelPendingShare();
+        }
     }
 
     //region VoipStatusDataChatListener
@@ -5121,7 +6823,7 @@ public class ComposeMessageFragment extends Fragment implements
 
     public class ComposeMessageAction implements ActionMode.Callback {
         private final int position;
-        private MenuItem quoteItem, forwardItem, saveItem, copyItem, shareItem, infoItem, editItem, starItem, unStarItem, imageReplyItem, deleteItem;
+        private MenuItem quoteItem, forwardItem, saveItem, copyItem, shareItem, infoItem, editItem, starItem, unStarItem, pinItem, unPinItem, imageReplyItem, deleteItem;
 
         ComposeMessageAction(int position) {
             this.position = position;
@@ -5142,7 +6844,15 @@ public class ComposeMessageFragment extends Fragment implements
             boolean canSendImageReply = isSingleMessage && MessageUtil.canSendImageReply(selectedMessages.get(0));
             boolean canStarMessage = isSingleMessage && MessageUtil.canStarMessage(selectedMessages.get(0));
 
-            if (selectedMessages.stream().anyMatch(AbstractMessageModel::isDeleted)) {
+            // F1Whisper (eleventh fork review, F11-07): an overdue disappearing message collapses the
+            // menu exactly like a deleted one. Its row already binds as the payload-free tombstone, but
+            // the model still carries content until the worker deletion lands, so copy/forward/save/
+            // share/quote/edit here would expose it. Discard stays (removing it early is fine) and Info
+            // stays for a single selection (showMessageDetailScreen re-checks expiry and refuses).
+            // enforceIfExpired is synchronous on the model; nothing is deleted on this thread. This
+            // stream is not a live iterator any listener can invalidate: post-F10-06 the enforcement
+            // never mutates inline, it only schedules the worker.
+            if (selectedMessages.stream().anyMatch(m -> m.isDeleted() || DisappearingMessageService.enforceIfExpired(m))) {
                 if (isSingleMessage) {
                     onlyShowItems(menu, R.id.menu_message_discard, R.id.menu_info);
                 } else {
@@ -5177,6 +6887,12 @@ public class ComposeMessageFragment extends Fragment implements
             starItem.setVisible(canStarMessage && !isMessageCurrentlyStarred);
             unStarItem.setVisible(canStarMessage && isMessageCurrentlyStarred);
 
+            // F1Whisper: pin/unpin (local-only; mirrors star/unstar logic above)
+            boolean isMessageCurrentlyPinned = !selectedMessages.isEmpty()
+                && (selectedMessages.get(0).getDisplayTags() & DISPLAY_TAG_PINNED) == DISPLAY_TAG_PINNED;
+            pinItem.setVisible(isSingleMessage && !isMessageCurrentlyPinned);
+            unPinItem.setVisible(isSingleMessage && isMessageCurrentlyPinned);
+
             deleteItem.setShowAsAction(isSingleMessage ? MenuItem.SHOW_AS_ACTION_IF_ROOM : MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
 
@@ -5196,7 +6912,21 @@ public class ComposeMessageFragment extends Fragment implements
             return isValidReceiver && QuoteUtil.isQuoteable(message);
         }
 
+        /**
+         * F1Whisper: a "listen once" voice message must not be forwarded, saved or shared. Otherwise
+         * the recipient could exfiltrate it (or replay it) before playing it once, defeating the
+         * single-playback guarantee. Mirrors Telegram, whose {@code canForwardMessage()} returns
+         * false for view-once messages. Gated on the {@code "lo"} flag itself (set on incoming AND
+         * the sender's own copy), independent of whether it has already burned.
+         */
+        private boolean isListenOnce(@NonNull AbstractMessageModel message) {
+            return message.getFileData() != null && message.getFileData().isListenOnce();
+        }
+
         private boolean isForwardable(@NonNull AbstractMessageModel message) {
+            if (isListenOnce(message)) {                                // F1Whisper: never forward a listen-once message
+                return false;
+            }
             return message.isAvailable()                                // if the media is downloaded
                 && !message.isStatusMessage()                           // and the message is not status message (unread or status)
                 && message.getType() != MessageType.POLL                // and not a poll
@@ -5205,10 +6935,16 @@ public class ComposeMessageFragment extends Fragment implements
         }
 
         private boolean isSaveable(@NonNull AbstractMessageModel message) {
+            if (isListenOnce(message)) {                            // F1Whisper: never save a listen-once message
+                return false;
+            }
             return message.isAvailable() && message.getType() == MessageType.FILE;
         }
 
         private boolean isShareable(@NonNull AbstractMessageModel message) {
+            if (isListenOnce(message)) {                    // F1Whisper: never share a listen-once message
+                return false;
+            }
             return message.isAvailable()
                 && (message.getType() == MessageType.FILE || message.getType() == MessageType.TEXT);
         }
@@ -5290,6 +7026,8 @@ public class ComposeMessageFragment extends Fragment implements
             editItem = menu.findItem(R.id.menu_message_edit);
             starItem = menu.findItem(R.id.menu_message_star);
             unStarItem = menu.findItem(R.id.menu_message_unstar);
+            pinItem = menu.findItem(R.id.menu_message_pin);
+            unPinItem = menu.findItem(R.id.menu_message_unpin);
             imageReplyItem = menu.findItem(R.id.menu_message_image_reply);
             deleteItem = menu.findItem(R.id.menu_message_discard);
 
@@ -5310,6 +7048,9 @@ public class ComposeMessageFragment extends Fragment implements
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            // F1Whisper: drop any selected disappearing messages that have expired before acting on
+            // them (forward / share / save / details), so an overdue message is never revived.
+            selectedMessages.removeIf(DisappearingMessageService::enforceIfExpired);
             if (selectedMessages.isEmpty()) {
                 mode.finish();
                 return true;
@@ -5353,6 +7094,11 @@ public class ComposeMessageFragment extends Fragment implements
             } else if (id == R.id.menu_message_star || id == R.id.menu_message_unstar) {
                 logger.info("Action menu: (un)star clicked");
                 toggleStar(selectedMessages.get(0));
+                mode.finish();
+            } else if (id == R.id.menu_message_pin || id == R.id.menu_message_unpin) {
+                // F1Whisper: local pin/unpin — no wire change
+                logger.info("Action menu: (un)pin clicked");
+                togglePin(selectedMessages.get(0));
                 mode.finish();
             } else if (id == R.id.menu_message_edit) {
                 logger.info("Action menu: edit clicked");
@@ -5621,6 +7367,12 @@ public class ComposeMessageFragment extends Fragment implements
     }
 
     private void showMessageDetailScreen(AbstractMessageModel messageModel) {
+        // F1Whisper: if this disappearing message just expired, drop it instead of opening details on
+        // an about-to-vanish message.
+        if (DisappearingMessageService.enforceIfExpired(messageModel)) {
+            Toast.makeText(getContext(), R.string.quoted_message_deleted, Toast.LENGTH_SHORT).show();
+            return;
+        }
         activity.startActivity(MessageDetailsActivity.createIntent(requireContext(), messageModel));
     }
 
@@ -5742,17 +7494,32 @@ public class ComposeMessageFragment extends Fragment implements
         }
         outState.putInt(BUNDLE_LIST_TOP, this.listInstanceTop);
         outState.putInt(BUNDLE_LIST_LONG_CLICK_ITEM, this.longClickItem);
+        // F1Whisper: survive process death while a media/camera reply is being composed in a sub-activity.
+        outState.putString(BUNDLE_PENDING_QUOTE_API_MESSAGE_ID, this.pendingQuoteApiMessageId);
 
         super.onSaveInstanceState(outState);
     }
 
-    private void setCurrentPageReferenceId(@Nullable Integer currentPageReferenceId) {
-        this.currentPageReferenceId = currentPageReferenceId;
+    /**
+     * Reset the pagination boundary (P0-6): every non-null reference must go through
+     * {@link #setCurrentPageReference(AbstractMessageModel)} so the whole tuple is captured with
+     * it. Clearing INVALIDATES in-flight page loads (S2-05): their results were computed against
+     * a cursor that no longer exists and must not be applied.
+     */
+    private void clearCurrentPageReference() {
+        this.pageCursor = null;
+        this.pageRequestGuard.invalidate();
+    }
+
+    /** Capture the page-reference tuple (id + effective sort key) from a loaded model. */
+    private void setCurrentPageReference(@NonNull AbstractMessageModel referenceModel) {
+        this.pageCursor = PageCursor.of(referenceModel);
     }
 
     @Nullable
     private Integer getCurrentPageReferenceId() {
-        return this.currentPageReferenceId;
+        final PageCursor cursor = this.pageCursor;
+        return cursor != null ? cursor.getId() : null;
     }
 
     private void configureSearchWidget(final MenuItem menuItem) {
@@ -5815,15 +7582,21 @@ public class ComposeMessageFragment extends Fragment implements
             dismissQuotePopup();
 
             // load all records
+            // F1Whisper (fifth fork review, F5-03): frozen conversation, like every other loader.
+            final PageDispatch searchDispatch = snapshotFullDispatch(pageRequestGuard.current());
+            if (searchDispatch == null) {
+                logger.info("Search abandoned: no conversation is open");
+                return true;
+            }
             new LifecycleAwareAsyncTask<Void, List<AbstractMessageModel>>() {
                 @Override
                 protected List<AbstractMessageModel> doInBackground(Void params) {
-                    return getAllRecords();
+                    return getAllRecords(searchDispatch);
                 }
 
                 @Override
                 protected void onPostExecute(List<AbstractMessageModel> messageModels) {
-                    if (messageModels != null && isAdded()) {
+                    if (messageModels != null && isAdded() && searchDispatch.isCurrentIn(pageRequestGuard)) {
                         item.collapseActionView();
                         item.setActionView(actionView);
                         configureSearchWidget(menu.findItem(R.id.menu_action_search));
@@ -6291,11 +8064,17 @@ public class ComposeMessageFragment extends Fragment implements
         return null;
     }
 
-    private void releaseMedia3Controller() {
+    private void releaseMedia3Controller(boolean keepVoicePlaying) {
         MediaController mediaController = getMedia3Controller();
         if (mediaController != null) {
-            mediaController.stop();
-            mediaController.clearMediaItems();
+            // F1Whisper: when keeping a voice message playing in the background, only release THIS
+            // fragment's controller handle. Stopping/clearing it would stop the shared player; the
+            // app-scoped VoiceMessagePlaybackHolder keeps its own controller connected so the media3
+            // service is not auto-stopped by the last-controller-disconnect.
+            if (!keepVoicePlaying) {
+                mediaController.stop();
+                mediaController.clearMediaItems();
+            }
             mediaController.release();
         }
 
@@ -6303,12 +8082,16 @@ public class ComposeMessageFragment extends Fragment implements
             MediaController.releaseFuture(mediaControllerFuture);
         }
 
-        try {
-            if (!getAppContext().stopService(new Intent(getAppContext(), VoiceMessagePlayerService.class))) {
-                logger.debug("VoiceMessagePlayer already stopped.");
+        if (!keepVoicePlaying) {
+            // Normal teardown: drop the background holder controller too, then stop the service.
+            VoiceMessagePlaybackHolder.getInstance(getAppContext()).disconnectQuietly();
+            try {
+                if (!getAppContext().stopService(new Intent(getAppContext(), VoiceMessagePlayerService.class))) {
+                    logger.debug("VoiceMessagePlayer already stopped.");
+                }
+            } catch (Exception e) {
+                logger.error("Unable to stop VoiceMessagePlayer", e);
             }
-        } catch (Exception e) {
-            logger.error("Unable to stop VoiceMessagePlayer", e);
         }
     }
 }

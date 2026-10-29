@@ -30,6 +30,12 @@ enum class MessageType(
     GROUP_CALL_STATUS(11),
     FORWARD_SECURITY_STATUS(12),
     GROUP_STATUS(13),
+
+    // F1Whisper disappearing messages: inline status message announcing a per-conversation timer
+    // change ("X set disappearing messages to 1 day" / "...turned off"). F1-PATCH: stored value 14 is
+    // what every existing F1Whisper database already holds for these rows (it was the next ordinal),
+    // so it must never change; a colliding upstream value would need a data migration first.
+    DISAPPEARING_STATUS(14),
     ;
 
     companion object {

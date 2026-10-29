@@ -32,8 +32,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:importantForAccessibility="no"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.tabs.TabLayout
@@ -45,8 +45,8 @@
             android:layout_marginTop="4dp"
             android:background="@android:color/transparent"
             android:nestedScrollingEnabled="false"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/drag_handle"
             app:tabMode="scrollable" />
 
@@ -58,8 +58,8 @@
             android:background="@android:color/transparent"
             android:nestedScrollingEnabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tab_layout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -225,6 +225,14 @@
     <string name="threema_version_code">Versiecode</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Serverconfiguratie</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Server wijzigen</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Serverdomein</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Server wijzigen?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_message">Door de server te wijzigen, wordt uw huidige identiteit waarschijnlijk losgekoppeld. Doe dit alleen als uw provider het nieuwe domein heeft bevestigd. Als het domein onjuist is, werkt de app niet meer.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">Geen internetverbinding, ongeldige ID-exportgegevens of een onjuist wachtwoord</string>
     <string name="prefs_header_other">Overig</string>
     <string name="an_error_occurred">Er is een fout opgetreden</string>
@@ -250,6 +258,8 @@
     <string name="enter_serial_title">${app_name} vrijgeven</string>
     <!-- ${app_name} is a placeholder for the app's name, it must be kept as-is, not translated. -->
     <string name="serial_required_want_exit">De licentiesleutel is ongeldig. Probeer het opnieuw of sluit ${app_name} af.</string>
+    <string name="use_different_key">Een andere sleutel gebruiken</string>
+    <string name="activation_key_already_redeemed">Deze activeringscode is al gebruikt. Voer een andere sleutel in.</string>
     <!-- Message shown on progress dialog that shows while checking whether the user has a valid license -->
     <string name="checking_serial">Licentie controleren</string>
     <!-- Message shown on progress dialog that shows while the credentials that the user entered are being checked for their validity -->
@@ -607,6 +617,8 @@ Voer een vraag in voor uw poll.</string>
     <string name="prefs_sendlog_summary">Logbestand naar ${company_name} sturen voor verdere analyse</string>
     <string name="prefs_exportlog">Exportbestand</string>
     <string name="prefs_exportlog_summary">Logbestand met andere app delen</string>
+    <string name="prefs_connection_diagnostics">Verbindings- &amp; meldingsdiagnostiek</string>
+    <string name="prefs_connection_diagnostics_summary">Exporteer een rapport van verbindings-, push-, meldings- en batterijstatus om ontbrekende meldingen te helpen diagnosticeren</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">Geeft ${app_name} toegang tot uw opslag om media te kunnen versturen.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -936,7 +948,7 @@ Voer een vraag in voor uw poll.</string>
     <string name="safe_enable_explain">Alles wat u nodig hebt om te chatten wordt alleen op uw apparaat opgeslagen. U hebt geen account bij ons en we kunnen u niet helpen als u uw telefoon verliest of per ongeluk uw gegevens verwijdert.\n\n${app_name_short} Safe maakt automatisch back-ups aan van alle belangrijke gegevens zoals uw sleutelcodes, uw lijst contactpersonen en uw groepslidmaatschappen (maar niet de inhoud van de berichten), anoniem op een beveiligde server naar keuze.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_disable_confirm">Wilt u doorgaan zonder ${app_name_short} Safe in te schakelen? 
-Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, contactpersonen en groepen herstellen in het geval dat u toegang tot uw apparaat verliest.</string>
+Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID en groepen herstellen in het geval dat u toegang tot uw apparaat verliest.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Kies een wachtwoord. U hebt dit wachtwoord nodig om uw back-upbestanden van ${app_name_short} Safe te herstellen.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -949,18 +961,15 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, conta
     <string name="safe_test_server">Server testen</string>
     <string name="safe_advanced_options">Expertinstellingen</string>
     <string name="safe_enter_password">Voer uw ${app_name_short} Safe-wachtwoord in</string>
+    <string name="safe_password_complexity_unmet">Het wachtwoord moet langer zijn dan 10 tekens en kleine letters, hoofdletters, een cijfer en een symbool bevatten</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_threema_id">Uw ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Voer het ${app_name_short} ID in dat u wilt herstellen</string>
-    <string name="safe_search_id_title">Voer het mobiele nummer of het e-mailadres in dat aan uw ${app_name_short}-ID is gekoppeld</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">${app_name_short} ID opzoeken</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">Geen ${app_name_short} ID gevonden</string>
     <string name="safe_no_backup_found">Geen back-up gevonden op de server. Controleer het ID en het wachtwoord.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Meerdere ${app_name_short} IDs gevonden. Selecteer het ID dat u wilt gebruiken:</string>
     <string name="safe_backup_now">Back-up maken</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">${app_name_short} Safe inschakelen om automatisch veilige en anonieme back-ups van al uw belangrijke gegevens te maken.</string>
@@ -998,7 +1007,6 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, conta
     <string name="safe_restore">${app_name_short} Safe herstellen</string>
     <string name="backup_restore_in_progress">Bezig met back-up of herstel. Controleer de meldingen voor statusinformatie.</string>
     <string name="restore_error_body">Herstel niet voltooid</string>
-    <string name="forgot_your_id">Uw ID vergeten?</string>
     <string name="restore_success_body">Herstel voltooid</string>
     <string name="work_data_sync">Synchroniseren</string>
     <string name="private_contact">Privé-contactpersoon</string>
@@ -1366,6 +1374,10 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, conta
     <string name="forward_security_notification_rejected_text_group">Eén of meer berichten zijn niet verzonden naar \'%1$s\'.</string>
     <string name="forward_security_notification_rejected_text_generic">Eén of meer berichten zijn niet verzonden.</string>
     <string name="self_updater_installation_failed">De update is niet gedownload. Download en installeer de update handmatig <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a>.</string>
+    <string name="self_updater_downloading_background">Update wordt op de achtergrond gedownload…</string>
+    <string name="self_updater_update_ready_title">Update gedownload</string>
+    <string name="self_updater_update_ready_text">Tik om de update te installeren</string>
+    <string name="self_updater_download_failed">Downloaden van de update is mislukt. Tik om deze handmatig te downloaden.</string>
     <string name="spam_first_contact">Deze chat is van een onbekend contactpersoon</string>
     <string name="spam_report">Spam melden</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1542,6 +1554,10 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, conta
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">De app kan geen permanente verbinding met de servers onderhouden en dit is nodig om ${app_name_short} Push te laten werken. U wordt niet op de hoogte gebracht van nieuwe berichten wanneer de app op de achtergrond is. Tik op \'Batterijgebruik van de app\' en selecteer \'Onbeperkt\' om dit probleem op te lossen.</string>
     <string name="problemsolver_to_settings">Naar de instellingen</string>
+    <string name="problemsolver_title_oem_autostart">Uitvoeren op de achtergrond toestaan</string>
+    <!-- %1$s = manufacturer name (do not translate); F1Whisper = app brand name (do not translate) -->
+    <string name="problemsolver_explain_oem_autostart">%1$s-apparaten kunnen voorkomen dat F1Whisper op de achtergrond draait, waardoor berichtmeldingen worden geblokkeerd, zelfs wanneer de batterijoptimalisatie al is uitgeschakeld. Open de handleiding en sta F1Whisper toe om automatisch te starten en op de achtergrond te draaien.</string>
+    <string name="problemsolver_oem_autostart_action">Configuratiegids openen</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Afwijzen</string>
     <string name="prefs_advanced_options">Geavanceerde opties</string>
@@ -1841,4 +1857,152 @@ Wanneer u ${app_name_short} Safe gebruikt, kunt u uw ${app_name_short}-ID, conta
         <item quantity="one">%d groepslid</item>
         <item quantity="other">%d groepsleden</item>
     </plurals>
+    <string name="notification_channel_emoji_reactions">Reacties</string>
+    <string name="reaction_notification_text">%1$s reageerde %2$s op je bericht</string>
+    <string name="prefs_title_reaction_notifications">Reactiemeldingen</string>
+    <string name="prefs_sum_reaction_notifications">Stel me op de hoogte wanneer iemand op een van mijn berichten reageert</string>
+    <string name="chat_background_choose">Achtergronden</string>
+    <string name="chat_background_random">Willekeurig (varieert per chat)</string>
+    <string name="chat_background_numbered">Achtergrond %1$d</string>
+    <string name="listen_once_enabled">Eenmalig beluisteren: aan</string>
+    <string name="listen_once_disabled">Eenmalig beluisteren: uit</string>
+    <string name="listen_once_badge_content_description">Eenmalig te beluisteren spraakbericht</string>
+    <string name="forwarded_message_label">Doorgestuurd</string>
+    <string name="listen_once_already_listened">Beluisterd</string>
+    <string name="listen_once_sent">Eenmalig te beluisteren spraakbericht</string>
+    <string name="listen_once_cannot_forward">Berichten voor eenmalig beluisteren kunnen niet worden doorgestuurd</string>
+    <string name="listen_once_expired">Spraakbericht verlopen</string>
+    <string name="group_one_typing">%s is aan het typen…</string>
+    <string name="group_two_typing">%1$s en %2$s zijn aan het typen…</string>
+    <string name="group_many_typing">%1$s en %2$d anderen zijn aan het typen…</string>
+    <string name="message_details_read_by">Gelezen door</string>
+    <string name="message_details_delivered_to">Bezorgd aan</string>
+    <string name="message_details_sent_to">Verzonden aan</string>
+    <string name="markup_monospace">Monospace</string>
+    <string name="markup_spoiler">Verborgen tekst</string>
+    <string name="spoiler_hidden_content_description">Verborgen tekst, dubbeltik om te onthullen</string>
+    <string name="media_spoiler">Verborgen media</string>
+    <string name="media_spoiler_reveal">Tik om te onthullen</string>
+    <string name="media_spoiler_badge_content_description">Verborgen media. Dubbeltik om te onthullen.</string>
+    <string name="chat_folders">Chatmappen</string>
+    <string name="manage_folders">Mappen beheren</string>
+    <string name="add_to_folder">Aan map toevoegen</string>
+    <string name="folder_all">Alle</string>
+    <string name="new_folder">Nieuwe map</string>
+    <string name="create_folder">Map aanmaken</string>
+    <string name="rename_folder">Map hernoemen</string>
+    <string name="delete_folder">Map verwijderen</string>
+    <string name="delete_folder_confirm">Deze map verwijderen? Je chats worden niet verwijderd.</string>
+    <string name="folder_name_hint">Mapnaam</string>
+    <string name="folder_name_empty">Voer een mapnaam in</string>
+    <string name="no_chat_folders">Je hebt nog geen mappen aangemaakt</string>
+    <string name="folder_created">Map aangemaakt</string>
+    <string name="folder_deleted">Map verwijderd</string>
+    <string name="add_to_folder_title">Chat aan mappen toevoegen</string>
+    <string name="folder_empty">Geen chats in deze map</string>
+    <string name="prefs_refresh_onprem_config">Serverconfiguratie vernieuwen</string>
+    <string name="prefs_refresh_onprem_config_summary">Download de serverconfiguratie nu opnieuw. Handig nadat de server nieuwe functies heeft toegevoegd, zoals desktopkoppeling.</string>
+    <string name="onprem_config_refreshed">Serverconfiguratie vernieuwd</string>
+    <string name="prefs_title_link_previews">Linkvoorbeelden genereren</string>
+    <string name="prefs_sum_link_previews">Voorbeelden ophalen voor links in berichten die je verstuurt. Voorbeelden worden end-to-end versleuteld verzonden; het apparaat van de ontvanger neemt nooit contact op met de website.</string>
+    <string name="link_preview_remove">Linkvoorbeeld verwijderen</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Sleep de grepen om bij te snijden</string>
+    <string name="audio_trim_action">Bijsnijden</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimaliseren</string>
+    <!-- F1Whisper: checklist (rides poll wire; F1Whisper-only) -->
+    <string name="checklist">Takenlijst</string>
+    <string name="checklist_create_as">Aanmaken als takenlijst</string>
+    <string name="checklist_fork_only">Takenlijsten werken alleen tussen F1Whisper-gebruikers.</string>
+    <string name="checklist_toggle_item">Takenlijstitem in-/uitschakelen</string>
+    <string name="checklist_checked_by">Aangevinkt door %1$s</string>
+    <string name="checklist_created_successfully">Takenlijst aangemaakt</string>
+    <string name="checklist_placeholder">Takenlijst</string>
+    <!-- F1Whisper: local message pinning (no wire change) -->
+    <string name="pin_message">Bericht vastzetten</string>
+    <string name="unpin_message">Losmaken</string>
+    <string name="pinned_message_banner_label">Vastgezet bericht</string>
+    <string name="pinned_message_banner_dismiss">Banner voor vastgezet bericht verbergen</string>
+    <!-- F1Whisper: checklist/audio-trim/pinned additions (l10n refix batch) -->
+    <string name="checklist_subject_hint">Voer een titel voor de takenlijst in</string>
+    <string name="checklist_wizard0_explain">Maak een gedeelde takenlijst. Iedereen in de chat kan items op elk moment aanvinken en uitvinken, en aangevinkte items gaan naar onderen.</string>
+    <string name="checklist_add_items">Items toevoegen</string>
+    <string name="checklist_item_add">Een item toevoegen</string>
+    <string name="checklist_item_count_error">Voeg ten minste één item toe</string>
+    <string name="checklist_add_item_title">Item toevoegen</string>
+    <string name="checklist_add_item_hint">Naam van nieuw item</string>
+    <string name="checklist_add_item_button">Toevoegen</string>
+    <string name="checklist_delete_item_title">Item verwijderen?</string>
+    <string name="checklist_delete_item_message">Weet je zeker dat je \"%1$s\" wilt verwijderen?</string>
+    <string name="checklist_delete_button">Verwijderen</string>
+    <string name="checklist_reorder_item">Takenlijstitem verplaatsen</string>
+    <string name="checklist_cannot_reorder">Dit item kan niet worden verplaatst</string>
+    <string name="checklist_edit_title">Takenlijst bewerken</string>
+    <string name="checklist_edit_apply">Toepassen</string>
+    <string name="checklist_rename_item_title">Item hernoemen</string>
+    <string name="audio_trim_not_supported">Bijsnijden wordt niet ondersteund voor dit audioformaat. Verwijder de bijsnede om het volledige bestand te verzenden.</string>
+    <string name="audio_trim_failed">Dit audiobestand kon niet worden bijgesneden. Er is niets verzonden. Probeer het opnieuw of verwijder de bijsnede.</string>
+    <string name="pinned_message_banner_label_counter">Vastgezet bericht %1$d/%2$d</string>
+    <string name="disappearing_messages_title">Verdwijnende berichten</string>
+    <string name="disappearing_messages_summary">Nieuwe berichten in deze chat verdwijnen na het lezen na de geselecteerde tijd.</string>
+    <string name="disappearing_off">Uit</string>
+    <string name="disappearing_duration_picker_title">Timer</string>
+    <string name="status_disappearing_set">%1$s heeft verdwijnende berichten ingesteld op %2$s</string>
+    <string name="status_disappearing_set_you">Je hebt verdwijnende berichten ingesteld op %1$s</string>
+    <string name="status_disappearing_off">%1$s heeft verdwijnende berichten uitgeschakeld</string>
+    <string name="status_disappearing_off_you">Je hebt verdwijnende berichten uitgeschakeld</string>
+    <string name="disappearing_messages_unsupported">Verdwijnende berichten werken alleen tussen F1Whisper-gebruikers en zijn geen beveiligingsgarantie.</string>
+    <string name="disappearing_duration_30s">30 seconden</string>
+    <string name="disappearing_duration_5m">5 minuten</string>
+    <string name="disappearing_duration_1h">1 uur</string>
+    <string name="disappearing_duration_8h">8 uur</string>
+    <string name="disappearing_duration_1d">1 dag</string>
+    <string name="disappearing_duration_1w">1 week</string>
+    <string name="disappearing_duration_4w">4 weken</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Verdwijnt</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s na het lezen</string>
+    <string name="connectivity_probe_dialog_title">Verbindingsdiagnose</string>
+    <string name="connectivity_probe_running">Controles uitvoeren…</string>
+    <string name="connectivity_probe_done">Controles voltooid</string>
+    <string name="connectivity_probe_send_btn">Diagnose verzenden</string>
+    <string name="connectivity_probe_close_btn">Sluiten</string>
+    <string name="connectivity_probe_verdict_all_ok">Server is bereikbaar. Controleer je account- of apparaatinstellingen.</string>
+    <string name="connectivity_probe_verdict_no_internet">Geen werkend internet op dit netwerk.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">Vermoedelijke DNS-vergiftiging: systeem-DNS geeft andere IP\'s terug.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">Vermoedelijke SNI-gebaseerde TLS-blokkering: onze hostnaam wordt geblokkeerd.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Het server-IP is geblokkeerd op dit netwerk.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chatpoort (5222) is geblokkeerd. HTTPS werkt nog steeds.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server is bereikbaar, maar de netwerkverbinding is ernstig traag of wordt afgeknepen — verbindingen kunnen daardoor time-outen. Probeer het opnieuw, of schakel tussen wifi en mobiele data.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Sommige controles zijn mislukt. Deel het rapport voor analyse.</string>
+    <string name="connectivity_probe_label_dns">DNS-resolvers</string>
+    <string name="connectivity_probe_label_tcp443">TCP-poort 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Configuratie-eindpunt</string>
+    <string name="connectivity_probe_label_chat">Chatpoort (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (controle)</string>
+    <string name="connectivity_probe_label_hints">Aanvullende signalen</string>
+    <string name="connectivity_probe_hint_middlebox">Snelle verbinding, maar trage versleutelde handshake — mogelijk onderschept een transparante proxy of een traffic-shaping-apparaat deze verbinding.</string>
+    <string name="connectivity_probe_hint_port53">De DNS-opvraging van het apparaat werd verdacht snel beantwoord terwijl al het overige traag was — dit netwerk onderschept mogelijk DNS-opvragingen.</string>
+    <string name="ballot_removed">Poll verwijderd</string>
+    <string name="cd_menu_more">Meer opties</string>
+    <string name="error_reporting_details_button">Technische details</string>
+    <string name="error_reporting_learn_more_button">Meer informatie</string>
+    <string name="hint_search_list">Zoektekst invoeren</string>
+    <string name="notifications_for_one_week">Voor 1 week</string>
+    <string name="prefs_about">Over</string>
+    <string name="prefs_advanced">Geavanceerd</string>
+    <string name="prefs_community_and_sharing">Community en delen</string>
+    <string name="prefs_linked_devices">Gekoppelde apparaten</string>
+    <string name="prefs_title_sum_message_log_forced_on">Systeemactiviteit wordt gelogd. Verwijder het bestand «%1$s» om loggen uit te schakelen. (%2$s)</string>
+    <string name="prefs_title_sum_message_log_on_since">Systeemactiviteit wordt gelogd sinds %1$s (%2$s)</string>
+    <string name="reply_to_message">Beantwoorden</string>
+    <string name="restore_id_string_label">Tekststring van ID-export</string>
+    <string name="search_list">Lijst doorzoeken</string>
+    <string name="startup_error_details">${app_name_short} kon niet worden geopend vanwege een onverwachte fout. Exporteer het onderstaande logbestand en neem contact op met ons ondersteuningsteam, zodat we het probleem kunnen onderzoeken. Onze excuses voor het ongemak.</string>
+    <string name="status_group_you_left">Je hebt de groep verlaten.</string>
+    <string name="status_group_you_were_added">Je bent aan de groep toegevoegd.</string>
+    <string name="status_group_you_were_removed">Je bent uit de groep verwijderd.</string>
 </resources>

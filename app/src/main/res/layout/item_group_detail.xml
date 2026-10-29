@@ -21,10 +21,10 @@
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="16dip"
-        android:layout_marginRight="5dip"
-        android:layout_toLeftOf="@+id/info_container"
-        android:layout_toRightOf="@id/avatar_view"
+        android:layout_marginStart="16dip"
+        android:layout_marginEnd="5dip"
+        android:layout_toStartOf="@+id/info_container"
+        android:layout_toEndOf="@id/avatar_view"
         android:ellipsize="marquee"
         android:singleLine="true"
         android:text="Name"
@@ -35,16 +35,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="8dp">
+        android:layout_marginStart="8dp">
 
         <TextView
             android:id="@+id/threemaid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="1dp"
-            android:layout_marginRight="2dp"
+            android:layout_marginEnd="2dp"
             android:singleLine="true"
             android:textAppearance="@style/Threema.TextAppearance.List.SecondLine" />
 

@@ -57,6 +57,9 @@ public class TextChatAdapterDecorator extends ChatAdapterDecorator {
                     messageText = quoteContent.bodyText;
                 }
             } else {
+                if (holder.bodyTextView instanceof EmojiConversationTextView) {
+                    ((EmojiConversationTextView) holder.bodyTextView).setSpoilerContext(getMessageModel().getId());
+                }
                 holder.bodyTextView.setText(formatTextString(context, messageText, this.filterString, helper.getMaxBubbleTextLength() + 8));
             }
 
@@ -173,6 +176,9 @@ public class TextChatAdapterDecorator extends ChatAdapterDecorator {
             holder.quoteBar.setVisibility(View.GONE);
         }
 
+        if (holder.bodyTextView instanceof EmojiConversationTextView) {
+            ((EmojiConversationTextView) holder.bodyTextView).setSpoilerContext(getMessageModel().getId());
+        }
         holder.bodyTextView.setText(formatTextString(context, content.bodyText, this.filterString, helper.getMaxBubbleTextLength() + 8));
         holder.bodyTextView.setVisibility(View.VISIBLE);
 

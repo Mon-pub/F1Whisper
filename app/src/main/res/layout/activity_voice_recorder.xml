@@ -32,6 +32,20 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
+        <!-- F1Whisper: dual-handle waveform trim widget. Shown only when the recording is finished
+             (FinishedRecording state), letting the user crop the start/end before sending. -->
+        <ch.threema.app.ui.AudioTrimView
+            android:id="@+id/audio_trim_view"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="4dp"
+            android:contentDescription="@string/audio_trim_action"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
         <RelativeLayout
             android:id="@+id/bottom_panel"
             android:layout_width="match_parent"
@@ -42,7 +56,7 @@
                 android:id="@+id/button_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:animateLayoutChanges="true"
                 android:divider="?android:attr/dividerVertical"
                 android:dividerPadding="12dp"
@@ -55,7 +69,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
                     android:background="@drawable/selector_compose_button"
                     android:clickable="true"
                     android:contentDescription="@string/discard"
@@ -90,9 +104,24 @@
                     android:clickable="true"
                     android:contentDescription="@string/pause"
                     android:focusable="true"
-                    android:nextFocusRight="@+id/send_button"
+                    android:nextFocusRight="@+id/listen_once_toggle"
                     android:scaleType="centerInside"
                     app:srcCompat="@drawable/ic_pause"
+                    app:tint="?attr/colorOnSurface" />
+
+                <ImageView
+                    android:id="@+id/listen_once_toggle"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/selector_compose_button"
+                    android:clickable="true"
+                    android:contentDescription="@string/listen_once_disabled"
+                    android:focusable="true"
+                    android:nextFocusRight="@+id/send_button"
+                    android:scaleType="centerInside"
+                    app:srcCompat="@drawable/ic_listen_once"
                     app:tint="?attr/colorOnSurface" />
 
             </LinearLayout>
@@ -101,8 +130,8 @@
                 android:id="@+id/timer_container"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginLeft="4dp"
-                android:layout_toRightOf="@id/button_layout">
+                android:layout_marginStart="4dp"
+                android:layout_toEndOf="@id/button_layout">
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="wrap_content"
@@ -162,7 +191,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/timer_container"
+                android:layout_toEndOf="@id/timer_container"
                 android:background="@drawable/selector_compose_button"
                 android:clickable="true"
                 android:contentDescription="Bluetooth"
@@ -178,9 +207,9 @@
                 style="@style/Threema.MaterialButton.Icon.Circle.Filled.Small"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp"
                 android:clickable="true"
                 android:contentDescription="@string/send"
                 android:focusable="true"

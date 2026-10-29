@@ -16,6 +16,7 @@ import ch.threema.app.notifications.NotificationChannels
 import ch.threema.app.notifications.NotificationIDs
 import ch.threema.app.preference.service.PreferenceService
 import ch.threema.app.preference.service.SynchronizedSettingsService
+import ch.threema.app.services.DisappearingMessageService
 import ch.threema.app.services.UserService
 import ch.threema.app.utils.IntentDataUtil
 import ch.threema.base.utils.getThreemaLogger
@@ -79,6 +80,16 @@ class AutostartWorker(
                 userService.getAccount(true)
                 userService.enableAccountAutoSync(true)
             }
+        }
+
+        // F1Whisper: repair any countdown that can never reach a deadline, then sweep and delete the
+        // disappearing messages whose timer expired during the boot gap, then re-arm the alarm for
+        // the remaining ones. A boot is the natural home for the repair scan: it happens once, off
+        // the chat-open path, and a process kill is precisely what can leave a row unstamped.
+        try {
+            DisappearingMessageService.getInstance().repairAndPurgeOverdue()
+        } catch (e: Exception) {
+            logger.warn("Could not purge overdue disappearing messages after boot", e)
         }
 
         logger.info("Processing AutoStart - end")

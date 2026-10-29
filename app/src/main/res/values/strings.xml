@@ -242,6 +242,14 @@
     <string name="threema_version_code">Version Code</string>
     <!-- Section title on "About" screen, for section which shows information about the (on prem) server and user credentials -->
     <string name="about_server_config_title">Server Configuration</string>
+    <!-- Title of the dialog for changing the (on prem) server domain on the "About" screen -->
+    <string name="change_server_dialog_title">Change server</string>
+    <!-- Input hint of the dialog for changing the (on prem) server domain; the user enters the server domain (host) -->
+    <string name="change_server_dialog_hint">Server domain</string>
+    <!-- Title of the warning dialog shown before applying a new (on prem) server domain -->
+    <string name="change_server_warning_title">Change server?</string>
+    <!-- Warning message shown before applying a new (on prem) server domain. Explains that the change is dangerous and will likely break the app if the domain is wrong. -->
+    <string name="change_server_warning_message">Changing the server will likely disconnect your current identity. Only do this if your provider has confirmed the new domain. If the domain is wrong, the app will stop working.</string>
     <string name="wrong_backupid_or_password_or_no_internet_connection">No connection to the internet, invalid ID export data or incorrect password</string>
     <string name="prefs_header_other">Other</string>
     <string name="an_error_occurred">An error occurred</string>
@@ -345,6 +353,10 @@
     <string name="my_backups_title">Backups</string>
     <string name="backup_delete_confirm">Backup file deleted</string>
     <string name="message_log_title">Message details</string>
+    <!-- F1Whisper: group message-details receipt sections -->
+    <string name="message_details_read_by">Read by</string>
+    <string name="message_details_delivered_to">Delivered to</string>
+    <string name="message_details_sent_to">Sent to</string>
     <string name="state_read">read</string>
     <string name="state_delivered">delivered</string>
     <string name="state_sending">sending</string>
@@ -427,6 +439,10 @@
     <string name="title_tab_distribution_list">Distribution lists</string>
     <string name="no_matching_distribution_lists">No matching distribution lists</string>
     <string name="is_typing">is typing…</string>
+    <!-- F1Whisper: group typing indicators -->
+    <string name="group_one_typing">%s is typing…</string>
+    <string name="group_two_typing">%1$s and %2$s are typing…</string>
+    <string name="group_many_typing">%1$s and %2$d others are typing…</string>
     <string name="push_not_available_title">No push service found</string>
     <string name="push_not_available_text1">We could not find a push service on your device because Google Play Services are not installed or outdated.</string>
     <string name="push_not_available_text2">%s will try to open a persistent background connection to the server. This may not work reliably if your device’s battery optimization mechanisms interfere with the background connection.</string>
@@ -503,6 +519,30 @@
     <string name="ballot_wizard0_explain">Quickly create an online poll directly with ${app_name_short}. Schedule an event, create
         a survey or ask your contacts anything you want.</string>
     <string name="ballot_add_choices">Add answers</string>
+    <!-- F1Whisper checklist (rides the poll wire; F1Whisper-only). %1$s is a comma-separated list of names. -->
+    <string name="checklist">Checklist</string>
+    <string name="checklist_create_as">Create as checklist</string>
+    <string name="checklist_fork_only">Checklists only work between F1Whisper users.</string>
+    <string name="checklist_toggle_item">Toggle checklist item</string>
+    <string name="checklist_checked_by">Checked by %1$s</string>
+    <string name="checklist_created_successfully">Checklist created</string>
+    <string name="checklist_placeholder">Checklist</string>
+    <string name="checklist_subject_hint">Enter a checklist title</string>
+    <string name="checklist_wizard0_explain">Create a shared to-do list. Everyone in the chat can check and uncheck items at any time, and checked items move to the bottom.</string>
+    <string name="checklist_add_items">Add items</string>
+    <string name="checklist_item_add">Add an item</string>
+    <string name="checklist_item_count_error">Please add at least one item</string>
+    <string name="checklist_add_item_title">Add item</string>
+    <string name="checklist_add_item_hint">New item name</string>
+    <string name="checklist_add_item_button">Add</string>
+    <string name="checklist_delete_item_title">Delete item?</string>
+    <string name="checklist_delete_item_message">Are you sure you want to delete \"%1$s\"?</string>
+    <string name="checklist_delete_button">Delete</string>
+    <string name="checklist_reorder_item">Move checklist item</string>
+    <string name="checklist_cannot_reorder">This item can\'t be moved</string>
+    <string name="checklist_edit_title">Edit checklist</string>
+    <string name="checklist_edit_apply">Apply</string>
+    <string name="checklist_rename_item_title">Rename item</string>
     <string name="blocked_cannot_send">You cannot send messages to a blocked contact</string>
     <string name="invalid_some_cannot_send">Some of the recipients cannot be selected.</string>
     <string name="invalid_all_cannot_send">These recipients cannot be selected.</string>
@@ -641,6 +681,12 @@
     <string name="prefs_sendlog_summary">Send log file to ${company_name} for further analysis in case of problems</string>
     <string name="prefs_exportlog">Export Log File</string>
     <string name="prefs_exportlog_summary">Share log file with another app</string>
+    <string name="prefs_connection_diagnostics">Connection &amp; notification diagnostics</string>
+    <string name="prefs_connection_diagnostics_summary">Export a report of connection, push, notification and battery status to help diagnose missing notifications</string>
+    <string name="preferences__refresh_onprem_config" translatable="false">preferences__refresh_onprem_config</string>
+    <string name="prefs_refresh_onprem_config">Refresh server configuration</string>
+    <string name="prefs_refresh_onprem_config_summary">Re-download the server configuration now. Useful after the server adds new features such as desktop linking.</string>
+    <string name="onprem_config_refreshed">Server configuration refreshed</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="permission_storage_required">To save or send media, allow ${app_name} permission to access storage.</string>
     <!-- ${app_name} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -801,6 +847,10 @@
     <string name="cannot_open_file">Could not open file</string>
     <string name="prefs_title_image_attach_previews">Media quick select</string>
     <string name="prefs_sum_image_attach_previews">Display a list of recently added images in the attachments popup</string>
+    <!-- F1Whisper: link previews (Signal-style, sender-only fetch) -->
+    <string name="prefs_title_link_previews">Generate link previews</string>
+    <string name="prefs_sum_link_previews">Retrieve previews for links in messages you send. Previews are sent end-to-end encrypted; the recipient\'s device never contacts the website.</string>
+    <string name="link_preview_remove">Remove link preview</string>
     <string name="prefs_title_direct_share">Direct Share</string>
     <string name="prefs_sum_direct_share">Display recent chats when sharing from other apps</string>
     <string name="restore_disable_energy_saving">Please connect your device to the charger and disable all energy saving options to prevent your device from interrupting the backup or restore process.</string>
@@ -812,6 +862,13 @@
     <string name="really_reset_ringtones">Really reset notification sound settings to defaults?</string>
     <string name="reset_ringtones_confirm">Notification sound settings have been reset.</string>
     <string name="prefs_language_override">Language</string>
+    <string name="wizard_change_language">Change language</string>
+    <string name="activation_key_hint">Activation key</string>
+    <string name="use_username_password">Use username &amp; password</string>
+    <string name="use_activation_key">Use activation key</string>
+    <string name="invalid_activation_key">Invalid activation key</string>
+    <string name="use_different_key">Use a different key</string>
+    <string name="activation_key_already_redeemed">This activation key has already been used. Please enter a different key.</string>
     <!-- ${app_name_short} are placeholders for the app's name, e.g. "Threema". They must be left as-is and not translated. -->
     <string name="threema_channel_intro">${app_name_short} Channel provides you with news about all things ${app_name_short}. Would you like to subscribe to ${app_name_short} Channel and add it to your contacts? It’s free and you can unsubscribe at any time.</string>
     <!-- Name of action in context menu for a chat message, which lets the user write a reply to that message -->
@@ -908,6 +965,9 @@
     <string name="strikethrough">Strikethru</string>
     <string name="italic">Italic</string>
     <string name="bold">Bold</string>
+    <string name="markup_monospace">Monospace</string>
+    <string name="markup_spoiler">Spoiler</string>
+    <string name="spoiler_hidden_content_description">Hidden spoiler text, double tap to reveal</string>
     <string name="shortcut_choice_title">Create a shortcut for a…</string>
     <string name="notifications_disabled_title">Notifications disabled</string>
     <string name="error_attaching_files">Error adding attachments.</string>
@@ -968,6 +1028,7 @@
     <string name="quote_not_found">Quoted message not found</string>
     <string name="ballot_secret">secret</string>
     <string name="password_too_short_generic">Password too short</string>
+    <string name="safe_password_complexity_unmet">Password must be longer than 10 characters and contain lowercase, uppercase, a digit and a symbol</string>
     <string name="passwords_dont_match">Passwords don’t match</string>
     <!-- Error message shown when setting up a custom server for the Threema Safe feature. %s is a placeholder for the details of the error. -->
     <string name="threema_safe_test_unsuccessful">Test unsuccessful: %s</string>
@@ -979,7 +1040,7 @@
     <string name="safe_learn_more_button">Learn more</string>
     <string name="safe_enable_explain">All you need to chat is stored only on your device. You don’t have an account with us and we cannot help you out if you lose your phone or accidentally delete your data.\n\n${app_name_short} Safe creates automatic backups of all the important data, including your keys, your contact list and your group memberships (but no message content), anonymously on a secure server of your choice.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_disable_confirm">Do you want to continue without enabling ${app_name_short} Safe? When using ${app_name_short} Safe, you can restore your ${app_name_short} ID, contacts and groups in case you lose access to your device.</string>
+    <string name="safe_disable_confirm">Do you want to continue without enabling ${app_name_short} Safe? When using ${app_name_short} Safe, you can restore your ${app_name_short} ID and groups in case you lose access to your device.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_configure_choose_password">Please choose a strong password. You will need this password to restore your ${app_name_short} Safe backup.</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
@@ -996,14 +1057,7 @@
     <string name="safe_threema_id">Your ${app_name_short} ID</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_restore_enter_id">Please enter the ${app_name_short} ID you would like to recover</string>
-    <string name="safe_search_id_title">Please enter the mobile number or the email address linked to your ${app_name_short}-ID</string>
-    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_id_lookup">Looking up ${app_name_short} ID</string>
-    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_no_id_found">No ${app_name_short} ID found</string>
     <string name="safe_no_backup_found">No backup found on the server. Check ID and password.</string>
-    <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
-    <string name="safe_select_id">Multiple ${app_name_short} IDs found. Please select the ID to use:</string>
     <string name="safe_backup_now">Backup Now</string>
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="safe_enable_explain_short">Enable ${app_name_short} Safe to create automatic secure and anonymous backups of all your important data.</string>
@@ -1041,7 +1095,6 @@
     <string name="safe_restore">Restore ${app_name_short} Safe</string>
     <string name="backup_restore_in_progress">Backup or restore in progress. Check notification for status information.</string>
     <string name="restore_error_body">Restore did not complete successfully</string>
-    <string name="forgot_your_id">Forgot your ID?</string>
     <string name="restore_success_body">Restore successfully completed</string>
     <string name="work_data_sync">Data sync</string>
     <string name="private_contact">Private Contact</string>
@@ -1176,6 +1229,30 @@
     <string name="wallpaper_gallery">Select from gallery</string>
     <string name="wallpaper_none">Empty background</string>
     <string name="wallpaper_threema">%s wallpaper</string>
+    <!-- F1Whisper: built-in gradient chat backgrounds -->
+    <string name="chat_background_choose">Backgrounds</string>
+    <string name="chat_background_random">Random (varied per chat)</string>
+    <string name="chat_background_numbered">Background %1$d</string>
+    <!-- F1Whisper: listen-once voice messages -->
+    <string name="listen_once_enabled">Listen once: on</string>
+    <string name="listen_once_disabled">Listen once: off</string>
+    <string name="listen_once_badge_content_description">Listen once voice message</string>
+    <string name="forwarded_message_label">Forwarded</string>
+    <string name="listen_once_already_listened">Listened</string>
+    <string name="listen_once_sent">Listen-once voice message</string>
+    <string name="listen_once_cannot_forward">Listen-once messages cannot be forwarded</string>
+    <string name="listen_once_expired">Voice message expired</string>
+    <!-- F1Whisper: voice message trimming before send -->
+    <string name="audio_trim_hint">Drag the handles to trim</string>
+    <string name="audio_trim_action">Trim</string>
+    <!-- F1Whisper: shown when an attached audio file cannot be cropped for this format; the send is aborted (the untrimmed file is NEVER sent after a trim request) so the user can retry or remove the trim -->
+    <string name="audio_trim_not_supported">Trimming isn\'t supported for this audio format. Remove the trim to send the full file.</string>
+    <!-- F1Whisper: shown when an audio trim could not be completed; the send is aborted (nothing is sent) so the user can try again -->
+    <string name="audio_trim_failed">Couldn\'t trim this audio. Nothing was sent. Please try again or remove the trim.</string>
+    <!-- F1Whisper: image/video spoiler -->
+    <string name="media_spoiler">Spoiler</string>
+    <string name="media_spoiler_reveal">Tap to reveal</string>
+    <string name="media_spoiler_badge_content_description">Hidden media. Double tap to reveal.</string>
     <string name="message_id">Message ID</string>
     <string name="mime_type">MIME type</string>
     <string name="password_does_not_comply">The password does not comply with the guidelines set by the administrator.</string>
@@ -1408,11 +1485,20 @@
     <string name="forward_security_reset_simple">The Perfect Forward Secrecy session with this contact has been reset.</string>
     <string name="forward_security_message_out_of_order">A message was received out of order and could not be decrypted.</string>
     <string name="forward_security_notification_channel_name">Perfect Forward Secrecy Warnings</string>
+    <!-- F1Whisper: emoji reaction notifications -->
+    <string name="notification_channel_emoji_reactions">Reactions</string>
+    <string name="reaction_notification_text">%1$s reacted %2$s to your message</string>
+    <string name="prefs_title_reaction_notifications">Reaction notifications</string>
+    <string name="prefs_sum_reaction_notifications">Notify me when someone reacts to one of my messages</string>
     <string name="forward_security_notification_rejected_title">Sending of messages failed</string>
     <string name="forward_security_notification_rejected_text_contact">One or more messages could not be sent to %1$s.</string>
     <string name="forward_security_notification_rejected_text_group">One or more messages could not be sent to “%1$s.”</string>
     <string name="forward_security_notification_rejected_text_generic">One or more messages could not be sent.</string>
     <string name="self_updater_installation_failed">The download of the update failed. Please download and install the update from <a href="https://shop.threema.ch/download">https://shop.threema.ch/download</a> manually.</string>
+    <string name="self_updater_downloading_background">Downloading update in the background…</string>
+    <string name="self_updater_update_ready_title">Update downloaded</string>
+    <string name="self_updater_update_ready_text">Tap to install the update</string>
+    <string name="self_updater_download_failed">Update download failed. Tap to download it manually.</string>
     <string name="spam_first_contact">This chat is from an unknown contact</string>
     <string name="spam_report">Report Spam</string>
     <!-- ${company_name} is a placeholder for the name of the company that operates the app, e.g. "Threema". It must be left as-is and not translated. -->
@@ -1589,6 +1675,10 @@
     <!-- ${app_name_short} is a placeholder for the app's name, e.g. "Threema". It must be left as-is and not translated. -->
     <string name="problemsolver_explain_app_battery_usgae_optimized">The app is not allowed to maintain a permanent connection to the servers which is required for ${app_name_short} Push to work. You will not be informed of new messages when the app is in the background. To fix this, tap on “App battery usage” and select “Unrestricted.”</string>
     <string name="problemsolver_to_settings">To settings</string>
+    <string name="problemsolver_title_oem_autostart">Allow background running</string>
+    <!-- %1$s is the device manufacturer name (e.g. "HONOR", "Xiaomi"). It is filled in at runtime and must be left as the placeholder %1$s, not translated. -->
+    <string name="problemsolver_explain_oem_autostart">%1$s devices can stop F1Whisper from running in the background, which blocks message notifications even when battery optimization is already turned off. Open the guide and allow F1Whisper to auto-start and run in the background.</string>
+    <string name="problemsolver_oem_autostart_action">Open setup guide</string>
     <!-- Label on button to dismiss/hide a warning -->
     <string name="problemsolver_dismiss">Dismiss</string>
     <string name="prefs_advanced_options">Advanced settings</string>
@@ -1974,4 +2064,83 @@
         <item quantity="many">%d group members</item>
         <item quantity="other">%d group members</item>
     </plurals>
+    <!-- F1Whisper: scheduled messages -->
+    <!-- Chat folders -->
+    <string name="chat_folders">Chat folders</string>
+    <string name="manage_folders">Manage folders</string>
+    <string name="add_to_folder">Add to folder</string>
+    <string name="folder_all">All</string>
+    <string name="new_folder">New folder</string>
+    <string name="create_folder">Create folder</string>
+    <string name="rename_folder">Rename folder</string>
+    <string name="delete_folder">Delete folder</string>
+    <string name="delete_folder_confirm">Remove this folder? Your chats will not be deleted.</string>
+    <string name="folder_name_hint">Folder name</string>
+    <string name="folder_name_empty">Please enter a folder name</string>
+    <string name="no_chat_folders">You haven\'t created any folders yet</string>
+    <string name="folder_created">Folder created</string>
+    <string name="folder_deleted">Folder deleted</string>
+    <string name="add_to_folder_title">Add chat to folders</string>
+    <string name="folder_empty">No chats in this folder</string>
+    <!-- F1Whisper: picture-in-picture minimize button label (video viewer) -->
+    <string name="pip_minimize">Minimize</string>
+    <!-- F1Whisper: local message pinning (no wire change; stored in displayTags bitmask) -->
+    <string name="pin_message">Pin message</string>
+    <string name="unpin_message">Unpin</string>
+    <string name="pinned_message_banner_label">Pinned message</string>
+    <!-- Banner label when several messages are pinned; %1$d is the 1-based position of the message currently shown, %2$d the total pinned count. Tapping the banner cycles through them. -->
+    <string name="pinned_message_banner_label_counter">Pinned message %1$d/%2$d</string>
+    <string name="pinned_message_banner_dismiss">Hide pinned message banner</string>
+    <!-- F1Whisper: disappearing messages (Signal-style per-conversation timer). Best-effort,
+         client-side, F1Whisper-to-F1Whisper only. -->
+    <string name="disappearing_messages_title">Disappearing messages</string>
+    <string name="disappearing_messages_summary">New messages in this chat will disappear after the selected time once they are read.</string>
+    <string name="disappearing_off">Off</string>
+    <string name="disappearing_duration_picker_title">Disappearing timer</string>
+    <!-- %1$s is the contact/member name, %2$s is the duration label (e.g. "1 day"). -->
+    <string name="status_disappearing_set">%1$s set disappearing messages to %2$s</string>
+    <!-- %1$s is the duration label (e.g. "1 day"). -->
+    <string name="status_disappearing_set_you">You set disappearing messages to %1$s</string>
+    <!-- %1$s is the contact/member name. -->
+    <string name="status_disappearing_off">%1$s turned off disappearing messages</string>
+    <string name="status_disappearing_off_you">You turned off disappearing messages</string>
+    <string name="disappearing_messages_unsupported">Disappearing messages only work between F1Whisper users and are not a security guarantee.</string>
+    <!-- Duration option labels for the disappearing-timer picker (also used in the status message). -->
+    <string name="disappearing_duration_30s">30 seconds</string>
+    <string name="disappearing_duration_5m">5 minutes</string>
+    <string name="disappearing_duration_1h">1 hour</string>
+    <string name="disappearing_duration_8h">8 hours</string>
+    <string name="disappearing_duration_1d">1 day</string>
+    <string name="disappearing_duration_1w">1 week</string>
+    <string name="disappearing_duration_4w">4 weeks</string>
+    <!-- Message-details row: label for the disappearing-message deletion time. -->
+    <string name="message_details_disappears_at">Disappears</string>
+    <!-- Message-details row value when the countdown has not started yet. %1$s is a duration label (e.g. "1 day"). -->
+    <string name="message_details_disappears_after_read">%1$s after read</string>
+
+    <!-- F1Whisper connectivity troubleshooter (diagnosis only). Shown from the registration error
+         and the connection-failure entry points. Runs a battery of network probes and produces a
+         shareable report. Do NOT translate the port number "5222" or brand names. -->
+    <string name="connectivity_probe_dialog_title">Connection diagnostics</string>
+    <string name="connectivity_probe_running">Running checks…</string>
+    <string name="connectivity_probe_done">Checks complete</string>
+    <string name="connectivity_probe_send_btn">Send diagnostics</string>
+    <string name="connectivity_probe_close_btn">Close</string>
+    <string name="connectivity_probe_verdict_all_ok">Server is reachable. Check your account or device settings.</string>
+    <string name="connectivity_probe_verdict_no_internet">No working internet on this network.</string>
+    <string name="connectivity_probe_verdict_dns_poisoning">DNS poisoning suspected: system DNS returns different IPs.</string>
+    <string name="connectivity_probe_verdict_sni_blocking">SNI-based TLS blocking suspected: our hostname is blocked.</string>
+    <string name="connectivity_probe_verdict_ip_blocked">Server IP is blocked on this network.</string>
+    <string name="connectivity_probe_verdict_chat_port_blocked">Chat port (5222) is blocked. HTTPS still works.</string>
+    <string name="connectivity_probe_verdict_slow_throttled">Server reachable but the network is severely slow/throttled — connections may time out. Try again, or switch between Wi-Fi and mobile data.</string>
+    <string name="connectivity_probe_verdict_partial_failure">Some checks failed. Share the report for analysis.</string>
+    <string name="connectivity_probe_label_dns">DNS resolvers</string>
+    <string name="connectivity_probe_label_tcp443">TCP port 443</string>
+    <string name="connectivity_probe_label_tls">TLS / HTTPS</string>
+    <string name="connectivity_probe_label_oppf">Config endpoint</string>
+    <string name="connectivity_probe_label_chat">Chat port (5222)</string>
+    <string name="connectivity_probe_label_control">Internet (control)</string>
+    <string name="connectivity_probe_label_hints">Additional signals</string>
+    <string name="connectivity_probe_hint_middlebox">Fast connection but slow encrypted handshake — a transparent proxy or traffic-shaping device may be intercepting this connection.</string>
+    <string name="connectivity_probe_hint_port53">The device\'s DNS answered suspiciously fast while everything else was slow — this network may be intercepting DNS lookups.</string>
 </resources>

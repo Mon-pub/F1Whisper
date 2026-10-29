@@ -1,5 +1,6 @@
 package ch.threema.storage
 
+import ch.threema.storage.databaseupdate.AdoptedDatabaseUpdate
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,9 +51,11 @@ class DatabaseUpdaterTest {
         val updates = updater.getUpdates(oldVersion = 0)
 
         updates.forEach { update ->
+            // F1-PATCH: an adopted upstream update keeps its upstream class name (see ForkDatabaseVersionSequenceTest).
+            val named = (update as? AdoptedDatabaseUpdate)?.upstream ?: update
             assertEquals(
-                "DatabaseUpdateToVersion${update.version}",
-                update::class.simpleName,
+                "DatabaseUpdateToVersion${named.version}",
+                named::class.simpleName,
             )
         }
     }

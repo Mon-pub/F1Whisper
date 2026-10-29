@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- F1Whisper: onprem-flavor string overrides and additions for Hungarian. -->
+<resources>
+    <!-- F1Whisper: mandatory-update gate strings. -->
+    <string name="mandatory_update_countdown">A szerver további használatához újabb verzió szükséges. Kérjük, frissítsen %1$s-on belül.</string>
+    <string name="mandatory_update_forced_title">Frissítés szükséges</string>
+    <string name="mandatory_update_forced_body">A szerver további használatához újabb verzió szükséges. Kérjük, frissítsen most.</string>
+    <!-- F1Whisper: mandatory-update action label + localized remaining-time plurals. -->
+    <string name="mandatory_update_action">Frissítés most</string>
+    <plurals name="mandatory_update_days">
+        <item quantity="one">%d nap</item>
+        <item quantity="other">%d nap</item>
+    </plurals>
+    <plurals name="mandatory_update_hours">
+        <item quantity="one">%d óra</item>
+        <item quantity="other">%d óra</item>
+    </plurals>
+</resources>

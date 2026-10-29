@@ -58,11 +58,26 @@ public class MediaItem implements Parcelable {
     private boolean deleteAfterUse;
     private boolean isEdited;
     private boolean muted;
+    private boolean listenOnce;
+    private boolean spoiler;
+    private boolean forwarded; // F1Whisper: this media is being forwarded from another message
+    // F1Whisper: when set, this media item is a Signal-style link preview. The image is the og:image
+    // (or a placeholder), the caption is the user's text, and these carry the preview metadata E2E.
+    @Nullable
+    private String linkPreviewUrl;
+    @Nullable
+    private String linkPreviewTitle;
+    @Nullable
+    private String linkPreviewDescription;
+    // F1Whisper: when set, this media is being sent as a reply-quote of an existing message. Holds the
+    // quoted message's 16-hex apiMessageId; carried E2E via the "qi" file metadata key at send time.
+    @Nullable
+    private String quotedMessageId;
 
     private static final Logger logger = getThreemaLogger("MediaItem");
 
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({TYPE_FILE, TYPE_IMAGE, TYPE_VIDEO, TYPE_IMAGE_CAM, TYPE_VIDEO_CAM, TYPE_VOICEMESSAGE, TYPE_TEXT, TYPE_LOCATION, TYPE_IMAGE_ANIMATED})
+    @IntDef({TYPE_FILE, TYPE_IMAGE, TYPE_VIDEO, TYPE_IMAGE_CAM, TYPE_VIDEO_CAM, TYPE_VOICEMESSAGE, TYPE_TEXT, TYPE_LOCATION, TYPE_IMAGE_ANIMATED, TYPE_AUDIO_FILE})
     public @interface MediaType {
     }
 
@@ -75,6 +90,10 @@ public class MediaItem implements Parcelable {
     public static final int TYPE_TEXT = 6;
     public static final int TYPE_LOCATION = 7;
     public static final int TYPE_IMAGE_ANIMATED = 8; // animated images such as animated WebP
+    // F1Whisper: an attached audio FILE (mp3, opus/ogg, m4a, mp4-audio) that is NOT a recorded voice
+    // message. Unlike TYPE_FILE it gets a trim timeline in the send/preview flow (mirroring video),
+    // and is still sent as a regular file message (RENDERING_DEFAULT) so the recipient sees a file.
+    public static final int TYPE_AUDIO_FILE = 9;
 
     public static final long TIME_UNDEFINED = Long.MIN_VALUE;
 
@@ -266,6 +285,13 @@ public class MediaItem implements Parcelable {
         this.filename = null;
         this.deleteAfterUse = false;
         isEdited = false;
+        this.listenOnce = false;
+        this.spoiler = false;
+        this.forwarded = false;
+        this.linkPreviewUrl = null;
+        this.linkPreviewTitle = null;
+        this.linkPreviewDescription = null;
+        this.quotedMessageId = null;
     }
 
 
@@ -289,6 +315,13 @@ public class MediaItem implements Parcelable {
         deleteAfterUse = in.readInt() != 0;
         originalUri = in.readParcelable(Uri.class.getClassLoader());
         isEdited = in.readInt() != 0;
+        listenOnce = in.readInt() != 0;
+        spoiler = in.readInt() != 0;
+        forwarded = in.readInt() != 0;
+        linkPreviewUrl = in.readString();
+        linkPreviewTitle = in.readString();
+        linkPreviewDescription = in.readString();
+        quotedMessageId = in.readString();
     }
 
     @Override
@@ -311,6 +344,13 @@ public class MediaItem implements Parcelable {
         dest.writeInt(deleteAfterUse ? 1 : 0);
         dest.writeParcelable(originalUri, flags);
         dest.writeInt(isEdited ? 1 : 0);
+        dest.writeInt(listenOnce ? 1 : 0);
+        dest.writeInt(spoiler ? 1 : 0);
+        dest.writeInt(forwarded ? 1 : 0);
+        dest.writeString(linkPreviewUrl);
+        dest.writeString(linkPreviewTitle);
+        dest.writeString(linkPreviewDescription);
+        dest.writeString(quotedMessageId);
     }
 
     @Override
@@ -551,6 +591,100 @@ public class MediaItem implements Parcelable {
     }
 
     /**
+     * Return true if this voice message should be sent as "listen once" (the recipient may play it
+     * a single time, after which it is deleted and replay is blocked).
+     */
+    public boolean isListenOnce() {
+        return listenOnce;
+    }
+
+    /**
+     * Mark this voice message as "listen once". Only meaningful for {@link #TYPE_VOICEMESSAGE} items.
+     */
+    public void setListenOnce(boolean listenOnce) {
+        this.listenOnce = listenOnce;
+    }
+
+    /**
+     * F1Whisper: return true if this media is being forwarded from an existing message (so the sent
+     * copy is tagged with the "forwarded" metadata flag).
+     */
+    public boolean isForwarded() {
+        return forwarded;
+    }
+
+    /**
+     * F1Whisper: mark this media item as a forward of an existing message.
+     */
+    public void setForwarded(boolean forwarded) {
+        this.forwarded = forwarded;
+    }
+
+    /**
+     * F1Whisper: return true if this media item is a link-preview card (a preview URL is set).
+     */
+    public boolean isLinkPreview() {
+        return linkPreviewUrl != null && !linkPreviewUrl.isBlank();
+    }
+
+    @Nullable
+    public String getLinkPreviewUrl() {
+        return linkPreviewUrl;
+    }
+
+    @Nullable
+    public String getLinkPreviewTitle() {
+        return linkPreviewTitle;
+    }
+
+    @Nullable
+    public String getLinkPreviewDescription() {
+        return linkPreviewDescription;
+    }
+
+    /**
+     * F1Whisper: mark this media item as a Signal-style link preview carrying the given Open Graph
+     * metadata (transmitted E2E so the recipient renders the card without fetching the URL).
+     */
+    public void setLinkPreview(@NonNull String url, @Nullable String title, @Nullable String description) {
+        this.linkPreviewUrl = url;
+        this.linkPreviewTitle = title;
+        this.linkPreviewDescription = description;
+    }
+
+    /**
+     * F1Whisper: return the quoted message's 16-hex apiMessageId if this media is being sent as a
+     * reply-quote, or {@code null} otherwise.
+     */
+    @Nullable
+    public String getQuotedMessageId() {
+        return quotedMessageId;
+    }
+
+    /**
+     * F1Whisper: mark this media item as a reply-quote of the message with the given apiMessageId
+     * (16-lowercase-hex). Carried E2E via the "qi" file metadata key so the recipient renders the
+     * quote header above the media bubble.
+     */
+    public void setQuotedMessageId(@Nullable String quotedMessageId) {
+        this.quotedMessageId = quotedMessageId;
+    }
+
+    /**
+     * Return true if this image/video should be sent obscured (Telegram-style spoiler).
+     */
+    public boolean isSpoiler() {
+        return spoiler;
+    }
+
+    /**
+     * Mark this image/video as a spoiler. Only meaningful for {@link #TYPE_IMAGE}/{@link #TYPE_VIDEO} items.
+     */
+    public void setSpoiler(boolean spoiler) {
+        this.spoiler = spoiler;
+    }
+
+    /**
      * Return true if the media item has been modified. For images this includes: crop, painted,
      * rotated, or flipped. For videos this includes: different start time, different end time
      */
@@ -559,6 +693,9 @@ public class MediaItem implements Parcelable {
             return isEdited() || orientation.getRotation() != 0 || orientation.getFlip() != BitmapUtil.FLIP_NONE;
         } else if (type == TYPE_VIDEO || type == TYPE_VIDEO_CAM) {
             return needsTrimming() || muted;
+        } else if (type == TYPE_AUDIO_FILE) {
+            // F1Whisper: an attached audio file is "changed" when the user cropped its trim window.
+            return needsTrimming();
         } else {
             return false;
         }
@@ -574,7 +711,8 @@ public class MediaItem implements Parcelable {
         } else if (type == TYPE_IMAGE || type == TYPE_IMAGE_CAM) {
             return getImageScale() == PreferenceService.IMAGE_SCALE_SEND_AS_FILE;
         } else {
-            return type == TYPE_FILE || type == TYPE_IMAGE_ANIMATED;
+            // F1Whisper: TYPE_AUDIO_FILE is always sent as a regular file (just trimmed beforehand).
+            return type == TYPE_FILE || type == TYPE_IMAGE_ANIMATED || type == TYPE_AUDIO_FILE;
         }
     }
 

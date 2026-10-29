@@ -50,6 +50,11 @@ public abstract class Tags {
     public static final String TAG_CONTACT_HIDDEN = "hidden";
     public static final String TAG_CONTACT_ARCHIVED = "archived";
     public static final String TAG_CONTACT_IDENTITY_ID = "identity_id"; // a unique ID representing the identity of a contact
+    /**
+     * F1Whisper: the shared per-conversation disappearing timer in seconds, empty when off. Optional
+     * on read - a backup written before v6.4.3-38 simply does not have the column.
+     */
+    public static final String TAG_CONTACT_DISAPPEARING_TIMER = "disappearing_timer";
 
     public static final String TAG_GROUP_ID = "id";
     public static final String TAG_GROUP_CREATOR = "creator";
@@ -67,6 +72,11 @@ public abstract class Tags {
     public static final String TAG_GROUP_DESC_TIMESTAMP = "groupDescTimestamp";
     public static final String TAG_GROUP_UID = "group_uid";
     public static final String TAG_GROUP_USER_STATE = "user_state";
+    /**
+     * F1Whisper: the shared group disappearing timer in seconds, empty when off. Optional on read,
+     * like {@link #TAG_CONTACT_DISAPPEARING_TIMER}.
+     */
+    public static final String TAG_GROUP_DISAPPEARING_TIMER = "disappearing_timer";
 
     public static final String TAG_MESSAGE_UID = "uid";
     public static final String TAG_MESSAGE_IDENTITY = "identity";
@@ -90,6 +100,25 @@ public abstract class Tags {
     public static final String TAG_MESSAGE_CAPTION = "caption";
     public static final String TAG_MESSAGE_QUOTED_MESSAGE_ID = "quoted_message_apiid";
     public static final String TAG_MESSAGE_DISPLAY_TAGS = "display_tags";
+
+    /**
+     * F1Whisper disappearing messages: the three columns that make up a message's countdown - the
+     * frozen timer, when the countdown began, and the hard-delete deadline.
+     *
+     * <p>Without them a backup/restore round trip made every in-flight disappearing message
+     * <em>permanent</em>: the restored rows carried no deadline, and both the sweep and the alarm
+     * select on a non-null deadline, so the engine could not see them at all. A message the sender
+     * had asked to have deleted came back and stayed.
+     *
+     * <p>All three are optional on read (guarded by {@link ch.threema.app.utils.CSVRow#hasField}).
+     * {@code RestoreSettings.CURRENT_VERSION} is deliberately NOT bumped for them:
+     * {@code isUnsupportedVersion()} rejects any backup whose version exceeds the reader's, so a bump
+     * would make every backup written by this build unrestorable on every already-shipped build.
+     * Columns are addressed by name from the file's own header, so an older reader ignores extras.
+     */
+    public static final String TAG_MESSAGE_DISAPPEARING_TIMER = "disappearing_timer";
+    public static final String TAG_MESSAGE_EXPIRE_STARTED_AT = "expire_started_at";
+    public static final String TAG_MESSAGE_EXPIRES_AT = "expires_at";
 
     public static final String TAG_DISTRIBUTION_LIST_ID = "id";
     public static final String TAG_DISTRIBUTION_LIST_NAME = "distribution_list_name";

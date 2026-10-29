@@ -116,7 +116,9 @@ public class MessageUtil {
                 && message.getType() != MessageType.VOIP_STATUS
                 && !((message.getMessageFlags() & ProtocolDefines.MESSAGE_FLAG_NO_DELIVERY_RECEIPTS) == ProtocolDefines.MESSAGE_FLAG_NO_DELIVERY_RECEIPTS);
         } else {
-            return message instanceof MessageModel
+            // F1Whisper: allow group messages to send read/received receipts (gated, like 1:1, by the
+            // "send read receipts" preference at the call site)
+            return (message instanceof MessageModel || message instanceof GroupMessageModel)
                 && !message.isOutbox()
                 && !message.isRead()
                 && !message.isStatusMessage()
@@ -127,11 +129,18 @@ public class MessageUtil {
 
     /**
      * @return true if the message model can mark as read
+     *
+     * <p>F1Whisper (device report 2026-08-06, U-01): a message deleted for everyone cannot. The write that records a
+     * read refuses a deleted row structurally, so asking for it produced three failed attempts and a warning on every
+     * chat open, and the answer never changed. The refusal belongs here, where the callers ask before they act: no
+     * attempt, no retry, and no read receipt for a message whose sender withdrew it - the sender deleted it, so a
+     * "read" notice tells them only that the chat was open.</p>
      */
     public static boolean canMarkAsRead(AbstractMessageModel message) {
         return message != null
             && !message.isOutbox()
-            && !message.isRead();
+            && !message.isRead()
+            && message.getDeletedAt() == null;
     }
 
     /**

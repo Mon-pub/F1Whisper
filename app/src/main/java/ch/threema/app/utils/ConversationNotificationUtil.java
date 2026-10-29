@@ -26,6 +26,7 @@ import ch.threema.app.services.GroupService;
 import ch.threema.app.services.MessageService;
 import ch.threema.app.services.notification.ConversationNotification;
 import ch.threema.app.services.notification.ConversationNotificationGroup;
+import ch.threema.app.services.DisappearingMessageService;
 import ch.threema.app.services.notification.NotificationService;
 
 import static ch.threema.base.utils.LoggingKt.getThreemaLogger;
@@ -58,6 +59,18 @@ public class ConversationNotificationUtil {
         @NonNull ConversationCategoryService conversationCategoryService,
         @NonNull ContactNameFormat contactNameFormat
     ) {
+        // F1Whisper: suppress the notification if the message has already expired.
+        //
+        // F1Whisper (tenth fork review, F10-06): the thread contract, stated because this is called from notification
+        // construction and used to be a route into synchronous database and filesystem work. enforceIfExpired now
+        // answers from the model in memory and schedules the removal on a worker, so this call performs no I/O on
+        // whatever thread builds the notification. It returns whether the message must be treated as gone, which is
+        // the only thing this caller needs.
+        if (DisappearingMessageService.enforceIfExpired(messageModel)) {
+            logger.debug("Suppressing notification for expired disappearing message uid={}", messageModel.getUid());
+            return null;
+        }
+
         ConversationNotification conversationNotification = null;
         if (messageModel instanceof MessageModel) {
             conversationNotification = create(context, (MessageModel) messageModel, contactService, conversationCategoryService, contactNameFormat);
@@ -284,6 +297,19 @@ public class ConversationNotificationUtil {
             messageModel.getMessageContentsType() == MessageContentsType.VIDEO
         ) {
             if (messageModel.getType() == MessageType.FILE && messageModel.getFileData().getRenderingType() != FileData.RENDERING_MEDIA) {
+                return null;
+            }
+
+            // F1-PATCH: the notification is an output boundary like any other, and it is the one the
+            // recipient does not choose to open. A spoiler's whole point is that the image is not
+            // shown until it is asked for, and there is nothing to ask here - so the thumbnail is
+            // simply withheld. The text half of this was already obscured in ConversationNotification.
+            final boolean isFileMessage = messageModel.getType() == MessageType.FILE;
+            if (!OutputRestrictionPolicy.mayReleaseThumbnailToNotification(
+                isFileMessage,
+                isFileMessage && messageModel.getFileData().isSpoiler(),
+                isFileMessage && messageModel.getFileData().isListenOnce()
+            )) {
                 return null;
             }
 

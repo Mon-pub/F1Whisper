@@ -65,6 +65,27 @@ public interface PollService {
         @NonNull TriggerSource triggerSource
     ) throws MessageTooLongException;
 
+    /**
+     * F1Whisper CHECKLIST: replace the choice set of an existing, already-published checklist with a
+     * new one (covers add / remove / reorder uniformly) and re-broadcast it over the existing Poll
+     * wire as a fresh PollSetup (same poll id, new {@code choiceList}). Only the creator may do
+     * this, and only for a CHECKLIST -- a real poll's choice set is immutable after publish.
+     *
+     * <p>The supplied list is the desired final state: existing items are matched by their stored
+     * primary-key id and updated in place (name + order), items not present are deleted (their votes
+     * are removed too), and items with id {@code <= 0} are inserted. Votes for surviving items are
+     * preserved.
+     *
+     * @param pollModel     the existing checklist poll (must be mine + a CHECKLIST + OPEN)
+     * @param targetChoices the desired final choice set (order field already assigned per position)
+     * @param triggerSource the trigger source (LOCAL for a user edit)
+     */
+    void modifyChecklistChoices(
+        @NonNull PollModel pollModel,
+        @NonNull List<PollChoiceModel> targetChoices,
+        @NonNull TriggerSource triggerSource
+    ) throws NotAllowedException, MessageTooLongException;
+
     boolean viewingPoll(PollModel pollModel, boolean view);
 
     boolean update(PollModel pollModel, PollChoiceModel choice) throws NotAllowedException;

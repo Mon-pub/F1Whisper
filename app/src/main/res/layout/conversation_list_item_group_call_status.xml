@@ -24,7 +24,7 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="4dp"
+                android:layout_marginEnd="4dp"
                 android:baselineAlignBottom="true"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_phone_locked_outline"

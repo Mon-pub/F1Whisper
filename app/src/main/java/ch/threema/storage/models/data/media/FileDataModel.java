@@ -22,6 +22,78 @@ public class FileDataModel implements MediaMessageDataInterface {
     public static final String METADATA_KEY_WIDTH = "w";
     public static final String METADATA_KEY_HEIGHT = "h";
     public static final String METADATA_KEY_ANIMATED = "a";
+    /**
+     * Custom (F1Whisper) metadata flag marking a voice message as "listen once". When {@code true},
+     * the recipient may play the message a single time, after which the decrypted media is deleted
+     * and replay is blocked. This is carried inside the E2E-encrypted file metadata map ("x"), so it
+     * is invisible to the server. NOTE: enforcement is purely client-side and best-effort.
+     */
+    public static final String METADATA_KEY_LISTEN_ONCE = "lo";
+
+    /**
+     * Custom (F1Whisper) metadata flag marking a "listen once" voice message as already consumed
+     * (played once by the recipient and its media deleted). Stored locally only - it is set after
+     * playback and persisted in the message's file-data JSON so the "burned" placeholder survives
+     * closing and reopening the chat, independent of the volatile {@link ch.threema.storage.models.MessageState}
+     * (which a later reaction/receipt could move away from {@code CONSUMED}). Never sent over the wire.
+     */
+    public static final String METADATA_KEY_LISTEN_ONCE_CONSUMED = "loc";
+
+    /**
+     * Custom (F1Whisper) metadata flag marking a "listen once" voice message as <em>claimed</em>:
+     * its decrypted audio has been released to a media player at least once. Local only, never sent
+     * over the wire.
+     *
+     * <p>This is the durable half of listen-once enforcement, and it is written <em>before</em> the
+     * plaintext reaches the player rather than after playback ends. Consumption alone
+     * ({@link #METADATA_KEY_LISTEN_ONCE_CONSUMED}) is written from the playback-ended callback on a
+     * worker thread, so until that worker commits there is nothing on disk saying the message was
+     * ever played: killing the app mid-playback used to restore a fully replayable message.</p>
+     *
+     * <p>A message that is claimed but not consumed had its playback interrupted. Replay is refused
+     * and the burn is completed on the next bind - see {@code ListenOnceDecision}.</p>
+     */
+    public static final String METADATA_KEY_LISTEN_ONCE_CLAIMED = "locl";
+
+    /**
+     * Custom (F1Whisper) metadata flag marking an image or video message as a "spoiler". When
+     * {@code true}, the recipient sees a blurred thumbnail with a tap-to-reveal overlay until they
+     * choose to reveal it (re-hidden each session). Carried inside the E2E-encrypted file metadata
+     * map ("x"), invisible to the server. Rendering/reveal are purely client-side.
+     */
+    public static final String METADATA_KEY_SPOILER = "sp";
+
+    /**
+     * Custom (F1Whisper) metadata flag marking a forwarded media/file/voice message. Set on the
+     * forwarded copy at send time and carried inside the E2E-encrypted file metadata map ("x"), so a
+     * receiving F1Whisper client also sees the "Forwarded" header (invisible to the server). Plain
+     * text/location messages have no metadata carrier and are therefore not marked.
+     */
+    public static final String METADATA_KEY_FORWARDED = "fwd";
+
+    /**
+     * Custom (F1Whisper) link-preview metadata. A previewed text message is sent as an image media
+     * message whose blob is the og:image (or a generated placeholder), whose caption is the user's
+     * text, and whose metadata carries these keys so a receiving F1Whisper client can render a
+     * Signal-style preview card WITHOUT ever fetching the URL itself (recipient IP never leaks). All
+     * three ride inside the E2E-encrypted file metadata map ("x"), invisible to the server.
+     * {@code lp_u} = url (required to be treated as a preview), {@code lp_t} = title,
+     * {@code lp_d} = description (optional). Older clients ignore them and just show image + caption.
+     */
+    public static final String METADATA_KEY_PREVIEW_URL = "lp_u";
+    public static final String METADATA_KEY_PREVIEW_TITLE = "lp_t";
+    public static final String METADATA_KEY_PREVIEW_DESCRIPTION = "lp_d";
+
+    /**
+     * Custom (F1Whisper) metadata carrying the quoted message's 16-lowercase-hex apiMessageId when a
+     * media/file/voice message is sent as a reply-quote (Signal-style "reply with any type"). Identical
+     * encoding to the text-quote {@code "> quote #<id>"} convention, so text and media quotes resolve
+     * through the same {@code getMessageModelByApiMessageIdAndReceiver} path and populate the same
+     * {@code AbstractMessageModel.quotedMessageId} column on receive. Rides inside the E2E-encrypted file
+     * metadata map ("x"), invisible to the server. Older clients ignore it and just show media + caption.
+     * Dropped on forward (a forwarded copy must not carry a cross-conversation quote reference).
+     */
+    public static final String METADATA_KEY_QUOTED_MESSAGE_ID = "qi";
 
     /**
      * When a message of type "image" is received, it is transformed into a file message, because the "image" type is deprecated.
@@ -256,6 +328,114 @@ public class FileDataModel implements MediaMessageDataInterface {
             }
         }
         return null;
+    }
+
+    /**
+     * @return {@code true} if this file message carries the "listen once" metadata flag (a voice
+     * message that the recipient may play only a single time). Returns {@code false} when the flag
+     * is absent or not set, so it is safe to call on any file message.
+     */
+    public boolean isListenOnce() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_LISTEN_ONCE));
+    }
+
+    /**
+     * @return {@code true} if this listen-once voice message has already been played once and burned
+     * (media deleted). The burned state is persisted in the file-data metadata, so it survives a
+     * chat close/reopen regardless of the message's {@link ch.threema.storage.models.MessageState}.
+     */
+    public boolean isListenOnceConsumed() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_LISTEN_ONCE_CONSUMED));
+    }
+
+    /**
+     * Persistently mark this listen-once voice message as consumed (burned). Lazily creates the
+     * metadata map if absent. Call after the single playback completes and the media is deleted.
+     */
+    public void setListenOnceConsumed() {
+        if (this.metaData == null) {
+            this.metaData = new HashMap<>();
+        }
+        this.metaData.put(METADATA_KEY_LISTEN_ONCE_CONSUMED, Boolean.TRUE);
+    }
+
+    /**
+     * @return {@code true} if this listen-once voice message's decrypted audio has already been
+     * released to a media player. Replay is refused from this point on, whether or not the playback
+     * that made the claim ever finished.
+     */
+    public boolean isListenOnceClaimed() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_LISTEN_ONCE_CLAIMED));
+    }
+
+    /**
+     * Persistently claim this listen-once voice message. Must be saved and committed <em>before</em>
+     * the decrypted media is handed to a player, so that a process death during playback leaves the
+     * message unplayable rather than pristine.
+     */
+    public void setListenOnceClaimed() {
+        if (this.metaData == null) {
+            this.metaData = new HashMap<>();
+        }
+        this.metaData.put(METADATA_KEY_LISTEN_ONCE_CLAIMED, Boolean.TRUE);
+    }
+
+    /**
+     * @return {@code true} if this media/file/voice message was forwarded (carries the "fwd"
+     * metadata flag). Safe to call on any file message; returns {@code false} when absent.
+     */
+    public boolean isForwarded() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_FORWARDED));
+    }
+
+    /**
+     * @return {@code true} if this image/video file message carries the "spoiler" metadata flag.
+     * Safe to call on any file message (returns {@code false} when absent).
+     */
+    public boolean isSpoiler() {
+        return Boolean.TRUE.equals(getMetaDataBool(METADATA_KEY_SPOILER));
+    }
+
+    /**
+     * @return {@code true} if this file message is a link-preview card (carries the preview URL
+     * metadata). Safe to call on any file message; returns {@code false} when absent.
+     */
+    public boolean isLinkPreview() {
+        final String url = getMetaDataString(METADATA_KEY_PREVIEW_URL);
+        return url != null && !url.isBlank();
+    }
+
+    /**
+     * @return the previewed URL, or {@code null} if this is not a link-preview message.
+     */
+    @Nullable
+    public String getLinkPreviewUrl() {
+        return getMetaDataString(METADATA_KEY_PREVIEW_URL);
+    }
+
+    /**
+     * @return the preview title (og:title), or {@code null} when absent.
+     */
+    @Nullable
+    public String getLinkPreviewTitle() {
+        return getMetaDataString(METADATA_KEY_PREVIEW_TITLE);
+    }
+
+    /**
+     * @return the preview description (og:description), or {@code null} when absent.
+     */
+    @Nullable
+    public String getLinkPreviewDescription() {
+        return getMetaDataString(METADATA_KEY_PREVIEW_DESCRIPTION);
+    }
+
+    /**
+     * @return the quoted message's apiMessageId (16-lowercase-hex) when this media/file/voice message
+     * was sent as a reply-quote, or {@code null} when absent. Safe to call on any file message.
+     */
+    @Nullable
+    public String getQuotedApiMessageId() {
+        return getMetaDataString(METADATA_KEY_QUOTED_MESSAGE_ID);
     }
 
     /**

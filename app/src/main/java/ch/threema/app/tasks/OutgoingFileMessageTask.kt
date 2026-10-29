@@ -43,7 +43,9 @@ class OutgoingFileMessageTask(
     }
 
     private suspend fun sendContactMessage(handle: ActiveTaskCodec) {
-        val messageModel = getContactMessageModel(messageModelId) ?: return
+        // F1Whisper (seventh fork review, F7-01): the row, not the cache. The blob id and encryption key live in
+        // this row's body, so a cached copy of a deleted message is a complete, sendable payload.
+        val messageModel = getContactContentRow(messageModelId) ?: return
 
         val fileDataModel = messageModel.fileData
 
@@ -67,7 +69,8 @@ class OutgoingFileMessageTask(
     }
 
     private suspend fun sendGroupMessage(handle: ActiveTaskCodec) {
-        val messageModel = getGroupMessageModel(messageModelId) ?: return
+        // F1Whisper (seventh fork review, F7-01): the row, not the cache. See sendContactMessage above.
+        val messageModel = getGroupContentRow(messageModelId) ?: return
 
         val group = groupService.getById(messageModel.groupId)
             ?: throw IllegalStateException("Could not get group for message model ${messageModel.apiMessageId}")
@@ -124,7 +127,15 @@ class OutgoingFileMessageTask(
             it.renderingType = renderingType
             it.caption = caption
             it.correlationId = messageModel.correlationId
-            it.metaData = metaData
+            // F1Whisper: the "loc" (listen-once consumed/burned) flag is LOCAL-ONLY state. It must
+            // NEVER be serialized onto the wire: once the sender burns its own copy (burnOutgoing on
+            // SENT), a later reflection/redelivery of the same model would otherwise carry loc=true to
+            // recipients, who then render the voice as already-consumed so it "expires before being
+            // listened" (the group instant-expiry bug). Strip it here; "lo" is kept so the recipient
+            // still knows the message is listen-once.
+            it.metaData = metaData?.filterKeys { key ->
+                key != FileDataModel.METADATA_KEY_LISTEN_ONCE_CONSUMED
+            }
         }
     }
 

@@ -8,7 +8,7 @@
     android:layout_height="wrap_content"
     android:clickable="false"
     android:focusable="false"
-    android:paddingRight="@dimen/listitem_contacts_margin_left_right"
+    android:paddingEnd="@dimen/listitem_contacts_margin_left_right"
     android:paddingBottom="12dp">
 
     <com.google.android.material.card.MaterialCardView
@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:clickable="true"
         android:focusable="true"
         app:cardBackgroundColor="?attr/colorSurface"
@@ -25,9 +25,9 @@
         app:cardPreventCornerOverlap="false"
         app:cardUseCompatPadding="false"
         app:strokeWidth="0dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:outlineProvider="none">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,7 +42,7 @@
                 android:minWidth="88dp"
                 android:scaleType="centerCrop"
                 app:shapeAppearance="@style/Threema.ShapeAppearance.RecentlyAdded"
-                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="H,1:1" />
@@ -53,10 +53,10 @@
                 android:layout_height="0dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/shape_recently_added_contacts_overlay"
-                app:layout_constraintLeft_toLeftOf="@id/shapeable_avatar_view"
+                app:layout_constraintStart_toStartOf="@id/shapeable_avatar_view"
                 app:layout_constraintTop_toTopOf="@id/shapeable_avatar_view"
                 app:layout_constraintBottom_toBottomOf="@id/shapeable_avatar_view"
-                app:layout_constraintRight_toRightOf="@id/shapeable_avatar_view" />
+                app:layout_constraintEnd_toEndOf="@id/shapeable_avatar_view" />
 
             <!-- first line -->
 
@@ -64,7 +64,7 @@
                 android:id="@+id/recently_added_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="@dimen/listitem_contacts_margin_top_bottom"
                 android:layout_marginBottom="4dp"
                 android:ellipsize="end"
@@ -74,8 +74,8 @@
                 android:textSize="13sp"
                 android:textColor="?attr/colorPrimary"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/shapeable_avatar_view"
-                app:layout_constraintRight_toRightOf="@+id/contact_text_bottom_left"
+                app:layout_constraintStart_toEndOf="@id/shapeable_avatar_view"
+                app:layout_constraintEnd_toEndOf="@+id/contact_text_bottom_left"
                 app:layout_constraintBottom_toTopOf="@+id/contact_text_top_left"
                 app:layout_constraintVertical_chainStyle="packed"
                 app:layout_constraintHorizontal_chainStyle="packed" />
@@ -84,15 +84,15 @@
                 android:id="@+id/contact_text_top_left"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 tools:text="Firstname Lastname"
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:textAppearance="@style/Threema.TextAppearance.List.FirstLine"
                 android:textColor="@null"
                 app:layout_constraintTop_toBottomOf="@id/recently_added_title"
-                app:layout_constraintLeft_toRightOf="@id/shapeable_avatar_view"
-                app:layout_constraintRight_toLeftOf="@+id/blocked_contact"
+                app:layout_constraintStart_toEndOf="@id/shapeable_avatar_view"
+                app:layout_constraintEnd_toStartOf="@+id/blocked_contact"
                 app:layout_constraintBottom_toTopOf="@+id/contact_text_bottom_left"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintHorizontal_bias="0"
@@ -102,14 +102,14 @@
                 android:id="@+id/blocked_contact"
                 android:layout_width="22dp"
                 android:layout_height="18dp"
-                android:layout_marginRight="6dp"
+                android:layout_marginEnd="6dp"
                 android:layout_marginBottom="2dp"
                 android:baselineAlignBottom="true"
                 android:contentDescription="@string/blocked"
                 android:visibility="visible"
                 app:srcCompat="@drawable/ic_block"
                 app:layout_constraintBottom_toBottomOf="@id/contact_text_top_left"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:tint="@color/material_red" />
 
             <!-- second line -->
@@ -118,8 +118,8 @@
                 android:id="@+id/contact_text_bottom_left"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginBottom="@dimen/listitem_contacts_margin_top_bottom"
                 tools:text="Android Developer"
                 android:ellipsize="end"
@@ -128,8 +128,8 @@
                 android:textColor="@null"
                 app:layout_constraintTop_toBottomOf="@id/contact_text_top_left"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toRightOf="@id/shapeable_avatar_view"
-                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintStart_toEndOf="@id/shapeable_avatar_view"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintVertical_chainStyle="packed"
                 app:layout_constrainedWidth="true" />
 

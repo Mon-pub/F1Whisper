@@ -14,8 +14,8 @@
         android:layout_height="wrap_content"
         android:background="@color/widget_color_primary"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/grid_unit_x2"
-        android:paddingRight="0dp">
+        android:paddingStart="@dimen/grid_unit_x2"
+        android:paddingEnd="0dp">
 
         <TextView
             android:layout_width="0dp"

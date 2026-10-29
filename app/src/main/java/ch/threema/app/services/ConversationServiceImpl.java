@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
+import ch.threema.app.managers.ServiceManager;
 import ch.threema.app.eventbus.GlobalEventBuses;
 import ch.threema.app.eventbus.events.ConversationEvent;
 import ch.threema.app.messagereceiver.ContactMessageReceiver;
@@ -221,6 +222,39 @@ public class ConversationServiceImpl implements ConversationService {
             }
 
             this.sort();
+
+            // F1Whisper: belt-and-suspenders — enforce disappearing expiry on the latest message
+            // of each conversation so no overdue message survives a conversation-list refresh.
+            //
+            // This MUST collect first and enforce afterwards. Do NOT "simplify" it back into a
+            // `for (ConversationModel conv : this.conversationCache)` loop — that is the exact
+            // shape that crash-looped 6.4.3o-37 with a ConcurrentModificationException at launch.
+            //
+            // Enforcing expiry DELETES a message, and listener dispatch is SYNCHRONOUS on this very
+            // thread (the event dispatch), so the handler re-enters
+            // this service and structurally modifies the cache before the enforce call returns:
+            //   delete path: MessageService.remove -> GlobalListeners.onRemoved
+            //     -> #refreshWithDeletedMessage (:506) -> ConversationModelParser#messageDeleted
+            //     (:1179) -> #sort (:375) -> Collections.sort -> modCount++
+            //   repair path: MessageService.save -> GlobalListeners.onModified -> #refresh (:397)
+            //     -> ConversationModelParser#refresh (:1046) -> #sort (:375) and, on a cache miss,
+            //     #cache (:176), which also changes the size
+            // Neither this synchronized method nor the enclosing synchronized(conversationCache)
+            // helps: the mutation arrives on the SAME thread and intrinsic locks are reentrant.
+            // Nor would a try/catch — the exception is thrown afterwards by our own iterator, not
+            // by #enforceIfExpired. See the ExpirySweep Javadoc for the full reasoning.
+            //
+            // F1Whisper (eleventh fork review, F11-07): the sweep extracts the CONVERSATION (a pure
+            // read; a null latestMessage skips it) and the enforce phase runs
+            // #sweepConversationPreview, which nulls the cached latestMessage the moment the
+            // synchronous decision says the message is gone. Without that, the list returned below
+            // kept showing the expired message as the conversation preview for as long as the
+            // worker deletion was delayed or failing. The removal itself stays on the worker.
+            ExpirySweep.collectThenEnforce(
+                this.conversationCache,
+                conv -> conv.latestMessage != null ? conv : null,
+                DisappearingMessageService::sweepConversationPreview
+            );
 
             if (filter != null) {
                 boolean filteringApplied = false;
@@ -732,6 +766,18 @@ public class ConversationServiceImpl implements ConversationService {
             this.removeFromCache(conversationModel);
 
             globalEventBuses.getConversations().emit(new ConversationEvent.ConversationDeleted(conversationModel));
+        }
+
+        // F1Whisper (fork review M-09): mirror the tag cleanup — permanently deleting the contact
+        // conversation must also drop its chat-folder memberships, otherwise recreating a chat with
+        // the same conversation UID silently restores old folders. The UID is deterministic, so this
+        // runs even when the model was not cached. Hooked on the true deletion funnel only, NOT in
+        // removeFromCache (which the archive path also uses — archiving keeps memberships).
+        final ServiceManager serviceManager = ServiceManager.get();
+        if (serviceManager != null) {
+            serviceManager.getChatFolderService().onConversationDeleted(
+                new ContactConversationId(identity).toDatabaseValue()
+            );
         }
 
         return removedCount;

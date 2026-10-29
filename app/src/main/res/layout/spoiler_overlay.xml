@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ F1Whisper: overlay shown centered over a blurred image/video thumbnail to indicate a "spoiler".
+  ~ The chip itself is not clickable; the tap-to-reveal handling lives on the attachment image /
+  ~ message block in the decorator.
+  -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/spoiler_overlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="false"
+    android:duplicateParentState="true"
+    android:focusable="false">
+
+    <!-- Full-bleed dark scrim under the twinkling particles, deepening the obscuring effect. -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#59000000" />
+
+    <!-- Telegram-style animated dot/particle layer drawn over the blurred, darkened thumbnail. -->
+    <ch.threema.app.ui.SpoilerParticleView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/spoiler_overlay_background"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginEnd="8dp"
+            android:contentDescription="@string/media_spoiler"
+            android:src="@drawable/ic_spoiler"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media_spoiler_reveal"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+</FrameLayout>

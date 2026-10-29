@@ -1,6 +1,7 @@
 package ch.threema.domain.protocol.connection.layer
 
 import ch.threema.common.emptyByteArray
+import ch.threema.domain.protocol.connection.BaseServerConnection
 import ch.threema.domain.protocol.connection.PayloadProcessingException
 import ch.threema.domain.protocol.connection.PipeProcessor
 import ch.threema.domain.protocol.connection.ProcessingPipe
@@ -64,7 +65,9 @@ internal class MonitoringLayer(
     private var stopped = false
 
     init {
-        CoroutineScope(controller.dispatcher.coroutineContext).launch {
+        // F1Whisper (tenth fork review, F10-02): owned by the attempt. Both waiters park on a deferred that a
+        // superseded attempt may never complete, so without an owner they were unreachable for the rest of the process.
+        controller.dispatcher.scope.launch {
             launch {
                 controller.cspAuthenticated.await()
                 startMonitoring()
@@ -82,6 +85,17 @@ internal class MonitoringLayer(
 
     private fun handleInbound(message: InboundL3Message) {
         controller.dispatcher.assertDispatcherContext()
+
+        // F1Whisper: stamp inbound liveness here, on EVERY inbound frame, not only on echo replies.
+        //
+        // Why this layer. Layer 4 is the single lowest point where every inbound frame passes exactly
+        // once *after* the transport is authenticated and decrypted: layers 1 to 3 also carry the
+        // pre-auth handshake bytes, which say nothing about an established session, and layer 5 never
+        // sees echo replies, echo requests or close errors at all because this layer intercepts them
+        // below (see handleInboundCspContainer). Stamping only on echo replies, as this class used to,
+        // meant the freshness signal inherited the echo loop's Doze-deferred cadence and ignored real
+        // message traffic: a connection actively delivering messages could still look stale.
+        (connection as? BaseServerConnection)?.recordInboundActivity()
 
         logger.trace("Handle inbound message of type `{}`", message.type)
         when (message) {
@@ -201,6 +215,9 @@ internal class MonitoringLayer(
         lastRcvdEchoSeq = buffer.int
         val rttMs = System.currentTimeMillis() - buffer.long
         logger.info("Received echo reply (seq: {}, rtt: {} ms) ", lastRcvdEchoSeq, rttMs)
+
+        // F1Whisper: the liveness stamp is taken in handleInbound for every inbound frame, which
+        // includes this one. Do not add a second stamp here; a single site cannot drift from itself.
     }
 
     private fun startMonitoring() {
