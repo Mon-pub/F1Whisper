@@ -7,17 +7,19 @@ import ch.threema.base.crypto.NaCl;
 
 import org.slf4j.Logger;
 
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,7 +45,30 @@ public class DownloadServiceImpl implements DownloadService {
     // always signals on completion (success or failure), so this only caps a pathological hang; keep it
     // generously above any realistic blob transfer so a slow-but-progressing download is never abandoned.
     private static final long BLOB_JOIN_TIMEOUT_MINUTES = 5;
+    private static final String PART_FILE_SUFFIX = ".part";
+    // How often a download waiting for the part file checks whether it was cancelled meanwhile.
+    private static final long PART_FILE_WAIT_SLICE_MILLIS = 1000;
+    // Pending marks of downloads whose caller never completed them (the media did not decrypt) are dropped beyond this.
+    @VisibleForTesting
+    static final int MAX_PENDING_MARKS_AS_DONE = 64;
     private final ArrayList<Download> downloads = new ArrayList<>();
+    // F1-PATCH: the one download that writes a blob's part file, guarded by `downloads`. Only that download ever leaves
+    // this map (when it has stopped); a cancelled download leaves the registered downloads at once but may still be
+    // unwinding its last write, so a retry of the same blob waits until the slot is free.
+    private final Map<String, Download> partFileWriters = new HashMap<>();
+    // F1-PATCH: guarded by `downloads`. A blob is marked as done once, from complete(), i.e. only after the caller has
+    // decrypted (MAC verified) and saved it: the server may delete a blob marked as done, and with it any chance of
+    // downloading it again or continuing a partial download. Kept by blob, not by registration, so a completion still
+    // finds it after an unrelated error report or a cancel has removed the registration.
+    private final Map<String, PendingMarkAsDone> pendingMarkAsDone = new LinkedHashMap<String, PendingMarkAsDone>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, PendingMarkAsDone> eldest) {
+            return size() > MAX_PENDING_MARKS_AS_DONE;
+        }
+    };
+    // Test seam: starts the thread that marks a blob as done.
+    @VisibleForTesting
+    volatile Consumer<Runnable> markAsDoneStarter = runnable -> new Thread(runnable, "MarkAsDownThread").start();
     @VisibleForTesting
     volatile long joinTimeoutMillis = TimeUnit.MINUTES.toMillis(BLOB_JOIN_TIMEOUT_MINUTES);
     // Test seam: runs in a joining caller after its wait and before it opens the creator's temporary file.
@@ -76,6 +101,25 @@ public class DownloadServiceImpl implements DownloadService {
             this.messageModelId = messageModelId;
             this.blobId = blobId;
             this.blobLoader = blobLoader;
+        }
+    }
+
+    /**
+     * F1-PATCH: the download gave up waiting for its part file; an expected outcome of a cancelled retry, not an error.
+     */
+    private static final class PartFileBusyException extends IOException {
+        PartFileBusyException(String message) {
+            super(message);
+        }
+    }
+
+    private final static class PendingMarkAsDone {
+        final BlobLoader blobLoader;
+        final BlobScope scope;
+
+        PendingMarkAsDone(BlobLoader blobLoader, BlobScope scope) {
+            this.blobLoader = blobLoader;
+            this.scope = scope;
         }
     }
 
@@ -128,6 +172,14 @@ public class DownloadServiceImpl implements DownloadService {
                     download.blobLoader.cancelDownload();
                 }
                 this.downloads.remove(download);
+                // F1-PATCH: an error after a successful download (the media did not decrypt or could not be saved) discards
+                // the downloaded file, so the next attempt downloads the blob again instead of failing on the same bytes.
+                if (!cancel && download.succeeded && getDownloadByBlobId(download.blobId) == null) {
+                    File downloadFile = getTemporaryDownloadFile(download.blobId);
+                    if (downloadFile.exists()) {
+                        FileUtil.deleteFileOrWarn(downloadFile, "remove temporary blob file", logger);
+                    }
+                }
             }
             return settled || !matchingDownloads.isEmpty();
         }
@@ -168,36 +220,24 @@ public class DownloadServiceImpl implements DownloadService {
 
             byte[] blobBytes = null;
             File downloadFile = this.getTemporaryDownloadFile(blobId);
+            File partFile = this.getPartDownloadFile(blobId);
             boolean downloadSuccess = false;
 
             try {
                 BlobLoader blobLoader = null;
                 Download existingDownload = null;
-                FileInputStream cachedFile = null;
-                // F1-PATCH: an in-flight download wins over the temporary file (which it may still be writing), and a
-                // left-over temporary file is opened under the same lock complete() deletes it under.
+                // F1-PATCH: an in-flight download wins over the downloaded file (which it may still be writing).
                 synchronized (this.downloads) {
                     existingDownload = getDownloadByBlobId(blobId);
                     if (existingDownload != null) {
                         existingDownload.readers++;
                         logger.info("Blob {} downloader already exists. Joining in-flight download", blobIdHex);
-                    } else if (downloadFile.exists() && downloadFile.length() >= NaCl.BOX_OVERHEAD_BYTES) {
-                        logger.warn("Blob {} download file already exists", blobIdHex);
-                        cachedFile = new FileInputStream(downloadFile);
                     } else {
-                        if (downloadFile.exists()) {
-                            // invalid download file - try again
-                            FileUtil.deleteFileOrWarn(downloadFile, "Download File", logger);
-                        }
                         blobLoader = this.apiService.createLoader(blobId);
                         myDownload = new Download(messageModelId, blobId, blobLoader);
                         this.downloads.add(myDownload);
                         logger.info("Blob {} downloader created", blobIdHex);
                     }
-                }
-
-                if (cachedFile != null) {
-                    return readTemporaryDownloadFile(cachedFile, blobIdHex);
                 }
 
                 // Duplicate caller: join the single in-flight fetch instead of returning null (which the
@@ -207,68 +247,65 @@ public class DownloadServiceImpl implements DownloadService {
                     return joinInFlightDownload(existingDownload, downloadFile, blobIdHex);
                 }
 
+                acquirePartFile(myDownload, blobIdHex);
+                // Keeps a part file that is continued now from expiring in the cache cleanup meanwhile, and the downloaded
+                // file renamed from it, which joiners still have to open, from being taken for an old one.
+                if (partFile.exists() && !partFile.setLastModified(System.currentTimeMillis())) {
+                    logger.debug("Could not refresh the part file of blob {}", blobIdHex);
+                }
+
                 if (progressListener != null) {
                     blobLoader.progressListener = progressListener;
                 }
 
-                // Load blob from server
-                logger.info("Blob {} now fetching", blobIdHex);
-                blobBytes = blobLoader.load(blobScopeDownload);
+                // F1-PATCH: a complete download is opened under the same lock complete() and error() delete it under.
+                FileInputStream downloadedFile = null;
+                synchronized (this.downloads) {
+                    if (downloadFile.exists() && downloadFile.length() >= NaCl.BOX_OVERHEAD_BYTES) {
+                        logger.warn("Blob {} download file already exists", blobIdHex);
+                        downloadedFile = new FileInputStream(downloadFile);
+                    } else if (downloadFile.exists()) {
+                        // invalid download file - try again
+                        FileUtil.deleteFileOrWarn(downloadFile, "Download File", logger);
+                    }
+                }
+
+                if (downloadedFile == null) {
+                    // Load blob from server, continuing the part file an earlier attempt left behind
+                    logger.info("Blob {} now fetching", blobIdHex);
+                    if (blobLoader.loadToFile(blobScopeDownload, partFile)) {
+                        synchronized (this.downloads) {
+                            // check that THIS download is still registered (otherwise it was cancelled; its complete part
+                            // file stays for the next attempt, which only has to confirm it)
+                            if (getDownloadByBlobId(blobId) == myDownload) {
+                                if (!partFile.renameTo(downloadFile)) {
+                                    throw new IOException("Could not move the downloaded blob into place");
+                                }
+                                downloadedFile = new FileInputStream(downloadFile);
+                            } else {
+                                logger.info("Blob {} download was cancelled, discarding its result", blobIdHex);
+                            }
+                        }
+                    }
+                }
+
+                if (downloadedFile != null) {
+                    blobBytes = readTemporaryDownloadFile(downloadedFile, blobIdHex);
+                }
 
                 if (blobBytes != null) {
                     synchronized (this.downloads) {
-                        // check that THIS download is still registered (otherwise it was cancelled, and a newer
-                        // download of the same blob may own the temporary file now)
                         if (getDownloadByBlobId(blobId) == myDownload) {
-                            logger.info("Blob {} now saving", blobIdHex);
-                            //write to temporary file
-                            if (!downloadFile.createNewFile()) {
-                                logger.debug("File {} already exists", downloadFile.getAbsolutePath());
-                            }
-                            if (downloadFile.isFile()) {
-                                try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(downloadFile))) {
-                                    bos.write(blobBytes);
-                                    bos.flush();
-                                } catch (IOException e) {
-                                    // F1-PATCH: a partial file would be taken for a complete one by every retry.
-                                    FileUtil.deleteFileOrWarn(downloadFile, "partial download file", logger);
-                                    throw e;
-                                }
-
-                                if (downloadFile.length() == blobBytes.length) {
-                                    downloadSuccess = true;
-                                    // Joiners read the complete temporary file; it stays false on any failure so
-                                    // they see a real, not spurious, failure.
-                                    myDownload.succeeded = true;
-
-                                    //ok download saved, set as done if set
-                                    if (blobScopeMarkAsDone != null) {
-                                        logger.info("Blob {} scheduled for marking as downloaded", blobIdHex);
-                                        try {
-                                            new Thread(() -> {
-                                                Download download;
-                                                synchronized (this.downloads) {
-                                                    download = getDownloadByBlobId(blobId);
-                                                }
-                                                if (download != null) {
-                                                    if (download.blobLoader != null) {
-                                                        download.blobLoader.markAsDone(download.blobId, blobScopeMarkAsDone);
-                                                    }
-                                                    logger.info("Blob {} marked as downloaded", blobIdHex);
-                                                }
-                                            }, "MarkAsDownThread").start();
-                                        } catch (Exception ignored) {
-                                            // markAsDown thread failed
-                                            // catch java.lang.InternalError: Thread starting during runtime shutdown
-                                        }
-                                    }
-                                } else {
-                                    logger.warn("Blob and file size don't match.");
-                                    FileUtil.deleteFileOrWarn(downloadFile, "partial download file", logger);
-                                    blobBytes = null;
-                                }
+                            downloadSuccess = true;
+                            // Joiners read the complete temporary file; it stays false on any failure so
+                            // they see a real, not spurious, failure.
+                            myDownload.succeeded = true;
+                            // The pending mark keeps the loader; it must not keep the caller's listener (and its UI) alive.
+                            blobLoader.progressListener = null;
+                            if (blobScopeMarkAsDone != null) {
+                                this.pendingMarkAsDone.put(blobIdHex, new PendingMarkAsDone(blobLoader, blobScopeMarkAsDone));
                             } else {
-                                logger.warn("Blob file is a directory");
+                                this.pendingMarkAsDone.remove(blobIdHex);
                             }
                         } else {
                             // F1-PATCH: cancelled (or replaced by a newer download of the same blob). Its bytes are not
@@ -278,6 +315,8 @@ public class DownloadServiceImpl implements DownloadService {
                         }
                     }
                 }
+            } catch (PartFileBusyException e) {
+                logger.info("Blob {} not downloaded: {}", blobIdHex, e.getMessage());
             } catch (Exception e) {
                 logger.error("Exception during blob download", e);
             } catch (OutOfMemoryError e) {
@@ -288,9 +327,9 @@ public class DownloadServiceImpl implements DownloadService {
             }
 
             if (!downloadSuccess) {
-                // F1-PATCH: a download whose temporary file could not be written is a failure as a whole. Handing out its
-                // bytes would leave its registration behind for good (complete() only settles successful downloads), and
-                // every later caller would join that dead download.
+                // F1-PATCH: a download that did not succeed as a whole hands out nothing. Its bytes would leave its
+                // registration behind for good (complete() only settles successful downloads), and every later caller
+                // would join that dead download.
                 blobBytes = null;
             }
 
@@ -313,6 +352,9 @@ public class DownloadServiceImpl implements DownloadService {
             // Always release joining duplicates (succeeded was set above only on genuine success), even on
             // exception or early return; only the creator signals.
             if (myDownload != null) {
+                synchronized (this.downloads) {
+                    this.partFileWriters.remove(toHexString(myDownload.blobId), myDownload);
+                }
                 myDownload.done.countDown();
             }
             if (wakeLock != null && wakeLock.isHeld()) {
@@ -332,6 +374,7 @@ public class DownloadServiceImpl implements DownloadService {
                 logger.info("Blob {} complete ignored, a newer download is in flight", toHexString(blobId));
                 return;
             }
+            markAsDone(blobId);
             if (download != null) {
                 download.completed = true;
                 // F1-PATCH: a joiner that has not opened the temporary file yet unregisters the download and deletes
@@ -349,6 +392,59 @@ public class DownloadServiceImpl implements DownloadService {
             if (f.exists()) {
                 FileUtil.deleteFileOrWarn(f, "remove temporary blob file", logger);
             }
+        }
+    }
+
+    /**
+     * F1-PATCH: takes the blob's part file slot, waiting while another download (a cancelled one that is still
+     * unwinding) holds it, so the part file only ever has one writer. Only the holder releases the slot, so giving up
+     * never hands it to anyone else. A download cancelled while it waits stops waiting.
+     */
+    private void acquirePartFile(@NonNull Download mine, @NonNull String blobIdHex) throws PartFileBusyException {
+        final long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(joinTimeoutMillis);
+        while (true) {
+            Download writer;
+            synchronized (this.downloads) {
+                if (getDownloadByBlobId(mine.blobId) != mine) {
+                    throw new PartFileBusyException("cancelled while waiting for its part file");
+                }
+                writer = this.partFileWriters.get(blobIdHex);
+                if (writer == null) {
+                    this.partFileWriters.put(blobIdHex, mine);
+                    return;
+                }
+            }
+            final long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) {
+                throw new PartFileBusyException("a cancelled download is still writing its part file");
+            }
+            try {
+                writer.done.await(Math.min(remaining, TimeUnit.MILLISECONDS.toNanos(PART_FILE_WAIT_SLICE_MILLIS)), TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new PartFileBusyException("interrupted while waiting for its part file");
+            }
+        }
+    }
+
+    /**
+     * F1-PATCH: marks the blob as done on the server if its download asked for it, once. Guarded by `downloads`.
+     */
+    private void markAsDone(@NonNull byte[] blobId) {
+        final PendingMarkAsDone pending = this.pendingMarkAsDone.remove(toHexString(blobId));
+        if (pending == null) {
+            return;
+        }
+        logger.info("Blob {} scheduled for marking as downloaded", toHexString(blobId));
+        try {
+            markAsDoneStarter.accept(() -> {
+                pending.blobLoader.markAsDone(blobId, pending.scope);
+                logger.info("Blob {} marked as downloaded", toHexString(blobId));
+            });
+        } catch (Exception | OutOfMemoryError e) {
+            // markAsDown thread failed (e.g. java.lang.InternalError: Thread starting during runtime shutdown, or no
+            // memory for another thread). The media is saved; the server keeps the blob until it expires.
+            logger.warn("Blob {} could not be marked as downloaded", toHexString(blobId), e);
         }
     }
 
@@ -461,5 +557,12 @@ public class DownloadServiceImpl implements DownloadService {
     private File getTemporaryDownloadFile(byte[] blobId) {
         final String fileName = ByteArrayExtensionsKt.toHexString(blobId, 0);
         return new File(appContext.getCacheDir(), fileName);
+    }
+
+    /**
+     * F1-PATCH: the ciphertext received so far for a download that has not finished; a later attempt continues it.
+     */
+    private File getPartDownloadFile(byte[] blobId) {
+        return new File(appContext.getCacheDir(), ByteArrayExtensionsKt.toHexString(blobId, 0) + PART_FILE_SUFFIX);
     }
 }

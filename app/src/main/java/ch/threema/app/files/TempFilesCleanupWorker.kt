@@ -38,14 +38,14 @@ class TempFilesCleanupWorker(
     override suspend fun doWork(): Result {
         val ageThreshold = getAgeThreshold()
         logger.debug("Deleting temp files older than {}", ageThreshold)
-        val timeThreshold = timeProvider.get() - ageThreshold
-        deleteOldFiles(appDirectoryProvider.cacheDirectory, timeThreshold)
+        val now = timeProvider.get()
+        deleteOldFiles(appDirectoryProvider.cacheDirectory, now - ageThreshold, partFileThreshold(now, ageThreshold))
         return Result.success()
     }
 
-    private fun deleteOldFiles(directory: File, threshold: Instant) {
+    private fun deleteOldFiles(directory: File, threshold: Instant, partFileThreshold: Instant) {
         directory.walkBottomUp()
-            .filter { file -> file.lastModifiedTime() < threshold }
+            .filter { file -> isExpired(file, threshold, partFileThreshold) }
             .filter(::canDelete)
             .forEach { file ->
                 if (file.isEmptyDirectory) {
@@ -111,5 +111,19 @@ class TempFilesCleanupWorker(
 
         private val REPETITION_INTERVAL = 10.hours
         private val FILE_AGE_THRESHOLD = 2.hours
+        private val PART_FILE_AGE_THRESHOLD = 24.hours
+        private const val PART_FILE_EXTENSION = "part"
+
+        /**
+         * F1-PATCH: a partial media download is kept longer, so it can still be continued the next day. A full cleanup
+         * (no age threshold) removes it like everything else.
+         */
+        internal fun partFileThreshold(now: Instant, ageThreshold: Duration): Instant =
+            if (ageThreshold > Duration.ZERO) minOf(now - ageThreshold, now - PART_FILE_AGE_THRESHOLD) else now - ageThreshold
+
+        internal fun isExpired(file: File, threshold: Instant, partFileThreshold: Instant): Boolean {
+            val isPartialDownload = file.isFile && file.extension == PART_FILE_EXTENSION
+            return file.lastModifiedTime() < if (isPartialDownload) partFileThreshold else threshold
+        }
     }
 }

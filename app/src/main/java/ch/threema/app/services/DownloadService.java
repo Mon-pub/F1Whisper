@@ -11,7 +11,8 @@ public interface DownloadService {
     /**
      * @param blobScopeMarkAsDone If this field is <strong>not</strong> {@code null}, the blob will
      *                            automatically be marked as "done" on the server. Of course only if
-     *                            the preceding download succeeded.
+     *                            the preceding download succeeded. F1-PATCH: this happens in
+     *                            {@link #complete(int, byte[])}, after the caller decrypted and saved it.
      */
     @WorkerThread
     @Nullable

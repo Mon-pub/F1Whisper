@@ -3661,6 +3661,13 @@ public class MessageServiceImpl implements MessageService {
         }
 
         byte[] thumbnail = symmetricEncryptionService.decrypt(thumbnailBlob, fileData.getEncryptionKey(), ProtocolDefines.FILE_THUMBNAIL_NONCE);
+        if (thumbnail == null) {
+            // F1-PATCH: a thumbnail that does not decrypt is a failed download; completing it would mark it as done, and
+            // the server may delete a blob marked as done.
+            downloadService.error(messageModel.getId());
+            logger.info("Error decrypting thumbnail for message {}", messageModel.getApiMessageId());
+            throw new ThreemaException("Error decrypting thumbnail");
+        }
 
         if (thumbnail != null) {
             try {
@@ -4395,6 +4402,11 @@ public class MessageServiceImpl implements MessageService {
             logger.error("Not enough memory to decrypt and save the media of message {}", mediaMessageModel.getApiMessageId());
             downloadService.error(mediaMessageModel.getId());
             throw new ThreemaException("Not enough memory to decrypt and save media");
+        } catch (ThreemaException e) {
+            // F1-PATCH: media that does not decrypt (or cannot be saved) is a failed download: reporting it discards the
+            // downloaded file, so the next attempt fetches the blob again instead of joining this one for good.
+            downloadService.error(mediaMessageModel.getId());
+            throw e;
         }
         // F1-PATCH: the (possibly very large) blob is written; do not keep it reachable while the thumbnail is created.
         blob = null;
@@ -4559,6 +4571,10 @@ public class MessageServiceImpl implements MessageService {
             byte[] encryptionKey = contact.getData().publicKey;
             byte[] nonce = hexToByteArray(legacyNonce);
             blob = identityStore.decryptData(blob, nonce, encryptionKey);
+            if (blob == null) {
+                // F1-PATCH: failed to decrypt (upstream ran into a NullPointerException here).
+                throw new ThreemaException("Unable to decrypt image blob");
+            }
             length = blob.length;
         } else {
             try {
