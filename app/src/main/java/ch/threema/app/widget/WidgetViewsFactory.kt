@@ -145,8 +145,8 @@ class WidgetViewsFactory(private val context: Context) : RemoteViewsFactory, Koi
                         latestMessage.postedAt,
                         /* isOutbox = */
                         latestMessage.isOutbox,
-                        /* modifiedAt = */
-                        latestMessage.modifiedAt,
+                        /* createdAt = */
+                        latestMessage.createdAt,
                     )
                 }
             }
@@ -159,8 +159,8 @@ class WidgetViewsFactory(private val context: Context) : RemoteViewsFactory, Koi
                     latestMessage.postedAt,
                     /* isOutbox = */
                     latestMessage.isOutbox,
-                    /* modifiedAt = */
-                    latestMessage.modifiedAt,
+                    /* createdAt = */
+                    latestMessage.createdAt,
                 )
             }
         }

@@ -46,6 +46,7 @@ import ch.threema.app.services.LifetimeService;
 import ch.threema.app.utils.ConfigUtils;
 import ch.threema.app.utils.DoNotDisturbUtil;
 import ch.threema.app.utils.IdUtil;
+import ch.threema.app.utils.IncomingPostedAt;
 import ch.threema.app.voip.CallState;
 import ch.threema.app.voip.CallStateSnapshot;
 import ch.threema.app.voip.Config;
@@ -996,7 +997,7 @@ public class VoipStateService implements AudioManager.OnAudioFocusChangeListener
         boolean accepted
     ) {
         logger.info("Missed call received from {} with call id {}", msg.getFromIdentity(), callId);
-        globalEventBuses.getVoipCalls().emit(VoipCallEvent.Missed.javaCreate(callId, msg.getFromIdentity(), accepted, msg.getTimestamp()));
+        globalEventBuses.getVoipCalls().emit(VoipCallEvent.Missed.javaCreate(callId, msg.getFromIdentity(), accepted, IncomingPostedAt.of(msg)));
 
         // Update conversation timestamp
         contactService.bumpLastUpdate(msg.getFromIdentity());

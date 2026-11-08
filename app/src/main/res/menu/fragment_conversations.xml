@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_search_messages"
-        android:icon="@drawable/ic_search_outline"
+        android:icon="@drawable/ic_outline_filter_alt_24"
         app:iconTint="?attr/colorOnSurface"
-        android:title="@string/search_list"
+        android:title="@string/filter_list"
         app:showAsAction="never|collapseActionView"
         app:actionViewClass="ch.threema.app.ui.ThreemaSearchView" />
 

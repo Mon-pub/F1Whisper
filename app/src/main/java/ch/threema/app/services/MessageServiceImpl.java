@@ -83,6 +83,7 @@ import ch.threema.app.utils.ElapsedTimeFormatter;
 import ch.threema.app.utils.FileUtil;
 import ch.threema.app.utils.GeoLocationUtil;
 import ch.threema.app.utils.IconUtil;
+import ch.threema.app.utils.IncomingPostedAt;
 import ch.threema.app.utils.MessageUtil;
 import ch.threema.app.utils.MimeUtil;
 import ch.threema.app.utils.NameUtil;
@@ -3445,7 +3446,7 @@ public class MessageServiceImpl implements MessageService {
     ) {
         if (messageModel == null) {
             ContactMessageReceiver r = contactService.createReceiver(contactModel);
-            messageModel = r.createLocalModel(message.getMessageId(), MessageType.TEXT, MessageContentsType.TEXT, message.getTimestamp());
+            messageModel = r.createLocalModel(message.getMessageId(), MessageType.TEXT, MessageContentsType.TEXT, IncomingPostedAt.of(message));
             cache(messageModel);
 
             messageModel.setMessageFlags(message.getMessageFlags());
@@ -3692,7 +3693,7 @@ public class MessageServiceImpl implements MessageService {
 
         if (messageModel == null) {
             GroupMessageReceiver r = groupService.createReceiver(groupModel);
-            messageModel = r.createLocalModel(message.getMessageId(), MessageType.TEXT, MessageContentsType.TEXT, message.getTimestamp());
+            messageModel = r.createLocalModel(message.getMessageId(), MessageType.TEXT, MessageContentsType.TEXT, IncomingPostedAt.of(message));
             cache(messageModel);
 
             messageModel.setMessageFlags(message.getMessageFlags());
@@ -3796,7 +3797,7 @@ public class MessageServiceImpl implements MessageService {
         MessageReceiver r = groupService.createReceiver(groupModel);
 
         if (messageModel == null) {
-            messageModel = (GroupMessageModel) r.createLocalModel(message.getMessageId(), MessageType.LOCATION, MessageContentsType.LOCATION, message.getTimestamp());
+            messageModel = (GroupMessageModel) r.createLocalModel(message.getMessageId(), MessageType.LOCATION, MessageContentsType.LOCATION, IncomingPostedAt.of(message));
             cache(messageModel);
 
             messageModel.setMessageFlags(message.getMessageFlags());
@@ -3854,7 +3855,7 @@ public class MessageServiceImpl implements MessageService {
     ) {
         ContactMessageReceiver r = contactService.createReceiver(contactModel);
         if (messageModel == null) {
-            messageModel = r.createLocalModel(message.getMessageId(), MessageType.LOCATION, MessageContentsType.LOCATION, message.getTimestamp());
+            messageModel = r.createLocalModel(message.getMessageId(), MessageType.LOCATION, MessageContentsType.LOCATION, IncomingPostedAt.of(message));
             cache(messageModel);
             messageModel.setMessageFlags(message.getMessageFlags());
             messageModel.setOutbox(false);
@@ -3956,7 +3957,9 @@ public class MessageServiceImpl implements MessageService {
             final int insertIndex = UnreadDividerLocator.findDividerInsertIndex(flags);
             if (insertIndex > -1) {
                 FirstUnreadMessageModel firstUnreadMessageModel = new FirstUnreadMessageModel();
-                firstUnreadMessageModel.setCreatedAt(messageModels.get(insertIndex - 1).getCreatedAt());
+                // F1Whisper: the divider carries the timeline date of its message, like the day separators, so a delayed
+                // message does not get a phantom day heading around the divider.
+                firstUnreadMessageModel.setCreatedAt(TimelineKeyset.effectiveSortDate(messageModels.get(insertIndex - 1)));
                 messageModels.add(insertIndex, firstUnreadMessageModel);
             }
         }

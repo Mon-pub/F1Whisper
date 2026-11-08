@@ -5,6 +5,7 @@ import ch.threema.app.eventbus.events.MessageEvent
 import ch.threema.app.managers.ServiceManager
 import ch.threema.app.processors.incomingcspmessage.IncomingCspMessageSubTask
 import ch.threema.app.processors.incomingcspmessage.ReceiveStepsResult
+import ch.threema.app.utils.IncomingPostedAt
 import ch.threema.app.utils.MimeUtil
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.domain.models.AcquaintanceLevel
@@ -151,7 +152,7 @@ class IncomingContactFileMessageTask(
             // path as text quotes). Absent key => null => no header (unchanged behavior).
             fileDataModel.quotedApiMessageId?.let { quotedMessageId = it }
 
-            postedAt = message.timestamp
+            postedAt = IncomingPostedAt.of(message) // F1Whisper: a sender clock far ahead is clamped to the receive time
             createdAt = Instant.now()
 
             messageFlags = message.messageFlags

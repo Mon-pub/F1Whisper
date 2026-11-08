@@ -6,6 +6,7 @@ import ch.threema.app.managers.ServiceManager
 import ch.threema.app.processors.incomingcspmessage.IncomingCspMessageSubTask
 import ch.threema.app.processors.incomingcspmessage.ReceiveStepsResult
 import ch.threema.app.processors.incomingcspmessage.groupcontrol.runCommonGroupReceiveSteps
+import ch.threema.app.utils.IncomingPostedAt
 import ch.threema.app.utils.MimeUtil
 import ch.threema.base.utils.getThreemaLogger
 import ch.threema.data.datatypes.ConversationVisibility
@@ -169,7 +170,7 @@ class IncomingGroupFileMessageTask(
             // IncomingContactFileMessageTask for the full rationale. Absent => null => no header.
             fileDataModel.quotedApiMessageId?.let { quotedMessageId = it }
 
-            postedAt = message.timestamp
+            postedAt = IncomingPostedAt.of(message) // F1Whisper: a sender clock far ahead is clamped to the receive time
             createdAt = Instant.now()
 
             messageFlags = message.messageFlags

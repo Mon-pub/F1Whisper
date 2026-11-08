@@ -17,6 +17,7 @@ import ch.threema.app.protocolsteps.UserContact
 import ch.threema.app.protocolsteps.ValidContactsLookupSteps
 import ch.threema.app.services.ContactService
 import ch.threema.app.services.MessageService
+import ch.threema.app.services.TrustedClock
 import ch.threema.app.tasks.ActiveComposableTask
 import ch.threema.app.typingindicator.TypingIndicatorManager
 import ch.threema.base.crypto.Nonce
@@ -536,6 +537,9 @@ class IncomingMessageTask(
         message: AbstractMessage,
         handle: ActiveTaskCodec,
     ) {
+        // F1Whisper: when we received it, on the server-corrected clock (null unless a server sample was taken in this
+        // process). Lets a new incoming message whose sender clock runs far ahead be placed at its receive time.
+        message.trustedReceivedAtMillis = TrustedClock.trustedNowMillisOrNull()
         val result = try {
             getSubTaskFromMessage(message, TriggerSource.REMOTE, serviceManager, globalEventBuses, typingIndicatorManager).run(handle)
         } catch (e: Exception) {

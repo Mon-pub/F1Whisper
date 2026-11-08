@@ -49,6 +49,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.SearchView;
@@ -121,6 +122,7 @@ import ch.threema.storage.models.group.GroupModelOld;
 import ch.threema.storage.models.MessageType;
 import ch.threema.storage.models.data.LocationDataModel;
 import ch.threema.storage.models.data.MessageContentsType;
+import ch.threema.storage.models.data.media.FileDataModel;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -989,7 +991,7 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
                             if (messageModel.getFileData().getRenderingType() != FileData.RENDERING_DEFAULT) {
                                 mediaType = MimeUtil.getMediaTypeFromMimeType(mimeType, uri);
                             }
-                            sendForwardedMedia(messageReceivers, uri, caption, mediaType, mimeType, renderingType, messageModel.getFileData().getFileName(), messageModel.getFileData().getDurationMs());
+                            sendForwardedMedia(messageReceivers, uri, caption, mediaType, mimeType, renderingType, messageModel.getFileData().getFileName(), messageModel.getFileData().getDurationMs(), messageModel.getFileData());
                             break;
                         case LOCATION:
                             sendLocationMessage(messageReceivers, messageModel.getLocationData());
@@ -1155,6 +1157,7 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
                         // SendMediaActivity and the adapter, which reuses these MediaItem
                         // objects when sending.
                         mediaItem.setForwarded(true);
+                        copyLinkPreview(mediaItem, originalMessageModel.getFileData());
 
                         final @Nullable String existingFilename = originalMessageModel.getFileData().getFileName();
                         if (!isNullOrBlank(existingFilename)) {
@@ -1578,11 +1581,12 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
      */
 
     @AnyThread
-    private void sendForwardedMedia(final MessageReceiver[] messageReceivers, final Uri uri, final String caption, final int type, @Nullable final String mimeType, @FileData.RenderingType final int renderingType, final String filename, long durationMs) {
+    private void sendForwardedMedia(final MessageReceiver[] messageReceivers, final Uri uri, final String caption, final int type, @Nullable final String mimeType, @FileData.RenderingType final int renderingType, final String filename, long durationMs, @Nullable final FileDataModel originalFileData) {
         final MediaItem mediaItem = new MediaItem(uri, type);
         // F1Whisper: this media is a forward of an existing message; tag it so the sent copy carries
         // the "forwarded" metadata flag and renders a "Forwarded" header on both ends.
         mediaItem.setForwarded(true);
+        copyLinkPreview(mediaItem, originalFileData);
         if (mimeType != null) {
             mediaItem.setMimeType(mimeType);
         }
@@ -1605,6 +1609,24 @@ public class RecipientListBaseActivity extends ThreemaToolbarActivity implements
             }
         }
         dependencies.getMessageService().sendMediaSingleThread(Collections.singletonList(mediaItem), Arrays.asList(messageReceivers));
+    }
+
+    /**
+     * F1Whisper: a forwarded link preview keeps its card. The preview image is the file itself, but the card text
+     * (URL, title, description) lives in the original's file metadata, which a forward rebuilds from scratch. Copy
+     * only those three keys, never the whole metadata map. The receiver still hides the card when the URL is no
+     * longer in the caption (for example when the forwarder replaced the caption).
+     */
+    @VisibleForTesting
+    static void copyLinkPreview(@NonNull MediaItem mediaItem, @Nullable FileDataModel originalFileData) {
+        if (originalFileData == null || !originalFileData.isLinkPreview()) {
+            return;
+        }
+        final String url = originalFileData.getLinkPreviewUrl();
+        if (url == null) {
+            return;
+        }
+        mediaItem.setLinkPreview(url, originalFileData.getLinkPreviewTitle(), originalFileData.getLinkPreviewDescription());
     }
 
     @WorkerThread

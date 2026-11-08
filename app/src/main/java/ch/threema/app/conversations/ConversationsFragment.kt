@@ -348,6 +348,14 @@ class ConversationsFragment : MainFragment() {
             }
         }
 
+        // F1Whisper: the funnel above only filters chats by contact/group name. Message text search
+        // (the activity's "Search chats" entry) gets its own magnifier next to it on this tab.
+        // Other tabs re-inflate the activity menu on switch, so they keep it in the overflow.
+        menu.findItem(R.id.globalsearch)?.let { globalSearchMenuItem ->
+            globalSearchMenuItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+            context?.let { ConfigUtils.tintMenuIcon(it, globalSearchMenuItem, R.attr.colorOnSurface) }
+        }
+
         // Wrong state direction required here right now. As long as the options menu is still xml and created by the fragment
         viewModel.viewState.value?.hasPrivateConversations?.let { hasPrivateConversations ->
             setShowOrHidePrivateConversationsMenuItemVisible(
@@ -371,7 +379,7 @@ class ConversationsFragment : MainFragment() {
                 searchMenuItem = menu.findItem(R.id.menu_search_messages)
                 searchView = searchMenuItem.actionView as SearchView?
                 searchView?.let { searchView ->
-                    searchView.setQueryHint(getString(R.string.hint_search_list))
+                    searchView.setQueryHint(getString(R.string.hint_filter_list))
                     searchView.setOnQueryTextListener(queryTextListener)
                     if (!restoredSearchQuery.isNullOrEmpty()) {
                         // restore search

@@ -323,6 +323,7 @@ import ch.threema.domain.taskmanager.TriggerSource;
 import ch.threema.storage.DatabaseService;
 import ch.threema.storage.factories.RejectedGroupMessageFactory;
 import ch.threema.storage.PageCursor;
+import ch.threema.storage.TimelineKeyset;
 import ch.threema.storage.models.AbstractMessageModel;
 import ch.threema.storage.models.ContactModel;
 import ch.threema.storage.models.DateSeparatorMessageModel;
@@ -645,7 +646,6 @@ public class ComposeMessageFragment extends Fragment implements
     private GroupFlowDispatcher groupFlowDispatcher;
     private boolean isGroupChat = false;
     private GroupModel groupModel;
-    private Instant listInitializedAt;
     private boolean isDistributionListChat = false;
     private DistributionListService distributionListService;
     private DistributionListModel distributionListModel;
@@ -2182,7 +2182,7 @@ public class ComposeMessageFragment extends Fragment implements
                         if (composeMessageAdapter != null) {
                             AbstractMessageModel abstractMessageModel = composeMessageAdapter.getItem(firstVisibleItem);
                             if (abstractMessageModel != null) {
-                                final Instant createdAt = abstractMessageModel.getCreatedAt();
+                                final Instant createdAt = TimelineKeyset.effectiveSortDate(abstractMessageModel);
                                 if (createdAt != null) {
                                     final String text = LocaleUtil.formatDateRelative(createdAt);
                                     dateTextView.setText(text);
@@ -3297,6 +3297,36 @@ public class ComposeMessageFragment extends Fragment implements
         }
     }
 
+    /** True when a row with the same id is already in the list (date separators and dividers carry no row). */
+    private boolean isAlreadyListed(@NonNull AbstractMessageModel message) {
+        if (message.getId() <= 0) {
+            return false;
+        }
+        synchronized (this.messageValues) {
+            for (AbstractMessageModel existing : this.messageValues) {
+                if (existing != null
+                    && !(existing instanceof DateSeparatorMessageModel)
+                    && !(existing instanceof FirstUnreadMessageModel)
+                    && existing.getId() == message.getId()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @NonNull
+    private static Instant timelineDateOrNow(@NonNull AbstractMessageModel message) {
+        final @Nullable Instant date = TimelineKeyset.effectiveSortDate(message);
+        return date != null ? date : Instant.now();
+    }
+
+    @NonNull
+    private static Instant timelineDateOrEpoch(@Nullable AbstractMessageModel message) {
+        final @Nullable Instant date = message != null ? TimelineKeyset.effectiveSortDate(message) : null;
+        return date != null ? date : Instant.EPOCH;
+    }
+
     @UiThread
     private boolean addMessageToList(AbstractMessageModel message) {
         if (message == null || this.messageReceiver == null || this.composeMessageAdapter == null) {
@@ -3308,23 +3338,16 @@ public class ComposeMessageFragment extends Fragment implements
             openPollNoticeView.update();
         }
 
-        // check if the message already added
-        // F1Whisper: exempt outbox messages from the "already loaded" guard. This guard skips
-        // pre-existing history during async list loads by comparing createdAt against the raw-clock
-        // listInitializedAt watermark. Since v6.4.3-30 (TrustedClock), an outgoing message's
-        // createdAt is stamped on the server-corrected clock (system + offset); on a phone whose
-        // clock runs ahead of the OnPrem server the offset is negative, so a just-composed outgoing
-        // message's createdAt lands BEFORE the raw watermark and was silently dropped from the live
-        // list (it only appeared after closing+reopening the chat, which reloads from the DB). An
-        // outbox message reaching onNew was just created this session by fireOnCreatedMessage and can
-        // never be pre-load history, so the historical-dedup check must not apply to it. The incoming
-        // path (raw-clock createdAt vs raw-clock watermark) is left untouched.
-        if (!message.isOutbox() && this.listInitializedAt != null && message.getCreatedAt().isBefore(this.listInitializedAt)) {
+        if (!this.messageReceiver.isMessageBelongsToMe(message)) {
+            //do nothing, not my thread
             return false;
         }
 
-        if (!this.messageReceiver.isMessageBelongsToMe(message)) {
-            //do nothing, not my thread
+        // F1Whisper: skip a message that is already shown, by row id. This replaces a watermark that compared the
+        // message's createdAt (server-corrected clock) with the raw device clock at list load: on a phone whose clock
+        // runs ahead, every new incoming message looked older than the list and was dropped until the chat was
+        // reopened. A row id has no clock.
+        if (isAlreadyListed(message)) {
             return false;
         }
 
@@ -3333,12 +3356,16 @@ public class ComposeMessageFragment extends Fragment implements
         this.composeMessageAdapter.removeFirstUnreadPosition();
 
         // if previous message is from another date, add a date separator
+        // F1Whisper: compare timeline dates (the time each row is sorted by), not the device clock.
         synchronized (this.messageValues) {
             int size = this.messageValues.size();
-            Instant date = Instant.now();
-            Instant createdAt = size > 0 ? this.messageValues.get(size - 1).getCreatedAt() : Instant.EPOCH;
+            Instant date = timelineDateOrNow(message);
+            Instant createdAt = size > 0 ? timelineDateOrEpoch(this.messageValues.get(size - 1)) : Instant.EPOCH;
 
-            if (!isSameDayAs(date, createdAt)) {
+            // A live message is appended at the end. Only a LATER day opens a new section: a delayed message with an
+            // older time joins the current section (it moves to its place when the chat is reopened) rather than
+            // adding a day heading that goes backwards.
+            if (date.isAfter(createdAt) && !isSameDayAs(date, createdAt)) {
                 final DateSeparatorMessageModel dateSeparatorMessageModel = new DateSeparatorMessageModel();
                 dateSeparatorMessageModel.setCreatedAt(date);
                 this.messageValues.add(size, dateSeparatorMessageModel);
@@ -3619,7 +3646,7 @@ public class ComposeMessageFragment extends Fragment implements
                     }
                     AbstractMessageModel topmostMessage = this.messageValues.get(0);
                     if (topmostMessage != null) {
-                        Instant topmostDate = topmostMessage.getCreatedAt();
+                        Instant topmostDate = TimelineKeyset.effectiveSortDate(topmostMessage);
                         if (topmostDate != null) {
                             date = topmostDate;
                         }
@@ -3658,12 +3685,12 @@ public class ComposeMessageFragment extends Fragment implements
                     continue;
                 }
 
-                Instant createdAt = m.getCreatedAt();
+                Instant createdAt = TimelineKeyset.effectiveSortDate(m);
                 if (createdAt != null) {
                     if (!isSameDayAs(date, createdAt)) {
                         if (!this.messageValues.isEmpty()) {
                             final DateSeparatorMessageModel dateSeparatorMessageModel = new DateSeparatorMessageModel();
-                            dateSeparatorMessageModel.setCreatedAt(this.messageValues.get(0).getCreatedAt());
+                            dateSeparatorMessageModel.setCreatedAt(TimelineKeyset.effectiveSortDate(this.messageValues.get(0)));
                             this.messageValues.add(0, dateSeparatorMessageModel);
                         }
                         date = createdAt;
@@ -3676,11 +3703,10 @@ public class ComposeMessageFragment extends Fragment implements
             if (!this.messageValues.isEmpty() && !(this.messageValues.get(0) instanceof DateSeparatorMessageModel)) {
                 // add topmost date separator
                 final DateSeparatorMessageModel dateSeparatorMessageModel = new DateSeparatorMessageModel();
-                dateSeparatorMessageModel.setCreatedAt(this.messageValues.get(0).getCreatedAt());
+                dateSeparatorMessageModel.setCreatedAt(TimelineKeyset.effectiveSortDate(this.messageValues.get(0)));
                 this.messageValues.add(0, dateSeparatorMessageModel);
             }
 
-            this.listInitializedAt = Instant.now();
 
             insertedSize = this.messageValues.size() - initialSize;
         }

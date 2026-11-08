@@ -334,7 +334,7 @@ abstract class WatchConversationListItemsUseCase(
             isOutbox = messageModel.isOutbox,
             isDeleted = messageModel.isDeleted,
             postedAt = messageModel.postedAt,
-            modifiedAt = messageModel.modifiedAt,
+            createdAt = messageModel.createdAt,
             mentionNames = mentionNames,
         )
     }

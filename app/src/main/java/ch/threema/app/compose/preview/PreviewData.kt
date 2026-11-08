@@ -47,7 +47,7 @@ object PreviewData {
         fun incomingTextMessage(
             body: String?,
             postedAt: Instant = Instant.now(),
-            modifiedAt: Instant = Instant.now(),
+            createdAt: Instant = Instant.now(),
             mentionNames: Map<Identity, ResolvableString> = PreviewData.mentionNames,
         ) = ConversationUiModel.LatestMessageData(
             type = MessageType.TEXT,
@@ -56,14 +56,14 @@ object PreviewData {
             isOutbox = false,
             isDeleted = false,
             postedAt = postedAt,
-            modifiedAt = modifiedAt,
+            createdAt = createdAt,
             mentionNames = mentionNames,
         )
 
         fun incomingFileMessage(
             caption: String?,
             postedAt: Instant = Instant.now(),
-            modifiedAt: Instant = Instant.now(),
+            createdAt: Instant = Instant.now(),
             mentionNames: Map<Identity, ResolvableString> = PreviewData.mentionNames,
         ) = ConversationUiModel.LatestMessageData(
             type = MessageType.FILE,
@@ -72,7 +72,7 @@ object PreviewData {
             isOutbox = false,
             isDeleted = false,
             postedAt = postedAt,
-            modifiedAt = modifiedAt,
+            createdAt = createdAt,
             mentionNames = mentionNames,
         )
 
@@ -83,7 +83,7 @@ object PreviewData {
             isOutbox = false,
             isDeleted = true,
             postedAt = Instant.now(),
-            modifiedAt = Instant.now(),
+            createdAt = Instant.now(),
             mentionNames = mentionNames,
         )
     }

@@ -12,6 +12,7 @@ import ch.threema.app.services.MessageService
 import ch.threema.app.services.notification.NotificationService
 import ch.threema.app.tasks.OutgoingGroupCallStartTask
 import ch.threema.app.utils.ConfigUtils
+import ch.threema.app.utils.IncomingPostedAt
 import ch.threema.app.voip.CallAudioManager
 import ch.threema.app.voip.activities.GroupCallActivity
 import ch.threema.app.voip.groupcall.service.GroupCallService
@@ -661,7 +662,8 @@ class GroupCallManagerImpl(
                 group,
                 message.fromIdentity,
                 isOutbox,
-                message.timestamp,
+                // F1Whisper: a caller clock far ahead is clamped to the receive time (own starts are kept as sent).
+                if (isOutbox) message.timestamp else IncomingPostedAt.of(message),
             )
         }
 

@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_search_contacts"
-        android:icon="@drawable/ic_search_outline"
-        android:title="@string/search_list"
+        android:icon="@drawable/ic_outline_filter_alt_24"
+        android:title="@string/filter_list"
         app:actionViewClass="ch.threema.app.ui.ThreemaSearchView"
         app:iconTint="?attr/colorOnSurface"
         app:showAsAction="never|collapseActionView" />

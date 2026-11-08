@@ -349,6 +349,14 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
 
         applyContentColor(viewHolder, getUiContentColor(getMessageModel(), context));
 
+        // F1Whisper: incoming images and videos share one view type, so a recycled holder can still show
+        // the link-preview card of the previous message (another sender's title/description under this
+        // video). Only FileChatAdapterDecorator owns the card and re-shows it for a real preview, so
+        // every other decorator must start from hidden.
+        if (viewHolder.linkPreviewInfo != null) {
+            viewHolder.linkPreviewInfo.setVisibility(View.GONE);
+        }
+
         //configure the chat message
         configureChatMessage(viewHolder, context, position);
 
@@ -426,7 +434,7 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
                 context,
                 messageModel.getPostedAt(),
                 messageModel.isOutbox(),
-                messageModel.getModifiedAt(),
+                messageModel.getCreatedAt(),
                 true
             );
             if (displayDate == null) {
@@ -575,7 +583,7 @@ abstract public class ChatAdapterDecorator extends AdapterDecorator implements L
                 context,
                 getMessageModel().getPostedAt(),
                 getMessageModel().isOutbox(),
-                getMessageModel().getModifiedAt(),
+                getMessageModel().getCreatedAt(),
                 true
             ));
         }

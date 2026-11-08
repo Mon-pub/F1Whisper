@@ -48,20 +48,13 @@ public final class LinkPreviewFetcher {
     private static final int MAX_IMAGE_DIMENSION = 1024;
     private static final int IMAGE_JPEG_QUALITY = 80;
 
-    // A neutral desktop UA: many sites only emit Open Graph tags for "browser" user agents.
-    private static final String USER_AGENT =
+    // Sites serve page-specific Open Graph tags to link-preview crawlers and often only a generic shell (or a bot
+    // challenge) to browsers, so ask as a crawler first, like Signal does. One retry with a browser UA covers the
+    // sites that do the opposite.
+    private static final String CRAWLER_USER_AGENT = "WhatsApp/2";
+    private static final String BROWSER_USER_AGENT =
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
             + "Chrome/120.0 Safari/537.36";
-
-    private static final Pattern OG_TAG_PATTERN = Pattern.compile(
-        "<\\s*meta[^>]*property\\s*=\\s*[\"']\\s*og:([^\"']+)[\"'][^>]*>",
-        Pattern.CASE_INSENSITIVE);
-    private static final Pattern CONTENT_PATTERN = Pattern.compile(
-        "content\\s*=\\s*[\"']([^\"']*)[\"']",
-        Pattern.CASE_INSENSITIVE);
-    private static final Pattern TITLE_PATTERN = Pattern.compile(
-        "<\\s*title[^>]*>(.*?)<\\s*/\\s*title\\s*>",
-        Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private static final Pattern CHARSET_PATTERN = Pattern.compile(
         "charset\\s*=\\s*[\"']?\\s*([a-zA-Z0-9\\-_]+)",
         Pattern.CASE_INSENSITIVE);
@@ -106,53 +99,32 @@ public final class LinkPreviewFetcher {
             return null;
         }
         try {
-            final Request request = new Request.Builder()
-                .url(rawUrl)
-                .header("User-Agent", USER_AGENT)
-                .header("Accept", "text/html,application/xhtml+xml")
-                .cacheControl(okhttp3.CacheControl.FORCE_NETWORK)
-                .build();
-
-            String title = null;
-            String description = null;
-            String imageUrl = null;
-            byte[] imageBytes = null;
-
-            try (Response response = getClient().newCall(request).execute()) {
-                if (!response.isSuccessful()) {
-                    return null;
-                }
-                final ResponseBody body = response.body();
-                if (body == null) {
-                    return null;
-                }
-
-                final MediaType contentType = body.contentType();
-                // If the URL itself is an image, use it directly as the preview image.
-                if (contentType != null && "image".equalsIgnoreCase(contentType.type())) {
-                    final byte[] raw = readCapped(body.byteStream(), MAX_IMAGE_BYTES);
-                    imageBytes = reencodeImage(raw);
-                    return imageBytes != null
-                        ? new LinkPreviewResult(rawUrl, null, null, imageBytes)
-                        : null;
-                }
-
-                final byte[] htmlBytes = readCapped(body.byteStream(), MAX_HTML_BYTES);
-                final String html = decodeHtml(htmlBytes, contentType);
-
-                final OpenGraph og = parseOpenGraph(html);
-                title = og.title;
-                description = og.description;
-                imageUrl = og.imageUrl;
+            PageAttempt attempt = fetchPage(rawUrl, CRAWLER_USER_AGENT);
+            if (attempt.shouldRetryAsBrowser()) {
+                logger.debug("Link preview: crawler response unusable, retrying as browser");
+                attempt = fetchPage(rawUrl, BROWSER_USER_AGENT);
+            }
+            if (attempt.directImage != null) {
+                return new LinkPreviewResult(rawUrl, null, null, attempt.directImage);
+            }
+            final LinkPreviewHtmlParser.Metadata metadata = attempt.metadata;
+            if (metadata == null || attempt.challenge) {
+                return null;
             }
 
-            // Resolve a (possibly relative) image URL against the page URL, then re-validate + fetch.
-            if (imageUrl != null && !imageUrl.isBlank()) {
-                final HttpUrl base = HttpUrl.parse(rawUrl);
+            final String title = cleanField(metadata.title);
+            final String description = cleanField(metadata.description);
+            byte[] imageBytes = null;
+
+            // Resolve a (possibly relative) image URL against the FINAL page URL (after redirects), then
+            // re-validate + fetch.
+            final String imageUrl = metadata.imageUrl != null ? decodeEntities(metadata.imageUrl).trim() : null;
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                final HttpUrl base = attempt.finalUrl != null ? attempt.finalUrl : HttpUrl.parse(rawUrl);
                 final HttpUrl resolved = base != null ? base.resolve(imageUrl) : HttpUrl.parse(imageUrl);
                 final String resolvedStr = resolved != null ? resolved.toString() : null;
                 if (LinkPreviewValidator.isValidPreviewUrl(resolvedStr)) {
-                    imageBytes = fetchImage(resolvedStr);
+                    imageBytes = fetchImage(resolvedStr, attempt.userAgent);
                 }
             }
 
@@ -166,12 +138,88 @@ public final class LinkPreviewFetcher {
         }
     }
 
+    /** One page request: either a direct image, parsed HTML metadata, or a failure that may deserve a retry. */
+    private static final class PageAttempt {
+        final String userAgent;
+        @Nullable
+        HttpUrl finalUrl;
+        @Nullable
+        byte[] directImage;
+        @Nullable
+        LinkPreviewHtmlParser.Metadata metadata;
+        boolean challenge;
+        boolean botDenied;
+        boolean image;
+
+        PageAttempt(String userAgent) {
+            this.userAgent = userAgent;
+        }
+
+        boolean shouldRetryAsBrowser() {
+            if (!CRAWLER_USER_AGENT.equals(userAgent) || image) {
+                return false;
+            }
+            return botDenied || challenge || metadata == null || !metadata.isUsable();
+        }
+    }
+
+    private static PageAttempt fetchPage(String url, String userAgent) throws IOException {
+        final PageAttempt attempt = new PageAttempt(userAgent);
+        final Request request = new Request.Builder()
+            .url(url)
+            .header("User-Agent", userAgent)
+            .header("Accept", "text/html,application/xhtml+xml")
+            .cacheControl(okhttp3.CacheControl.FORCE_NETWORK)
+            .build();
+
+        try (Response response = getClient().newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                attempt.botDenied = isBotDenialStatus(response.code());
+                return attempt;
+            }
+            final ResponseBody body = response.body();
+            if (body == null) {
+                return attempt;
+            }
+            attempt.finalUrl = response.request().url();
+
+            final MediaType contentType = body.contentType();
+            // If the URL itself is an image, use it directly as the preview image.
+            if (contentType != null && "image".equalsIgnoreCase(contentType.type())) {
+                attempt.image = true;
+                attempt.directImage = reencodeImage(readCapped(body.byteStream(), MAX_IMAGE_BYTES));
+                return attempt;
+            }
+
+            // A huge page still has its metadata in the head: parse the capped prefix instead of failing.
+            final byte[] htmlBytes = readPrefix(body.byteStream(), MAX_HTML_BYTES);
+            final String html = LinkPreviewHtmlParser.dropUnfinishedTag(decodeHtml(htmlBytes, contentType));
+            attempt.metadata = LinkPreviewHtmlParser.parse(html);
+            final String title = attempt.metadata.title != null ? decodeEntities(attempt.metadata.title) : null;
+            attempt.challenge = LinkPreviewHtmlParser.isChallengePage(html, title);
+        }
+        return attempt;
+    }
+
+    private static boolean isBotDenialStatus(int code) {
+        return code == 403 || code == 406 || code == 429 || code == 503;
+    }
+
     @Nullable
-    private static byte[] fetchImage(String imageUrl) {
+    private static String cleanField(@Nullable String raw) {
+        if (raw == null) {
+            return null;
+        }
+        final String cleaned = truncate(LinkPreviewHtmlParser.cleanText(decodeEntities(raw)));
+        return cleaned == null || cleaned.isEmpty() ? null : cleaned;
+    }
+
+    @Nullable
+    private static byte[] fetchImage(String imageUrl, String userAgent) {
         try {
             final Request request = new Request.Builder()
                 .url(imageUrl)
-                .header("User-Agent", USER_AGENT)
+                .header("User-Agent", userAgent)
                 .cacheControl(okhttp3.CacheControl.FORCE_NETWORK)
                 .build();
             try (Response response = getClient().newCall(request).execute()) {
@@ -242,6 +290,19 @@ public final class LinkPreviewFetcher {
         return out.toByteArray();
     }
 
+    /** Read at most {@code max} bytes and stop; unlike {@link #readCapped} a longer body is not an error. */
+    private static byte[] readPrefix(InputStream in, long max) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final byte[] buffer = new byte[8192];
+        long total = 0;
+        int read;
+        while (total < max && (read = in.read(buffer, 0, (int) Math.min(buffer.length, max - total))) != -1) {
+            out.write(buffer, 0, read);
+            total += read;
+        }
+        return out.toByteArray();
+    }
+
     private static String decodeHtml(byte[] bytes, @Nullable MediaType contentType) {
         Charset charset = null;
         if (contentType != null) {
@@ -263,49 +324,6 @@ public final class LinkPreviewFetcher {
             charset = StandardCharsets.UTF_8;
         }
         return new String(bytes, charset);
-    }
-
-    private static OpenGraph parseOpenGraph(String html) {
-        final OpenGraph og = new OpenGraph();
-        final Matcher tagMatcher = OG_TAG_PATTERN.matcher(html);
-        while (tagMatcher.find()) {
-            final String property = tagMatcher.group(1);
-            final String tag = tagMatcher.group();
-            final Matcher contentMatcher = CONTENT_PATTERN.matcher(tag);
-            if (property == null || !contentMatcher.find()) {
-                continue;
-            }
-            final String value = decodeEntities(contentMatcher.group(1));
-            switch (property.trim().toLowerCase()) {
-                case "title":
-                    if (og.title == null) {
-                        og.title = truncate(value);
-                    }
-                    break;
-                case "description":
-                    if (og.description == null) {
-                        og.description = truncate(value);
-                    }
-                    break;
-                case "image":
-                case "image:url":
-                case "image:secure_url":
-                    if (og.imageUrl == null) {
-                        og.imageUrl = value;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (og.title == null || og.title.isBlank()) {
-            final Matcher titleMatcher = TITLE_PATTERN.matcher(html);
-            if (titleMatcher.find()) {
-                og.title = truncate(decodeEntities(titleMatcher.group(1)));
-            }
-        }
-        return og;
     }
 
     @Nullable
@@ -331,14 +349,5 @@ public final class LinkPreviewFetcher {
         } catch (Exception e) {
             return s;
         }
-    }
-
-    private static final class OpenGraph {
-        @Nullable
-        String title;
-        @Nullable
-        String description;
-        @Nullable
-        String imageUrl;
     }
 }

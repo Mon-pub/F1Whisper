@@ -7,6 +7,7 @@ import ch.threema.app.managers.ServiceManager
 import ch.threema.app.multidevice.linking.DeviceLinkingCancelledException
 import ch.threema.app.multidevice.linking.DeviceLinkingStatus
 import ch.threema.app.services.ContactService
+import ch.threema.app.services.TrustedClock
 import ch.threema.app.services.UserService
 import ch.threema.app.stores.EncryptedPreferenceStore
 import ch.threema.app.stores.PreferenceStore
@@ -53,6 +54,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 private val logger = getThreemaLogger("MultiDeviceManagerImpl")
+
+/** 2020-01-01 .. 2100-01-01 in milliseconds: rejects zero, garbage and a value accidentally sent in seconds. */
+private val MEDIATOR_TIME_PLAUSIBLE_RANGE_MS = 1_577_836_800_000uL..4_102_444_800_000uL
 
 /**
  * ONLY SET THIS TO `false` WHEN D2D IS IMPLEMENTED AND DOES NOT SUPPORT PFS!!
@@ -451,6 +455,7 @@ class MultiDeviceManagerImpl(
     @AnyThread
     private fun updateServerInfo(serverInfo: InboundD2mMessage.ServerInfo) {
         this.serverInfo = serverInfo
+        feedTrustedClock(serverInfo.currentTime)
         // TODO(ANDR-2580): Trigger whatever is required based on the server info
         CoroutineScope(Dispatchers.Default).launch {
             preferenceStore.save(
@@ -459,6 +464,18 @@ class MultiDeviceManagerImpl(
             )
             updateRegistrationTime()
         }
+    }
+
+    /**
+     * F1Whisper: the mediator reports its time (milliseconds) at every login. It is our pinned server, so the clock
+     * takes it as an authoritative sample, synchronously, before anything else of this session is stamped.
+     */
+    private fun feedTrustedClock(currentTime: ULong) {
+        if (currentTime !in MEDIATOR_TIME_PLAUSIBLE_RANGE_MS) {
+            logger.info("Ignoring implausible mediator time {}", currentTime)
+            return
+        }
+        TrustedClock.onMediatorTimeSample(currentTime.toLong())
     }
 
     @AnyThread

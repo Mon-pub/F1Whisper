@@ -71,6 +71,9 @@ import org.koin.core.component.inject
 
 private val logger = getThreemaLogger("IncomingReflectedMessageTask")
 
+/** 2020-01-01 to 2100-01-01: anything outside is not a usable reflect time. */
+private val PLAUSIBLE_REFLECT_TIME_MS = 1_577_836_800_000uL..4_102_444_800_000uL
+
 class IncomingReflectedMessageTask(
     private val message: InboundD2mMessage.Reflected,
     private val serviceManager: ServiceManager,
@@ -302,9 +305,15 @@ class IncomingReflectedMessageTask(
             } else {
                 logger.debug("Do not store nonces for message of type {}", incomingMessage.type)
             }
+            // F1Whisper: the mediator's reflect time is when this message reached the device group (server clock), also
+            // when an old reflection is processed much later.
+            message.trustedReceivedAtMillis = reflectTimeMillisOrNull()
             getSubTaskFromMessage(message, TriggerSource.SYNC, serviceManager, globalEventBuses, typingIndicatorManager).run(handle)
         }
     }
+
+    private fun reflectTimeMillisOrNull(): Long? =
+        message.timestamp.takeIf { it in PLAUSIBLE_REFLECT_TIME_MS }?.toLong()
 
     private fun <T : AbstractMessage> fromReflected(message: IncomingMessage, toMessageModel: (bodyBytes: ByteArray) -> T): T {
         val messageModel = toMessageModel(message.body.toByteArray())

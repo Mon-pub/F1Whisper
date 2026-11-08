@@ -51,13 +51,13 @@ public class MessageUtil {
         @NonNull Context context,
         @Nullable Instant postedAt,
         boolean isOutbox,
-        @Nullable Instant modifiedAt,
+        @Nullable Instant createdAt,
         boolean full
     ) {
-        if (postedAt == null && modifiedAt == null) {
+        if (postedAt == null && createdAt == null) {
             return "";
         }
-        final @Nullable Instant date = getDisplayDate(postedAt, isOutbox, modifiedAt);
+        final @Nullable Instant date = getDisplayDate(postedAt, isOutbox, createdAt);
         if (date != null) {
             return LocaleUtil.formatTimeStampString(context, date, full);
         } else {
@@ -65,14 +65,20 @@ public class MessageUtil {
         }
     }
 
+    /**
+     * The time shown for a message. F1Whisper: an outgoing message shows when it was written ({@code createdAt}, the
+     * server-corrected compose time it is also sorted by), not when its last receipt arrived ({@code modifiedAt}): a
+     * receipt carries the other phone's clock, so a contact days ahead moved our own bubbles days ahead. Delivered and
+     * read times stay in the message details.
+     */
     @Nullable
     public static Instant getDisplayDate(
         @Nullable Instant postedAt,
         boolean isOutbox,
-        @Nullable Instant modifiedAt
+        @Nullable Instant createdAt
     ) {
-        if (isOutbox && modifiedAt != null) {
-            return modifiedAt;
+        if (isOutbox && createdAt != null) {
+            return createdAt;
         } else {
             return postedAt;
         }
@@ -82,9 +88,9 @@ public class MessageUtil {
     public static Instant getDisplayInstant(
         @Nullable Instant postedAt,
         boolean isOutbox,
-        @Nullable Instant modifiedAt
+        @Nullable Instant createdAt
     ) {
-        return getDisplayDate(postedAt, isOutbox, modifiedAt);
+        return getDisplayDate(postedAt, isOutbox, createdAt);
     }
 
     public static boolean hasDataFile(AbstractMessageModel messageModel) {

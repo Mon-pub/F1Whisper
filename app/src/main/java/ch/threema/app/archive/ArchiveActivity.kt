@@ -159,7 +159,7 @@ class ArchiveActivity : ThreemaToolbarActivity(), DialogClickListener, SearchVie
         val searchView = searchMenu.actionView as ThreemaSearchView?
         if (searchView != null) {
             searchView.maxWidth = Integer.MAX_VALUE
-            searchView.queryHint = getString(R.string.hint_search_list)
+            searchView.queryHint = getString(R.string.hint_filter_list)
             if (!searchQuery.isNullOrEmpty()) {
                 searchMenu.expandActionView()
                 searchView.setQuery(searchQuery, false)

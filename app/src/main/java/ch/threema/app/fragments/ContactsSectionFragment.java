@@ -538,7 +538,7 @@ public class ContactsSectionFragment
                             searchView.clearFocus();
                         });
                     }
-                    this.searchView.setQueryHint(getString(R.string.hint_search_list));
+                    this.searchView.setQueryHint(getString(R.string.hint_filter_list));
                     this.searchView.setOnQueryTextListener(queryTextListener);
                 }
             }

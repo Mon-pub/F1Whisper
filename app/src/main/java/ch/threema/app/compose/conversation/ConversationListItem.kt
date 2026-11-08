@@ -757,7 +757,7 @@ private fun SecondLineMessage(
     val latestMessageDisplayDate: String = remember(
         latestMessageData.postedAt,
         latestMessageData.isOutbox,
-        latestMessageData.modifiedAt,
+        latestMessageData.createdAt,
         localDayOfYear,
     ) {
         latestMessageData.getDisplayDate(context)
@@ -951,8 +951,8 @@ private fun ConversationUiModel.LatestMessageData.getDisplayDate(context: Contex
         postedAt,
         /* isOutbox = */
         isOutbox,
-        /* modifiedAt = */
-        modifiedAt,
+        /* createdAt = */
+        createdAt,
         /* full = */
         false,
     )

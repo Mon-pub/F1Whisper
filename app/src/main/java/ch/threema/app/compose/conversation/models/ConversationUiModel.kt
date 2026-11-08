@@ -102,10 +102,10 @@ sealed interface ConversationUiModel {
 
     /**
      * Can be marked as [Immutable] because we guarantee that we never use deprecated setter functions from [java.util.Date] on [postedAt] and
-     * [modifiedAt].
+     * [createdAt].
      *
      * @param postedAt     *Never* mutate value using the deprecated setter functions from [java.util.Date]
-     * @param modifiedAt   *Never* mutate value using the deprecated setter functions from [java.util.Date]
+     * @param createdAt    *Never* mutate value using the deprecated setter functions from [java.util.Date]
      * @param mentionNames A map containing the [ResolvableString]s for all potential mentions in [body] or [caption]
      */
     @Immutable
@@ -116,7 +116,7 @@ sealed interface ConversationUiModel {
         val isOutbox: Boolean,
         val isDeleted: Boolean,
         val postedAt: Instant?,
-        val modifiedAt: Instant?,
+        val createdAt: Instant?,
         val mentionNames: Map<Identity, ResolvableString>,
     )
 

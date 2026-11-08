@@ -37,6 +37,13 @@ public abstract class AbstractMessage implements MessageTypeProperties, MessageF
     @Nullable
     private Integer disappearingTimerSeconds;
 
+    /**
+     * F1Whisper: when this device received the message, on the server-corrected clock, or {@code null} when that is
+     * not known reliably. Local receive context only: never serialized, never reflected, never part of the message.
+     */
+    @Nullable
+    private Long trustedReceivedAtMillis;
+
     public AbstractMessage() {
         this.timestamp = Instant.now();
         this.messageId = MessageId.random();
@@ -169,6 +176,15 @@ public abstract class AbstractMessage implements MessageTypeProperties, MessageF
             | (flagNoServerAck() ? ProtocolDefines.MESSAGE_FLAG_NO_SERVER_ACK : 0)
             | (flagGroupMessage() ? ProtocolDefines.MESSAGE_FLAG_GROUP : 0)
             | (flagShortLivedServerQueuing() ? ProtocolDefines.MESSAGE_FLAG_SHORT_LIVED : 0);
+    }
+
+    @Nullable
+    public Long getTrustedReceivedAtMillis() {
+        return trustedReceivedAtMillis;
+    }
+
+    public void setTrustedReceivedAtMillis(@Nullable Long trustedReceivedAtMillis) {
+        this.trustedReceivedAtMillis = trustedReceivedAtMillis;
     }
 
     public ForwardSecurityMode getForwardSecurityMode() {

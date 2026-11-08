@@ -198,7 +198,7 @@ public class UserListAdapter extends FilterableListAdapter {
                     this.context,
                     messageModel.getPostedAt(),
                     messageModel.isOutbox(),
-                    messageModel.getModifiedAt(),
+                    messageModel.getCreatedAt(),
                     false
                 );
             }

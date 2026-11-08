@@ -380,7 +380,7 @@ public class MediaViewerActivity extends ThreemaToolbarActivity implements Expan
                 this,
                 messageModel.getPostedAt(),
                 messageModel.isOutbox(),
-                messageModel.getModifiedAt(),
+                messageModel.getCreatedAt(),
                 true
             );
         }

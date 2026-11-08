@@ -20,8 +20,8 @@ class DeletedChatAdapterDecorator(
             messageModel.postedAt,
             /* isOutbox = */
             messageModel.isOutbox,
-            /* modifiedAt = */
-            messageModel.modifiedAt,
+            /* createdAt = */
+            messageModel.createdAt,
             /* full = */
             true,
         )
